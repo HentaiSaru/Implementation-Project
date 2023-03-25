@@ -1,5 +1,5 @@
 import java.util.*;
-public class KeyGenerator extends Thread{
+public class KeyGenerator extends Thread implements StringOutput{
     public static void main(String[] argv){
         Scanner scanner = new Scanner(System.in);
         InitialText InitialSetting = new InitialText();
@@ -8,7 +8,7 @@ public class KeyGenerator extends Thread{
 
         //? 程式開始時畫面顯示
         try{
-            for(i=0;i<InitialSetting.welcome.length;i++){
+            for(i=0;i<welcome.length;i++){
                 System.out.print(InitialSetting._welcome(i));
                 Thread.sleep(100);
             }
@@ -18,17 +18,17 @@ public class KeyGenerator extends Thread{
         /**
          **@輸入生成密鑰的長度
          */
-        System.out.print(InitialSetting.KeyLength);
+        System.out.print(KeyLength);
         try{
             InitialSetting._KeyLength = scanner.nextInt();
             System.out.println("\n");   
-        }catch(Exception e){System.out.println("輸入錯誤請輸入數字,程式已終止...");return;}
+        }catch(Exception e){System.out.println("輸入錯誤請輸入數字,程式已終止...");scanner.close();return;}
 
 
         /**
          **@輸入生成密鑰的數量 
          */
-        System.out.print(InitialSetting.NumberOfKeysToGenerate);
+        System.out.print(NumberOfKeysToGenerate);
         try{
             InitialSetting._NumberOfKeysToGenerate = scanner.nextInt();
             System.out.println("\n");
@@ -38,18 +38,18 @@ public class KeyGenerator extends Thread{
         /**
          **@選擇是否更改密鑰生成格式
          */
-        System.out.print(InitialSetting.Formatting);
+        System.out.print(Formatting);
         try{
             InitialSetting.FormattingYesORNo = scanner.next();
             System.out.println("\n");
-        }catch(Exception e){System.out.println("輸入錯誤請輸(Y/N),程式已終止...");return;}
+        }catch(Exception e){System.out.println("輸入錯誤請輸(Y/N),程式已終止...");scanner.close();return;}
 
 
         /**
          **@如果同意更改格式 
          */
         if(InitialSetting.RFormattingYesORNo().equals("y") == true){
-            System.out.print(InitialSetting.FormatJudgment);
+            System.out.print(FormatJudgment);
             try{
                 InitialSetting._FormatJudgment = scanner.nextInt();
                 System.out.println("\n");
@@ -71,7 +71,6 @@ public class KeyGenerator extends Thread{
     }
 }
 interface StringOutput{
-
     String[] welcome = {"歡","迎","來","到","密","鑰","產","生","器"};
     String KeyLength = "請輸入產生密鑰長度(數字)--> ";
     String Formatting = "是否要設定生成格式,預設格式為小寫英文+數字(Y/N)--> ";
@@ -94,7 +93,6 @@ class InitialText implements StringOutput{
     String _welcome(int value){
         return welcome[value];
     }
-
 
     /**
      * @return

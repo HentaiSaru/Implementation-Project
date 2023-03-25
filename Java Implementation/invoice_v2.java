@@ -1,7 +1,7 @@
 /***
  @
- * todo ¥½¤T½Xµo²¼§I¼úµ{¦¡½X
- * ! ¥H¤U¨è·N±Ä¨ú¸ûÁcº¾ªº¤è¦¡ §@¬°½m²ß¨Ï¥Î
+ * todo æœ«ä¸‰ç¢¼ç™¼ç¥¨å…Œçç¨‹å¼ç¢¼
+ * ! ä»¥ä¸‹åˆ»æ„æ¡å–è¼ƒç¹ç‘£çš„æ–¹å¼ ä½œç‚ºç·´ç¿’ä½¿ç”¨
  @ 
 */
 import java.util.*;
@@ -11,25 +11,25 @@ import java.io.*;
 public class invoice_v2 {
     public static void main(String[] argv) {
         String fp1 , fp2 , fp3 , fp4 , fp5 , fp6;
-        bill fp = new bill();                   //  ?¹ê¨Ò¤Æ
-        Scanner sc = new Scanner(System.in);    //  ?¨ú¨Ï¥ÎªÌ¿é¤J
+        bill fp = new bill();                   //  ?å¯¦ä¾‹åŒ–
+        Scanner sc = new Scanner(System.in);    //  ?å–ä½¿ç”¨è€…è¼¸å…¥
         fp.run = true;
 
         try {
-            File _txt = new File("¿é¤J¬ö¿ıÀÉ.txt"); //  ?¨C¦¸­«·s°õ¦æ®É ·|±N°O¿ıÀÉ§R°£
+            File _txt = new File("è¼¸å…¥ç´€éŒ„æª”.txt"); //  ?æ¯æ¬¡é‡æ–°åŸ·è¡Œæ™‚ æœƒå°‡è¨˜éŒ„æª”åˆªé™¤
             _txt.delete();
-            FileWriter txt = new FileWriter("¿é¤J¬ö¿ıÀÉ.txt",true);
+            FileWriter txt = new FileWriter("è¼¸å…¥ç´€éŒ„æª”.txt",true);
 
-            fp._time(); //  !©I¥s®É¶¡
+            fp._time(); //  !å‘¼å«æ™‚é–“
             runLoop:while (fp.run) {
-                if (fp.NumberOfEntries > 5)   //  !·í¿é¤J­p¼Æ¾¹¤j©ó5¸õ¥X
+                if (fp.NumberOfEntries > 5)   //  !ç•¶è¼¸å…¥è¨ˆæ•¸å™¨å¤§æ–¼5è·³å‡º
                     break;
                 else {
                     switch (fp.NumberOfEntries) {
                         case 0:
-                            System.out.print(fp._text(1));      //  ?©I¥s¦r¦ê
+                            System.out.print(fp._text(1));      //  ?å‘¼å«å­—ä¸²
                             fp1 = sc.next();
-                            System.out.println(fp.enter(fp1));  //  ?¬O§_¦¨¥\¿é¤J
+                            System.out.println(fp.enter(fp1));  //  ?æ˜¯å¦æˆåŠŸè¼¸å…¥
                             continue;
                         case 1:
                             System.out.print(fp._text(2));
@@ -37,17 +37,17 @@ public class invoice_v2 {
                             System.out.println(fp.enter(fp2));
                             continue;
                         case 2:
-                            System.out.print("¤@ : "+ fp._text(3));
+                            System.out.print("ä¸€ : "+ fp._text(3));
                             fp3 = sc.next();
                             System.out.println(fp.enter(fp3));
                             continue;
                         case 3:
-                            System.out.print("¤G : "+ fp._text(3));
+                            System.out.print("äºŒ : "+ fp._text(3));
                             fp4 = sc.next();
                             System.out.println(fp.enter(fp4));
                             continue;
                         case 4:
-                            System.out.print("¤T : "+ fp._text(3));
+                            System.out.print("ä¸‰ : "+ fp._text(3));
                             fp5 = sc.next();
                             System.out.println(fp.enter(fp5));
                             continue;
@@ -57,82 +57,82 @@ public class invoice_v2 {
                             System.out.println(fp.enter(fp6));
                             continue;
                     }
-                }continue runLoop; //   ?¦^¨ì¿é¤J¶}ÀY°j°é
+                }continue runLoop; //   ?å›åˆ°è¼¸å…¥é–‹é ­è¿´åœˆ
             }
 
-            System.out.println("\n»PÀY¼ú¥½¤T½X¬Û¦P : ¤»¼ú 200 ¤¸\n»PÀY¼ú¥½¥|½X¬Û¦P : ¤­¼ú 1000 ¤¸\n»PÀY¼ú¥½¤­½X¬Û¦P : ¥|¼ú 4000 ¤¸\n»PÀY¼ú¥½¤»½X¬Û¦P : ¤T¼ú 1¸U ¤¸\n»PÀY¼ú¥½¤C½X¬Û¦P : ¤G¼ú 4¸U ¤¸");
-            run_1Loop: while (fp.run) {   //  ?¶}©l¿é¤J
+            System.out.println("\nèˆ‡é ­çæœ«ä¸‰ç¢¼ç›¸åŒ : å…­ç 200 å…ƒ\nèˆ‡é ­çæœ«å››ç¢¼ç›¸åŒ : äº”ç 1000 å…ƒ\nèˆ‡é ­çæœ«äº”ç¢¼ç›¸åŒ : å››ç 4000 å…ƒ\nèˆ‡é ­çæœ«å…­ç¢¼ç›¸åŒ : ä¸‰ç 1è¬ å…ƒ\nèˆ‡é ­çæœ«ä¸ƒç¢¼ç›¸åŒ : äºŒç 4è¬ å…ƒ");
+            run_1Loop: while (fp.run) {   //  ?é–‹å§‹è¼¸å…¥
 
-                System.out.print("\n¿é¤J»İ§I¼ú¥½¤T½X(¿é¤J0µ²§ô) : ");
+                System.out.print("\nè¼¸å…¥éœ€å…Œçæœ«ä¸‰ç¢¼(è¼¸å…¥0çµæŸ) : ");
                 String Redeem = sc.next();
-                if (Redeem.equals("0"))break; //  ?¸õ¥X
-                if (Redeem.length() == 3 & Redeem.matches("[+-]?\\d*(\\.\\d+)?") == true) {   //  ?§PÂ_ªø«×©M¬O§_¬°¼Æ¦r
-                    fp.judge(Redeem);         //  ?³q¹L«á¿é¤J«O¦s
-                    txt.write(Redeem+"\n");   //  ?¼g¤J¬ö¿ıÀÉ
+                if (Redeem.equals("0"))break; //  ?è·³å‡º
+                if (Redeem.length() == 3 & Redeem.matches("[+-]?\\d*(\\.\\d+)?") == true) {   //  ?åˆ¤æ–·é•·åº¦å’Œæ˜¯å¦ç‚ºæ•¸å­—
+                    fp.judge(Redeem);         //  ?é€šéå¾Œè¼¸å…¥ä¿å­˜
+                    txt.write(Redeem+"\n");   //  ?å¯«å…¥ç´€éŒ„æª”
                 } else {
-                    System.out.println("¿é¤J¿ù»~,½Ğ¿é¤J¥½3½X");
-                    continue run_1Loop; // ?¿é¤J¿ù»~¸õ¦^¼ĞÀY
+                    System.out.println("è¼¸å…¥éŒ¯èª¤,è«‹è¼¸å…¥æœ«3ç¢¼");
+                    continue run_1Loop; // ?è¼¸å…¥éŒ¯èª¤è·³å›æ¨™é ­
                 }
             }
             txt.close();
-        } catch (Exception e){System.out.print("µo¥Í¤£¥i¹w´Áªº¿ù»~ , µ{¦¡¤w²×¤î....");System.exit(0);} 
+        } catch (Exception e){System.out.print("ç™¼ç”Ÿä¸å¯é æœŸçš„éŒ¯èª¤ , ç¨‹å¼å·²çµ‚æ­¢....");System.exit(0);} 
     }
 }
 abstract class preset {
 
     /**
-     *?---°j°é¨Ï¥Î---
+     *?---è¿´åœˆä½¿ç”¨---
      */int i;
     
     /**
-     *?---§PÂ_¤¤¼ú---
+     *?---åˆ¤æ–·ä¸­ç---
      */int prize;
 
     /**
-     *?---°j°é±Ò°Ê---
+     *?---è¿´åœˆå•Ÿå‹•---
      */boolean run;
 
     /**
-     *?---­pºâ¿é¤J---
+     *?---è¨ˆç®—è¼¸å…¥---
      */int NumberOfEntries;
 }
 
 interface _Comparison {
 
-    // ?---¸¹½X«O¦s--- 
+    // ?---è™Ÿç¢¼ä¿å­˜--- 
 
     ArrayList<String> box = new ArrayList<String>();
 
 }
 
-class bill extends preset implements _Comparison { /* ¿é¤Jºİ¤f */
+class bill extends preset implements _Comparison { /* è¼¸å…¥ç«¯å£ */
     int NumberOfEntries = 0, prize = 0;
 
     void _time() {
 
-        LocalDateTime time = LocalDateTime.now(); // ?¨ú±o¨t²Î®É¶¡
-        DateTimeFormatter my_time = DateTimeFormatter.ofPattern("·í«e®É¶¡¬° : yyyy¦~ MM¤ë dd¤é HH:mm:ss");   //? ®É¶¡®æ¦¡
-        String formattedDate = time.format(my_time); // ?Åª¨ú¨t²Î®É¶¡+®æ¦¡¦r¦ê
-        System.out.println(formattedDate); // ?¿é¥X®É¶¡
+        LocalDateTime time = LocalDateTime.now(); // ?å–å¾—ç³»çµ±æ™‚é–“
+        DateTimeFormatter my_time = DateTimeFormatter.ofPattern("ç•¶å‰æ™‚é–“ç‚º : yyyyå¹´ MMæœˆ ddæ—¥ HH:mm:ss");   //? æ™‚é–“æ ¼å¼
+        String formattedDate = time.format(my_time); // ?è®€å–ç³»çµ±æ™‚é–“+æ ¼å¼å­—ä¸²
+        System.out.println(formattedDate); // ?è¼¸å‡ºæ™‚é–“
 
     }
 
     /**
      * @param _text
      * 
-     * !¦r¦ê¦^¶Ç
+     * !å­—ä¸²å›å‚³
      */
     String _text(int _text) {
 
         switch (_text) {
             case 1:
-                return "¿é¤J·í´Á¯S§O¼ú¸¹½X : ";
+                return "è¼¸å…¥ç•¶æœŸç‰¹åˆ¥çè™Ÿç¢¼ : ";
             case 2:
-                return "¿é¤J·í´Á¯S¼ú¸¹½X : ";
+                return "è¼¸å…¥ç•¶æœŸç‰¹çè™Ÿç¢¼ : ";
             case 3:
-                return "¿é¤J·í´ÁÀY¼ú¸¹½X : ";
+                return "è¼¸å…¥ç•¶æœŸé ­çè™Ÿç¢¼ : ";
             case 4:
-                return "¿é¤J·í´Á¼W¶}¸¹½X : ";
+                return "è¼¸å…¥ç•¶æœŸå¢é–‹è™Ÿç¢¼ : ";
             default:
                 return "";
         }
@@ -141,27 +141,27 @@ class bill extends preset implements _Comparison { /* ¿é¤Jºİ¤f */
     /**
      * @param enter
      * 
-     * !²Ä¤G¼h§PÂ_
+     * !ç¬¬äºŒå±¤åˆ¤æ–·
      */
     String enter(String enter){
 
-            if(enter.length() == 8 & NumberOfEntries < 5 & enter.matches("[+-]?\\d*(\\.\\d+)?") == true){   //  ?Ãö©ó§PÂ_¼Æ¦rªºªí¥Ü¦¡¨ä¹ê¬O¦h¾lªº ³æ¯Â½m²ß¥Î
+            if(enter.length() == 8 & NumberOfEntries < 5 & enter.matches("[+-]?\\d*(\\.\\d+)?") == true){   //  ?é—œæ–¼åˆ¤æ–·æ•¸å­—çš„è¡¨ç¤ºå¼å…¶å¯¦æ˜¯å¤šé¤˜çš„ å–®ç´”ç·´ç¿’ç”¨
                 NumberOfEntries++;
                 save(enter);
-                return "¿é¤J¦¨¥\\n";
+                return "è¼¸å…¥æˆåŠŸ\n";
             }
             else if(NumberOfEntries == 5 & enter.length() == 3 & enter.matches("[+-]?\\d*(\\.\\d+)?") == true){
                 NumberOfEntries++;
                 save(enter);
-                return "¿é¤J¦¨¥\\n";
+                return "è¼¸å…¥æˆåŠŸ\n";
             }
-            else return "¿é¤J¿ù»~½Ğ­«·s¿é¤J...\n";
+            else return "è¼¸å…¥éŒ¯èª¤è«‹é‡æ–°è¼¸å…¥...\n";
     }
 
 	/**
      * @param save
      * 
-     * !Àx¦s
+     * !å„²å­˜
      */
 
     void save(String save) {
@@ -171,41 +171,41 @@ class bill extends preset implements _Comparison { /* ¿é¤Jºİ¤f */
     /**
      * @param judge
      * 
-     * !¿é¤J§PÂ_
+     * !è¼¸å…¥åˆ¤æ–·
      */
     void judge(String judge) {
 
     try{
-        FileWriter winning = new FileWriter("¤¤¼ú¬ö¿ı.txt",true);
+        FileWriter winning = new FileWriter("ä¸­çç´€éŒ„.txt",true);
         StringWriter _winning = new StringWriter();
         for (i = 0; i <= 5; i++) {
-            if (box.get(i).endsWith(judge) == true) {   //  ?§PÂ_¦r¦ê¬O§_¥H¿é¤J­Èµ²§À
-                System.out.println("\n®¥³ß¤¤¼ú,½Ğ¦A½T»{¤¤¼úª÷ÃB");  //?¤¤¼ú¤F¦L¥X  
+            if (box.get(i).endsWith(judge) == true) {   //  ?åˆ¤æ–·å­—ä¸²æ˜¯å¦ä»¥è¼¸å…¥å€¼çµå°¾
+                System.out.println("\næ­å–œä¸­ç,è«‹å†ç¢ºèªä¸­çé‡‘é¡");  //?ä¸­çäº†å°å‡º  
                 _winning.write(judge);
                 winning.write(_winning.toString()+"\n\n");
                 
-                // *--¥H¤U§PÂ_¤¤¼úªº¸¹½X----------------------------------------
-                if(box.get(i).equals(box.get(0)) == true)                       //  ?§PÂ_¦r¦ê»P­şµ§¸ê®Æ¬Ûµ¥
-                    System.out.println("¯S§O¼ú¸¹½X½T»{(1000¸U) => "+box.get(0));
+                // *--ä»¥ä¸‹åˆ¤æ–·ä¸­ççš„è™Ÿç¢¼----------------------------------------
+                if(box.get(i).equals(box.get(0)) == true)                       //  ?åˆ¤æ–·å­—ä¸²èˆ‡å“ªç­†è³‡æ–™ç›¸ç­‰
+                    System.out.println("ç‰¹åˆ¥çè™Ÿç¢¼ç¢ºèª(1000è¬) => "+box.get(0));
                 else if(box.get(i).equals(box.get(1)) == true)
-                    System.out.println("¯S¼ú¸¹½X½T»{(200¸U) => "+box.get(1));
+                    System.out.println("ç‰¹çè™Ÿç¢¼ç¢ºèª(200è¬) => "+box.get(1));
                 else if(box.get(i).equals(box.get(5)) == true)
-                    System.out.println("¼W¶}¸¹½X½T»{(200¤¸) => "+box.get(5));
+                    System.out.println("å¢é–‹è™Ÿç¢¼ç¢ºèª(200å…ƒ) => "+box.get(5));
                 else
-                    System.out.println("ÀY¼ú¸¹½X½T»{(20¸U) => "+box.get(i));
+                    System.out.println("é ­çè™Ÿç¢¼ç¢ºèª(20è¬) => "+box.get(i));
 
                 prize = 1;
                 winning.close();
             } else continue;
         }
-    }catch (Exception e){System.out.print("µo¥Í¤£¥i¹w´Áªº¿ù»~ , µ{¦¡¤w²×¤î....");System.exit(0);}
+    }catch (Exception e){System.out.print("ç™¼ç”Ÿä¸å¯é æœŸçš„éŒ¯èª¤ , ç¨‹å¼å·²çµ‚æ­¢....");System.exit(0);}
 
-        // *---µL¤¤¼ú¥²¶·©ñ¦b§PÂ_°j°é¥~ , ¤£µM·|¦L¥X6¦¸¥¼¤¤¼ú---   
-        if(prize == 0) { // ?°j°éµ²§ô«á§PÂ_ °»´ú­È¬O§_¬°0 (0´N¬O¨S¤¤¼ú ¦³¤¤¼ú·|ÅÜ¦¨1)
-            System.out.println("¨S¦³¤¤¼ú½Ğ¦A±µ¦A¼F");
+        // *---ç„¡ä¸­çå¿…é ˆæ”¾åœ¨åˆ¤æ–·è¿´åœˆå¤– , ä¸ç„¶æœƒå°å‡º6æ¬¡æœªä¸­ç---   
+        if(prize == 0) { // ?è¿´åœˆçµæŸå¾Œåˆ¤æ–· åµæ¸¬å€¼æ˜¯å¦ç‚º0 (0å°±æ˜¯æ²’ä¸­ç æœ‰ä¸­çæœƒè®Šæˆ1)
+            System.out.println("æ²’æœ‰ä¸­çè«‹å†æ¥å†å²");
             prize = 0;
         }else
-            prize = 0; // ?±N¦³¤¤¼úªº°»´ú­ÈÂk0 ¥H«K¤U¤@½ü¨Ï¥Î
+            prize = 0; // ?å°‡æœ‰ä¸­ççš„åµæ¸¬å€¼æ­¸0 ä»¥ä¾¿ä¸‹ä¸€è¼ªä½¿ç”¨
     }
 
 }
