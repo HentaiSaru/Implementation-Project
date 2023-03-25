@@ -1,10 +1,8 @@
-
 /*
  * Versions 1.2.3
- * [+] 改寫了驗證輸出是否成功方法
- * [+] 刪掉了執行序,添加程式運行時間計數
- * [-] 發現使用多執行序有嚴重的問題,刪除執行序
- * [-] 刪除多種縮網址的接口
+ * [+] 將驗證部份改寫為Class
+ * [+] 刪掉了多執行序,添加程式運行時間計數
+ * [*] 預計添加輸出URL計數器
  * [*] 預計整合可修改網址類型接口
 ~~~~~~~~~~~~~~~~~~~~~~~*/
 import java.io.*;
@@ -20,6 +18,7 @@ public class RandomURL implements ShortenURL {
             Random random = new Random();
             boolean cycleState = true; // 迴圈循環狀態
             boolean outStatus = false; // 判斷是否有驗證成功的網址
+            long UrlSum = 0;           // URL計數器(未使用)
 
             while (cycleState) {
 
@@ -53,13 +52,12 @@ public class RandomURL implements ShortenURL {
     }
 
     // 輸出bat
-    private static void batoutput(String url) throws IOException {
+    public static void batoutput(String url) throws IOException {
         FileWriter bat = new FileWriter("可用網址.bat", true);
         jud = true;
-        bat.write("start " + url + "+\n");
+        bat.write("start " + url + "+\ntimeout /t 5 >nul\n");
         bat.close();
     }// ----------方法結尾----------
-
     // 隨機數生成器
     private static char get(Random random) {
         int i = random.nextInt(3);
@@ -73,20 +71,77 @@ public class RandomURL implements ShortenURL {
         }
         return ' ';
     }// ----------方法結尾----------
-
     // 取用隨機數方法並且合併到輸出字串
     public static Callable<String> randomURL(Random random, String[] url) throws MalformedURLException {
+        Network_Connection_Verification Network = new Network_Connection_Verification();
 
         String URL = url[0];
         for (int j = 0; j < 6; j++) {
             URL += get(random);
         }
-        DNS_resolution(URL);
+        Network.DNS_resolution(URL);
         return null;
     }// ----------方法結尾----------
 
+    /* ---以下為額外功能性Function--- */
+    //  判斷需輸出網址數量
+    public static void Generation_Quantity(int Enterthequantity) {
+        System.out.printf("\n你將生成 %d 個網址\n", Enterthequantity);
+    }
+    // 輸出狀態
+    private static void successOrFailureJudgment(boolean outStatus) throws IOException {
+        if (outStatus) {
+            System.out.println("成功輸出網址");
+            //System.out.print("開啟網址");
+            //Ran();
+        } else {
+            System.out.print("無可使用網址");
+        }
+    }
+    // 輸出成功自動開啟
+    public static void Ran() throws IOException {
+        String path = System.getProperty("user.dir");
+        String command = path + "\\可用網址.bat";
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.directory(new File(path));
+        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        Process process = builder.start();
+        try {
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.err.println("開啟失敗，錯誤碼：" + exitCode);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    // 最後運行完的時間轉換
+    public static void timeconversion(long Milliseconds) {
+        long hours = 0,minutes = 0,seconds = 0,millisecond = 0;
+
+        if(Milliseconds >= 1000){
+            seconds = ((Milliseconds % 3600000) % 60000) / 1000;
+            if(seconds >= 60){
+                minutes = (Milliseconds % 3600000) / 60000;
+                if(minutes >= 60){
+                    hours = (Milliseconds / 3600000);
+                }
+            }
+        }else{millisecond = Milliseconds;}  
+        System.out.println("程式大約用時:"+ hours + "時" + minutes + "分" + seconds + "秒" + millisecond + "毫秒");
+    }
+}
+
+/* 網址格式 */
+interface ShortenURL {
+    String[] SixrRandom = { "https://reurl.cc/" };
+}
+
+/* 網路驗證類別 */
+class Network_Connection_Verification{
+
     // 網址第一重驗證(DNS解析)
-    private static String DNS_resolution(String url) throws MalformedURLException {
+    public String DNS_resolution(String url) throws MalformedURLException {
         try {
             URL parsedUrl = new URL(url);
             String hostname = parsedUrl.getHost();
@@ -97,7 +152,7 @@ public class RandomURL implements ShortenURL {
     }// ----------方法結尾----------
 
     // 網址第二重驗證(響應驗證)
-    private static String Response_validation(String url) {
+    private String Response_validation(String url) {
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
@@ -121,7 +176,7 @@ public class RandomURL implements ShortenURL {
     }// ----------方法結尾----------
 
     // 網址第三重驗證(網站內容驗證)
-    private static void Page_content_analysis(String url) throws IOException {
+    private void Page_content_analysis(String url) throws IOException {
         URLConnection connection = new URL(url).openConnection();
         String contentType = connection.getContentType();
 
@@ -132,7 +187,7 @@ public class RandomURL implements ShortenURL {
                     || contentType.startsWith("application/x-rar-compressed")) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 if ((reader.readLine()) != null) {
-                    batoutput(url); // 經過多重驗證後,再去呼叫輸出方法,將其寫出
+                    RandomURL.batoutput(url); // 經過多重驗證後,再去呼叫輸出方法,將其寫
                 } else {
                     throw new Exception();
                 }
@@ -143,57 +198,4 @@ public class RandomURL implements ShortenURL {
         } catch (Exception e) {
         }
     }// ----------方法結尾----------
-
-    // 判斷需輸出網址數量
-    public static void Generation_Quantity(int Enterthequantity) {
-        System.out.printf("\n你將生成 %d 個網址\n", Enterthequantity);
-    }// ----------方法結尾----------
-
-    // 輸出狀態
-    private static void successOrFailureJudgment(boolean outStatus) throws IOException {
-        if (outStatus) {
-            System.out.println("成功輸出網址");
-            System.out.print("開啟網址");
-            Ran();
-        } else {
-            System.out.print("無可使用網址");
-        }
-    }// ----------方法結尾----------
-
-    // 輸出成功自動開啟
-    public static void Ran() throws IOException {
-        String path = System.getProperty("user.dir");
-        String command = path + "\\可用網址.bat";
-        ProcessBuilder builder = new ProcessBuilder(command);
-        builder.directory(new File(path));
-        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        Process process = builder.start();
-        try {
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                System.err.println("開啟失敗，錯誤碼：" + exitCode);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }// ----------方法結尾----------
-
-    // 輸出最後運行完時間
-    public static void timeconversion(long Milliseconds) {
-        long hours = 0,minutes = 0,seconds = 0,millisecond = 0;
-
-        if(Milliseconds >= 1000){
-            seconds = ((Milliseconds % 3600000) % 60000) / 1000;
-            if(seconds >= 60){
-                minutes = (Milliseconds % 3600000) / 60000;
-                if(minutes >= 60){
-                    hours = (Milliseconds / 3600000);
-                }
-            }
-        }else{millisecond = Milliseconds;}  
-        System.out.println("程式大約用時:"+ hours + "時" + minutes + "分" + seconds + "秒" + millisecond + "毫秒");
-    }// ----------方法結尾----------
-}
-interface ShortenURL {
-    String[] SixrRandom = { "https://reurl.cc/" };
 }
