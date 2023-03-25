@@ -17,5 +17,15 @@ Versions 1.0
 [+] 採用不同的包製作GUI
 [+] 優化徒法煉鋼的邏輯判斷
 """
+settings = []
+try:  
+    with open('settings.json', 'r') as f:
+        settings = json.load(f)
+    Archive = True
+    ArchiveRead(settings,Archive)
+except:
+    Archive = False
+    ArchiveRead(settings,Archive)
+
 # 啟用初始GUI
 InitialGUI()

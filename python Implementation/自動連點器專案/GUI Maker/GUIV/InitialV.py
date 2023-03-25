@@ -11,7 +11,25 @@ from ClickMain import *
 from Secondaryfunction import *
 from PIL import Image, ImageTk
 
+def ArchiveRead(save,state):
+    global Save , State
+    Save = save
+    State = state
+
 def InitialGUI():
+    global Save , State
+    Save['UserSettings']['IntervalSpeed'] #間隔速度
+    Save['UserSettings']['StartShortcutKeyA'] #開始快捷
+    Save['UserSettings']['StartShortcutKeyB']
+    Save['UserSettings']['EndShortcutKeyA'] #結束快捷
+    Save['UserSettings']['EndShortcutKeyB']
+    Save['UserSettings']['MouseEnabled'] #滑鼠啟用
+    Save['UserSettings']['keyboardEnabled'] #鍵盤啟用
+    Save['UserSettings']['KeyboardKeys']['keyboardA']
+    Save['UserSettings']['KeyboardKeys']['keyboardB']
+    Save['UserSettings']['KeyboardKeys']['keyboardC']
+    Save['UserSettings']['KeyboardKeys']['keyboardD']
+    Save['UserSettings']['KeyboardKeys']['keyboardE']
     
     """載入區域"""
     # 載入GUI介面

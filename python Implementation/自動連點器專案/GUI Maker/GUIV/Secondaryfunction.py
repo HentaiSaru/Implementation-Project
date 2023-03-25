@@ -83,3 +83,23 @@ def Judgmentshortcut(keyA,KeyB):
         case "F11":KeyB = F11
         case "F12":KeyB = F12
     return keyA,KeyB
+
+# 輸出轉換字串保存
+def OutputConversion(key):
+    match key:
+        case "Key.ctrl_l":key = 'Ctrl'
+        case "Key.alt_l":key = 'Alt'
+        case "Key.shift_l":key = 'Shift'
+        case "Key.f1":key = 'F1'
+        case "Key.f2":key = 'F2'
+        case "Key.f3":key = 'F3'
+        case "Key.f4":key = 'F4'
+        case "Key.f5":key = 'F5'
+        case "Key.f6":key = 'F6'
+        case "Key.f7":key = 'F7'
+        case "Key.f8":key = 'F8'
+        case "Key.f9":key = 'F9'
+        case "Key.f1":key = 'F10'
+        case "Key.f1":key = 'F11'
+        case "Key.f1":key = 'F12'
+    return key
