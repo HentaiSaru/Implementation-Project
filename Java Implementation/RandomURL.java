@@ -72,7 +72,7 @@ public class RandomURL implements ShortenURL {
         return ' ';
     }// ----------方法結尾----------
     // 取用隨機數方法並且合併到輸出字串
-    public static Callable<String> randomURL(Random random, String[] url) throws MalformedURLException {
+    public static void randomURL(Random random, String[] url) throws MalformedURLException {
         Network_Connection_Verification Network = new Network_Connection_Verification();
 
         String URL = url[0];
@@ -80,7 +80,6 @@ public class RandomURL implements ShortenURL {
             URL += get(random);
         }
         Network.DNS_resolution(URL);
-        return null;
     }// ----------方法結尾----------
 
     /* ---以下為額外功能性Function--- */
@@ -141,18 +140,16 @@ interface ShortenURL {
 class Network_Connection_Verification{
 
     // 網址第一重驗證(DNS解析)
-    public String DNS_resolution(String url) throws MalformedURLException {
+    public void DNS_resolution(String url) throws MalformedURLException {
         try {
             URL parsedUrl = new URL(url);
             String hostname = parsedUrl.getHost();
             Response_validation(url);
-        } catch (Exception e) {
-        }
-        return "";
+        } catch (Exception e) {}
     }// ----------方法結尾----------
 
     // 網址第二重驗證(響應驗證)
-    private String Response_validation(String url) {
+    private void Response_validation(String url) {
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) new URL(url).openConnection();
@@ -166,13 +163,12 @@ class Network_Connection_Verification{
                 responseCode = connection.getResponseCode();
                 Page_content_analysis(url);
             }
-        } catch (IOException e) {
-        } finally {
+        } catch (IOException e) {} 
+        finally {
             if (connection != null) {
                 connection.disconnect();
             }
         }
-        return url;
     }// ----------方法結尾----------
 
     // 網址第三重驗證(網站內容驗證)
@@ -195,7 +191,6 @@ class Network_Connection_Verification{
             } else {
                 throw new Exception();
             }
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
     }// ----------方法結尾----------
 }
