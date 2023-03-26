@@ -37,6 +37,30 @@ def speed(h,m,s,t,H):
         Intervals = 0
     return Intervals
 
+def Timeformatconversion(Time):
+    if Time >= 3600:
+        Time=(Time/60)/60
+        return "h" , int(Time)
+    elif Time >= 60:
+        Time /= 60
+        return "m" , int(Time)
+    elif Time >= 1:
+        return "s" , int(Time)
+    elif Time >= 0.1:
+        Time *= 10
+        return "t"  , int(Time)
+    elif Time >= 0.01:
+        Time *= 100
+        return "H"  , int(Time)
+    else:return "s" , int(Time+1)
+    
+def ButtonNameConversion(name):
+    match name:
+        case "none":return "無"
+        case "right":return "右鍵"
+        case "left":return "左鍵"
+
+
 # 點擊次數換算
 def numberofclicks(Var):
     if Var < 1:
@@ -89,7 +113,7 @@ def OutputConversion(key):
     match key:
         case "Key.ctrl_l":key = 'Ctrl'
         case "Key.alt_l":key = 'Alt'
-        case "Key.shift_l":key = 'Shift'
+        case "Key.shift":key = 'Shift'
         case "Key.f1":key = 'F1'
         case "Key.f2":key = 'F2'
         case "Key.f3":key = 'F3'

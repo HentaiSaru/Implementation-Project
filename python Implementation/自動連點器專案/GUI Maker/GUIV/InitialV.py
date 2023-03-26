@@ -10,6 +10,8 @@ sys.path.append(dir) # 將該文件絕對路徑,加入至Python的文件查找�
 from ClickMain import *
 from Secondaryfunction import *
 from PIL import Image, ImageTk
+global State
+State = False
 
 def ArchiveRead(save,state):
     global Save , State
@@ -18,18 +20,6 @@ def ArchiveRead(save,state):
 
 def InitialGUI():
     global Save , State
-    Save['UserSettings']['IntervalSpeed'] #間隔速度
-    Save['UserSettings']['StartShortcutKeyA'] #開始快捷
-    Save['UserSettings']['StartShortcutKeyB']
-    Save['UserSettings']['EndShortcutKeyA'] #結束快捷
-    Save['UserSettings']['EndShortcutKeyB']
-    Save['UserSettings']['MouseEnabled'] #滑鼠啟用
-    Save['UserSettings']['keyboardEnabled'] #鍵盤啟用
-    Save['UserSettings']['KeyboardKeys']['keyboardA']
-    Save['UserSettings']['KeyboardKeys']['keyboardB']
-    Save['UserSettings']['KeyboardKeys']['keyboardC']
-    Save['UserSettings']['KeyboardKeys']['keyboardD']
-    Save['UserSettings']['KeyboardKeys']['keyboardE']
     
     """載入區域"""
     # 載入GUI介面
@@ -177,6 +167,20 @@ def InitialGUI():
     Hundredthsofasecond.bind("<KeyRelease>", lambda event, unit=Hundredthsofasecond: Intervals("Hundredthsofasecond", unit))
     Hundredthsofasecond.place(in_=SpeedBox, x=frame_x+245, y=frame_y+20)
 
+    if State:
+            Timeformat , Timefigures = Timeformatconversion(Save['UserSettings']['IntervalSpeed']) #獲取轉換後的時間格式
+            match Timeformat:
+                case "h":
+                    Hour.insert(0,Timefigures)
+                case "m":
+                    Minute.insert(0,Timefigures)
+                case "s":
+                    Seconds.insert(0,Timefigures)
+                case "t":
+                    Tenthofasecond.insert(0,Timefigures)
+                case "H":
+                    Hundredthsofasecond.insert(0,Timefigures)
+
     def unblock():
         key = tk.Toplevel(root)
         key.geometry("220x150+{}+{}".format(int((root.winfo_screenwidth() / 2) - (220 / 2)), int((root.winfo_screenheight() / 2) - (150 / 2))))
@@ -235,7 +239,6 @@ def InitialGUI():
     # 開始快捷1
     S_shortcutkey1 = ["Ctrl", "Alt", "Shift"]
     S_shortcutkey1_option = tk.StringVar()
-    S_shortcutkey1_option.set(S_shortcutkey1[1])
     S_shortcutkey1_option.trace('w',S1) # W 為及時變化,呼叫S1函式
     dropdown = tk.OptionMenu(ShortcutBox, S_shortcutkey1_option,*S_shortcutkey1)
     dropdown.config(width=3, fg=TextColor , bg=TextBackgroundColor)
@@ -244,7 +247,6 @@ def InitialGUI():
     # 開始快捷2
     S_shortcutkey2 = ttk.Combobox(ShortcutBox, values=["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"])
     S_shortcutkey2.configure(width=3, height=6, foreground=TextColor, background=TextBackgroundColor, state="readonly")
-    S_shortcutkey2.set("F1")
     S_shortcutkey2.bind("<<ComboboxSelected>>", lambda event: shortcutkey("S2",S_shortcutkey2.get()))
     S_shortcutkey2.place(x=139, y=11)
 
@@ -254,7 +256,6 @@ def InitialGUI():
     # 結束快捷1
     E_shortcutkey1 = ["Ctrl", "Alt", "Shift"]
     E_shortcutkey1_option = tk.StringVar()
-    E_shortcutkey1_option.set(E_shortcutkey1[1])
     E_shortcutkey1_option.trace('w',E1)
     dropdown = tk.OptionMenu(ShortcutBox, E_shortcutkey1_option,*E_shortcutkey1)
     dropdown.config(width=3, fg=TextColor , bg=TextBackgroundColor)
@@ -263,9 +264,20 @@ def InitialGUI():
     # 結束快捷2
     E_shortcutkey2 = ttk.Combobox(ShortcutBox, values=["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"])
     E_shortcutkey2.configure(width=3, height=6, foreground=TextColor, background=TextBackgroundColor, state="readonly")
-    E_shortcutkey2.set("F2")
     E_shortcutkey2.bind("<<ComboboxSelected>>", lambda event: shortcutkey("E2",E_shortcutkey2.get()))
     E_shortcutkey2.place(x=139, y=45)
+
+    if State:
+        S_shortcutkey1_option.set(Save['UserSettings']['StartShortcutKeyA'])
+        S_shortcutkey2.set(Save['UserSettings']['StartShortcutKeyB'])
+        E_shortcutkey1_option.set(Save['UserSettings']['EndShortcutKeyA'])
+        E_shortcutkey2.set(Save['UserSettings']['EndShortcutKeyB'])
+    else:
+        S_shortcutkey1_option.set(S_shortcutkey1[1])
+        S_shortcutkey2.set("F1")
+        E_shortcutkey1_option.set(E_shortcutkey1[1])
+        E_shortcutkey2.set("F2")
+
     """============================滑鼠設置==================================="""
     def mouse(*Key):
         value = mousebutton_option.get()
@@ -274,14 +286,16 @@ def InitialGUI():
     mousebutton_option = tk.StringVar()
     mousebutton_option.set(mousebutton[0])
     mousebutton_option.trace('w',mouse)
+    mouseoption = tk.OptionMenu(MouseBox, mousebutton_option, *mousebutton)
+    mouseoption.config(width=3, fg=TextColor, bg=TextBackgroundColor , state='disabled')
+    mouseoption.place(x=110, y=37)
 
-    #單選紐預設為為選取
     mousedefault = tk.BooleanVar(value=False)
     keyboarddefault = tk.BooleanVar(value=False)
 
     def enablemouse():
         MouseSwitch(True) #觸發滑鼠切換狀態(函式)
-        mouseoptions.config(state='normal') # 啟用滑鼠選項
+        mouseoption.config(state='normal') # 啟用滑鼠選項
         keyboard_AT.config(state='disabled') # 關閉A鍵盤的名子
         keyboard_A.config(state='disabled') # 關閉A鍵盤的輸入框
         keyboard_BT.config(state='disabled')
@@ -296,7 +310,7 @@ def InitialGUI():
 
     def enablekeyboard():
         keyboardSwitch(True) #觸發鍵盤切換狀態(函式)
-        mouseoptions.config(state='disabled') # 這邊就是啟用鍵盤時,所以把所有改變反過來操作
+        mouseoption.config(state='disabled') # 這邊就是啟用鍵盤時,所以把所有改變反過來操作
         keyboard_AT.config(state='normal')
         keyboard_A.config(state='normal')
         keyboard_BT.config(state='normal')
@@ -309,20 +323,17 @@ def InitialGUI():
         keyboard_E.config(state='normal')
         mousedefault.set(False) # 關閉滑鼠單選紐的選取狀態
 
-    mouseradio = tk.Radiobutton(MouseBox, text="啟用滑鼠連點", variable=mousedefault , command=enablemouse)
-    mouseradio.config(fg=TextColor, bg=TextBackgroundColor)
-    mouseradio.place(x=5, y=8)
+    mouserad = tk.Radiobutton(MouseBox, text="啟用滑鼠連點", variable=mousedefault , command=enablemouse)
+    mouserad.config(fg=TextColor, bg=TextBackgroundColor)
+    mouserad.place(x=5, y=8)
+    
+    keyboardrad = tk.Radiobutton(MouseBox, text="啟用鍵盤連點", variable=keyboarddefault , command=enablekeyboard)
+    keyboardrad.config(fg=TextColor, bg=TextBackgroundColor)
+    keyboardrad.place(x=5, y=40)
 
-    keyboardradio = tk.Radiobutton(MouseBox, text="啟用鍵盤連點", variable=keyboarddefault , command=enablekeyboard)
-    keyboardradio.config(fg=TextColor, bg=TextBackgroundColor)
-    keyboardradio.place(x=5, y=40)
-
-    mouseoptionsT = tk.Label(root, text="按鍵選擇")
-    mouseoptionsT.config(font=("Arial Bold", 10), fg=TextColor , bg=TextBackgroundColor)
-    mouseoptionsT.place(in_=MouseBox, x=110, y=8)
-    mouseoptions = tk.OptionMenu(MouseBox, mousebutton_option, *mousebutton)
-    mouseoptions.config(width=3, fg=TextColor, bg=TextBackgroundColor , state='disabled')
-    mouseoptions.place(x=110, y=37)
+    mouseoptionT = tk.Label(root, text="按鍵選擇")
+    mouseoptionT.config(font=("Arial Bold", 10), fg=TextColor , bg=TextBackgroundColor)
+    mouseoptionT.place(in_=MouseBox, x=110, y=8)
 
     """============================鍵盤設置==================================="""
     keyboard_AT = tk.Label(root, text="鍵盤自訂1")
@@ -397,12 +408,32 @@ def InitialGUI():
         keyboard_E.config(state='normal')
         keyboard_E.delete(0, 'end')
         keyboard_E.insert(0, event.char)
-        keyboard_E.config(state='readonly')
+        keyboard_E.config(state='readonly')       
 
+    # 啟用狀態與滑鼠鍵盤參數設置
+    if State:
+        if Save['UserSettings']['MouseEnabled']:
+            mouserad.select()
+            enablemouse()
+            mousebutton_option.set(ButtonNameConversion(Save['UserSettings']['MouseButton']))
+        elif Save['UserSettings']['keyboardEnabled']:
+            keyboardrad.select()
+            enablekeyboard()
+            keyboard_A.insert(0,Save['UserSettings']['KeyboardKeys']['keyboardA'])
+            keyboard_B.insert(0,Save['UserSettings']['KeyboardKeys']['keyboardB'])
+            keyboard_C.insert(0,Save['UserSettings']['KeyboardKeys']['keyboardC'])
+            keyboard_D.insert(0,Save['UserSettings']['KeyboardKeys']['keyboardD'])
+            keyboard_E.insert(0,Save['UserSettings']['KeyboardKeys']['keyboardE'])
+                    
     keyboard_A.bind('<Key>', keyA)
     keyboard_B.bind('<Key>', keyB)
     keyboard_C.bind('<Key>', keyC)
     keyboard_D.bind('<Key>', keyD)
     keyboard_E.bind('<Key>', keyE)
+
+    # 最終將所有值傳至後端
+    if State:
+        BackendArchiveRead(Save)
+
     #啟動UI介面監聽直到按下關閉
     root.mainloop()

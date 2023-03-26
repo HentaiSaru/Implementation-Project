@@ -27,6 +27,22 @@ B_startcombo = F1    # 開始組合鍵2預設
 A_endcombo = Alt     # 結束組合鍵1預設
 B_endcombo = F2      # 結束組合鍵2預設
 
+def BackendArchiveRead(save):
+    global combospeed
+
+    Timeformat , Timefigures = Timeformatconversion(save['UserSettings']['IntervalSpeed']) #獲取轉換後的時間格式
+    match Timeformat:
+        case "h":
+            IntervalsT[0] = Timefigures
+        case "m":
+            IntervalsT[1] = Timefigures
+        case "s":
+            IntervalsT[2] = Timefigures
+        case "t":
+            IntervalsT[3] = Timefigures
+        case "H":
+            IntervalsT[4] = Timefigures
+
 # 暫停方法
 def stopLoop():
     global stop
@@ -147,7 +163,6 @@ def SetupComplete():
 他不能一直判斷我停止他了嗎,當然設置time.sleep(combospeed)也會有這問題
 這就是我分成兩個線程的原因,一個用於判斷,另一個用於執行,就算我設1小時,還是能停
 """
-
 # 檢測點擊線程是否被調用狀態
 global clickstatu
 clickstatu = True # 首次為開啟
