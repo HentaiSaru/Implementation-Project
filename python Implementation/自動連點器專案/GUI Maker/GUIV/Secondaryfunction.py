@@ -9,8 +9,8 @@ import threading
 import os
 
 # 時間輸入驗證是否為數字
-def validate_numeric_input(new_value):
-    return new_value.isdigit()
+def Validateinseconds(new_value):
+    return True
 
 # 驗證解鎖
 def Authentication(key):

@@ -130,7 +130,7 @@ def InitialGUI():
     label.place(in_=frame, x=frame_x+10, y=frame_y-23)
 
     # 調用驗證輸入是否為數字
-    timeV = (root.register(validate_numeric_input), "%P")
+    timeV = (root.register(Validateinseconds), "%P")
 
     HourT = tk.Label(root, text="小時")
     HourT.config(font=("Arial Bold", 10), fg=TextColor , bg=TextBackgroundColor)

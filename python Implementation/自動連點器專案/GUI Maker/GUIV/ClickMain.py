@@ -261,18 +261,30 @@ def SaveSettings():
 # 取得輸入的時間
 def Intervals(unit,time):
     value = time.get()
-    if value != "":
+    if value != "" and value.isdigit():
         match unit:
             case "Hour":
-                IntervalsT[0] = value
+                if int(value) <= 24:
+                    IntervalsT[0] = value
+                else:messagebox.showerror("無效的間隔設置", "小時最大值為24")
             case "Minute":
-                IntervalsT[1] = value
+                if int(value) <= 60:
+                    IntervalsT[1] = value
+                else:messagebox.showerror("無效的間隔設置", "分鐘最大值為60")
             case "Seconds":
-                IntervalsT[2] = value
+                if int(value) <= 60:
+                    IntervalsT[2] = value
+                else:messagebox.showerror("無效的間隔設置", "秒鐘最大值為60")
             case "Tenthofasecond":
-                IntervalsT[3] = value
+                if int(value) <= 9:
+                    IntervalsT[3] = value
+                else:messagebox.showerror("無效的間隔設置", "1/10最大值為9")
             case "Hundredthsofasecond":
-                IntervalsT[4] = value
+                if int(value) <= 9:
+                    IntervalsT[4] = value
+                else:messagebox.showerror("無效的間隔設置", "1/100最大值為9")
+    elif value == "":pass
+    else:messagebox.showerror("無效的間隔設置", "你要確定你輸入的是數字ㄟ")
 
 # 取得快捷鍵設置
 def shortcutkey(state,key):
