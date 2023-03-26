@@ -16,6 +16,7 @@ cls
 @echo ~
 
 pip install pyinstaller
+pip install tinyaes
 pip install uncompyle6
 
 pip install discord_webhook
@@ -23,6 +24,7 @@ pip install pystray
 pip install feedparser
 pip install numpy
 pip install pywin32
+pip install Pillow
 pip install scipy
 pip install pandas
 pip install matplotlib

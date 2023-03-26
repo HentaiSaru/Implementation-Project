@@ -133,7 +133,7 @@ def start_listener():
             pass
     #持續監聽鍵盤按鍵
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        time.sleep(0.5)
+        time.sleep(0.01)
         listener.join()
 listener_thread = threading.Thread(target=start_listener)
 listener_thread.start()
