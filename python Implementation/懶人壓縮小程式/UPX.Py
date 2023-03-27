@@ -31,6 +31,7 @@ def Home():
         State = True
         SeparateList = []
         RightText.delete("1.0", "end")
+        LeftText.delete("1.0", "end")
         FileSelection = filedialog.askdirectory()
         for root, dirs, files in os.walk(FileSelection):
             for name in files + dirs:
@@ -42,25 +43,55 @@ def Home():
                 SeparateList.append(path)
 
     def IntegrationImport():
-        global IntegrationList , State
-        State = False
-        IntegrationList = []
-        LeftText.delete("1.0", "end")
-        FileSelection = filedialog.askdirectory()
-        for root, dirs, files in os.walk(FileSelection):
-            for name in files + dirs:
-                LeftText.insert("end", f"{name}\n")
-                if root == len(files):
-                    LeftText.insert("end")
-                path = os.path.join(root, name)
-                if os.path.isdir(path) and os.path.getsize(path) == 0:continue
-                IntegrationList.append(path)
+        try:
+            global IntegrationList , State
+            State = False
+            RightText.delete("1.0", "end")
+            LeftText.delete("1.0", "end")
+            FileSelection = filedialog.askdirectory()
+            for root, dirs, files in os.walk(FileSelection):
+                for name in files + dirs:
+                    LeftText.insert("end", f"{name}\n")
+                    if root == len(files):
+                        LeftText.insert("end")
+            IntegrationList = root
+        except:pass
     
-
+    # State True 為各別輸出 反之 整合輸出
     def RARCopression():
-        #WinRAR a -ri15:0.00001 -m5 -mt24 -md1g  "test.rar" "R:\自寫連點器測試" "[檔名].rar" "[被壓縮檔]"
+        try:
+            global IntegrationList , SeparateList , State
+            RARCompression.config(fg=Compressbuttontorun,bg=Compressbuttonbackgroundcolor)
+            if State:
+                RARRespective(SeparateList)
+            else:RARFusion(IntegrationList)
+        except:
+            messagebox.showerror("設置錯誤", "未檢測到文件")
+            RARCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
 
-        pass
+    def RARFusion(Text):
+        Format = '"'+Text.split("\\")[0]+'"'
+        try:
+            RARFormat = '"'+Text.split(":/")[0]+":/"+Text.split(":/")[1].split("\\")[0]+".rar"+'"'
+            WinRAR = 'WinRAR a -ri15:0.00001 -m5 -mt24 -md1g  {} {}'.format(RARFormat ,Format)
+            RARCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
+            messagebox.showinfo("開始壓縮","請稍後...\n檔案將保存於 : {}".format(RARFormat))
+            time.sleep(0.5)
+            threading.Thread(target=os.system, args=(WinRAR,)).start()
+        except:
+            pass      
+
+    def RARRespective(Text):
+        try:
+            RARCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
+            for i in range(len(Text)):
+                Format = '"'+Text[i]+'"'
+                RARFormat = '"'+Text[i].split(":/")[0]+":/"+Text[i].split(":/")[1].split("\\")[1]+".rar"+'"'
+                WinRAR = 'WinRAR a -ri15:0.00001 -m5 -mt24 -md1g  {} {}'.format(RARFormat ,Format)
+                threading.Thread(target=os.system, args=(WinRAR,)).start()
+            messagebox.showinfo("壓縮完成","\n檔案將保存於 : {}".format(RARFormat))
+        except:
+            pass
 
     def UPXCompression():
         try:
@@ -69,6 +100,7 @@ def Home():
             UPX(SeparateList,"Compression")
         except:
             messagebox.showerror("設置錯誤", "未檢測到文件")
+            LeftText.insert("end", f"\n\n\n\n\tUPX不支援整合壓縮")
             UPXCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
 
     def UPXRestore():
@@ -78,6 +110,7 @@ def Home():
             UPX(SeparateList,"Restore")
         except:
             messagebox.showerror("設置錯誤", "未檢測到文件")
+            LeftText.insert("end", f"\n\n\n\n\tUPX不支援整合壓縮")
             UPXRestore.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
 
     def UPX(Text,Work):
@@ -94,7 +127,7 @@ def Home():
             for i in range(len(Finally)):
                 time.sleep(0.1)
                 if Work == "Compression":
-                    upx = "upx -9 --best --ultra-brute --force {}".format(Finally[i])
+                    upx = "upx -9 --best --ultra-brute --force --overlay=strip {}".format(Finally[i])
                     threading.Thread(target=os.system, args=(upx,)).start()
                     UPXCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
                 elif Work == "Restore":
@@ -131,6 +164,7 @@ def Home():
     RightFrame.place(x=370,y=90)
     RightText = tk.Text(RightFrame,bg=Displayboxcolor,fg=ImportTextColor)
     RightText.config(font=("Arial", 13),bd=0)
+    RightText.insert("end", f"單檔壓縮主要適用於UPX壓縮\nUPX是針對EXE和Dll的壓縮\n壓縮前請自行備份\n壓縮後低機率損毀")
     RightText.place(in_=RightFrame,x=0,y=0)
 
     UnderlyingFramework = tk.Canvas(OuterFrame, width=WindowWidth-60,height=WindowHeight-610, bd=0, highlightthickness=0, bg=OuterFrameColor)
@@ -143,6 +177,9 @@ def Home():
     UPXRestore.config(font=('Arial',15,'bold'), width=13, height=2, fg=Compressbuttonnormal , border=2, relief='groove', bg=Compressbuttonbackgroundcolor)
     UPXRestore.place(x=180,y=10)
 
+    RARCompression = tk.Button(UnderlyingFramework,text="RAR壓縮",command=RARCopression)
+    RARCompression.config(font=('Arial',15,'bold'), width=13, height=2, fg=Compressbuttonnormal , border=2, relief='groove', bg=Compressbuttonbackgroundcolor)
+    RARCompression.place(x=360,y=10)
 
 Home()
 root.mainloop()
