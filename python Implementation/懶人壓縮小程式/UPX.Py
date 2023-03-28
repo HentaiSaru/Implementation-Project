@@ -26,22 +26,24 @@ Compressbuttontorun = "#DF2E38"
 
 def Home():
 
+    # 單獨導入所有文件,將每個文件丟至List
     def ImportSeparately():
         global SeparateList , State
         State = True
-        SeparateList = []
-        RightText.delete("1.0", "end")
+        SeparateList = [] # 保存每個檔案路徑
+        RightText.delete("1.0", "end") # 開啟時將兩邊GUI文本的內容清空 第一行第0個~最後一個
         LeftText.delete("1.0", "end")
-        FileSelection = filedialog.askdirectory()
-        for root, dirs, files in os.walk(FileSelection):
+        FileSelection = filedialog.askdirectory() # 開啟資料夾選擇窗口
+        for root, dirs, files in os.walk(FileSelection): # 路徑,空資料夾,文檔
             for name in files + dirs:
-                RightText.insert("end", f"{name}\n\n")
-                if root == len(files):
-                    RightText.insert("end")
-                path = os.path.join(root, name)
-                if os.path.isdir(path) and os.path.getsize(path) == 0:continue
+                RightText.insert("end", f"{name}\n\n") # f""是一種格式化字串的方式,這行是在每行的最後插入字串並且換行
+                if root == len(files): # 當取的的檔案路徑 == 檔案的長度,也就是最後一個了
+                    RightText.insert("end") # 就不會輸入任何字串
+                path = os.path.join(root, name) # 取得路徑位置+檔名
+                if os.path.isdir(path) and os.path.getsize(path) == 0:continue # 將空白目錄過濾
                 SeparateList.append(path)
 
+    # 導入所有文件作為集成壓縮
     def IntegrationImport():
         try:
             global IntegrationList , State
@@ -54,37 +56,41 @@ def Home():
                     LeftText.insert("end", f"{name}\n")
                     if root == len(files):
                         LeftText.insert("end")
-            IntegrationList = root
+                    path = os.path.join(root, name)
+            if os.path.isdir(path) and os.path.getsize(path) != 0:
+                IntegrationList = root # 這邊是直接取得完整的所有檔案路徑
         except:pass
     
-    # State True 為各別輸出 反之 整合輸出
+    # State True 為各別輸出 反之 整合輸出(RAR壓縮觸發)
     def RARCopression():
         try:
             global IntegrationList , SeparateList , State
-            RARCompression.config(fg=Compressbuttontorun,bg=Compressbuttonbackgroundcolor)
-            if State:
-                RARRespective(SeparateList)
-            else:RARFusion(IntegrationList)
+            RARCompression.config(fg=Compressbuttontorun,bg=Compressbuttonbackgroundcolor) # 按下按鈕時變色
+            if State: # 判斷是單獨壓縮還是集成壓縮
+                RARRespective(SeparateList) # True是單獨,呼叫單獨壓縮方式,傳遞單獨壓縮的列表
+            else:RARFusion(IntegrationList) # 反之集成壓縮,給予完整所有路徑
         except:
             messagebox.showerror("設置錯誤", "未檢測到文件")
             RARCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
 
+    # 集成壓縮運行
     def RARFusion(Text):
-        Format = '"'+Text.split("\\")[0]+'"'
+        Format = '"'+Text.split("\\")[0]+'"' # 壓縮檔案的路徑格式,通常到檔案最後就會變成\,所以將其切片取前面
         try:
-            RARFormat = '"'+Text.split(":/")[0]+":/"+Text.split(":/")[1].split("\\")[0]+".rar"+'"'
-            WinRAR = 'WinRAR a -ri15:0.00001 -m5 -mt24 -md1g  {} {}'.format(RARFormat ,Format)
-            RARCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
-            messagebox.showinfo("開始壓縮","請稍後...\n檔案將保存於 : {}".format(RARFormat))
-            time.sleep(0.5)
-            threading.Thread(target=os.system, args=(WinRAR,)).start()
+            RARFormat = '"'+Text.split(":/")[0]+":/"+Text.split(":/")[1].split("\\")[0]+".rar"+'"' # 壓縮檔名的格式
+            WinRAR = 'WinRAR a -ri15:0.00001 -m5 -mt24 -md1g  {} {}'.format(RARFormat ,Format) # 壓縮指令,並將兩個格式加上
+            RARCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor) # 按鈕便回原本顏色
+            messagebox.showinfo("開始壓縮","請稍後...\n檔案將保存於 : {}".format(RARFormat)) # 輸出開始壓縮,並將檔案壓縮位置輸出
+            time.sleep(0.1)
+            threading.Thread(target=os.system, args=(WinRAR,)).start() # 啟用運行壓縮線程
         except:
             pass      
 
+    # 個別壓縮運行
     def RARRespective(Text):
         try:
             RARCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
-            for i in range(len(Text)):
+            for i in range(len(Text)): # 因為是個別所以是迴圈,一個一個輸入
                 Format = '"'+Text[i]+'"'
                 RARFormat = '"'+Text[i].split(":/")[0]+":/"+Text[i].split(":/")[1].split("\\")[1]+".rar"+'"'
                 WinRAR = 'WinRAR a -ri15:0.00001 -m5 -mt24 -md1g  {} {}'.format(RARFormat ,Format)
@@ -93,6 +99,7 @@ def Home():
         except:
             pass
 
+    # UPX壓縮觸發
     def UPXCompression():
         try:
             global SeparateList
@@ -103,6 +110,7 @@ def Home():
             LeftText.insert("end", f"\n\n\n\n\tUPX不支援整合壓縮")
             UPXCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
 
+    # UPX壓縮還原觸發
     def UPXRestore():
         try:
             global SeparateList
@@ -113,21 +121,22 @@ def Home():
             LeftText.insert("end", f"\n\n\n\n\tUPX不支援整合壓縮")
             UPXRestore.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
 
+    # UPX壓縮運行
     def UPX(Text,Work):
-        k = {"exe","dll","ocx","bpl","cpl","sys","ax","acm","drv","tlb"}
+        k = {"exe","dll","ocx","bpl","cpl","sys","ax","acm","drv","tlb"} # UPX支援格式
         Finally = []
-        if len(Text) != 0:
-            for i in range(len(Text)):
-                FileExtension = Text[i].split(".")
-                if FileExtension[-1] in map(str.lower, k) and FileExtension[-2] != "upx":
-                    Format = '"'+Text[i]+'"'
+        if len(Text) != 0: # 非必要判斷
+            for i in range(len(Text)): 
+                FileExtension = Text[i].split(".") # 將檔案副檔名與前面切片
+                if FileExtension[-1] in map(str.lower, k) and FileExtension[-2] != "upx": # 判斷附檔名是否在支援格式中,後面是一開始寫的架構,避免壓縮到upx.exe自己
+                    Format = '"'+Text[i]+'"' # 加上格式後,一個一個丟入列表
                     Finally.append(Format)
                 else:continue
 
-            for i in range(len(Finally)):
+            for i in range(len(Finally)): # 開始輸出列表
                 time.sleep(0.1)
-                if Work == "Compression":
-                    upx = "upx -9 --best --ultra-brute --force --overlay=strip {}".format(Finally[i])
+                if Work == "Compression": # 判斷是要還原還是壓縮
+                    upx = "upx -9 --best --ultra-brute --force --overlay=strip {}".format(Finally[i]) # 最後還是加上加殼(待測試通用性)
                     threading.Thread(target=os.system, args=(upx,)).start()
                     UPXCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
                 elif Work == "Restore":
@@ -135,51 +144,61 @@ def Home():
                     threading.Thread(target=os.system, args=(upx,)).start()
                     UPXRestore.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
 
+    # 最外層的框架
     OuterFrame = tk.Canvas(root, width=WindowWidth-20, height=WindowHeight-50, bd=0, highlightthickness=0, bg=OuterFrameColor)
     OuterFrame.place(x=WindowWidth-840,y=WindowHeight-660)
 
+    # 頂層框架
     TopFrame = tk.Canvas(OuterFrame, width=WindowWidth-60,height=WindowHeight-620, bd=0, highlightthickness=0 , bg=OuterFrameColor)
     TopFrame.place(x=20,y=0)
 
+    # 個別壓縮導入按鈕
     AloneData = tk.Button(TopFrame, text="導入單檔壓縮")
     AloneData.config(font=("Arial Bold", 25), width=10, height=1, fg="#609EA2" , border=3, relief='groove', bg=OuterFrameColor ,command=ImportSeparately)
     AloneData.place(in_=TopFrame, x=470 , y=10)
 
+    # 整合壓縮導入按鈕
     IntegrateData = tk.Button(TopFrame, text="導入整合壓縮")
     IntegrateData.config(font=("Arial Bold", 25), width=10, height=1, fg="#609EA2" , border=3, relief='groove', bg=OuterFrameColor ,command=IntegrationImport)
     IntegrateData.place(in_=TopFrame, x=55 , y=10)
 
-
+    # 左側框架
     LeftFrame = tk.Canvas(OuterFrame,height=WindowHeight-250,width=350, bd=0, highlightthickness=0, bg=OuterFrameColor)
     LeftFrame.place(x=20,y=90)
+    # 左側文字框
     LeftText = tk.Text(LeftFrame,bg=Displayboxcolor,fg=ImportTextColor)
     LeftText.config(font=("Arial", 13),bd=0)
     LeftText.insert("end", f"\n\n\n\n\tUPX不支援整合壓縮")
     LeftText.place(in_=LeftFrame,x=0,y=0)
 
+    # 中間框架(本來要做其他功能的w)
     MiddleFrame = tk.Canvas(OuterFrame, width=20,height=WindowHeight-250, bd=0, highlightthickness=0, bg="#CCF2F4")
     MiddleFrame.place(x=350,y=90)
 
+    # 右側框架
     RightFrame = tk.Canvas(OuterFrame,height=WindowHeight-250, width=440,bd=0, highlightthickness=0, bg=OuterFrameColor)
     RightFrame.place(x=370,y=90)
+    # 右側文字框
     RightText = tk.Text(RightFrame,bg=Displayboxcolor,fg=ImportTextColor)
     RightText.config(font=("Arial", 13),bd=0)
     RightText.insert("end", f"單檔壓縮主要適用於UPX壓縮\nUPX是針對EXE和Dll的壓縮\n壓縮前請自行備份\n壓縮後低機率損毀")
     RightText.place(in_=RightFrame,x=0,y=0)
 
+    # 底層框架
     UnderlyingFramework = tk.Canvas(OuterFrame, width=WindowWidth-60,height=WindowHeight-610, bd=0, highlightthickness=0, bg=OuterFrameColor)
     UnderlyingFramework.place(x=20,y=550)
+    # 底層UPX壓縮按鈕
     UPXCompression = tk.Button(UnderlyingFramework,text="UPX壓縮",command=UPXCompression)
     UPXCompression.config(font=('Arial',15,'bold'), width=13, height=2, fg=Compressbuttonnormal , border=2, relief='groove', bg=Compressbuttonbackgroundcolor)
     UPXCompression.place(x=0,y=10)
-
+    # 底層UPX壓縮還原按鈕
     UPXRestore = tk.Button(UnderlyingFramework,text="UPX還原",command=UPXRestore)
     UPXRestore.config(font=('Arial',15,'bold'), width=13, height=2, fg=Compressbuttonnormal , border=2, relief='groove', bg=Compressbuttonbackgroundcolor)
     UPXRestore.place(x=180,y=10)
-
+    # 底層PAR壓縮按鈕
     RARCompression = tk.Button(UnderlyingFramework,text="RAR壓縮",command=RARCopression)
     RARCompression.config(font=('Arial',15,'bold'), width=13, height=2, fg=Compressbuttonnormal , border=2, relief='groove', bg=Compressbuttonbackgroundcolor)
     RARCompression.place(x=360,y=10)
 
-Home()
+Home()  # 呼叫首頁GUI(原本預計可由頂部切換不同GUI介面)
 root.mainloop()
