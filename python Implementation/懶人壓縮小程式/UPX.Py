@@ -125,7 +125,7 @@ def Home():
             for i in range(len(Finally)): # 開始輸出列表
                 time.sleep(0.1)
                 if Work == "Compression": # 判斷是要還原還是壓縮
-                    upx = "upx -9 --best --ultra-brute --force --overlay=strip {}".format(Finally[i]) # 最後還是加上加殼(待測試通用性)
+                    upx = "upx -9 --best --ultra-brute --force {}".format(Finally[i]) # 加殼後容易損壞(刪除)
                     threading.Thread(target=os.system, args=(upx,)).start()
                     UPXCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
                 elif Work == "Restore":
@@ -202,7 +202,7 @@ def Home():
             for i in range(len(Text)):
                 Format = '"'+Text[i]+'"'
                 ZIPFormat = '"'+Text[i].split(":/")[0]+":/"+Text[i].split(":/")[1].split("\\")[1]+".7z"+'"'
-                ZIP = '7z a {} {} -t7z -m0=lzma2 -mx=9 -mfb=128 -md=1024m -ms=auto -mmt=8'.format(ZIPFormat,Format)
+                ZIP = '7z a {} {} -t7z -m0=lzma2 -mx=9 -mfb=128 -md=1024m -ms=1g -mmt=24'.format(ZIPFormat,Format)
                 threading.Thread(target=os.system, args=(ZIP,)).start()
             messagebox.showinfo("壓縮完成","\n檔案將保存於 : {}".format(ZIPFormat))
         except:pass
