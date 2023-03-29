@@ -4,7 +4,6 @@ import time
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
-
 """
 Versions 1.0
 [+] 簡易懶人壓縮軟體
@@ -125,13 +124,13 @@ def Home():
             for i in range(len(Finally)): # 開始輸出列表
                 time.sleep(0.1)
                 if Work == "Compression": # 判斷是要還原還是壓縮
+                    UPXCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
                     upx = "upx -9 --best --ultra-brute --force {}".format(Finally[i]) # 加殼後容易損壞(刪除)
                     threading.Thread(target=os.system, args=(upx,)).start()
-                    UPXCompression.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
                 elif Work == "Restore":
+                    UPXRestore.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
                     upx = "upx -d --force {}".format(Finally[i])
                     threading.Thread(target=os.system, args=(upx,)).start()
-                    UPXRestore.config(fg=Compressbuttonnormal,bg=Compressbuttonbackgroundcolor)
     
 
     # State True 為各別輸出 反之 整合輸出(RAR壓縮觸發)
