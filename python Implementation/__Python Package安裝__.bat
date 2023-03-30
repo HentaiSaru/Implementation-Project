@@ -20,6 +20,9 @@ pip install tinyaes
 pip install uncompyle6
 
 pip install discord_webhook
+pip install requests
+pip install chardet
+pip install selenium
 pip install pystray
 pip install feedparser
 pip install numpy
