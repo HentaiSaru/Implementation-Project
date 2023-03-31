@@ -1,6 +1,5 @@
-import random
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -8,7 +7,7 @@ from selenium import webdriver
 from urllib.parse import unquote
 from bs4 import BeautifulSoup
 import requests
-import logging
+import random
 import time
 import sys
 import os
@@ -84,10 +83,11 @@ def RequestsBiliBili(Input):
     options.add_argument('--headless') # 此行關閉操作窗口
     # 以下為繞過驗證爬蟲的機制
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36")
+    # 隨機端口
     port = random.randint(1024, 65535)
     options.add_argument(f'--remote-debugging-port={port}')
-    options.add_argument("--log-level=3") # 關閉日誌訊息
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_argument("--log-level=3") # 關閉日誌訊息(設置層級)
+    options.add_experimental_option('excludeSwitches', ['enable-logging']) # 關閉日誌訊息
     # 開啟網頁
     driver = webdriver.Chrome(options=options)
     # 繞過檢測Js
@@ -103,7 +103,7 @@ def RequestsBiliBili(Input):
     # 送出
     search.send_keys(Keys.RETURN)
 
-    # 切換分頁
+    # 切換分頁(B站的搜尋會開新的分頁)
     driver.switch_to.window(driver.window_handles[-1])
     # 獲取新分頁的網址
     Newurl = driver.current_url
