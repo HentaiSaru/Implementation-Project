@@ -12,7 +12,7 @@ import time
 import sys
 import os
 
-# 巴哈爬蟲
+# 巴哈哈拉區爬文爬蟲
 def RequestsGamer(URL):
     os.system("color 9f")
 
@@ -75,7 +75,7 @@ def RequestsGamer(URL):
 
         print("========== Page:{}結尾 ==========\n".format(page))
 
-# BiliBil 爬蟲
+# BiliBil 搜尋爬蟲
 def RequestsBiliBili(Input):
     print("\n開始搜尋...")
 
@@ -177,7 +177,7 @@ def RequestsBiliBili(Input):
             #driver.execute_script("return document.documentElement.outerHTML")JavaScript代碼在瀏覽器中執行並返回當前頁面的完整HTML源代碼
             #driver.page_source 也是另一種返回當前頁面的完整HTML源代碼的方法
             List = htmlNew.select("div.bili-video-card")
-            time.sleep(3)
+            time.sleep(10)
 
         # 開始爬取頁面
         for i in List:
