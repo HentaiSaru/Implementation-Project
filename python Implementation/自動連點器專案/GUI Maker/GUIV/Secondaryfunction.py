@@ -1,12 +1,5 @@
 from tkinter import messagebox
-import tkinter
-import pyautogui
 from pynput import keyboard
-import configparser as config
-import win32gui
-import win32con
-import threading
-import os
 
 # 時間輸入驗證是否為數字
 def Validateinseconds(new_value):

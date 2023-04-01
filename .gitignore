@@ -4,3 +4,4 @@
 *.ini
 *.json
 *default
+pypy3.9

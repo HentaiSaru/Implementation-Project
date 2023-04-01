@@ -168,18 +168,18 @@ def InitialGUI():
     Hundredthsofasecond.place(in_=SpeedBox, x=frame_x+245, y=frame_y+20)
 
     if State:
-            Timeformat , Timefigures = Timeformatconversion(Save['UserSettings']['IntervalSpeed']) #獲取轉換後的時間格式
-            match Timeformat:
-                case "h":
-                    Hour.insert(0,Timefigures)
-                case "m":
-                    Minute.insert(0,Timefigures)
-                case "s":
-                    Seconds.insert(0,Timefigures)
-                case "t":
-                    Tenthofasecond.insert(0,Timefigures)
-                case "H":
-                    Hundredthsofasecond.insert(0,Timefigures)
+        Timeformat , Timefigures = Timeformatconversion(Save['UserSettings']['IntervalSpeed']) #獲取轉換後的時間格式
+        match Timeformat:
+            case "h":
+                Hour.insert(0,Timefigures)
+            case "m":
+                Minute.insert(0,Timefigures)
+            case "s":
+                Seconds.insert(0,Timefigures)
+            case "t":
+                Tenthofasecond.insert(0,Timefigures)
+            case "H":
+                Hundredthsofasecond.insert(0,Timefigures)
 
     def unblock():
         key = tk.Toplevel(root)
