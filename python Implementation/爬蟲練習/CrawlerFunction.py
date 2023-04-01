@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import requests
 import random
 import time
+import json
 import sys
 import os
 
@@ -81,12 +82,14 @@ def RequestsBiliBili(Input):
 
     options = Options()
     options.add_argument('--headless') # 此行關閉操作窗口
-    # 以下為繞過驗證爬蟲的機制
+    # 以下為繞過驗證爬蟲的機製
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36")
     # 隨機端口
     port = random.randint(1024, 65535)
     options.add_argument(f'--remote-debugging-port={port}')
     options.add_argument("--log-level=3") # 關閉日誌訊息(設置層級)
+    options.add_argument('--start-maximized')
+    options.add_argument('--disable-infobars')
     options.add_experimental_option('excludeSwitches', ['enable-logging']) # 關閉日誌訊息
     # 開啟網頁
     driver = webdriver.Chrome(options=options)
@@ -117,17 +120,13 @@ def RequestsBiliBili(Input):
         VideoTitle = html.find_all('h3')
         VideoTime = html.select("span.bili-video-card__info--date")
         VideoURL = html.select("div.bili-video-card__info--right")
-
         time.sleep(3)
         os.system("cls")
-
         for i in range(len(VideoTitle)):
             Tag = VideoURL[i].find("a")
             href = Tag['href']
-
             Vtime = VideoTime[i].text
             Vtitle = VideoTitle[i].text
-
             print("{}\n{}\n{}\n".format(Vtime,Vtitle,"https:"+href))
     """
     os.system("cls")
@@ -154,7 +153,6 @@ def RequestsBiliBili(Input):
 
     # 取得最後一頁
     finalPage = html.select('button.vui_button.vui_button--no-transition.vui_pagenation--btn.vui_pagenation--btn-num')[-1]
-
     # 從第一頁開始 ~ finalPage
     current_page = 1
     while current_page <= int(finalPage.text):
@@ -166,7 +164,7 @@ def RequestsBiliBili(Input):
             # 滾動頁面
             driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
             # 找到下一頁按鈕
-            Next = WebDriverWait(driver,0).until(EC.presence_of_element_located((By.XPATH, "//button[contains(@class, 'vui_pagenation--btn-side') and contains(text(), '下一页')]")))
+            Next = WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH, "//button[contains(@class, 'vui_button') and contains(@class, 'vui_pagenation--btn-side') and contains(text(), '一页')]")))
             time.sleep(0.5)
             # 按下按鈕
             Next.click()
@@ -177,21 +175,35 @@ def RequestsBiliBili(Input):
             #driver.execute_script("return document.documentElement.outerHTML")JavaScript代碼在瀏覽器中執行並返回當前頁面的完整HTML源代碼
             #driver.page_source 也是另一種返回當前頁面的完整HTML源代碼的方法
             List = htmlNew.select("div.bili-video-card")
-            time.sleep(10)
 
+        ListBox = []
         # 開始爬取頁面
         for i in List:
             try:
                 VideoTitle = i.select("h3")[0].text.strip()
                 VideoTime = i.select("span.bili-video-card__info--date")[0].text.strip()
                 VideoURL = i.select("div.bili-video-card__info--right")[0].find("a")["href"]
+
+                if VideoTitle not in ListBox or VideoURL not in ListBox:
+                    Box ={
+                        "影片日期":VideoTime,
+                        "影片標題":VideoTitle,
+                        "影片連結":'https:'+VideoURL
+                    }
+                    ListBox.append(Box)
+
                 print("{}\n{}\n{}\n".format(VideoTime,VideoTitle,"https:"+VideoURL))
             except Exception as e:
                 print("debug:{}".format(e))
                 continue
         print("========== Page:{}結尾 ==========\n".format(current_page))
         current_page += 1 # 每爬完一頁就+1
+
+    # 輸出成Json
+    SaveBox = json.dumps(ListBox,indent=4,separators=(',',': '),ensure_ascii=False)
+    with open("BiliBili.json","w",encoding="utf-8") as f:f.write(SaveBox)
     driver.quit() # 關閉端口避免出錯 
+
 
 RequestsBiliBili(input("輸入你的查詢: "))
 #RequestsGamer("https://forum.gamer.com.tw/B.php?bsn=36390")
