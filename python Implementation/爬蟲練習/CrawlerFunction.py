@@ -8,13 +8,30 @@ from urllib.parse import unquote
 from bs4 import BeautifulSoup
 import requests
 import random
+import opencc
 import time
 import json
 import sys
 import os
 
+# 簡繁轉換
+def Converter(language):
+    converter = opencc.OpenCC('s2twp.json')
+    return converter.convert(language)
+
+# 輸出保存
+def SaveBox(name):
+    global ListBox
+    SaveBox = json.dumps(ListBox,indent=4,separators=(',', ': '),sort_keys=True,ensure_ascii=False)
+    with open(f"{name}.json","w",encoding="utf-8") as f:
+        f.write(SaveBox)
+
 # 巴哈哈拉區爬文爬蟲
 def RequestsGamer(URL):
+    global ListBox , state
+    ListBox = []
+    state = False
+
     os.system("color 9f")
 
     if URL.find("page=") == -1:
@@ -61,7 +78,8 @@ def RequestsGamer(URL):
         List = HtmlNew.select(".b-list__row.b-list-item.b-imglist-item")
 
         for i in List:
-            time.sleep(0.3)
+            time.sleep(0.2)
+            state = True
 
             try:
                 # 取得文章的類型
@@ -70,7 +88,17 @@ def RequestsGamer(URL):
                 ArticleTitle = i.select(".b-list__main__title")[0].text.strip()
                 # 取得文章連結
                 ArticleTitleLink = f'https://forum.gamer.com.tw/{i.select(".b-list__main__title")[0]["href"]}'
-            except:continue
+
+                Box = {
+                    "文章版面": ArticleType,
+                    "文章標題": ArticleTitle,
+                    "文章連結": ArticleTitleLink,
+                }
+                ListBox.append(Box)
+
+            except Exception as e:
+                print("debug:{}".format(e))
+                continue
 
             print("【{}】{}\n {}\n".format(ArticleType,ArticleTitle,ArticleTitleLink))
 
@@ -78,6 +106,10 @@ def RequestsGamer(URL):
 
 # BiliBil 搜尋爬蟲
 def RequestsBiliBili(Input):
+    global ListBox , state
+    state = False
+    ListBox = []
+
     print("\n開始搜尋...")
 
     options = Options()
@@ -164,7 +196,7 @@ def RequestsBiliBili(Input):
             # 滾動頁面
             driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
             # 找到下一頁按鈕
-            Next = WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH, "//button[contains(@class, 'vui_button') and contains(@class, 'vui_pagenation--btn-side') and contains(text(), '一页')]")))
+            Next = WebDriverWait(driver,5).until(EC.presence_of_element_located((By.XPATH, "//button[@class='vui_button vui_pagenation--btn vui_pagenation--btn-side' and text()='下一页']")))
             time.sleep(0.5)
             # 按下按鈕
             Next.click()
@@ -176,22 +208,24 @@ def RequestsBiliBili(Input):
             #driver.page_source 也是另一種返回當前頁面的完整HTML源代碼的方法
             List = htmlNew.select("div.bili-video-card")
 
-        ListBox = []
+        # 就耐心等一下網頁載入
+        time.sleep(2.5)
+
         # 開始爬取頁面
         for i in List:
             try:
+                state = True
                 VideoTitle = i.select("h3")[0].text.strip()
                 VideoTime = i.select("span.bili-video-card__info--date")[0].text.strip()
                 VideoURL = i.select("div.bili-video-card__info--right")[0].find("a")["href"]
 
                 if VideoTitle not in ListBox or VideoURL not in ListBox:
                     Box ={
-                        "影片日期":VideoTime,
-                        "影片標題":VideoTitle,
+                        "影片日期":Converter(VideoTime).split("· ")[1],
+                        "影片標題":Converter(VideoTitle),
                         "影片連結":'https:'+VideoURL
                     }
                     ListBox.append(Box)
-
                 print("{}\n{}\n{}\n".format(VideoTime,VideoTitle,"https:"+VideoURL))
             except Exception as e:
                 print("debug:{}".format(e))
@@ -199,12 +233,16 @@ def RequestsBiliBili(Input):
         print("========== Page:{}結尾 ==========\n".format(current_page))
         current_page += 1 # 每爬完一頁就+1
 
-    # 輸出成Json
-    SaveBox = json.dumps(ListBox,indent=4,separators=(',',': '),ensure_ascii=False)
-    with open("BiliBili.json","w",encoding="utf-8") as f:f.write(SaveBox)
     driver.quit() # 關閉端口避免出錯 
 
 
-RequestsBiliBili(input("輸入你的查詢: "))
-#RequestsGamer("https://forum.gamer.com.tw/B.php?bsn=36390")
+RequestsGamer("https://forum.gamer.com.tw/B.php?page=235&bsn=60608")
+
+#RequestsBiliBili(input("輸入你的查詢: "))
+
+global state
+if state:
+    # 輸出成Json
+    SaveBox(input("輸入輸出的文件名稱: "))
+
 input("\n運行完畢...")

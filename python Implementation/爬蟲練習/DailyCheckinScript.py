@@ -79,29 +79,29 @@ def add(page):
     return Settings
 
 def Open_Wuyong():
-    driver = webdriver.Chrome(options=add("wuyong"))
-    driver.get("https://wuyong.fun/")
-    driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+    Wuyongdriver = webdriver.Chrome(options=add("wuyong"))
+    Wuyongdriver.get("https://wuyong.fun/")
+    Wuyongdriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
     if not os.path.isfile("./default/wuyongCookies.pkl"):
         for cookie in Login.Get_login("wuyong"):
-            driver.add_cookie(cookie)  
-        driver.refresh()
-        pickle.dump(driver.get_cookies(), open("./default/wuyongCookies.pkl","wb"))
+            Wuyongdriver.add_cookie(cookie)  
+        Wuyongdriver.refresh()
+        pickle.dump(Wuyongdriver.get_cookies(), open("./default/wuyongCookies.pkl","wb"))
 
-    checkinbutton = WebDriverWait(driver,1).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='user-w-qd']/div/i[@class='b2font b2-gift-2-line ']")))
+    checkinbutton = WebDriverWait(Wuyongdriver,1).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='user-w-qd']/div/i[@class='b2font b2-gift-2-line ']")))
     checkinbutton.click()
 
     time.sleep(5)
-    driver.quit()
+    Wuyongdriver.quit()
 
 def Open_miaoaaa():
 
-    driver = webdriver.Chrome(options=add("miaoaaa"))
-    driver.get("https://www.miaoaaa.com/sites/530.html")
-    driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+    miaoaaadriver = webdriver.Chrome(options=add("miaoaaa"))
+    miaoaaadriver.get("https://www.miaoaaa.com/sites/530.html")
+    miaoaaadriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
-    checkinbutton = WebDriverWait(driver,0).until(EC.element_to_be_clickable((By.XPATH, "//a[@class='btn btn-arrow mr-2']")))
+    checkinbutton = WebDriverWait(miaoaaadriver,0).until(EC.element_to_be_clickable((By.XPATH, "//a[@class='btn btn-arrow mr-2']")))
     checkinbutton.click()
 
     """ 保存cookie 並 重新載入保存的 , 可用於記住登入狀態
@@ -112,8 +112,11 @@ def Open_miaoaaa():
     """
 
     time.sleep(15)
-    driver.quit()
+    miaoaaadriver.quit()
 
+threading.Thread(target=Open_miaoaaa).start()
+time.sleep(20)
+threading.Thread(target=Open_Wuyong).start()
 #Open_Wuyong()
 #Open_miaoaaa()
 #CookieView("wuyongCookies")

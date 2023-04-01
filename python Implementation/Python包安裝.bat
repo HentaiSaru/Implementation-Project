@@ -18,14 +18,18 @@ cls
 :: 打包EXE
 pip install pyinstaller
 
+
 :: 加密
 pip install tinyaes
+
 
 :: 解密反編譯
 pip install uncompyle6
 
+
 :: discord Bot交互相關
 pip install discord_webhook
+
 
 :: 爬蟲
 pip install requests
@@ -33,14 +37,20 @@ pip install selenium
 pip install Scrapy
 pip install beautifulsoup4
 
+
 :: 日期時間取得
 pip install schedule
 
+
 :: 字符編碼檢測
 pip install chardet
+:: 語言文字轉換
+pip install opencc
+
 
 :: RSS解析
 pip install feedparser
+
 
 :: 數值分析
 pip install numpy
@@ -52,6 +62,7 @@ pip install scipy
 pip install matplotlib
 :: 機器學習與數據挖掘
 pip install scikit-learn
+
 
 :: 創建GUI
 pip install PyQt5
