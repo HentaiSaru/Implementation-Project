@@ -45,10 +45,17 @@ class Login:
                 return login
 
 # 讀取pkl保存的資料並打印出來
-def CookieView(pkl):
-    with open(f'./default/{pkl}.pkl', 'rb') as f:
+def CookieView(path,pkl):
+    with open(f'./{path}/{pkl}.pkl', 'rb') as f:
         cookies = pickle.load(f)
     print(cookies)
+
+def databases(web):
+    match web:
+        case "wuyong":
+            return "Wuyongdefault"
+        case "miaoaaa":
+            return "miaoaaadefault"
 
 # 隨機端口分配   
 def RandomPort(web):
@@ -66,7 +73,7 @@ def add(page):
     #Settings.add_argument("--headless")
     Settings.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36')
     Settings.add_argument('--remote-debugging-address=0.0.0.0')
-    Settings.add_argument("user-data-dir=default")
+    Settings.add_argument(f"user-data-dir={databases(page)}")
     Settings.add_argument(f"--remote-debugging-port={RandomPort(page)}")
     Settings.add_argument('--start-maximized') # 開啟最大化
     Settings.add_argument('--disable-notifications')
@@ -83,11 +90,11 @@ def Open_Wuyong():
     Wuyongdriver.get("https://wuyong.fun/")
     Wuyongdriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
-    if not os.path.isfile("./default/wuyongCookies.pkl"):
+    if not os.path.isfile("./Wuyongdefault/wuyongCookies.pkl"):
         for cookie in Login.Get_login("wuyong"):
             Wuyongdriver.add_cookie(cookie)  
         Wuyongdriver.refresh()
-        pickle.dump(Wuyongdriver.get_cookies(), open("./default/wuyongCookies.pkl","wb"))
+        pickle.dump(Wuyongdriver.get_cookies(), open("./Wuyongdefault/wuyongCookies.pkl","wb"))
 
     checkinbutton = WebDriverWait(Wuyongdriver,1).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='user-w-qd']/div/i[@class='b2font b2-gift-2-line ']")))
     checkinbutton.click()
@@ -115,8 +122,6 @@ def Open_miaoaaa():
     miaoaaadriver.quit()
 
 threading.Thread(target=Open_miaoaaa).start()
-time.sleep(20)
+time.sleep(2)
 threading.Thread(target=Open_Wuyong).start()
-#Open_Wuyong()
-#Open_miaoaaa()
-#CookieView("wuyongCookies")
+#CookieView("miaoaaadefault","MiaCookies")
