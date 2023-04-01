@@ -9,11 +9,13 @@ from tkinter import messagebox
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import threading
+import datetime
 import shutil
 import random
 import pickle
 import json
 import time
+import pytz
 import os
 
 """
@@ -75,6 +77,17 @@ class Login:
         except:
             pass
 
+# 計算等待秒數
+def WaitingTime():
+    TaipeiTimezone = pytz.timezone('Asia/Taipei')
+    TargetTime = datetime.time(hour=0, minute=0, second=0)
+    current_time = datetime.datetime.now(TaipeiTimezone).time()
+    if current_time < TargetTime:
+        seconds_to_wait = (datetime.datetime.combine(datetime.date.today(), TargetTime) - datetime.datetime.combine(datetime.date.today(), current_time)).seconds
+    else:
+        seconds_to_wait = (datetime.datetime.combine(datetime.date.today() + datetime.timedelta(days=1), TargetTime) - datetime.datetime.combine(datetime.date.today(), current_time)).seconds
+    return seconds_to_wait
+
 # 讀取pkl保存的資料並打印出來
 def CookieView(path,pkl):
     with open(f'./{path}/{pkl}.pkl', 'rb') as f:
@@ -96,6 +109,9 @@ def RandomPort(web):
             return port
         case "Genshin":
             port = random.randint(4097, 8194)
+            return port
+        case "black":
+            port = random.randint(8195, 16390)
             return port
 
 # selenium創建 相關設置
@@ -222,14 +238,31 @@ def Open_Genshin(Sc):
     pickle.dump(Genshindriver.get_cookies(), open("./Genshindefault/GenshinCookies.pkl","wb"))
     Genshindriver.quit()
 
+# 這邊就沒有做Cookie和登入的部份,就手動登入按保存吧
+def Open_black(Sc):
+    blackdriver = webdriver.Chrome(options=add("black"))
+    blackdriver.get("https://black.is-best.site/plugin.php?id=gsignin:index")
+
+    # 等待到指定時間才運行
+    time.sleep(WaitingTime())
+    blackdriver.refresh()
+    blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
+    blackbutton.click()
+
+    time.sleep(Sc)
+    pickle.dump(blackdriver.get_cookies(), open("./blackdefault/blackCookies.pkl","wb"))
+    blackdriver.quit()
+
+
+
 # 後方的 args 是用於傳遞 tuple 內的數值,將其設置為窗口關閉的延遲時間
-"""
-threading.Thread(target=Open_Wuyong,args=(3,)).start()
-time.sleep(2)
+threading.Thread(target=Open_black,args=(5,)).start()
+time.sleep(WaitingTime()+10)
+threading.Thread(target=Open_Wuyong,args=(5,)).start()
+time.sleep(1)
 threading.Thread(target=Open_miaoaaa,args=(10,)).start()
-time.sleep(2)
-threading.Thread(target=Open_Genshin,args=(3,)).start()
-"""
+time.sleep(1)
+threading.Thread(target=Open_Genshin,args=(5,)).start()
 
 # 輸出Cookie內容的方法 資料位置 , 要開啟的Cookie檔案名
-#CookieView("miaoaaadefault","MiaCookies")
+#CookieView("blackdefault","blackCookies")
