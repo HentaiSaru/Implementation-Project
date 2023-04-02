@@ -18,13 +18,6 @@ import time
 import pytz
 import os
 
-"""
-1. 練習以插入Cookie 的方式
-
-2. 練習以自動化操作登入
-
-"""
-
 # 取得登入資料相關接口
 class Login:
 
@@ -244,7 +237,7 @@ def Open_black(Sc):
     blackdriver.get("https://black.is-best.site/plugin.php?id=gsignin:index")
 
     # 等待到指定時間才運行
-    time.sleep(WaitingTime())
+    time.sleep(WaitingTime()+1) # 延遲測試
     blackdriver.refresh()
     blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
     blackbutton.click()
@@ -253,6 +246,9 @@ def Open_black(Sc):
     pickle.dump(blackdriver.get_cookies(), open("./blackdefault/blackCookies.pkl","wb"))
     blackdriver.quit()
 
+
+def Open_hgamefree(Sc):
+   "https://hgamefree.info/"
 
 
 # 後方的 args 是用於傳遞 tuple 內的數值,將其設置為窗口關閉的延遲時間
