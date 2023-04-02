@@ -3,16 +3,31 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from selenium import webdriver
 from urllib.parse import unquote
+from selenium import webdriver
 from bs4 import BeautifulSoup
+from pynput import keyboard
+import threading
 import requests
+import datetime
 import random
 import opencc
 import time
 import json
 import sys
+import re
 import os
+
+""" ---------- 功能API ---------- """
+# 網址含有中文時的轉換
+def UrlPattern(URL):
+        # 大坑 很重要!! 當網址含有中文,在複製時會被轉譯,這邊是將他轉回去
+        NewURL = unquote(URL)
+
+        # 用於判斷 BiliBil 影片網址的後綴,並將其去除
+        if NewURL.find("/?") != -1:
+            NewURL = NewURL.split("/?")[0]
+        return NewURL
 
 # 簡繁轉換
 def Converter(language):
@@ -20,89 +35,185 @@ def Converter(language):
     return converter.convert(language)
 
 # 輸出保存
-def SaveBox(name):
-    global ListBox
-    SaveBox = json.dumps(ListBox,indent=4,separators=(',', ': '),sort_keys=True,ensure_ascii=False)
-    with open(f"{name}.json","w",encoding="utf-8") as f:
-        f.write(SaveBox)
+def SaveBox():
+    global ListBox , state
+    os.system("cls")
+
+    if state:
+        name = input("輸入輸出的文件名稱: ")
+
+        SaveBox = json.dumps(ListBox,indent=4,separators=(',', ': '),sort_keys=True,ensure_ascii=False)
+        with open(f"{name}.json","w",encoding="utf-8") as f:
+            f.write(SaveBox)
+        print("輸出完畢...")
+
+# 功能選項
+def add():
+    options = Options()
+    options.add_argument('--headless') # 此行關閉操作窗口
+    options.add_argument("user-data-dir=R:/ChromTest")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36")
+    options.add_argument(f'--remote-debugging-port={random.randint(1024,65535)}') # 隨機遠程端口
+    options.add_argument('--incognito')
+    options.add_argument("--log-level=3") # 關閉日誌訊息(設置層級)
+    options.add_argument('--disable-logging')
+    options.add_argument('--disable-infobars')
+    options.add_argument('--disable-translate')
+    options.add_argument('--disable-web-security')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-notifications')
+    options.add_argument('--disable-popup-blocking')
+    options.add_argument('--ignore-certificate-errors')
+    options.add_experimental_option('excludeSwitches', ['enable-logging']) # 關閉日誌訊息
+    options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    options.add_experimental_option('useAutomationExtension', False)
+    return options
+
+""" ---------- 主要程式運行 ---------- """
+class Gamerconversion:
+
+    header = {
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+    }
+    
+    def GNN(page):
+        global ListBox , state
+        ListBox = []
+        state = True
+
+        # 取得當前的年月
+        now = datetime.datetime.now()
+        year = now.year
+        month = now.month
+
+        try:
+            current_page = 1
+            while current_page <= int(page):
+                Information = requests.get(f"https://gnn.gamer.com.tw/?yy={year}&mm={month}",headers=Gamerconversion.header)
+                Html = BeautifulSoup(Information.text, "html.parser")
+                articletitle = Html.find_all('h1', class_="GN-lbox2D")
+
+                for i in range(len(articletitle)):
+                    title = articletitle[i].find("a").text
+                    url = "https:{}\n".format(articletitle[i].find("a")['href'])
+
+                    print(title)
+                    print(url)
+
+                    Box = {
+                        "新聞標題": title,
+                        "新聞連結": url,
+                    }
+                    time.sleep(0.05)
+                    ListBox.append(Box)
+
+                print("========== {} {}結尾 ==========\n".format(year,month))
+                current_page += 1
+                month -= 1
+
+                if month < 1:
+                    month = 12
+                    year -= 1
+
+                time.sleep(2)
+        except:pass
 
 # 巴哈哈拉區爬文爬蟲
-def RequestsGamer(URL):
+def RequestsGamer(search,page):
     global ListBox , state
     ListBox = []
     state = False
+    
+    print("\n開始搜尋... (搜尋速度取決於你的網速)")
 
-    os.system("color 9f")
+    try:
+        search_convert = f"https://search.gamer.com.tw/?q={UrlPattern(search)}#gsc.tab=0&gsc.q={UrlPattern(search)}&gsc.page=1"
+        # 因為是由Js動態生成的,只能用自動化操作取得
+        driver = webdriver.Chrome(options=add())
+        driver.get(search_convert)
+        driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+        Page = BeautifulSoup(driver.page_source, 'html.parser')
+        URL = Page.find('a', class_='gs-title').get('data-ctorig')
+        os.system("cls")
+        driver.quit()
 
-    if URL.find("page=") == -1:
-        URL = "{}?{}".format(URL.split("?")[0],"page=1&"+URL.split("?")[1]).replace("A","B")
+        # 只供哈拉區版面的轉換
+        if URL.find("page=") == -1:
+            URL = "{}?{}".format(URL.split("?")[0],"page=1&"+URL.split("?")[1]).replace("A","B")
 
-    # 模擬 headers 資訊繞過反爬蟲
-    header = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/16.16299",
-    }
+        # 模擬 headers 資訊繞過反爬蟲
+        header = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/16.16299",
+        }
 
-    # 顯示格式設置
-    params = {}
+        # 顯示格式設置
+        params = {}
 
-    # 載入 headers 資訊
-    Information = requests.get(URL,headers=header,params=params)
-    if Information.status_code == 400:print('錯誤的要求')
-    elif Information.status_code == 404:print('找不到網頁')
-    elif Information.status_code == 500:print('伺服器錯誤')
-    elif Information.status_code == 504:print('伺服器沒有回應')
+        # 載入 headers 資訊
+        Information = requests.get(URL,headers=header,params=params)
+        if Information.status_code == 400:print('錯誤的要求')
+        elif Information.status_code == 404:print('找不到網頁')
+        elif Information.status_code == 500:print('伺服器錯誤')
+        elif Information.status_code == 504:print('伺服器沒有回應')
 
-    """取得所有 該標籤的內容 Content = doc.find_all("div")"""
+        """取得所有 該標籤的內容 Content = doc.find_all("div")"""
 
-    # html.parser解析 其他解析器(html5lib)
-    Html = BeautifulSoup(Information.text, "html.parser")
-    # 取得完整的頁數
-    finalList = Html.select(".BH-pagebtnA")[0].find_all('a')[-1].text
+        # html.parser解析 其他解析器(html5lib)
+        Html = BeautifulSoup(Information.text, "html.parser")
 
-    # 取得給予的網址頁數
-    URLPage = URL.split("page=")[1].split("&")[0]
+        # 取得完整的頁數
+        finalList = Html.select(".BH-pagebtnA")[0].find_all('a')[-1].text
 
-    # 從1+到finalList的頁數
-    for page in range(int(URLPage),int(finalList)+1):
+        # 可由輸入的頁數作為爬取數量,但要確保小於最大的頁數量
+        if len(page) != 0:
+            if page < finalList:finalList = page
 
-        # 將URL轉換為新格式
-        UrlNew = "{}page={}&{}".format(URL.split("page=")[0],f"{URLPage}",URL.split("&")[1])
+        # 取得給予的網址頁數(先前功能的遺留 非必要)
+        URLPage = URL.split("page=")[1].split("&")[0]
 
-        InformationNew = requests.get(UrlNew,headers=header)
+        # 從1+到finalList的頁數
+        for page in range(int(URLPage),int(finalList)+1):
 
-        HtmlNew = BeautifulSoup(InformationNew.text, "html.parser")
+            # 將URL轉換為新格式
+            UrlNew = "{}page={}&{}".format(URL.split("page=")[0],f"{URLPage}",URL.split("&")[1])
+            InformationNew = requests.get(UrlNew,headers=header)
+            HtmlNew = BeautifulSoup(InformationNew.text, "html.parser")
+            List = HtmlNew.select(".b-list__row.b-list-item.b-imglist-item")
 
-        List = HtmlNew.select(".b-list__row.b-list-item.b-imglist-item")
+            for i in List:
+                time.sleep(0.05)
+                state = True
 
-        for i in List:
-            time.sleep(0.2)
-            state = True
+                try:
+                    # 取得文章的類型
+                    ArticleType = i.select(".b-list__summary__sort")[0].text.strip()
+                    # 取得文章標題
+                    ArticleTitle = i.select(".b-list__main__title")[0].text.strip()
+                    # 取得文章連結
+                    ArticleTitleLink = f'https://forum.gamer.com.tw/{i.select(".b-list__main__title")[0]["href"]}'
 
-            try:
-                # 取得文章的類型
-                ArticleType = i.select(".b-list__summary__sort")[0].text.strip()
-                # 取得文章標題
-                ArticleTitle = i.select(".b-list__main__title")[0].text.strip()
-                # 取得文章連結
-                ArticleTitleLink = f'https://forum.gamer.com.tw/{i.select(".b-list__main__title")[0]["href"]}'
+                    Box = {
+                        "文章版面": ArticleType,
+                        "文章標題": ArticleTitle,
+                        "文章連結": ArticleTitleLink,
+                    }
+                    ListBox.append(Box)
 
-                Box = {
-                    "文章版面": ArticleType,
-                    "文章標題": ArticleTitle,
-                    "文章連結": ArticleTitleLink,
-                }
-                ListBox.append(Box)
+                except Exception as e:
+                    print("debug:{}".format(e))
+                    continue
 
-            except Exception as e:
-                print("debug:{}".format(e))
-                continue
+                print("【{}】{}\n {}\n".format(ArticleType,ArticleTitle,ArticleTitleLink))
 
-            print("【{}】{}\n {}\n".format(ArticleType,ArticleTitle,ArticleTitleLink))
-
-        print("========== Page:{}結尾 ==========\n".format(page))
+            print("========== Page:{}結尾 ==========\n".format(page))
+            time.sleep(1)
+    except:
+        if search.upper()  == "GNN":
+            Gamerconversion.GNN(page)
+    SaveBox()
 
 # BiliBil 搜尋爬蟲
 def RequestsBiliBili(Input):
@@ -110,33 +221,15 @@ def RequestsBiliBili(Input):
     state = False
     ListBox = []
 
-    print("\n開始搜尋...")
+    print("\n開始搜尋... (搜尋速度取決於你的網速)")
 
-    options = Options()
-    options.add_argument('--headless') # 此行關閉操作窗口
-    # 以下為繞過驗證爬蟲的機製
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36")
-    # 隨機端口
-    port = random.randint(1024, 65535)
-    options.add_argument(f'--remote-debugging-port={port}')
-    options.add_argument("--log-level=3") # 關閉日誌訊息(設置層級)
-    options.add_argument('--start-maximized')
-    options.add_argument('--disable-infobars')
-    options.add_experimental_option('excludeSwitches', ['enable-logging']) # 關閉日誌訊息
-    # 開啟網頁
-    driver = webdriver.Chrome(options=options)
-    # 繞過檢測Js
-    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-    # 到達首頁
-    driver.get("https://www.bilibili.com/")
-    # 找到輸入框
-    search = WebDriverWait(driver,30).until(EC.presence_of_element_located((By.XPATH, "//input[@class='nav-search-input']")))
-    # 點選
-    search.click()
-    # 輸入
-    search.send_keys(Input)
-    # 送出
-    search.send_keys(Keys.RETURN)
+    driver = webdriver.Chrome(options=add()) # 開啟網頁
+    driver.get("https://www.bilibili.com/") # 到達首頁
+    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})") # 繞過檢測Js
+    search = WebDriverWait(driver,30).until(EC.presence_of_element_located((By.XPATH, "//input[@class='nav-search-input']"))) # 找到輸入框
+    search.click() # 點選
+    search.send_keys(Input) # 輸入
+    search.send_keys(Keys.RETURN) # 送出
 
     # 切換分頁(B站的搜尋會開新的分頁)
     driver.switch_to.window(driver.window_handles[-1])
@@ -162,13 +255,6 @@ def RequestsBiliBili(Input):
             print("{}\n{}\n{}\n".format(Vtime,Vtitle,"https:"+href))
     """
     os.system("cls")
-    def UrlPattern(URL):
-        # 大坑 很重要!! 當網址含有中文,在複製時會被轉譯,這邊是將他轉回去
-        NewURL = unquote(URL)
-        # 用於判斷 BiliBil 影片網址的後綴,並將其去除
-        if NewURL.find("/?") != -1:
-            NewURL = NewURL.split("/?")[0]
-        return NewURL
 
     # === 換回 requests 爬取方式 ===
     header = {
@@ -233,16 +319,22 @@ def RequestsBiliBili(Input):
         print("========== Page:{}結尾 ==========\n".format(current_page))
         current_page += 1 # 每爬完一頁就+1
 
+    SaveBox()
     driver.quit() # 關閉端口避免出錯 
 
+search = input("(盡量打完整名稱不然搜不到)\n巴哈哈拉區查詢: ")
+page = input("輸入要搜尋的頁數(可直接Entrl跳過): ")
+threading.Thread(target=RequestsGamer,args=(search,page)).start()
 
-RequestsGamer("https://forum.gamer.com.tw/B.php?page=235&bsn=60608")
+#RequestsBiliBili(input("B站查詢: "))
 
-#RequestsBiliBili(input("輸入你的查詢: "))
+"""
+作業中..
 
-global state
-if state:
-    # 輸出成Json
-    SaveBox(input("輸入輸出的文件名稱: "))
+可搜尋場外版
 
-input("\n運行完畢...")
+並可以數字選擇,場外的板塊進入
+
+創建關於動畫瘋的搜索
+
+"""
