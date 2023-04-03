@@ -91,21 +91,21 @@ def CookieView(path,pkl):
 def databases(web):
     return web+"default"
 
-# 隨機端口分配   
-def RandomPort(web):
-    match web:
-        case "wuyong":
-            port = random.randint(1024, 2048)
-            return port
-        case "miaoaaa":
-            port = random.randint(2049, 4096)
-            return port
-        case "Genshin":
-            port = random.randint(4097, 8194)
-            return port
-        case "black":
-            port = random.randint(8195, 16390)
-            return port
+global count , port
+count = 0
+port = 1024
+# 隨機端口分配
+def RandomPort():
+    global count , port
+    count += 1
+
+    if port <= 65535:
+        if count == 1:
+            return random.randint(port, port*1.5)
+        elif count > 1:
+            port *= 1.5 + 1
+            return random.randint(port, port*1.5)
+    else:return random.randint(1024,65535) # 先隨便寫個
 
 # selenium創建 相關設置
 def add(page):
@@ -116,7 +116,7 @@ def add(page):
     Settings.add_argument('--remote-debugging-address=0.0.0.0')
     # 為了要同時多開窗口操作,Port和配置檔,不能是一樣的
     Settings.add_argument(f"user-data-dir={databases(page)}")
-    Settings.add_argument(f"--remote-debugging-port={RandomPort(page)}")
+    Settings.add_argument(f"--remote-debugging-port={RandomPort()}")
     Settings.add_argument('--start-maximized') # 開啟最大化
     Settings.add_argument('--disable-notifications')
     Settings.add_argument('--ignore-certificate-errors')
@@ -126,6 +126,84 @@ def add(page):
     Settings.add_experimental_option('excludeSwitches', ['enable-automation'])
     Settings.add_experimental_option('useAutomationExtension', False)
     return Settings
+
+class forum:
+    # 自動使用道具 (無寫登入方法,需先自行登入)
+    def jkf_use_props(Sc):
+        jkfdriver = webdriver.Chrome(options=add("Jkf"))
+        jkfdriver.get("https://www.jkforum.net/forum.php?mod=forum")
+        time.sleep(1)
+        jkfdriver.get("https://www.jkforum.net/material/my_item")
+        jkfdriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+
+        time.sleep(15) # 這網站加載很慢,等久一點(運行失敗就再加長時間)
+        Content = jkfdriver.page_source.encode('utf-8').strip()
+        html = BeautifulSoup(Content,'html.parser')
+
+        try: # 使用小型體力藥水
+        
+            smallpotion = WebDriverWait(jkfdriver,20).until(EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'item-wrap') and .//div[contains(text(), '小型體力藥水')]]//button[contains(text(), '查看')]")))
+            smallpotion.click()
+
+            SmallPotionQuantity = html.select_one("div.item-wrap:-soup-contains('小型體力藥水') div.text-white.absolute.bottom-0.right-3.CENnO4Uu4CssJR9PLmCG").text
+            Quantity = int(SmallPotionQuantity.split("x")[1])
+
+            for i in range(Quantity):
+
+                potionuse = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='OvtXIlmLtXEE_eWpy1jH px-4']")))
+                potionuse.click()
+
+                confirm = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='OvtXIlmLtXEE_eWpy1jH px-4'][text()='確認']")))
+                confirm.click()
+        except:pass
+
+        try: # 使用中型藥水
+            mediumpotion = WebDriverWait(jkfdriver,20).until(EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'item-wrap') and .//div[contains(text(), '中型體力藥水')]]//button[contains(text(), '查看')]")))
+            mediumpotion.click()
+
+            MediumPotionQuantity = html.select_one("div.item-wrap:-soup-contains('中型體力藥水') div.text-white.absolute.bottom-0.right-3.CENnO4Uu4CssJR9PLmCG").text
+            Quantity = int(MediumPotionQuantity.split("x")[1])
+
+            for i in range(Quantity):
+
+                    potionuse = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='OvtXIlmLtXEE_eWpy1jH px-4']")))
+                    potionuse.click()
+
+                    confirm = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='OvtXIlmLtXEE_eWpy1jH px-4'][text()='確認']")))
+                    confirm.click()
+        except:pass
+
+        time.sleep(Sc)
+        pickle.dump(jkfdriver.get_cookies(), open("./Jkfdefault/JkfCookies.pkl","wb"))
+        jkfdriver.quit()
+
+    # 挖礦功能
+    def jkf_mining(Sc,Location):
+        jkfdriver = webdriver.Chrome(options=add("Jkf"))
+        jkfdriver.get("https://www.jkforum.net/forum.php?mod=forum")
+        time.sleep(1)
+        jkfdriver.get("https://www.jkforum.net/material/mining")
+        jkfdriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+        time.sleep(15)
+
+
+        time.sleep(Sc)
+        pickle.dump(jkfdriver.get_cookies(), open("./Jkfdefault/JkfCookies.pkl","wb"))
+        jkfdriver.quit()
+
+    # 探索功能
+    def jkf_explore(Sc,Location):
+        jkfdriver = webdriver.Chrome(options=add("Jkf"))
+        jkfdriver.get("https://www.jkforum.net/forum.php?mod=forum")
+        time.sleep(1)
+        jkfdriver.get("https://www.jkforum.net/material/terrain_exploration")
+        jkfdriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+        time.sleep(15)
+
+
+        time.sleep(Sc)
+        pickle.dump(jkfdriver.get_cookies(), open("./Jkfdefault/JkfCookies.pkl","wb"))
+        jkfdriver.quit()
 
 def Open_Wuyong(Sc):
     Wuyongdriver = webdriver.Chrome(options=add("wuyong"))
@@ -230,14 +308,13 @@ def Open_Genshin(Sc):
     time.sleep(Sc)
     pickle.dump(Genshindriver.get_cookies(), open("./Genshindefault/GenshinCookies.pkl","wb"))
     Genshindriver.quit()
-
 # 這邊就沒有做Cookie和登入的部份,就手動登入按保存吧
 def Open_black(Sc):
     blackdriver = webdriver.Chrome(options=add("black"))
     blackdriver.get("https://black.is-best.site/plugin.php?id=gsignin:index")
 
     # 等待到指定時間才運行
-    time.sleep(WaitingTime()+1) # 延遲測試
+    time.sleep(WaitingTime()+1) # 成功測試
     blackdriver.refresh()
     blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
     blackbutton.click()
@@ -246,19 +323,22 @@ def Open_black(Sc):
     pickle.dump(blackdriver.get_cookies(), open("./blackdefault/blackCookies.pkl","wb"))
     blackdriver.quit()
 
-
 def Open_hgamefree(Sc):
    "https://hgamefree.info/"
 
 
 # 後方的 args 是用於傳遞 tuple 內的數值,將其設置為窗口關閉的延遲時間
-threading.Thread(target=Open_black,args=(5,)).start()
-time.sleep(WaitingTime()+10)
-threading.Thread(target=Open_Wuyong,args=(5,)).start()
-time.sleep(1)
-threading.Thread(target=Open_miaoaaa,args=(10,)).start()
-time.sleep(1)
-threading.Thread(target=Open_Genshin,args=(5,)).start()
+# threading.Thread(target=Open_black,args=(5,)).start()
+# time.sleep(WaitingTime()+10)
+# threading.Thread(target=Open_Wuyong,args=(5,)).start()
+# time.sleep(1)
+# threading.Thread(target=Open_miaoaaa,args=(10,)).start()
+# time.sleep(1)
+# threading.Thread(target=Open_Genshin,args=(5,)).start()
+
+
+# Jkf論壇使用體力藥水
+#forum.jkf_use_props(5)
 
 # 輸出Cookie內容的方法 資料位置 , 要開啟的Cookie檔案名
 #CookieView("blackdefault","blackCookies")

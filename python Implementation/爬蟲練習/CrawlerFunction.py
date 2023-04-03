@@ -83,6 +83,7 @@ def add():
     return options
 
 """ ---------- 主要程式運行 ---------- """
+# 針對巴哈非普通遊戲版 的搜尋設置
 class Gamerconversion:
 
     header = {
