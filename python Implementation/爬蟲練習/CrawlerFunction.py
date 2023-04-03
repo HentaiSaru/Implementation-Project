@@ -35,16 +35,29 @@ def Converter(language):
     return converter.convert(language)
 
 # 輸出保存
-def SaveBox():
+def SaveBox(search):
     global ListBox , state
     os.system("cls")
 
     if state:
         name = input("輸入輸出的文件名稱: ")
+        Adjustment_dict = {search:[]}
 
-        SaveBox = json.dumps(ListBox,indent=4,separators=(',', ': '),sort_keys=True,ensure_ascii=False)
+        DividerStyle = ["»","≈","…"]
+        Style = random.choice(DividerStyle)
+
+        for data in ListBox:
+            for key , value in data.items():
+                if value == list(data.values())[-1]:
+                    value = " " + value
+                NewData = f"【 {key} 】 {value}"
+                Adjustment_dict[search].append(NewData)
+            Adjustment_dict[search].append(f" {Style*70} ")
+
+        SaveBox = json.dumps(Adjustment_dict,indent=4,separators=(',',':'),ensure_ascii=False)
         with open(f"{name}.json","w",encoding="utf-8") as f:
             f.write(SaveBox)
+
         print("輸出完畢...")
 
 # 功能選項
@@ -95,10 +108,10 @@ class Gamerconversion:
 
                 for i in range(len(articletitle)):
                     title = articletitle[i].find("a").text
-                    url = "https:{}\n".format(articletitle[i].find("a")['href'])
+                    url = "https:{}".format(articletitle[i].find("a")['href'])
 
                     print(title)
-                    print(url)
+                    print(url+"\n")
 
                     Box = {
                         "新聞標題": title,
@@ -107,7 +120,7 @@ class Gamerconversion:
                     time.sleep(0.05)
                     ListBox.append(Box)
 
-                print("========== {} {}結尾 ==========\n".format(year,month))
+                print("========== {}年 {}月 結尾 ==========\n".format(year,month))
                 current_page += 1
                 month -= 1
 
@@ -119,7 +132,7 @@ class Gamerconversion:
         except:pass
 
 # 巴哈哈拉區爬文爬蟲
-def RequestsGamer(search,page):
+def RequestsGamer(search,pages):
     global ListBox , state
     ListBox = []
     state = False
@@ -136,11 +149,11 @@ def RequestsGamer(search,page):
         URL = Page.find('a', class_='gs-title').get('data-ctorig')
         os.system("cls")
         driver.quit()
-
+        
         # 只供哈拉區版面的轉換
         if URL.find("page=") == -1:
             URL = "{}?{}".format(URL.split("?")[0],"page=1&"+URL.split("?")[1]).replace("A","B")
-
+        
         # 模擬 headers 資訊繞過反爬蟲
         header = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15",
@@ -151,7 +164,7 @@ def RequestsGamer(search,page):
 
         # 顯示格式設置
         params = {}
-
+        
         # 載入 headers 資訊
         Information = requests.get(URL,headers=header,params=params)
         if Information.status_code == 400:print('錯誤的要求')
@@ -165,15 +178,15 @@ def RequestsGamer(search,page):
         Html = BeautifulSoup(Information.text, "html.parser")
 
         # 取得完整的頁數
-        finalList = Html.select(".BH-pagebtnA")[0].find_all('a')[-1].text
+        finalList = int(Html.select(".BH-pagebtnA")[0].find_all('a')[-1].text)
 
         # 可由輸入的頁數作為爬取數量,但要確保小於最大的頁數量
-        if len(page) != 0:
-            if page < finalList:finalList = page
+        if pages != 0:
+            if pages < finalList:finalList = pages
 
         # 取得給予的網址頁數(先前功能的遺留 非必要)
         URLPage = URL.split("page=")[1].split("&")[0]
-
+        
         # 從1+到finalList的頁數
         for page in range(int(URLPage),int(finalList)+1):
 
@@ -196,7 +209,7 @@ def RequestsGamer(search,page):
                     ArticleTitleLink = f'https://forum.gamer.com.tw/{i.select(".b-list__main__title")[0]["href"]}'
 
                     Box = {
-                        "文章版面": ArticleType,
+                        "文章版面": f"【{ArticleType}】",
                         "文章標題": ArticleTitle,
                         "文章連結": ArticleTitleLink,
                     }
@@ -210,13 +223,14 @@ def RequestsGamer(search,page):
 
             print("========== Page:{}結尾 ==========\n".format(page))
             time.sleep(1)
-    except:
+    except Exception as e:
+        print(e)
         if search.upper()  == "GNN":
-            Gamerconversion.GNN(page)
-    SaveBox()
+            Gamerconversion.GNN(page) 
+    SaveBox(search)
 
 # BiliBil 搜尋爬蟲
-def RequestsBiliBili(Input):
+def RequestsBiliBili(Input,pages):
     global ListBox , state
     state = False
     ListBox = []
@@ -270,10 +284,14 @@ def RequestsBiliBili(Input):
     html = BeautifulSoup(Information.text, "html.parser")
 
     # 取得最後一頁
-    finalPage = html.select('button.vui_button.vui_button--no-transition.vui_pagenation--btn.vui_pagenation--btn-num')[-1]
+    finalPage = int(html.select('button.vui_button.vui_button--no-transition.vui_pagenation--btn.vui_pagenation--btn-num')[-1].text)
+    
+    if pages != 0:
+        if pages < finalPage:finalPage = pages
+
     # 從第一頁開始 ~ finalPage
     current_page = 1
-    while current_page <= int(finalPage.text):
+    while current_page <= finalPage:
         if current_page == 1: # 如果是第一頁,用預設的
             Information = requests.get(Newurl, headers=header)
             html = BeautifulSoup(Information.text, "html.parser")
@@ -301,13 +319,13 @@ def RequestsBiliBili(Input):
         for i in List:
             try:
                 state = True
-                VideoTitle = i.select("h3")[0].text.strip()
+                VideoTitle = i.select("h3.bili-video-card__info--tit")[0].text.strip()
                 VideoTime = i.select("span.bili-video-card__info--date")[0].text.strip()
                 VideoURL = i.select("div.bili-video-card__info--right")[0].find("a")["href"]
 
                 if VideoTitle not in ListBox or VideoURL not in ListBox:
                     Box ={
-                        "影片日期":Converter(VideoTime).split("· ")[1],
+                        "影片日期":f'【{Converter(VideoTime).split("· ")[1]}】',
                         "影片標題":Converter(VideoTitle),
                         "影片連結":'https:'+VideoURL
                     }
@@ -318,15 +336,13 @@ def RequestsBiliBili(Input):
                 continue
         print("========== Page:{}結尾 ==========\n".format(current_page))
         current_page += 1 # 每爬完一頁就+1
-
-    SaveBox()
+    SaveBox(Input)
     driver.quit() # 關閉端口避免出錯 
 
-search = input("(盡量打完整名稱不然搜不到)\n巴哈哈拉區查詢: ")
-page = input("輸入要搜尋的頁數(可直接Entrl跳過): ")
-threading.Thread(target=RequestsGamer,args=(search,page)).start()
-
-#RequestsBiliBili(input("B站查詢: "))
+search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
+pages = eval(input("輸入要搜尋的頁數(可直接Entrl跳過): "))
+threading.Thread(target=RequestsGamer,args=(search,pages)).start()
+# threading.Thread(target=RequestsBiliBili,args=(search,pages)).start()
 
 """
 作業中..
