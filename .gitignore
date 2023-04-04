@@ -3,6 +3,7 @@
 *.pyc
 *.ini
 *.json
+*.exe
 *default
 pypy3.9
 Virtual
