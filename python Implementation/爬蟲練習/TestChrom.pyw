@@ -10,6 +10,7 @@ Settings.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) Appl
 Settings.add_argument('--remote-debugging-address=0.0.0.0')
 Settings.add_argument(f"--remote-debugging-port={random.randint(1024,65535)}")
 Settings.add_argument("user-data-dir=R:/ChromTest")
+Settings.add_argument('--disk-cache-dir=R:/caching')
 Settings.add_argument('--start-maximized')
 Settings.add_argument('--disable-notifications')
 Settings.add_argument('--ignore-certificate-errors')
@@ -25,4 +26,6 @@ while True:
     try:
         time.sleep(5)
         status_confirmation = WebDriverWait(driver,10).until(EC.presence_of_element_located((By.XPATH, "//title")))
-    except:break
+    except:
+        driver.quit()
+        break

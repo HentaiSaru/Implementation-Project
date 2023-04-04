@@ -19,6 +19,11 @@ import re
 import os
 
 """ ---------- 功能API ---------- """
+# 清除非正常關閉時遺留的垃圾
+def TrashRemoval():
+    os.system('for /d %d in ("C:\Program Files\chrome_BITS*") do rd /s /q "%d" >nul 2>&1')
+    os.system('for /d %d in ("C:\Program Files (x86)\scoped_dir*") do rd /s /q "%d" >nul 2>&1')
+
 # 網址含有中文時的轉換
 def UrlPattern(URL):
         # 大坑 很重要!! 當網址含有中文,在複製時會被轉譯,這邊是將他轉回去
@@ -65,6 +70,7 @@ def add():
     options = Options()
     options.add_argument('--headless') # 此行關閉操作窗口
     options.add_argument("user-data-dir=R:/ChromTest")
+    options.add_argument('--disk-cache-dir=R:/caching')
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36")
     options.add_argument(f'--remote-debugging-port={random.randint(1024,65535)}') # 隨機遠程端口
     options.add_argument('--incognito')
@@ -345,6 +351,7 @@ pages = eval(input("輸入要搜尋的頁數(可直接Entrl跳過): "))
 threading.Thread(target=RequestsGamer,args=(search,pages)).start()
 # threading.Thread(target=RequestsBiliBili,args=(search,pages)).start()
 
+#TrashRemoval()
 """
 作業中..
 
