@@ -1,22 +1,25 @@
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from multiprocessing import Process
-from urllib.parse import unquote
 from tkinter import messagebox
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import threading
 import datetime
-import shutil
 import random
 import pickle
 import json
 import time
 import pytz
 import os
+
+# 清除非正常關閉時遺留的垃圾
+def TrashRemoval():
+    os.system('for /d %d in ("C:\Program Files\chrome_BITS*") do rd /s /q "%d" >nul 2>&1')
+    os.system('for /d %d in ("C:\Program Files (x86)\scoped_dir*") do rd /s /q "%d" >nul 2>&1')
 
 # 取得登入資料相關接口
 class Login:
@@ -116,6 +119,7 @@ def add(page):
     Settings.add_argument('--remote-debugging-address=0.0.0.0')
     # 為了要同時多開窗口操作,Port和配置檔,不能是一樣的
     Settings.add_argument(f"user-data-dir={databases(page)}")
+    Settings.add_argument('--disk-cache-dir=R:/caching')
     Settings.add_argument(f"--remote-debugging-port={RandomPort()}")
     Settings.add_argument('--start-maximized') # 開啟最大化
     Settings.add_argument('--disable-notifications')
@@ -127,8 +131,9 @@ def add(page):
     Settings.add_experimental_option('useAutomationExtension', False)
     return Settings
 
+#(無寫登入方法,需先自行登入)
 class forum:
-    # 自動使用道具 (無寫登入方法,需先自行登入)
+    # 自動使用道具
     def jkf_use_props(Sc):
         jkfdriver = webdriver.Chrome(options=add("Jkf"))
         jkfdriver.get("https://www.jkforum.net/forum.php?mod=forum")
@@ -178,28 +183,66 @@ class forum:
         jkfdriver.quit()
 
     # 挖礦功能
-    def jkf_mining(Sc,Location):
+    def jkf_mining(Quantity,Location,Sc):
         jkfdriver = webdriver.Chrome(options=add("Jkf"))
         jkfdriver.get("https://www.jkforum.net/forum.php?mod=forum")
         time.sleep(1)
         jkfdriver.get("https://www.jkforum.net/material/mining")
         jkfdriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
-        time.sleep(15)
+        time.sleep(8) # 等待載入,找不到就時間延長
 
+        match Location:
+            case "巨龍巢穴":Location = 1
+            case "精靈峽谷":Location = 2
+            case "廢棄礦坑":Location = 3
+
+        # 根據選擇的區域,點選開始挖礦
+        startmining =  WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='pt-10'][{Location}] //div[@class='OvtXIlmLtXEE_eWpy1jH YOKk3zC9K8EXQZUZPFiy'][text()='開始挖礦']")))
+        startmining.click()
+
+        # 先點選5次畫布,因為使用相對位置找不到,所以用絕對位置,可能之後需要修改
+        mining = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/div/div/div[2]/div/div[1]/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div[2]/canvas")))
+        for i in range(5):jkfdriver.execute_script("arguments[0].click();", mining)
+        
+        # 按再一次
+        for i in range(Quantity-1): # 因為上面執行過一遍,這邊-1
+            time.sleep(0.1)
+            again = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH,"//div[@class='OvtXIlmLtXEE_eWpy1jH'][text()='再挖一次']")))
+            again.click()
 
         time.sleep(Sc)
         pickle.dump(jkfdriver.get_cookies(), open("./Jkfdefault/JkfCookies.pkl","wb"))
         jkfdriver.quit()
 
     # 探索功能
-    def jkf_explore(Sc,Location):
+    def jkf_explore(Quantity,Location,Sc):
         jkfdriver = webdriver.Chrome(options=add("Jkf"))
         jkfdriver.get("https://www.jkforum.net/forum.php?mod=forum")
         time.sleep(1)
         jkfdriver.get("https://www.jkforum.net/material/terrain_exploration")
         jkfdriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
-        time.sleep(15)
+        time.sleep(8)
 
+        match Location:
+            case "墮落聖地":Location = 1
+            case "焚燒之地":Location = 2
+            case "巨木森林":Location = 3
+
+        # 刪除那個會擋到按鈕的白痴NPC
+        jkfdriver.execute_script('document.querySelector("img.w-full.h-auto").remove();')
+
+        startexplore=  WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='pt-10'][{Location}] //div[@class='OvtXIlmLtXEE_eWpy1jH YOKk3zC9K8EXQZUZPFiy'][text()='開始探索']")))
+        startexplore.click()
+
+        explore = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/div/div/div[2]/div/div[1]/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div[2]/canvas")))
+        for i in range(5):jkfdriver.execute_script("arguments[0].click();", explore)
+
+        for i in range(Quantity-1): # 因為上面執行過一遍,這邊-1
+            time.sleep(0.1)
+            again = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH,"//div[@class='OvtXIlmLtXEE_eWpy1jH'][text()='再挖一次']")))
+            again.click()
+            # 如果被NPC元素擋到按鈕元素,可以使用JS的點擊
+            #jkfdriver.execute_script("arguments[0].click();", again)
 
         time.sleep(Sc)
         pickle.dump(jkfdriver.get_cookies(), open("./Jkfdefault/JkfCookies.pkl","wb"))
@@ -323,22 +366,31 @@ def Open_black(Sc):
     pickle.dump(blackdriver.get_cookies(), open("./blackdefault/blackCookies.pkl","wb"))
     blackdriver.quit()
 
-def Open_hgamefree(Sc):
-   "https://hgamefree.info/"
-
-
+# ===== 網站簽到 =====
 # 後方的 args 是用於傳遞 tuple 內的數值,將其設置為窗口關閉的延遲時間
-# threading.Thread(target=Open_black,args=(5,)).start()
-# time.sleep(WaitingTime()+10)
-# threading.Thread(target=Open_Wuyong,args=(5,)).start()
-# time.sleep(1)
-# threading.Thread(target=Open_miaoaaa,args=(10,)).start()
-# time.sleep(1)
-# threading.Thread(target=Open_Genshin,args=(5,)).start()
+threading.Thread(target=Open_black,args=(5,)).start()
+time.sleep(WaitingTime()+10)
+threading.Thread(target=Open_Wuyong,args=(5,)).start()
+time.sleep(1)
+threading.Thread(target=Open_miaoaaa,args=(10,)).start()
+time.sleep(1)
+threading.Thread(target=Open_Genshin,args=(5,)).start()
 
 
 # Jkf論壇使用體力藥水
 #forum.jkf_use_props(5)
 
+# Jkf論壇自動挖礦(次數,地點,運行完停留時間)
+# 地點 : "巨龍巢穴" "精靈峽谷" "廢棄礦坑"
+#forum.jkf_mining(10,"廢棄礦坑",5)
+
+# Jkf論壇自動探索(次數,地點,運行完停留時間)
+# 地點 : "墮落聖地" "焚燒之地" "巨木森林"
+#forum.jkf_explore(10,"巨木森林",5)
+"""反覆操作預計之後使用scapy進行封包修改操作"""
+
 # 輸出Cookie內容的方法 資料位置 , 要開啟的Cookie檔案名
 #CookieView("blackdefault","blackCookies")
+
+# 刪除 selenium 非正常關閉時,的遺留資料夾
+#TrashRemoval()
