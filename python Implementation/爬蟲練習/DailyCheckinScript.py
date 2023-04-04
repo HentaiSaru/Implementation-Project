@@ -368,13 +368,13 @@ def Open_black(Sc):
 
 # ===== 網站簽到 =====
 # 後方的 args 是用於傳遞 tuple 內的數值,將其設置為窗口關閉的延遲時間
-threading.Thread(target=Open_black,args=(5,)).start()
-time.sleep(WaitingTime()+10)
-threading.Thread(target=Open_Wuyong,args=(5,)).start()
-time.sleep(1)
-threading.Thread(target=Open_miaoaaa,args=(10,)).start()
-time.sleep(1)
-threading.Thread(target=Open_Genshin,args=(5,)).start()
+# threading.Thread(target=Open_black,args=(5,)).start()
+# time.sleep(WaitingTime()+10)
+# threading.Thread(target=Open_Wuyong,args=(5,)).start()
+# time.sleep(1)
+# threading.Thread(target=Open_miaoaaa,args=(10,)).start()
+# time.sleep(1)
+# threading.Thread(target=Open_Genshin,args=(5,)).start()
 
 
 # Jkf論壇使用體力藥水
@@ -393,4 +393,4 @@ threading.Thread(target=Open_Genshin,args=(5,)).start()
 #CookieView("blackdefault","blackCookies")
 
 # 刪除 selenium 非正常關閉時,的遺留資料夾
-#TrashRemoval()
+TrashRemoval()
