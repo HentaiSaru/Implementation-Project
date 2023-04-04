@@ -138,6 +138,30 @@ class Gamerconversion:
                 time.sleep(2)
         except:pass
 
+    def Outside():
+        # 場外選擇也是由Js動態生成
+        driver = webdriver.Chrome(options=add())
+        driver.get("https://forum.gamer.com.tw/index.php?c=95")
+        driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+
+        # 經過計算翻三次剛好可以加載全部
+        for i in range(3):
+            driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
+            time.sleep(1)
+
+        Html = BeautifulSoup(driver.page_source, "html.parser")
+        Title = Html.find_all("div", class_="forum_list_title")
+        os.system("cls")
+
+        linkbox = []
+        for i in range(len(Title)):
+            print(f'【 {i+1} 】{Title[i].find("a").text}')
+            linkbox.append("https://forum.gamer.com.tw/{}".format(Title[i].find("a").get("href")))
+        driver.quit() 
+        select = eval(input("\n請選擇您要進入的版面(編號): "))
+        print("\n開始搜尋...")
+        return linkbox[select-1]
+
 # 巴哈哈拉區爬文爬蟲
 def RequestsGamer(search,pages):
     global ListBox , state
@@ -147,15 +171,19 @@ def RequestsGamer(search,pages):
     print("\n開始搜尋... (搜尋速度取決於你的網速)")
 
     try:
-        search_convert = f"https://search.gamer.com.tw/?q={UrlPattern(search)}#gsc.tab=0&gsc.q={UrlPattern(search)}&gsc.page=1"
-        # 因為是由Js動態生成的,只能用自動化操作取得
-        driver = webdriver.Chrome(options=add())
-        driver.get(search_convert)
-        driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
-        Page = BeautifulSoup(driver.page_source, 'html.parser')
-        URL = Page.find('a', class_='gs-title').get('data-ctorig')
-        os.system("cls")
-        driver.quit()
+        if search.find("場外") != -1:
+            URL = Gamerconversion.Outside()
+            os.system("cls")
+        else:
+            search_convert = f"https://search.gamer.com.tw/?q={UrlPattern(search)}#gsc.tab=0&gsc.q={UrlPattern(search)}&gsc.page=1"
+            # 因為是由Js動態生成的,只能用自動化操作取得
+            driver = webdriver.Chrome(options=add())
+            driver.get(search_convert)
+            driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+            Page = BeautifulSoup(driver.page_source, 'html.parser')
+            URL = Page.find('a', class_='gs-title').get('data-ctorig')
+            os.system("cls")
+            driver.quit()
         
         # 只供哈拉區版面的轉換
         if URL.find("page=") == -1:
@@ -191,14 +219,11 @@ def RequestsGamer(search,pages):
         if pages != 0:
             if pages < finalList:finalList = pages
 
-        # 取得給予的網址頁數(先前功能的遺留 非必要)
-        URLPage = URL.split("page=")[1].split("&")[0]
-        
         # 從1+到finalList的頁數
-        for page in range(int(URLPage),int(finalList)+1):
+        for page in range(1,int(finalList)+1):
 
             # 將URL轉換為新格式
-            UrlNew = "{}page={}&{}".format(URL.split("page=")[0],f"{URLPage}",URL.split("&")[1])
+            UrlNew = "{}page={}&{}".format(URL.split("page=")[0],f"{page}",URL.split("&")[1])
             InformationNew = requests.get(UrlNew,headers=header)
             HtmlNew = BeautifulSoup(InformationNew.text, "html.parser")
             List = HtmlNew.select(".b-list__row.b-list-item.b-imglist-item")
@@ -223,7 +248,7 @@ def RequestsGamer(search,pages):
                     ListBox.append(Box)
 
                 except Exception as e:
-                    print("debug:{}".format(e))
+                    #print("debug:{}".format(e))
                     continue
 
                 print("【{}】{}\n {}\n".format(ArticleType,ArticleTitle,ArticleTitleLink))
@@ -233,7 +258,7 @@ def RequestsGamer(search,pages):
     except Exception as e:
         print(e)
         if search.upper()  == "GNN":
-            Gamerconversion.GNN(page) 
+            Gamerconversion.GNN(pages)
     SaveBox(search)
 
 # BiliBil 搜尋爬蟲
@@ -346,18 +371,14 @@ def RequestsBiliBili(Input,pages):
     SaveBox(Input)
     driver.quit() # 關閉端口避免出錯 
 
-search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
-pages = eval(input("輸入要搜尋的頁數(可直接Entrl跳過): "))
-threading.Thread(target=RequestsGamer,args=(search,pages)).start()
+# search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
+# pages = eval(input("輸入要搜尋的頁數(可直接Entrl跳過): "))
+# threading.Thread(target=RequestsGamer,args=(search,pages)).start()
 # threading.Thread(target=RequestsBiliBili,args=(search,pages)).start()
 
-#TrashRemoval()
+TrashRemoval()
 """
 作業中..
-
-可搜尋場外版
-
-並可以數字選擇,場外的板塊進入
 
 創建關於動畫瘋的搜索
 
