@@ -21,9 +21,9 @@ def TrashRemoval():
     os.system('for /d %d in ("C:\Program Files\chrome_BITS*") do rd /s /q "%d" >nul 2>&1')
     os.system('for /d %d in ("C:\Program Files (x86)\scoped_dir*") do rd /s /q "%d" >nul 2>&1')
 
-# 取得登入資料相關接口
 class Login:
 
+    # 讀取登入資料檔案 和 創建登入資料檔案格式
     def Get_login_information():
         global UserInformation
 
@@ -56,6 +56,7 @@ class Login:
                 User.write(OutFormat)
             pass
 
+    # 取得登入資料
     def Get_login(key):
         Login.Get_login_information()
         login = []
@@ -73,42 +74,45 @@ class Login:
         except:
             pass
 
-# 計算等待秒數
-def WaitingTime():
-    TaipeiTimezone = pytz.timezone('Asia/Taipei')
-    TargetTime = datetime.time(hour=0, minute=0, second=0)
-    current_time = datetime.datetime.now(TaipeiTimezone).time()
-    if current_time < TargetTime:
-        seconds_to_wait = (datetime.datetime.combine(datetime.date.today(), TargetTime) - datetime.datetime.combine(datetime.date.today(), current_time)).seconds
-    else:
-        seconds_to_wait = (datetime.datetime.combine(datetime.date.today() + datetime.timedelta(days=1), TargetTime) - datetime.datetime.combine(datetime.date.today(), current_time)).seconds
-    return seconds_to_wait
+class GetParametric:
 
-# 讀取pkl保存的資料並打印出來
-def CookieView(path,pkl):
-    with open(f'./{path}/{pkl}.pkl', 'rb') as f:
-        cookies = pickle.load(f)
-    print(cookies)
+    # 計算等待秒數
+    def WaitingTime():
+        TaipeiTimezone = pytz.timezone('Asia/Taipei')
+        TargetTime = datetime.time(hour=0, minute=0, second=0)
+        current_time = datetime.datetime.now(TaipeiTimezone).time()
+        if current_time < TargetTime:
+            seconds_to_wait = (datetime.datetime.combine(datetime.date.today(), TargetTime) - datetime.datetime.combine(datetime.date.today(), current_time)).seconds
+        else:
+            seconds_to_wait = (datetime.datetime.combine(datetime.date.today() + datetime.timedelta(days=1), TargetTime) - datetime.datetime.combine(datetime.date.today(), current_time)).seconds
+        return seconds_to_wait
 
-# 創建的數據檔名獲取
-def databases(web):
-    return web+"default"
+    # 讀取pkl保存的資料並打印出來
+    def CookieView(path,pkl):
+        with open(f'./{path}/{pkl}.pkl', 'rb') as f:
+            cookies = pickle.load(f)
+        print(cookies)
 
-global count , port
-count = 0
-port = 1024
-# 隨機端口分配
-def RandomPort():
+    # 創建的數據檔名獲取
+    def databases(web):
+        return web+"default"
+
     global count , port
-    count += 1
+    count = 0
+    port = 1024
 
-    if port <= 65535:
-        if count == 1:
-            return random.randint(port, port*1.5)
-        elif count > 1:
-            port *= 1.5 + 1
-            return random.randint(port, port*1.5)
-    else:return random.randint(1024,65535) # 先隨便寫個
+    # 隨機端口分配
+    def RandomPort():
+        global count , port
+        count += 1
+
+        if port <= 65535:
+            if count == 1:
+                return random.randint(port, port*1.5)
+            elif count > 1:
+                port *= 1.5 + 1
+                return random.randint(port, port*1.5)
+        else:return random.randint(1024,65535) # 先隨便寫個
 
 # selenium創建 相關設置
 def add(page):
@@ -118,9 +122,9 @@ def add(page):
     Settings.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36')
     Settings.add_argument('--remote-debugging-address=0.0.0.0')
     # 為了要同時多開窗口操作,Port和配置檔,不能是一樣的
-    Settings.add_argument(f"user-data-dir={databases(page)}")
+    Settings.add_argument(f"user-data-dir={GetParametric.databases(page)}")
     Settings.add_argument('--disk-cache-dir=R:/caching')
-    Settings.add_argument(f"--remote-debugging-port={RandomPort()}")
+    Settings.add_argument(f"--remote-debugging-port={GetParametric.RandomPort()}")
     Settings.add_argument('--start-maximized') # 開啟最大化
     Settings.add_argument('--disable-notifications')
     Settings.add_argument('--ignore-certificate-errors')
@@ -248,44 +252,46 @@ class forum:
         pickle.dump(jkfdriver.get_cookies(), open("./Jkfdefault/JkfCookies.pkl","wb"))
         jkfdriver.quit()
 
-def Open_Wuyong(Sc):
-    Wuyongdriver = webdriver.Chrome(options=add("wuyong"))
-    Wuyongdriver.get("https://wuyong.fun/")
-    Wuyongdriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+class script:
 
-    if not os.path.isfile("./Wuyongdefault/wuyongCookies.pkl"):
-        for cookie in Login.Get_login("wuyong"):
-            Wuyongdriver.add_cookie(cookie)  
-        Wuyongdriver.refresh()
+    def Open_Wuyong(Sc):
+        Wuyongdriver = webdriver.Chrome(options=add("wuyong"))
+        Wuyongdriver.get("https://wuyong.fun/")
+        Wuyongdriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
-    Wuyongbutton = WebDriverWait(Wuyongdriver,1).until(EC.element_to_be_clickable((By.XPATH, "//i[@class='b2font b2-gift-2-line ']")))
-    Wuyongbutton.click()
+        if not os.path.isfile("./Wuyongdefault/wuyongCookies.pkl"):
+            for cookie in Login.Get_login("wuyong"):
+                Wuyongdriver.add_cookie(cookie)  
+            Wuyongdriver.refresh()
 
-    time.sleep(Sc)
-    pickle.dump(Wuyongdriver.get_cookies(), open("./Wuyongdefault/wuyongCookies.pkl","wb"))
-    Wuyongdriver.quit()
+        Wuyongbutton = WebDriverWait(Wuyongdriver,1).until(EC.element_to_be_clickable((By.XPATH, "//i[@class='b2font b2-gift-2-line ']")))
+        Wuyongbutton.click()
 
-def Open_miaoaaa(Sc):
+        time.sleep(Sc)
+        pickle.dump(Wuyongdriver.get_cookies(), open("./Wuyongdefault/wuyongCookies.pkl","wb"))
+        Wuyongdriver.quit()
 
-    miaoaaadriver = webdriver.Chrome(options=add("miaoaaa"))
-    miaoaaadriver.get("https://www.miaoaaa.com/sites/530.html")
-    miaoaaadriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+    def Open_miaoaaa(Sc):
 
-    miaoaaabutton = WebDriverWait(miaoaaadriver,0).until(EC.element_to_be_clickable((By.XPATH, "//a[@class='btn btn-arrow mr-2']")))
-    miaoaaabutton.click()
+        miaoaaadriver = webdriver.Chrome(options=add("miaoaaa"))
+        miaoaaadriver.get("https://www.miaoaaa.com/sites/530.html")
+        miaoaaadriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
-    """ 保存cookie 並 重新載入保存的 , 可用於記住登入狀態
-    pickle.dump(driver.get_cookies(), open("./default/cookies.pkl","wb"))
-    cookies = pickle.load(open("./default/MiaCookies.pkl", "rb"))
-    for cookie in cookies:
-            driver.add_cookie(cookie)
-    """
-    
-    time.sleep(Sc)
-    pickle.dump(miaoaaadriver.get_cookies(), open("./miaoaaadefault/MiaCookies.pkl","wb"))
-    miaoaaadriver.quit()
+        miaoaaabutton = WebDriverWait(miaoaaadriver,0).until(EC.element_to_be_clickable((By.XPATH, "//a[@class='btn btn-arrow mr-2']")))
+        miaoaaabutton.click()
 
-def Open_Genshin(Sc):
+        """ 保存cookie 並 重新載入保存的 , 可用於記住登入狀態
+        pickle.dump(driver.get_cookies(), open("./default/cookies.pkl","wb"))
+        cookies = pickle.load(open("./default/MiaCookies.pkl", "rb"))
+        for cookie in cookies:
+                driver.add_cookie(cookie)
+        """
+
+        time.sleep(Sc)
+        pickle.dump(miaoaaadriver.get_cookies(), open("./miaoaaadefault/MiaCookies.pkl","wb"))
+        miaoaaadriver.quit()
+
+    def Open_Genshin(Sc):
 
     Genshindriver = webdriver.Chrome(options=add("Genshin"))
     Genshindriver.get("https://act.hoyolab.com/ys/event/signin-sea-v3/index.html?act_id=e202102251931481")
@@ -351,33 +357,35 @@ def Open_Genshin(Sc):
     time.sleep(Sc)
     pickle.dump(Genshindriver.get_cookies(), open("./Genshindefault/GenshinCookies.pkl","wb"))
     Genshindriver.quit()
-# 這邊就沒有做Cookie和登入的部份,就手動登入按保存吧
-def Open_black(Sc):
-    blackdriver = webdriver.Chrome(options=add("black"))
-    blackdriver.get("https://black.is-best.site/plugin.php?id=gsignin:index")
+    # 這邊就沒有做Cookie和登入的部份,就手動登入按保存吧
+    def Open_black(Sc):
+        blackdriver = webdriver.Chrome(options=add("black"))
+        blackdriver.get("https://black.is-best.site/plugin.php?id=gsignin:index")
 
-    # 等待到指定時間才運行
-    time.sleep(WaitingTime()+1) # 成功測試
-    blackdriver.refresh()
-    blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
-    blackbutton.click()
+        # 等待到指定時間才運行
+        time.sleep(GetParametric.WaitingTime()+0.8) # 成功測試
+        blackdriver.refresh()
+        blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
+        blackbutton.click()
 
-    time.sleep(Sc)
-    pickle.dump(blackdriver.get_cookies(), open("./blackdefault/blackCookies.pkl","wb"))
-    blackdriver.quit()
+        time.sleep(Sc)
+        pickle.dump(blackdriver.get_cookies(), open("./blackdefault/blackCookies.pkl","wb"))
+        blackdriver.quit()
 
 # ===== 網站簽到 =====
 # 後方的 args 是用於傳遞 tuple 內的數值,將其設置為窗口關閉的延遲時間
-# threading.Thread(target=Open_black,args=(5,)).start()
-# time.sleep(WaitingTime()+10)
-# threading.Thread(target=Open_Wuyong,args=(5,)).start()
-# time.sleep(1)
-# threading.Thread(target=Open_miaoaaa,args=(10,)).start()
-# time.sleep(1)
-# threading.Thread(target=Open_Genshin,args=(5,)).start()
+threading.Thread(target=script.Open_black,args=(5,)).start()
+time.sleep(GetParametric.WaitingTime()+10)
+threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
+time.sleep(1)
+threading.Thread(target=script.Open_miaoaaa,args=(10,)).start()
+time.sleep(1)
+threading.Thread(target=script.Open_Genshin,args=(5,)).start()
 
 
-# Jkf論壇使用體力藥水
+
+"""反覆操作預計之後使用scapy進行封包修改操作"""
+# Jkf論壇使用體力藥水(此腳本就是藥水全部都用完)
 #forum.jkf_use_props(5)
 
 # Jkf論壇自動挖礦(次數,地點,運行完停留時間)
@@ -387,10 +395,9 @@ def Open_black(Sc):
 # Jkf論壇自動探索(次數,地點,運行完停留時間)
 # 地點 : "墮落聖地" "焚燒之地" "巨木森林"
 #forum.jkf_explore(10,"巨木森林",5)
-"""反覆操作預計之後使用scapy進行封包修改操作"""
 
 # 輸出Cookie內容的方法 資料位置 , 要開啟的Cookie檔案名
-#CookieView("blackdefault","blackCookies")
+#GetParametric.CookieView("blackdefault","blackCookies")
 
 # 刪除 selenium 非正常關閉時,的遺留資料夾
-TrashRemoval()
+#TrashRemoval()

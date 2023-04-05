@@ -26,7 +26,7 @@ def TrashRemoval():
 
 # 網址含有中文時的轉換
 def UrlPattern(URL):
-        # 大坑 很重要!! 當網址含有中文,在複製時會被轉譯,這邊是將他轉回去
+        # 很重要!! 當網址含有中文,在複製時會被轉譯,這邊是將他轉回去
         NewURL = unquote(URL)
 
         # 用於判斷 BiliBil 影片網址的後綴,並將其去除
@@ -371,12 +371,12 @@ def RequestsBiliBili(Input,pages):
     SaveBox(Input)
     driver.quit() # 關閉端口避免出錯 
 
-# search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
-# pages = eval(input("輸入要搜尋的頁數(可直接Entrl跳過): "))
-# threading.Thread(target=RequestsGamer,args=(search,pages)).start()
+search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
+pages = eval(input("輸入要搜尋的頁數(可直接Entrl跳過): "))
+threading.Thread(target=RequestsGamer,args=(search,pages)).start()
 # threading.Thread(target=RequestsBiliBili,args=(search,pages)).start()
 
-TrashRemoval()
+#TrashRemoval()
 """
 作業中..
 
