@@ -293,70 +293,70 @@ class script:
 
     def Open_Genshin(Sc):
 
-    Genshindriver = webdriver.Chrome(options=add("Genshin"))
-    Genshindriver.get("https://act.hoyolab.com/ys/event/signin-sea-v3/index.html?act_id=e202102251931481")
-    Genshindriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+        Genshindriver = webdriver.Chrome(options=add("Genshin"))
+        Genshindriver.get("https://act.hoyolab.com/ys/event/signin-sea-v3/index.html?act_id=e202102251931481")
+        Genshindriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
-    # 關閉彈出窗口,如果有的話
-    try:
-        Genshinbutton = WebDriverWait(Genshindriver,3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
-        Genshinbutton.click()
-    except:pass
+        # 關閉彈出窗口,如果有的話
+        try:
+            Genshinbutton = WebDriverWait(Genshindriver,3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
+            Genshinbutton.click()
+        except:pass
 
-    # 點選簽到位置 (已經簽到的就會找不到,因此當沒找到時,要讓他跳過)
-    try:
-        Genshinbutton = WebDriverWait(Genshindriver,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
-        Genshinbutton.click()
-    except:pass
+        # 點選簽到位置 (已經簽到的就會找不到,因此當沒找到時,要讓他跳過)
+        try:
+            Genshinbutton = WebDriverWait(Genshindriver,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
+            Genshinbutton.click()
+        except:pass
 
-    # 如果沒有登入的話,幫你點推特登入
-    try:
-        # 使用Twitter 登入 div[1] = Google
-        Genshinbutton = WebDriverWait(Genshindriver,5).until(EC.element_to_be_clickable((By.XPATH, "//div[4][@class='account-sea-third-party-login-item']//img[@class='account-sea-login-icon']")))
-        Genshinbutton.click()
+        # 如果沒有登入的話,幫你點推特登入
+        try:
+            # 使用Twitter 登入 div[1] = Google
+            Genshinbutton = WebDriverWait(Genshindriver,5).until(EC.element_to_be_clickable((By.XPATH, "//div[4][@class='account-sea-third-party-login-item']//img[@class='account-sea-login-icon']")))
+            Genshinbutton.click()
 
-        # 普通的操作切窗無法
-        # 獲取當前開啟的窗口名稱
-        handles = Genshindriver.window_handles
-        for handle in handles:
-            Genshindriver.switch_to.window(handle)
-            if "Twitter / 授權應用程式" in Genshindriver.title:
-                break
+            # 普通的操作切窗無法
+            # 獲取當前開啟的窗口名稱
+            handles = Genshindriver.window_handles
+            for handle in handles:
+                Genshindriver.switch_to.window(handle)
+                if "Twitter / 授權應用程式" in Genshindriver.title:
+                    break
 
-        # 取得保存的帳號,密碼
-        acc , pas  = Login.Get_login("Genshin").values()
-        
-        # 輸入帳號
-        accountbutton = WebDriverWait(Genshindriver,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='text']")))
-        accountbutton.click()
-        accountbutton.send_keys(acc)
+            # 取得保存的帳號,密碼
+            acc , pas  = Login.Get_login("Genshin").values()
 
-        # 輸入密碼
-        passwordbutton = WebDriverWait(Genshindriver,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='password text']")))
-        passwordbutton.click()
-        passwordbutton.send_keys(pas)
+            # 輸入帳號
+            accountbutton = WebDriverWait(Genshindriver,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='text']")))
+            accountbutton.click()
+            accountbutton.send_keys(acc)
 
-        # 送出
-        loginbutton = WebDriverWait(Genshindriver,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='submit button selected']")))
-        loginbutton.click()
+            # 輸入密碼
+            passwordbutton = WebDriverWait(Genshindriver,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='password text']")))
+            passwordbutton.click()
+            passwordbutton.send_keys(pas)
 
-        # ... 當然帳號需要授權碼的自己輸入w
+            # 送出
+            loginbutton = WebDriverWait(Genshindriver,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='submit button selected']")))
+            loginbutton.click()
 
-        # 再次切回原窗口
-        handles = Genshindriver.window_handles
-        for handle in handles:
-            Genshindriver.switch_to.window(handle)
-            if "【原神】每日簽到" in Genshindriver.title:
-                break
+            # ... 當然帳號需要授權碼的自己輸入w
 
-        # 點選簽到位置
-        Genshinbutton = WebDriverWait(Genshindriver,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
-        Genshinbutton.click()
-    except:pass
+            # 再次切回原窗口
+            handles = Genshindriver.window_handles
+            for handle in handles:
+                Genshindriver.switch_to.window(handle)
+                if "【原神】每日簽到" in Genshindriver.title:
+                    break
 
-    time.sleep(Sc)
-    pickle.dump(Genshindriver.get_cookies(), open("./Genshindefault/GenshinCookies.pkl","wb"))
-    Genshindriver.quit()
+            # 點選簽到位置
+            Genshinbutton = WebDriverWait(Genshindriver,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
+            Genshinbutton.click()
+        except:pass
+
+        time.sleep(Sc)
+        pickle.dump(Genshindriver.get_cookies(), open("./Genshindefault/GenshinCookies.pkl","wb"))
+        Genshindriver.quit()
     # 這邊就沒有做Cookie和登入的部份,就手動登入按保存吧
     def Open_black(Sc):
         blackdriver = webdriver.Chrome(options=add("black"))
@@ -378,7 +378,7 @@ threading.Thread(target=script.Open_black,args=(5,)).start()
 time.sleep(GetParametric.WaitingTime()+10)
 threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
 time.sleep(1)
-threading.Thread(target=script.Open_miaoaaa,args=(10,)).start()
+threading.Thread(target=script.Open_miaoaaa,args=(5,)).start()
 time.sleep(1)
 threading.Thread(target=script.Open_Genshin,args=(5,)).start()
 
