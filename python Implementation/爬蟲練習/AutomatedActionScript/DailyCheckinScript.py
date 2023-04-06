@@ -378,7 +378,7 @@ threading.Thread(target=script.Open_black,args=(5,)).start()
 time.sleep(GetParametric.WaitingTime()+10)
 threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
 time.sleep(1)
-threading.Thread(target=script.Open_miaoaaa,args=(5,)).start()
+threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
 time.sleep(1)
 threading.Thread(target=script.Open_Genshin,args=(5,)).start()
 

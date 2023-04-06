@@ -60,7 +60,12 @@ def SaveBox(search):
             Adjustment_dict[search].append(f" {Style*70} ")
 
         SaveBox = json.dumps(Adjustment_dict,indent=4,separators=(',',':'),ensure_ascii=False)
-        with open(f"{name}.json","w",encoding="utf-8") as f:
+
+        directory = os.path.dirname(os.path.abspath(sys.argv[0]))
+        filename = f"{name}.json"
+        fileoutput = os.path.join(directory, filename)
+
+        with open(fileoutput,"w",encoding="utf-8") as f:
             f.write(SaveBox)
 
         print("輸出完畢...")
@@ -259,6 +264,7 @@ def RequestsGamer(search,pages):
         print(e)
         if search.upper()  == "GNN":
             Gamerconversion.GNN(pages)
+    InformationNew.close()
     SaveBox(search)
 
 # BiliBil 搜尋爬蟲
@@ -372,9 +378,9 @@ def RequestsBiliBili(Input,pages):
     driver.quit() # 關閉端口避免出錯 
 
 search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
-pages = eval(input("輸入要搜尋的頁數(可直接Entrl跳過): "))
+pages = eval(input("輸入要搜尋的頁數: "))
 threading.Thread(target=RequestsGamer,args=(search,pages)).start()
-# threading.Thread(target=RequestsBiliBili,args=(search,pages)).start()
+#threading.Thread(target=RequestsBiliBili,args=(search,pages)).start()
 
 #TrashRemoval()
 """

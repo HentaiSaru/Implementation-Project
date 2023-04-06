@@ -7,7 +7,7 @@ mshta vbscript:createobject("shell.application").shellexecute("%~s0","goto :Admi
 cls
 
 @echo pip principal update==========
-py -m pip install -U pip
+pip install --upgrade pip
 cls
 
 
@@ -36,6 +36,7 @@ pip install requests
 pip install selenium
 pip install Scrapy
 pip install beautifulsoup4
+pip install urllib3
 
 
 :: 日期時間取得
@@ -91,6 +92,6 @@ pip install mss
 :: AI庫 深度學習與神經網路
 pip install torch
 
-python -m pip install --upgrade pip setuptools
-
+pip install --upgrade setuptools
+pip install --upgrade wheel
 pause
