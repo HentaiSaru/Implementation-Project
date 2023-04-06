@@ -1,4 +1,5 @@
 可用網址.bat
+影片教學.txt
 *.class
 *.pyc
 *.ini
@@ -7,3 +8,5 @@
 *default
 pypy3.9
 Virtual
+
+VideoDownloader.py
