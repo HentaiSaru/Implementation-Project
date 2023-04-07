@@ -14,7 +14,10 @@ import pickle
 import json
 import time
 import pytz
+import sys
 import os
+dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+os.chdir(dir)
 
 # 清除非正常關閉時遺留的垃圾
 def TrashRemoval():
@@ -89,6 +92,7 @@ class GetParametric:
 
     # 讀取pkl保存的資料並打印出來
     def CookieView(path,pkl):
+        
         with open(f'./{path}/{pkl}.pkl', 'rb') as f:
             cookies = pickle.load(f)
         print(cookies)
@@ -96,6 +100,9 @@ class GetParametric:
     # 創建的數據檔名獲取
     def databases(web):
         return web+"default"
+    
+    def datacreation(cookies,path,name):
+        pickle.dump(cookies, open(f"{path}/{name}.pkl","wb"))
 
     global count , port
     count = 0
@@ -259,7 +266,7 @@ class script:
         Wuyongdriver.get("https://wuyong.fun/")
         Wuyongdriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
-        if not os.path.isfile("./Wuyongdefault/wuyongCookies.pkl"):
+        if not os.path.isfile("Wuyongdefault/wuyongCookies.pkl"):
             for cookie in Login.Get_login("wuyong"):
                 Wuyongdriver.add_cookie(cookie)  
             Wuyongdriver.refresh()
@@ -268,7 +275,7 @@ class script:
         Wuyongbutton.click()
 
         time.sleep(Sc)
-        pickle.dump(Wuyongdriver.get_cookies(), open("./Wuyongdefault/wuyongCookies.pkl","wb"))
+        GetParametric.datacreation(Wuyongdriver.get_cookies(),GetParametric.databases("wuyong"),"wuyongCookies")
         Wuyongdriver.quit()
 
     def Open_miaoaaa(Sc):
@@ -288,7 +295,7 @@ class script:
         """
 
         time.sleep(Sc)
-        pickle.dump(miaoaaadriver.get_cookies(), open("./miaoaaadefault/MiaCookies.pkl","wb"))
+        GetParametric.datacreation(miaoaaadriver.get_cookies(),GetParametric.databases("miaoaaa"),"MiaCookies")
         miaoaaadriver.quit()
 
     def Open_Genshin(Sc):
@@ -355,7 +362,7 @@ class script:
         except:pass
 
         time.sleep(Sc)
-        pickle.dump(Genshindriver.get_cookies(), open("./Genshindefault/GenshinCookies.pkl","wb"))
+        GetParametric.datacreation(Genshindriver.get_cookies(),GetParametric.databases("Genshin"),"GenshinCookies")
         Genshindriver.quit()
     # 這邊就沒有做Cookie和登入的部份,就手動登入按保存吧
     def Open_black(Sc):
@@ -363,13 +370,14 @@ class script:
         blackdriver.get("https://black.is-best.site/plugin.php?id=gsignin:index")
 
         # 等待到指定時間才運行
-        time.sleep(GetParametric.WaitingTime()+0.8) # 成功測試
-        blackdriver.refresh()
-        blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
-        blackbutton.click()
+        time.sleep(GetParametric.WaitingTime()+1) # 成功測試
+        for i in range(3): # 總會有失敗的時候,重複三次
+            blackdriver.refresh()
+            blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
+            blackbutton.click()
 
         time.sleep(Sc)
-        pickle.dump(blackdriver.get_cookies(), open("./blackdefault/blackCookies.pkl","wb"))
+        GetParametric.datacreation(blackdriver.get_cookies(),GetParametric.databases("black"),"blackCookies")
         blackdriver.quit()
 
 # ===== 網站簽到 =====
@@ -381,7 +389,6 @@ time.sleep(1)
 threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
 time.sleep(1)
 threading.Thread(target=script.Open_Genshin,args=(5,)).start()
-
 
 
 """反覆操作預計之後使用scapy進行封包修改操作"""
@@ -400,4 +407,4 @@ threading.Thread(target=script.Open_Genshin,args=(5,)).start()
 #GetParametric.CookieView("blackdefault","blackCookies")
 
 # 刪除 selenium 非正常關閉時,的遺留資料夾
-#TrashRemoval()
+# TrashRemoval()
