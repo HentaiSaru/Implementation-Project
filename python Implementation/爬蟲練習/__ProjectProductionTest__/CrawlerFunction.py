@@ -14,6 +14,7 @@ import random
 import opencc
 import time
 import json
+import csv
 import sys
 import re
 import os
@@ -44,10 +45,9 @@ def SaveBox(search):
     global ListBox , state
     os.system("cls")
 
-    if state:
-        name = input("輸入輸出的文件名稱: ")
+    def SaveJson(search):
+        name = input("輸入保存的文件名稱: ")
         Adjustment_dict = {search:[]}
-
         DividerStyle = ["»","≈","…"]
         Style = random.choice(DividerStyle)
 
@@ -60,7 +60,6 @@ def SaveBox(search):
             Adjustment_dict[search].append(f" {Style*70} ")
 
         SaveBox = json.dumps(Adjustment_dict,indent=4,separators=(',',':'),ensure_ascii=False)
-
         directory = os.path.dirname(os.path.abspath(sys.argv[0]))
         filename = f"{name}.json"
         fileoutput = os.path.join(directory, filename)
@@ -69,6 +68,55 @@ def SaveBox(search):
             f.write(SaveBox)
 
         print("輸出完畢...")
+
+    def SaveCsv(search):
+        name = input("輸入保存的文件名稱: ")
+        rows = [f"【{search}】"]
+
+        for data in ListBox:
+            merge = ""
+            for value in data.values():
+                merge += f"{value},"
+
+            merge = "{}, https{}".format(merge.split(",https")[0],merge.split(",https")[1]).rstrip(",")
+            rows.append(merge)
+
+        directory = os.path.dirname(os.path.abspath(sys.argv[0]))
+        filename = f"{name}.csv"
+        fileoutput = os.path.join(directory, filename)
+
+        with open(fileoutput, 'w', encoding="utf-8") as csvfile:
+            writer = csv.writer(csvfile,quoting=csv.QUOTE_NONE, escapechar=' ')
+            for row in rows:
+                writer.writerow([row])
+        print("輸出完畢...")
+
+
+    if state:
+        save_options = ["【1】保存為JSON","【2】保存為CSV","【0】不保存"]
+
+        for save in save_options:
+            print(save)
+
+        while True:
+            try:
+                options =int(input("\n輸入數字選擇: "))
+                if options == 1:
+                    os.system("cls")
+                    print(save_options[0])
+                    SaveJson(search)
+                    break
+                elif options == 2:
+                    os.system("cls")
+                    print(save_options[1])
+                    SaveCsv(search)
+                    break
+                elif options == 0:
+                    os.system("cls")
+                    print(save_options[2])
+                else:print("沒有此選項")
+            except:
+                print("錯誤的輸入")
 
 # 功能選項
 def add():
@@ -260,11 +308,11 @@ def RequestsGamer(search,pages):
 
             print("========== Page:{}結尾 ==========\n".format(page))
             time.sleep(1)
+        InformationNew.close()
     except Exception as e:
         print(e)
         if search.upper()  == "GNN":
             Gamerconversion.GNN(pages)
-    InformationNew.close()
     SaveBox(search)
 
 # BiliBil 搜尋爬蟲
@@ -377,10 +425,10 @@ def RequestsBiliBili(Input,pages):
     SaveBox(Input)
     driver.quit() # 關閉端口避免出錯 
 
-search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
-pages = eval(input("輸入要搜尋的頁數: "))
-threading.Thread(target=RequestsGamer,args=(search,pages)).start()
-#threading.Thread(target=RequestsBiliBili,args=(search,pages)).start()
+# search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
+# pages = eval(input("輸入要搜尋的頁數: "))
+# threading.Thread(target=RequestsGamer,args=(search,pages)).start()
+# threading.Thread(target=RequestsBiliBili,args=(search,pages)).start()
 
 #TrashRemoval()
 """
