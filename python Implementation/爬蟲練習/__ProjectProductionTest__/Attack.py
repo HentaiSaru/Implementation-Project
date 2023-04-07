@@ -31,6 +31,10 @@ def hd():
     }
     return header
 
+def Pro():
+    proxies = {}
+    return proxies
+
 def get():
 
     ip = ICMPIP()
@@ -43,7 +47,7 @@ def get():
                 icmp = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
                 icmp.sendto(icmp_request, (ip, 0))
 
-                data = requests.get(TCPURL()[i],headers=hd())
+                data = requests.get(TCPURL()[i],headers=hd(),proxies=Pro())
                 print(f"state:{data}")
                 data.text
         except Exception as e:
