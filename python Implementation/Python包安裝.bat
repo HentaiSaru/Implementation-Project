@@ -33,10 +33,12 @@ pip install discord_webhook
 
 :: 爬蟲
 pip install requests
-pip install selenium
 pip install Scrapy
 pip install beautifulsoup4
 pip install urllib3
+
+:: 自動化操作
+pip install selenium
 
 
 :: 日期時間取得
