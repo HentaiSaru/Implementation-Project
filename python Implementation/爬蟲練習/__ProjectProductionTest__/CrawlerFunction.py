@@ -114,6 +114,7 @@ def SaveBox(search):
                 elif options == 0:
                     os.system("cls")
                     print(save_options[2])
+                    break
                 else:print("沒有此選項")
             except:
                 print("錯誤的輸入")
@@ -254,7 +255,8 @@ def RequestsGamer(search,pages):
         params = {}
         
         # 載入 headers 資訊
-        Information = requests.get(URL,headers=header,params=params)
+        session = requests.Session()
+        Information = session.get(URL,headers=header,params=params)
         if Information.status_code == 400:print('錯誤的要求')
         elif Information.status_code == 404:print('找不到網頁')
         elif Information.status_code == 500:print('伺服器錯誤')
@@ -277,7 +279,7 @@ def RequestsGamer(search,pages):
 
             # 將URL轉換為新格式
             UrlNew = "{}page={}&{}".format(URL.split("page=")[0],f"{page}",URL.split("&")[1])
-            InformationNew = requests.get(UrlNew,headers=header)
+            InformationNew = session.get(UrlNew,headers=header)
             HtmlNew = BeautifulSoup(InformationNew.text, "html.parser")
             List = HtmlNew.select(".b-list__row.b-list-item.b-imglist-item")
 
@@ -307,7 +309,7 @@ def RequestsGamer(search,pages):
                 print("【{}】{}\n {}\n".format(ArticleType,ArticleTitle,ArticleTitleLink))
 
             print("========== Page:{}結尾 ==========\n".format(page))
-            time.sleep(1)
+            time.sleep(0.5)
         InformationNew.close()
     except Exception as e:
         print(e)
@@ -425,9 +427,9 @@ def RequestsBiliBili(Input,pages):
     SaveBox(Input)
     driver.quit() # 關閉端口避免出錯 
 
-# search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
-# pages = eval(input("輸入要搜尋的頁數: "))
-# threading.Thread(target=RequestsGamer,args=(search,pages)).start()
+search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
+pages = eval(input("輸入要搜尋的頁數: "))
+threading.Thread(target=RequestsGamer,args=(search,pages)).start()
 # threading.Thread(target=RequestsBiliBili,args=(search,pages)).start()
 
 #TrashRemoval()
