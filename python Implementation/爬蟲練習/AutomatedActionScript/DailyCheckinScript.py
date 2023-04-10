@@ -370,7 +370,7 @@ class script:
         blackdriver.get("https://black.is-best.site/plugin.php?id=gsignin:index")
 
         # 等待到指定時間才運行
-        time.sleep(GetParametric.WaitingTime()+1) # 成功測試
+        time.sleep(GetParametric.WaitingTime()+0.8) # 成功測試
         for i in range(3): # 總會有失敗的時候,重複三次
             blackdriver.refresh()
             blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
@@ -380,31 +380,33 @@ class script:
         GetParametric.datacreation(blackdriver.get_cookies(),GetParametric.databases("black"),"blackCookies")
         blackdriver.quit()
 
-# ===== 網站簽到 =====
-# 後方的 args 是用於傳遞 tuple 內的數值,將其設置為窗口關閉的延遲時間
-threading.Thread(target=script.Open_black,args=(5,)).start()
-time.sleep(GetParametric.WaitingTime()+10)
-threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
-time.sleep(1)
-threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
-time.sleep(1)
-threading.Thread(target=script.Open_Genshin,args=(5,)).start()
+if __name__ == "__main__":
+
+    # ===== 網站簽到 =====
+    # 後方的 args 是用於傳遞 tuple 內的數值,將其設置為窗口關閉的延遲時間
+    threading.Thread(target=script.Open_black,args=(5,)).start()
+    time.sleep(GetParametric.WaitingTime()+20)
+    threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
+    time.sleep(1)
+    threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
+    time.sleep(1)
+    threading.Thread(target=script.Open_Genshin,args=(5,)).start()
 
 
-"""反覆操作預計之後使用scapy進行封包修改操作"""
-# Jkf論壇使用體力藥水(此腳本就是藥水全部都用完)
-#forum.jkf_use_props(5)
+    """反覆操作預計之後使用scapy進行封包修改操作"""
+    # Jkf論壇使用體力藥水(此腳本就是藥水全部都用完)
+    #forum.jkf_use_props(5)
 
-# Jkf論壇自動挖礦(次數,地點,運行完停留時間)
-# 地點 : "巨龍巢穴" "精靈峽谷" "廢棄礦坑"
-#forum.jkf_mining(10,"廢棄礦坑",5)
+    # Jkf論壇自動挖礦(次數,地點,運行完停留時間)
+    # 地點 : "巨龍巢穴" "精靈峽谷" "廢棄礦坑"
+    #forum.jkf_mining(10,"廢棄礦坑",5)
 
-# Jkf論壇自動探索(次數,地點,運行完停留時間)
-# 地點 : "墮落聖地" "焚燒之地" "巨木森林"
-#forum.jkf_explore(10,"巨木森林",5)
+    # Jkf論壇自動探索(次數,地點,運行完停留時間)
+    # 地點 : "墮落聖地" "焚燒之地" "巨木森林"
+    #forum.jkf_explore(10,"巨木森林",5)
 
-# 輸出Cookie內容的方法 資料位置 , 要開啟的Cookie檔案名
-#GetParametric.CookieView("blackdefault","blackCookies")
+    # 輸出Cookie內容的方法 資料位置 , 要開啟的Cookie檔案名
+    #GetParametric.CookieView("blackdefault","blackCookies")
 
-# 刪除 selenium 非正常關閉時,的遺留資料夾
-# TrashRemoval()
+    # 刪除 selenium 非正常關閉時,的遺留資料夾
+    # TrashRemoval()
