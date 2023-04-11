@@ -4,6 +4,7 @@
 *.pyc
 *.ini
 *.json
+*.csv
 *.exe
 *default
 pypy3.9
