@@ -4,8 +4,12 @@ import requests
 import opencc
 import time
 import os
+# 可設置下載的位置
 dir = os.path.dirname(os.path.abspath("R:/"))
 os.chdir(dir)
+
+# 程式入口點於最下方
+# 無法下載第一話就需要VIP權限的(第一話可直接觀看,第二話需要VIP,這種的可以)
 
 def download(comicname,j,i,comic):
 
@@ -34,33 +38,33 @@ def comic_crawling(url):
     return request
 
 def default_download(chapter,finallink,comicname):
-      
+
+    pages = finallink.split("/")[2].split(".")[0]
+
     for j in range(1,chapter+1):
 
         for i in range(1000):
 
             time.sleep(0.5)
-            pages = int(finallink.split("/")[2].split(".")[0])
 
-            if pages < 10:  # 待測試修正
-                pages = pages+i
-                p = f"{pages:02d}"
-                flink = "{}/{}/{}.jpg".format(finallink.split("/")[0],j,p)
-                print(flink)
-                comic = comic_crawling(flink) 
+            if len(pages) == 3:
+                page = int(pages)+i
+                p = f"{page:03d}"
+            elif len(pages) == 2:
+                page = int(pages)+i
+                p = f"{page:02d}"
+            elif len(pages) == 1:
+                page = int(pages)+i
+                p = f"{page:01d}"
 
-            if len(str(pages)) == 3:
-                pages = pages+i
-                p = f"{pages:03d}"
+            flink = "{}/{}/{}.jpg".format(finallink.split("/")[0],j,p)
+            print(flink)
 
-                flink = "{}/{}/{}.jpg".format(finallink.split("/")[0],j,p)
-                print(flink)
-                comic = comic_crawling(flink) 
+            comic = comic_crawling(flink) 
+            if comic.status_code != 200:break
                 
             if i < 10:
                 i = "0"+str(i)
-
-            if comic.status_code != 200:break
 
             threading.Thread(target=download,args=(comicname,j,i,comic)).start()
 
@@ -84,26 +88,29 @@ def custom_download(url,chapter,Format):
     comiclink = f"http://www.zerobyw4090.com/{ma.select_one('div.muludiv a')['href'].split('./')[1]}"
     req2 = requests.get(comiclink,headers=head)
     mb = BeautifulSoup(req2.text, "html.parser")
-    finallink = mb.select('img#img_0')[0].get('src').split("manhua/")[1]
 
-    for i in range(1000):
+    try:
+        finallink = mb.select('img#img_0')[0].get('src').split("manhua/")[1]
 
-        pages = int(finallink.split("/")[2].split(".")[0])
-        pages = pages+i
-        p = f"{pages:0{Format}d}"
+        for i in range(1000):
 
-        flink = "{}/{}/{}.jpg".format(finallink.split("/")[0],chapter,p)
-        print(flink)
-        comic = comic_crawling(flink) 
+            pages = int(finallink.split("/")[2].split(".")[0])
+            pages = pages+i
+            p = f"{pages:0{Format}d}"
 
-        if i < 10:
-            i = "0"+str(i)
+            flink = "{}/{}/{}.jpg".format(finallink.split("/")[0],chapter,p)
+            print(flink)
+            comic = comic_crawling(flink) 
 
-        if comic.status_code != 200:break
+            if i < 10:
+                i = "0"+str(i)
 
-        time.sleep(0.5)
-        threading.Thread(target=download,args=(comicname,chapter,i,comic)).start()
-    
+            if comic.status_code != 200:break
+
+            time.sleep(0.5)
+            threading.Thread(target=download,args=(comicname,chapter,i,comic)).start()
+    except:
+        print("不支援第一話就需要VIP的漫畫")
 
 def download_settings(url,chapter):
 
@@ -132,8 +139,8 @@ def download_settings(url,chapter):
             
 if __name__ == "__main__":
 
-    # 網址,要下載的本數
-    #download_settings("http://www.zerobyw4090.com/plugin.php?id=jameson_manhua&a=bofang&kuid=6640",17)
+    # 網址,總章節數
+    download_settings("#",47)
 
-    # 網址,第幾章節,jpg命名格式
-    custom_download("http://www.zerobyw4090.com/plugin.php?id=jameson_manhua&a=bofang&kuid=6640",608,2)
+    # 網址,章節數,jpg命名格式(1=1 , 2=01 , 3=001)
+    #custom_download("#",602,2)
