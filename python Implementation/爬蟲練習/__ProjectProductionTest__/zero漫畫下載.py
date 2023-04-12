@@ -4,6 +4,7 @@ import requests
 import opencc
 import time
 import os
+import re
 # 可設置下載的位置
 dir = os.path.dirname(os.path.abspath("R:/"))
 os.chdir(dir)
@@ -14,7 +15,7 @@ os.chdir(dir)
 # 圖片下載輸出設置(原本使用異步下載,但有些奇怪的問題,改成多線程)
 def download(comicname,j,i,comic,_format):
 
-    with open(f"{comicname}_{j}_{i}.{_format}","wb") as f:
+    with open(f"{comicname} 第{j}話 - {i}.{_format}","wb") as f:
             f.write(comic.content)
 
 # 簡中轉繁
@@ -23,7 +24,7 @@ def Converter(language):
     return converter.convert(language)
 
 # 爬蟲設置
-def comic_crawling(url):
+def comic_crawling(link,url):
 
     headers = {
         "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
@@ -36,16 +37,36 @@ def comic_crawling(url):
         "sec-gpc": "1",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
     }
-    request = requests.get(f"http://tupa.zerobyw4090.com/manhua/{url}",headers)
-    return request
+
+    if url.find("special") != -1:
+        try:
+            request = requests.get(link,headers=headers)
+            request = BeautifulSoup(request.text, "html.parser")
+            request = request.select('img#img_0')[0].get('src').split("/")[-1].split(".")[0]
+        except:pass
+
+        return request
+    else:
+        request = requests.get(f"http://tupa.zerobyw4090.com/manhua/{url}",headers=headers)
+        return request
 
 # 懶人批量下載
-def default_download(chapter,finallink,comicname):
+def default_download(allchapters,alllinks,finallink,comicname):
 
-    pages = finallink.split("/")[2].split(".")[0]
+    cache = coding = link = ""
     ImageFormat = finallink.split(".")[1]
 
-    for j in range(1,chapter+1):
+    for idx , chapters in enumerate(allchapters):
+
+        if chapters == cache:
+            coding = f"{chapters}sheng"
+            pages = comic_crawling(alllinks[idx],"special")
+        else:
+            coding = chapters
+            pages = finallink.split("/")[2].split(".")[0]
+        
+        cache = chapters
+        link = alllinks[idx]
 
         for i in range(1000):
 
@@ -61,29 +82,23 @@ def default_download(chapter,finallink,comicname):
                 page = int(pages)+i
                 p = f"{page:01d}"
 
-            """   
-            困難點為因為後續某些章節無Vip無法讀取到數據
-            因此就算用每新一話就去讀取完整的URL格式
-            這並不實際 會限制了可下載Vip觀看內容
-            需要再思考如何讓其有通用性
-            以下並不是個完全解決的方案(待測試)
-            """
             if ImageFormat.lower() == "png":
-                flink = "{}/{}/{}.png".format(finallink.split("/")[0],j,p)
+                picturelink = "{}/{}/{}.png".format(finallink.split("/")[0],coding,p)
             elif ImageFormat.lower() == "jpg":
-                flink = "{}/{}/{}.jpg".format(finallink.split("/")[0],j,p)
+                picturelink = "{}/{}/{}.jpg".format(finallink.split("/")[0],coding,p)
 
-            comic = comic_crawling(flink)
+            comic = comic_crawling(link,picturelink)
 
-            print(flink)
+            print(picturelink)
 
             if comic.status_code != 200:break
-                
+
             if i < 10:
                 i = "0"+str(i)
 
-            threading.Thread(target=download,args=(comicname,j,i,comic,ImageFormat)).start()
+            threading.Thread(target=download,args=(comicname,coding,i,comic,ImageFormat)).start()
         
+        idx + 1
 
 # 自訂客制化下載
 def custom_download(url,chapter,Format,ImageFormat):
@@ -131,7 +146,7 @@ def custom_download(url,chapter,Format,ImageFormat):
         print("不支援第一話就需要VIP的漫畫")
 
 # 設置批量下載的
-def download_settings(url,chapter):
+def download_settings(url):
 
     head = {
         "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
@@ -145,20 +160,30 @@ def download_settings(url,chapter):
         "ec-gpc": "1",
         "ser-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
     }
-    req1 = requests.get(url,headers=head)
-    ma = BeautifulSoup(req1.text, "html.parser")
+    requests1 = requests.get(url,headers=head)
+    ma = BeautifulSoup(requests1.text, "html.parser")
+
+    allchapters = []
+    alllinks = []
     comicname = Converter(ma.find("h3", class_=("uk-heading-line mt10 m10")).text.split(" ")[0])
     comiclink = f"http://www.zerobyw4090.com/{ma.select_one('div.muludiv a')['href'].split('./')[1]}"
-    req2 = requests.get(comiclink,headers=head)
-    mb = BeautifulSoup(req2.text, "html.parser")
+
+    for i in ma.select("div.uk-grid-collapse.uk-child-width-1-4")[0].find_all("a"):
+        allchapters.append(''.join(re.findall(r'\d+', i.text)))
+
+    for i in ma.select("div.uk-grid-collapse.uk-child-width-1-4")[0].find_all("a"):
+        alllinks.append(f"http://www.zerobyw4090.com/{i.get('href').split('./')[1]}")
+
+    requests2 = requests.get(comiclink,headers=head)
+    mb = BeautifulSoup(requests2.text, "html.parser")
     finallink = mb.select('img#img_0')[0].get('src').split("manhua/")[1]
 
-    default_download(chapter,finallink,comicname)
+    default_download(allchapters,alllinks,finallink,comicname)
             
 if __name__ == "__main__":
 
-    # 網址,總章節數
-    download_settings("http://www.zerobyw4090.com/plugin.php?id=jameson_manhua&c=index&a=bofang&kuid=12655",14)
+    # 網址
+    download_settings("http://www.zerobyw4090.com/plugin.php?id=jameson_manhua&c=index&a=bofang&kuid=12655")
 
     # 網址 , 章節數 , jpg命名格式(1=1 , 2=01 , 3=001) , 圖片副檔名
     #custom_download("http://www.zerobyw4090.com/plugin.php?id=jameson_manhua&c=index&a=bofang&kuid=12655",601,3,"png")
