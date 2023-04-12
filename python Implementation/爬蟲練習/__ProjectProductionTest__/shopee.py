@@ -54,7 +54,6 @@ def shopee(search):
         All = data.find("div" , class_="KMyn8J")
         print(All.text)
 
-
     time.sleep(5)
     driver.quit()
 

@@ -370,7 +370,7 @@ class script:
         blackdriver.get("https://black.is-best.site/plugin.php?id=gsignin:index")
 
         # 等待到指定時間才運行
-        time.sleep(GetParametric.WaitingTime()+0.8) # 成功測試
+        time.sleep(GetParametric.WaitingTime()+0.7) # 成功測試
         for i in range(3): # 總會有失敗的時候,重複三次
             blackdriver.refresh()
             blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))

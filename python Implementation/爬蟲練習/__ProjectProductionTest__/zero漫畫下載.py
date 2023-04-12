@@ -14,7 +14,7 @@ os.chdir(dir)
 def download(comicname,j,i,comic):
 
     with open(f"{comicname}_{j}_{i}.jpg","wb") as f:
-                f.write(comic.content)
+        f.write(comic.content)
 
 def Converter(language):
     converter = opencc.OpenCC('s2twp.json')
