@@ -37,6 +37,12 @@ pip install Scrapy
 pip install beautifulsoup4
 pip install urllib3
 
+:: 異步請求
+pip install aiohttp
+
+:: 異步讀寫檔案
+pip install aiofiles
+
 :: 自動化操作
 pip install selenium
 
