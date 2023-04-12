@@ -12,7 +12,7 @@ import socket
 
 def TCPURL():
     url = [
-        "#",
+        "https://no7cheat.com/",
     ]
     return url
 
@@ -47,7 +47,7 @@ def get():
                 icmp = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
                 icmp.sendto(icmp_request, (ip, 0))
 
-                data = requests.get(TCPURL()[i],headers=hd(),proxies=Pro())
+                data = requests.get(TCPURL()[i],headers=hd())
                 print(f"state:{data}")
                 data.text
         except Exception as e:
