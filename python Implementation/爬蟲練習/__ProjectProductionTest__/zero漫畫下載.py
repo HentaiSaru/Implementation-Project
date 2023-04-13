@@ -30,8 +30,6 @@ def download(comicname,number,pages,comicurl,_format):
         with open(f"{comicname} 第{number}話 - {int(pages)+1}.{_format}","wb") as f:
                 f.write(comic.content)
 
-    return comic
-
 # 特別頁面取的頁數
 def special_format(link,url):
 
@@ -90,7 +88,7 @@ def default_download(allchapters,alllinks,finallink,comicname):
 
                 if int(comic.result().status_code) != 200:break
 
-                print(comic.result().url)
+                print(picturelink)
         
         idx + 1
 
