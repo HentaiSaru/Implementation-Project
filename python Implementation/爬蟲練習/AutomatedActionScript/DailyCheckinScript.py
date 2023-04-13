@@ -242,7 +242,7 @@ class forum:
         # 刪除那個會擋到按鈕的白痴NPC
         jkfdriver.execute_script('document.querySelector("img.w-full.h-auto").remove();')
 
-        startexplore=  WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='pt-10'][{Location}] //div[@class='OvtXIlmLtXEE_eWpy1jH YOKk3zC9K8EXQZUZPFiy'][text()='開始探索']")))
+        startexplore = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='pt-10'][{Location}] //div[@class='OvtXIlmLtXEE_eWpy1jH YOKk3zC9K8EXQZUZPFiy'][text()='開始探索']")))
         startexplore.click()
 
         explore = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/div/div/div[2]/div/div[1]/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div[2]/canvas")))
