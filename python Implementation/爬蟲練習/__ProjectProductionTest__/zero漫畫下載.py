@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import concurrent.futures
 import threading
 import requests
 import opencc
@@ -12,29 +13,29 @@ os.chdir(dir)
 # 程式入口點於最下方
 # 無法下載第一話就需要VIP權限的(第一話可直接觀看,第二話需要VIP,這種的可以)
 
-# 圖片下載輸出設置(原本使用異步下載,但有些奇怪的問題,改成多線程)
-def download(comicname,j,i,comic,_format):
-
-    with open(f"{comicname} 第{j}話 - {i}.{_format}","wb") as f:
-            f.write(comic.content)
-
 # 簡中轉繁
 def Converter(language):
     converter = opencc.OpenCC('s2twp.json')
     return converter.convert(language)
 
-# 爬蟲設置
-def comic_crawling(link,url):
+# 圖片下載輸出(因為該網站速度不快,使用多線程也沒快多少)
+def download(comicname,number,pages,comicurl,_format):
 
     headers = {
-        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
-        "Accept-Encoding": "gzip, deflate",
-        "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,ja-TW;q=0.6,ja;q=0.5",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
-        "DNT": "1",
-        "Pragma": "no-cache",
-        "sec-gpc": "1",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
+    }
+    comic = requests.get(f"http://tupa.zerobyw4090.com/manhua/{comicurl}",headers=headers)
+
+    if comic.status_code == 200:
+        with open(f"{comicname} 第{number}話 - {int(pages)+1}.{_format}","wb") as f:
+                f.write(comic.content)
+
+    return comic
+
+# 特別頁面取的頁數
+def special_format(link,url):
+
+    headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"
     }
 
@@ -46,57 +47,50 @@ def comic_crawling(link,url):
         except:pass
 
         return request
-    else:
-        request = requests.get(f"http://tupa.zerobyw4090.com/manhua/{url}",headers=headers)
-        return request
 
 # 懶人批量下載
 def default_download(allchapters,alllinks,finallink,comicname):
 
-    cache = coding = link = ""
+    cache = coding = ""
     ImageFormat = finallink.split(".")[1]
 
     for idx , chapters in enumerate(allchapters):
 
         if chapters == cache:
             coding = f"{chapters}sheng"
-            pages = comic_crawling(alllinks[idx],"special")
+            pages = special_format(alllinks[idx],"special")
         else:
             coding = chapters
             pages = finallink.split("/")[2].split(".")[0]
         
         cache = chapters
-        link = alllinks[idx]
 
-        for i in range(1000):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=64) as executor:
 
-            time.sleep(0.3)
+            for i in range(1000):
 
-            if len(pages) == 3:
-                page = int(pages)+i
-                p = f"{page:03d}"
-            elif len(pages) == 2:
-                page = int(pages)+i
-                p = f"{page:02d}"
-            elif len(pages) == 1:
-                page = int(pages)+i
-                p = f"{page:01d}"
+                time.sleep(0.1)
 
-            if ImageFormat.lower() == "png":
-                picturelink = "{}/{}/{}.png".format(finallink.split("/")[0],coding,p)
-            elif ImageFormat.lower() == "jpg":
-                picturelink = "{}/{}/{}.jpg".format(finallink.split("/")[0],coding,p)
+                if len(pages) == 3:
+                    page = int(pages)+i
+                    page = f"{page:03d}"
+                elif len(pages) == 2:
+                    page = int(pages)+i
+                    page = f"{page:02d}"
+                elif len(pages) == 1:
+                    page = int(pages)+i
+                    page = f"{page:01d}"
 
-            comic = comic_crawling(link,picturelink)
+                picturelink = "{}/{}/{}.{}".format(finallink.split("/")[0],coding,page,ImageFormat)
 
-            print(picturelink)
+                if i < 10:
+                    i = "0"+str(i)
 
-            if comic.status_code != 200:break
+                comic = executor.submit(download,comicname,coding,i,picturelink,ImageFormat)
 
-            if i < 10:
-                i = "0"+str(i)
+                if int(comic.result().status_code) != 200:break
 
-            threading.Thread(target=download,args=(comicname,coding,i,comic,ImageFormat)).start()
+                print(comic.result().url)
         
         idx + 1
 
@@ -124,24 +118,24 @@ def custom_download(url,chapter,Format,ImageFormat):
 
     try:
         finallink = mb.select('img#img_0')[0].get('src').split("manhua/")[1]
+        pages = int(finallink.split("/")[2].split(".")[0])
 
-        for i in range(1000):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=64) as executor:
+            for i in range(1000):
 
-            pages = int(finallink.split("/")[2].split(".")[0])
-            pages = pages+i
-            p = f"{pages:0{Format}d}"
+                pages = pages+i
+                p = f"{pages:0{Format}d}"
 
-            flink = "{}/{}/{}.{}".format(finallink.split("/")[0],chapter,p,ImageFormat)
-            print(flink)
-            comic = comic_crawling(flink) 
+                picturelink = "{}/{}/{}.{}".format(finallink.split("/")[0],chapter,p,ImageFormat)
 
-            if i < 10:
-                i = "0"+str(i)
+                if i < 10:
+                    i = "0"+str(i)
 
-            if comic.status_code != 200:break
+                comic = executor.submit(download,comicname,chapter,i,picturelink,ImageFormat)
 
-            time.sleep(0.5)
-            threading.Thread(target=download,args=(comicname,chapter,i,comic,ImageFormat)).start()
+                print(comic.result().url)
+
+                if int(comic.result().status_code) != 200:break
     except:
         print("不支援第一話就需要VIP的漫畫")
 
@@ -182,8 +176,10 @@ def download_settings(url):
             
 if __name__ == "__main__":
 
-    # 網址
-    download_settings("http://www.zerobyw4090.com/plugin.php?id=jameson_manhua&c=index&a=bofang&kuid=12655")
+    """懶人批量下載"""
+    # 網址 (如果601,602 這種頁面類型,使用懶人批量下載失敗,用自訂下載 ,修改 命名格式 1~3 或 副檔名 jpg/png)
+    #download_settings("#")
 
+    """自訂下載(用於當批量下載不到,可以賭運氣看看)"""
     # 網址 , 章節數 , jpg命名格式(1=1 , 2=01 , 3=001) , 圖片副檔名
-    #custom_download("http://www.zerobyw4090.com/plugin.php?id=jameson_manhua&c=index&a=bofang&kuid=12655",601,3,"png")
+    custom_download("#",602,3,"png")
