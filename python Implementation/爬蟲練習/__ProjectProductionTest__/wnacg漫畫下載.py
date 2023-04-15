@@ -31,6 +31,7 @@ class SlowAccurate:
 
     # 批量輸入下載
     def BatchInput(Url):
+        # 用於確認輸出
         Judge = False
         AllLinks = []
 
@@ -46,15 +47,21 @@ class SlowAccurate:
                 else:print("這並非此模支持的網址格式")
 
         else:
-            if Url.find("search") != -1:
-                Url = f'https://www.wnacg.org/albums-index-tag-{unquote(Url.split("?q=")[1].split("&")[0])}.html'
+            url = unquote(Url)
+            Match = False
 
             # r 為原始字串符 他將不會轉譯 \ 反斜
+            SearchPage = r'https://www\.wnacg\.org/search/\?q=.+'
             TagPage = r'^https:\/\/www\.wnacg\.org\/albums.*\.html$'
-            # 轉換被轉譯的文字
-            url = f'https://www.wnacg.org/albums-index-page-1-tag-{unquote(Url).split("-tag-")[1]}'
 
-            if re.match(TagPage,url):
+            if re.match(SearchPage,url):
+                url = f'https://www.wnacg.org/search/?q={url.split("?q=")[1].split("&")[0]}'
+                Match = True
+            elif re.match(TagPage,url):
+                url = f'https://www.wnacg.org/albums-index-page-1-tag-{url.split("-tag-")[1]}'
+                Match = True
+
+            if Match:
                 Judge = True
                 headers = {
                     "authority": "www.wnacg.org",
@@ -75,31 +82,35 @@ class SlowAccurate:
                 except:TotalPages = "1"
 
                 # 獲取頁面所有URL
-                def GetLink(url,headers,UrlQueue):
-                    request = session.get(url, headers=headers)
-                    tree = etree.fromstring(request.content, parser)
-                    for i in tree.xpath('//div[@class="pic_box"]'):
-                        UrlQueue.put(f"https://www.wnacg.org{i.find('a').get('href')}")
+                async def GetLink(session, urls):
+                    async with session.get(urls) as response:
+                        html = await response.text()
+                        tree = etree.fromstring(html, parser)
+                        links = []
+                        for i in tree.xpath('//div[@class="pic_box"]'):
+                            link = f"https://www.wnacg.org{i.find('a').get('href')}"
+                            links.append(link)
+                        return links
 
-                # 使用隊列
-                UrlQueue = queue.Queue()
-                for page in range(int(TotalPages)):
-                    # 啟用多線程同時去獲取頁面URL
-                    thread = threading.Thread(target=GetLink,args=(url,headers,UrlQueue))
-                    thread.start()
+                # 將所有頁面網址輸出,再將網址全部使用GetLink獲取頁面所有網址
+                async def RanGet(url):
+                    async with aiohttp.ClientSession(headers=headers) as session:
+                        PageList = []
+                        for page in range(int(TotalPages)):
+                            if int(TotalPages) != 1:
+                                url = f"https://www.wnacg.org/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                            PageList.append(url)
 
-                    # 改變URL格式
-                    if int(TotalPages) != 1:
-                        url = f"https://www.wnacg.org/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                        tasks = []
+                        for page in PageList:
+                            task = asyncio.create_task(GetLink(session, page))
+                            tasks.append(task)
+                        results = await asyncio.gather(*tasks)
+                        for links in results:
+                            AllLinks.extend(links)
+                asyncio.run(RanGet(url))
 
-                # 等待所有URL獲取完畢
-                thread.join()
-
-                # 取得所有的URL並傳入 AllLinks
-                while not UrlQueue.empty():
-                    AllLinks.append(UrlQueue.get())
-
-            else:print("這並非此模支持的網址格式")
+            else:print("這並非支持的網址格式")
 
         if Judge:
             for _input in AllLinks: # 懶得處理線程鎖,廢棄多線程
@@ -181,13 +192,13 @@ class SlowAccurate:
             SlowAccurate.Ffolder(NameMerge)
 
             # 開始請求圖片
-            SlowAccurate.DataRequest(ComicPictureLink,Url)
+            SlowAccurate.DataRequest(ComicPictureLink,Url,NameMerge)
 
         else:
-            print("這並非此模支持的網址格式")
+            print("這並非支持的網址格式")
 
     # 獲取漫畫數據
-    def DataRequest(ComicsInternalLinks,MangaURL):
+    def DataRequest(ComicsInternalLinks,MangaURL,NameMerge):
         SaveNameFormat = 1
 
         headers = {
@@ -200,8 +211,10 @@ class SlowAccurate:
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
         }
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=128) as executor:
+        print(NameMerge)
 
+        with concurrent.futures.ThreadPoolExecutor(max_workers=128) as executor:
+            
             for page in ComicsInternalLinks:
     
                 SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
@@ -241,6 +254,7 @@ class FastNormal:
 
     # 批量輸入下載
     def BatchInput(Url):
+        # 用於確認輸出
         Judge = False
         AllLinks = []
 
@@ -253,18 +267,23 @@ class FastNormal:
                 if re.match(SupportedFormat,url):
                     Judge = True
                     AllLinks.append(url)
-                else:print("這並非此模支持的網址格式")
+                else:print("這並非支持的網址格式")
 
         else:
-            if Url.find("search") != -1:
-                Url = f'https://www.wnacg.org/albums-index-tag-{unquote(Url.split("?q=")[1].split("&")[0])}.html'
-
+            url = unquote(Url)
+            Match = False
             # r 為原始字串符 他將不會轉譯 \ 反斜
+            SearchPage = r'https://www\.wnacg\.org/search/\?q=.+'
             TagPage = r'^https:\/\/www\.wnacg\.org\/albums.*\.html$'
-            # 轉換被轉譯的文字
-            url = f'https://www.wnacg.org/albums-index-page-1-tag-{unquote(Url).split("-tag-")[1]}'
 
-            if re.match(TagPage,url):
+            if re.match(SearchPage,url):
+                url = f'https://www.wnacg.org/search/?q={url.split("?q=")[1].split("&")[0]}'
+                Match = True
+            elif re.match(TagPage,url):
+                url = f'https://www.wnacg.org/albums-index-page-1-tag-{url.split("-tag-")[1]}'
+                Match = True
+
+            if Match:
                 Judge = True
                 headers = {
                     "authority": "www.wnacg.org",
@@ -285,31 +304,35 @@ class FastNormal:
                 except:TotalPages = "1"
 
                 # 獲取頁面所有URL
-                def GetLink(url,headers,UrlQueue):
-                    request = session.get(url, headers=headers)
-                    tree = etree.fromstring(request.content, parser)
-                    for i in tree.xpath('//div[@class="pic_box"]'):
-                        UrlQueue.put(f"https://www.wnacg.org{i.find('a').get('href')}")
+                async def GetLink(session, urls):
+                    async with session.get(urls) as response:
+                        html = await response.text()
+                        tree = etree.fromstring(html, parser)
+                        links = []
+                        for i in tree.xpath('//div[@class="pic_box"]'):
+                            link = f"https://www.wnacg.org{i.find('a').get('href')}"
+                            links.append(link)
+                        return links
 
-                # 使用隊列
-                UrlQueue = queue.Queue()
-                for page in range(int(TotalPages)):
-                    # 啟用多線程同時去獲取頁面URL
-                    thread = threading.Thread(target=GetLink,args=(url,headers,UrlQueue))
-                    thread.start()
+                # 將所有頁面網址輸出,再將網址全部使用GetLink獲取頁面所有網址
+                async def RanGet(url):
+                    async with aiohttp.ClientSession(headers=headers) as session:
+                        PageList = []
+                        for page in range(int(TotalPages)):
+                            if int(TotalPages) != 1:
+                                url = f"https://www.wnacg.org/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                            PageList.append(url)
 
-                    # 改變URL格式
-                    if int(TotalPages) != 1:
-                        url = f"https://www.wnacg.org/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                        tasks = []
+                        for page in PageList:
+                            task = asyncio.create_task(GetLink(session, page))
+                            tasks.append(task)
+                        results = await asyncio.gather(*tasks)
+                        for links in results:
+                            AllLinks.extend(links)
+                asyncio.run(RanGet(url))
 
-                # 等待所有URL獲取完畢
-                thread.join()
-
-                # 取得所有的URL並傳入 AllLinks
-                while not UrlQueue.empty():
-                    AllLinks.append(UrlQueue.get())
-
-            else:print("這並非此模支持的網址格式")
+            else:print("這並非支持的網址格式")
 
         if Judge:
             for _input in AllLinks:
@@ -369,13 +392,12 @@ class FastNormal:
             #創建文件夾
             FastNormal.Ffolder(NameMerge)
             # 開始請求圖片
-            FastNormal.DataRequest(total_pages_format,ComicLink,Url)
+            FastNormal.DataRequest(total_pages_format,ComicLink,Url,NameMerge)
         else:
             print("這並非此模支持的網址格式")
 
-
     # 獲取漫畫數據
-    def DataRequest(pages_format,ComicLink,MangaURL):
+    def DataRequest(pages_format,ComicLink,MangaURL,NameMerge):
         global TestError
         SaveNameFormat = 1
         Mantissa = ComicLink[0].split('t')[1]
@@ -390,7 +412,7 @@ class FastNormal:
             "sec-gpc": "1",
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
         }
-
+        print(NameMerge)
         TestError = False
         with concurrent.futures.ThreadPoolExecutor(max_workers=128) as executor:
 
@@ -478,6 +500,7 @@ class FastNormal:
 
     前面為 : SlowAccurate. 是慢速下載但是可以很精準的抓到所有類型
     前面為 : FastNormal. 處理的比較快 同時無法完全的通用 目前已經用多重判斷 盡量讓其通用
+    (但只要頁面較多處理就一定比較久,並不是卡住)
 
     BatchInput 可放兩種 (注意格式!!)
     1. 為搜尋某Tag標籤搜尋頁網址 , 他將會把所有搜尋到的全部下載 (格式為:https://www.wnacg.org/albums...)
