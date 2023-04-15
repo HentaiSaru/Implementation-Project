@@ -4,7 +4,6 @@ import time
 from tkinter import messagebox , ttk
 import tkinter as tk
 import warnings
-from tkinter import messagebox
 dir = os.path.dirname(os.path.abspath(__file__)) 
 sys.path.append(dir) # 將該文件絕對路徑,加入至Python的文件查找路徑
 from ClickMain import *
