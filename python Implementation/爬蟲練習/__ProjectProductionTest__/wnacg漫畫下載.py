@@ -338,7 +338,7 @@ class FastNormal:
             for _input in AllLinks:
                 FastNormal.BasicSettings(_input)
 
-    def BasicSettings(Url): # 待優化...
+    def BasicSettings(Url):
         SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
         if re.match(SupportedFormat,Url):
 
@@ -365,29 +365,31 @@ class FastNormal:
             # 漫畫圖片連結
             ComicLink = [x for x in tree.xpath('//div[@class="pic_box tb"]/a/img/@src')[0].split("/") if x]
 
-            # 使用多線程獲取所有的頁數格式
-            def GetFormat(i,headers,UrlQueue):
-                reques = session.get(f"https://www.wnacg.org/photos-index-page-{i}-aid-{Url.split('aid-')[1]}", headers=headers)
-                html = reques.content
-                parser = etree.HTMLParser()
-                tree = etree.fromstring(html, parser)
-                for span in tree.xpath('//span[@class="name tb"]'):
-                    UrlQueue.put(span.text)
+            # 獲取頁面中所有的頁碼格式
+            async def get_format(session,url, headers, UrlQueue):
+                async with session.get(url, headers=headers) as response:
+                    html = await response.text()
+                    parser = etree.HTMLParser()
+                    tree = etree.fromstring(html, parser)
+                    for span in tree.xpath('//span[@class="name tb"]'):
+                        if span.text not in UrlQueue.queue:
+                            UrlQueue.put(span.text)
 
             UrlQueue = queue.Queue()
-            threads = []
+            async def main(home_pages, headers):
+                async with aiohttp.ClientSession() as session:
+                    # 先將總共頁數的網址全部存入
+                    urllist = [f"https://www.wnacg.org/photos-index-page-{i}-aid-{Url.split('aid-')[1]}" for i in range(1, home_pages+1)]
+                    # 呼叫get_format獲取所有的格式
+                    tasks = [asyncio.create_task(get_format(session, url, headers, UrlQueue)) for url in urllist]
+                    # 等待完成
+                    await asyncio.gather(*tasks)
 
-            for i in range(1,Home_Pages+1):
-                thread = threading.Thread(target=GetFormat,args=(i,headers,UrlQueue))
-                thread.start()
-                threads.append(thread)
-
-            # 為了確保每次資料都是完整正確的
-            for thread in threads:
-                thread.join()
-
-            while not UrlQueue.empty():
-                total_pages_format.append(UrlQueue.get())
+                    # 將取得數據存入 total_pages_format 並排序
+                    while not UrlQueue.empty():
+                        total_pages_format.append(UrlQueue.get())
+                    total_pages_format.sort()
+            asyncio.run(main(Home_Pages, headers))
             
             #創建文件夾
             FastNormal.Ffolder(NameMerge)
@@ -402,6 +404,7 @@ class FastNormal:
         SaveNameFormat = 1
         Mantissa = ComicLink[0].split('t')[1]
         NumberType = ['1','2','3','4']
+        ImageType = ['.jpg','.png']
 
         headers = {
             "sec-fetch-dest": "image",
@@ -412,7 +415,7 @@ class FastNormal:
             "sec-gpc": "1",
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
         }
-        print(NameMerge)
+
         TestError = False
         with concurrent.futures.ThreadPoolExecutor(max_workers=128) as executor:
 
@@ -423,28 +426,37 @@ class FastNormal:
     
                 SaveName = f"{SaveNameFormat:03d}.{ComicLink[5].split('.')[1]}"
 
-                print(SaveName)
                 status = executor.submit(FastNormal.Download, SaveName, Image_URL, headers)
+                print(f"{NameMerge}-{SaveName}")
+                time.sleep(0.1)
     
                 # 無腦判斷法
-                if TestError:
+                if TestError: 
 
-                    for Number in NumberType:
-                        # 獲取Image_URL的數字位置
-                        value = Image_URL.split('img')[1].split('.')[0]
-                        # 將該數字替換成 Number
-                        Image_URL = f"https://img{value.replace(f'{value}',f'{Number}')}.qy0{Image_URL.split('.qy0')[1]}"
+                    Type = Image_URL.split('/')[-1].split('.')[1]
 
-                        # 再次呼叫方法
-                        status = executor.submit(FastNormal.Download, SaveName, Image_URL, headers)
+                    for Img in ImageType:
 
-                        # 判斷當他成功時
-                        if status.result().status_code == 200:
-                            # 將之後的請求數字都變更
-                            Mantissa = f"{Number}.qy0.ru"
-                            TestError = False
-                            break
+                        Image_URL = f"{Image_URL.split(f'.{Type}')[0]}{Img}"
+
+                        for Number in NumberType:
+                            # 獲取Image_URL的數字位置
+                            value = Image_URL.split('img')[1].split('.')[0]
+                            # 將該數字替換成 Number
+                            Image_URL = f"https://img{value.replace(f'{value}',f'{Number}')}.qy0{Image_URL.split('.qy0')[1]}"
+
+                            # 再次呼叫方法
+                            status = executor.submit(FastNormal.Download, SaveName, Image_URL, headers)
+                            
+                            # 判斷當他成功時
+                            if status.result().status_code == 200:
+                                # 將之後的請求數字都變更
+                                Mantissa = f"{Number}.qy0.ru"
+                                TestError = False
+                                break
                     
+                        if status.result().status_code == 200:break
+                            
                     # 如果到最後還是請求失敗,就打印失敗的格式
                     if status.result().status_code != 200:print(f"請求錯誤:\n漫畫網址:{MangaURL}\n圖片網址:{Image_URL}")
 
@@ -474,21 +486,7 @@ class FastNormal:
         if ImageData.status_code == 200:
             with open(SaveName,"wb") as f:
                 f.write(ImageData.content)
-        else:
-            if Image_URL.split('/')[-1].split('.')[1] == "jpg":
-
-                Image_URL = Image_URL.replace(".jpg", ".png")
-
-            elif Image_URL.split('/')[-1].split('.')[1] == "png":
-
-                Image_URL = Image_URL.replace(".png", ".jpg")
-
-            ImageData = requests.get(Image_URL, headers=headers)
-
-            if ImageData.status_code == 200:
-                with open(SaveName,"wb") as f:
-                    f.write(ImageData.content)
-            else:TestError = True
+        else:TestError = True
 
         return ImageData
 
@@ -525,13 +523,13 @@ if __name__ == "__main__":
     #SlowAccurate.BasicSettings("#")
 
     # 批量下載
-    SlowAccurate.BatchInput("https://www.wnacg.org/search/?q=%E9%BB%92%E7%A4%AB&f=_all&s=create_time_DESC&syn=yes")
+    #SlowAccurate.BatchInput("#")
 
 
     """處理速度較於快速,但會有一些下載失敗(目前有Bug待修正...)"""
 
     # 單獨下載
-    #FastNormal.BasicSettings("#")
+    FastNormal.BasicSettings("#")
 
     # 批量下載
     #FastNormal.BatchInput("#")
