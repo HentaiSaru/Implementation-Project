@@ -1,4 +1,4 @@
-from urllib.parse import unquote
+from urllib.parse import unquote , urlparse
 import concurrent.futures
 from lxml import etree
 import threading
@@ -15,11 +15,12 @@ os.chdir(dir)
 # 程式入口點於最下方 (495行)
 
 """ 初始化宣告 """
-def __init__(self,Url,ComicsInternalLinks,MangaURL,FolderName,SaveName,Image_URL,headers,pages_format,ComicLink):
+def __init__(self,Url,ComicsInternalLinks,MangaURL,NameMerge,FolderName,SaveName,Image_URL,headers,pages_format,ComicLink):
     self.Url = Url
     self.headers = headers
     self.MangaURL = MangaURL
     self.SaveName = SaveName
+    self.MangaURL = NameMerge
     self.Image_URL = Image_URL
     self.ComicLink = ComicLink
     self.FolderName = FolderName
@@ -164,7 +165,7 @@ class SlowAccurate:
                     # 將其轉換為Set避免重複
                     links_set.update(link)
                 # 轉換為list並造順序排列
-                ComicsInternalLinks[:] = sorted(list(links_set))
+                ComicsInternalLinks[:] = sorted(list(links_set), key=lambda x: urlparse(x).path)
             
             # 使用所有的分頁連結,去請求每個連結對應的,圖片連結
             async def GetImage(link, headers):
@@ -184,6 +185,7 @@ class SlowAccurate:
                 image_links = await asyncio.gather(*tasks)
                 for link in image_links:
                     ComicPictureLink.append(link)
+                ComicPictureLink.sort() #先暫時用這種方式排序
 
             asyncio.run(LinkRun())
             asyncio.run(ImageRun())
@@ -211,8 +213,6 @@ class SlowAccurate:
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
         }
 
-        print(NameMerge)
-
         with concurrent.futures.ThreadPoolExecutor(max_workers=128) as executor:
             
             for page in ComicsInternalLinks:
@@ -220,7 +220,7 @@ class SlowAccurate:
                 SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
                 time.sleep(0.1)
                 executor.submit(SlowAccurate.Download, SaveName, MangaURL , page , headers)
-                print(SaveName)
+                print(f"{NameMerge}-{SaveName}")
   
                 SaveNameFormat += 1
 
@@ -508,6 +508,8 @@ class FastNormal:
     3. BasicSettings 也是 (格式為:https://www.wnacg.org/photos...)
 
     SlowAccurate. 以最大優化處理速度,如果還是慢,那是伺服器響應,和網路問題
+
+    現有的問題 : 為了提升速度使用了異步同時請求,因此可能下載下來的順序會是亂的
 """
 
 if __name__ == "__main__":
@@ -523,7 +525,7 @@ if __name__ == "__main__":
     #SlowAccurate.BasicSettings("#")
 
     # 批量下載
-    #SlowAccurate.BatchInput("#")
+    SlowAccurate.BatchInput("https://www.wnacg.org/search/?q=%E9%BB%92%E7%A4%AB&f=_all&s=create_time_DESC&syn=yes")
 
 
     """處理速度較於快速,但會有一些下載失敗(目前有Bug待修正...)"""
