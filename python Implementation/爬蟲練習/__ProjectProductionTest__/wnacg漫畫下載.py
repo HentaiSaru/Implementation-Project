@@ -9,7 +9,7 @@ import queue
 import time
 import os
 import re
-dir = os.path.dirname(os.path.abspath("R:/")) # 可更改預設路徑
+dir = os.path.abspath("R:/") # 可更改預設路徑
 os.chdir(dir)
 
 # 程式入口點於最下方 (495行)
