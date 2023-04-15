@@ -12,9 +12,9 @@ import re
 dir = os.path.dirname(os.path.abspath("R:/")) # 可更改預設路徑
 os.chdir(dir)
 
-# 程式入口點於最下方
+# 程式入口點於最下方 (495行)
 
-# 初始化宣告
+""" 初始化宣告 """
 def __init__(self,Url,ComicsInternalLinks,MangaURL,FolderName,SaveName,Image_URL,headers,pages_format,ComicLink):
     self.Url = Url
     self.headers = headers
@@ -26,7 +26,7 @@ def __init__(self,Url,ComicsInternalLinks,MangaURL,FolderName,SaveName,Image_URL
     self.pages_format = pages_format
     self.ComicsInternalLinks = ComicsInternalLinks
 
-# 較慢但通用多種下載
+""" 較慢但通用多種下載 """
 class SlowAccurate:
 
     # 批量輸入下載
@@ -249,7 +249,7 @@ class SlowAccurate:
                 f.write(ImageData.content)
         else:print(f"請求錯誤:\n漫畫網址:{MangaURL}\n圖片網址:{Image_URL}")
 
-# 較快但有些下載不了
+""" 較快但有些下載不了 """
 class FastNormal:
 
     # 批量輸入下載
