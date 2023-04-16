@@ -123,8 +123,7 @@ class SlowAccurate:
                SlowAccurate.BasicSettings(_input)
 
     # 取得基本訊息(這邊為了通用性,做了較多的數據處理,導致剛開始會跑比較久)
-    thread = 0
-    download = None
+    Work = queue.Queue()
     def BasicSettings(Url):
         SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
         if re.match(SupportedFormat,Url):
@@ -198,22 +197,45 @@ class SlowAccurate:
             asyncio.run(LinkRun())
             asyncio.run(ImageRun())
 
-            SlowAccurate.DownloadWork(ComicPictureLink,Url,NameMerge)
+            # 同步請求,工作序列
+            SlowAccurate.Work.put((ComicPictureLink,Url,NameMerge))
 
-            # 多線程測試
-            # SlowAccurate.download = threading.Thread(target=SlowAccurate.DownloadWork,args=(ComicPictureLink,Url,NameMerge))
-            # SlowAccurate.download.start()
+            # 單線程請求
+            # download_path = os.path.join(dir, NameMerge)
+            # SlowAccurate.Ffolder(download_path)
+            # SlowAccurate.DataRequest(ComicPictureLink,Url,NameMerge)
 
         else:
             print("這並非支持的網址格式")
-    
-    def DownloadWork(ComicPictureLink,Url,NameMerge):
 
-        download_path = os.path.join(dir, NameMerge)
-        #創建文件夾
-        SlowAccurate.Ffolder(download_path)
-        # 開始請求圖片
-        SlowAccurate.DataRequest(ComicPictureLink,Url,NameMerge)
+    def DownloadWork():
+        MAX_THREADS = 10
+        active_threads = []
+
+        while True:
+            time.sleep(0.1)
+            if not SlowAccurate.Work.empty():
+                data = SlowAccurate.Work.get()
+                ComicPictureLink = data[0]
+                Url = data[1]
+                NameMerge = data[2]
+
+                def Simultaneous():
+                    download_path = os.path.join(dir, NameMerge)
+                    #創建文件夾
+                    SlowAccurate.Ffolder(download_path)
+                    # 開始請求圖片
+                    SlowAccurate.DataRequest(ComicPictureLink,Url,NameMerge)
+
+                if len(active_threads) < MAX_THREADS:
+                    download = threading.Thread(target=Simultaneous)
+                    active_threads.append(download)
+                    download.start()
+                else:
+                    for thread in active_threads:
+                        if not thread.is_alive():
+                            active_threads.remove(thread)
+                            break
 
     # 獲取漫畫數據
     def DataRequest(ComicsInternalLinks,MangaURL,NameMerge):
@@ -229,16 +251,17 @@ class SlowAccurate:
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
         }
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=128) as executor:
+        #with concurrent.futures.ThreadPoolExecutor(max_workers=512) as executor:
             
-            for page in ComicsInternalLinks:
-    
-                SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
-                time.sleep(0.1)
-                executor.submit(SlowAccurate.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
-                print(f"{NameMerge}-{SaveName}")
-  
-                SaveNameFormat += 1
+        for page in ComicsInternalLinks:
+
+            SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
+            #time.sleep(0.1)
+            #executor.submit(SlowAccurate.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
+            SlowAccurate.Download(os.path.join(dir, NameMerge),SaveName,MangaURL,page,headers)
+            print(f"{NameMerge}-{SaveName}")
+
+            SaveNameFormat += 1
 
     # 創建資料夾
     def Ffolder(FolderName):
@@ -432,7 +455,7 @@ class FastNormal:
         }
 
         TestError = False
-        with concurrent.futures.ThreadPoolExecutor(max_workers=128) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=512) as executor:
 
             for page in pages_format:
 
@@ -531,23 +554,23 @@ class FastNormal:
 
     SlowAccurate. 以最大優化處理速度,如果還是慢,那是伺服器響應,和網路問題
     現有的問題 : 為了提升速度使用了異步同時請求,因此可能下載下來的順序會是亂的
-    多線程同步下載待測試
+    多線程同步下載(單本下載加速,就無法使用多本同時下載)
 """
 
 if __name__ == "__main__":
 
-    # 批量下載列表
-    Batch = [
-        ""
-    ]
+    """加速工作隊列"""
+    threading.Thread(target=SlowAccurate.DownloadWork).start()
 
-    """處理速度較於緩慢,但可精準的下載所有類型"""
+    # 批量下載列表
+    Batch = []
+
+    """處理速度較於緩慢(那種2-300頁的真的很慢),但可精準的下載所有類型"""
 
     # 單獨下載
-    #SlowAccurate.BasicSettings("")
-
+    SlowAccurate.BasicSettings("")
     # 批量下載
-    SlowAccurate.BatchInput(Batch)
+    #SlowAccurate.BatchInput("")
 
     """處理速度較於快速,但會有一些下載失敗(目前有Bug待修正...)"""
 
