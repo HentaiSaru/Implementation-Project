@@ -45,7 +45,7 @@ class SlowAccurate:
                 if re.match(SupportedFormat,url):
                     Judge = True
                     AllLinks.append(url)
-                else:print("這並非此模支持的網址格式")
+                else:print("這並非支持的網址格式")
 
         else:
             url = unquote(Url)
@@ -197,10 +197,10 @@ class SlowAccurate:
             asyncio.run(LinkRun())
             asyncio.run(ImageRun())
 
-            # 同步請求,工作序列
+            # 同步請求,工作序列(同時下載多本)
             SlowAccurate.Work.put((ComicPictureLink,Url,NameMerge))
 
-            # 單線程請求
+            # 單線程請求(適用於單本加速下載)
             # download_path = os.path.join(dir, NameMerge)
             # SlowAccurate.Ffolder(download_path)
             # SlowAccurate.DataRequest(ComicPictureLink,Url,NameMerge)
@@ -209,6 +209,7 @@ class SlowAccurate:
             print("這並非支持的網址格式")
 
     def DownloadWork():
+        # 允許最大同時下載數
         MAX_THREADS = 10
         active_threads = []
 
@@ -251,16 +252,21 @@ class SlowAccurate:
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
         }
 
+        # 需同時下載多本,這邊需要註解掉
         #with concurrent.futures.ThreadPoolExecutor(max_workers=512) as executor:
             
         for page in ComicsInternalLinks:
-
             SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
-            #time.sleep(0.1)
-            #executor.submit(SlowAccurate.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
-            SlowAccurate.Download(os.path.join(dir, NameMerge),SaveName,MangaURL,page,headers)
-            print(f"{NameMerge}-{SaveName}")
 
+            #time.sleep(0.1)
+
+            # 單本下載加速
+            #executor.submit(SlowAccurate.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
+
+            # 同時下載多本
+            SlowAccurate.Download(os.path.join(dir, NameMerge),SaveName,MangaURL,page,headers)
+
+            print(f"{NameMerge}-{SaveName}")
             SaveNameFormat += 1
 
     # 創建資料夾
@@ -568,9 +574,9 @@ if __name__ == "__main__":
     """處理速度較於緩慢(那種2-300頁的真的很慢),但可精準的下載所有類型"""
 
     # 單獨下載
-    SlowAccurate.BasicSettings("")
+    #SlowAccurate.BasicSettings("")
     # 批量下載
-    #SlowAccurate.BatchInput("")
+    SlowAccurate.BatchInput("")
 
     """處理速度較於快速,但會有一些下載失敗(目前有Bug待修正...)"""
 
