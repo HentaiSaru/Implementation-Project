@@ -52,8 +52,8 @@ class SlowAccurate:
             Match = False
 
             # r 為原始字串符 他將不會轉譯 \ 反斜
-            SearchPage = r'https://www\.wnacg\.org/search/\?q=.+'
-            TagPage = r'^https:\/\/www\.wnacg\.org\/albums.*\.html$'
+            SearchPage = r'https://www\.wnacg\.org/search/.*\?q=.+'
+            TagPage = r'^https:\/\/www\.wnacg\.org\/albums.*'
 
             if re.match(SearchPage,url):
                 url = f'https://www.wnacg.org/search/?q={url.split("?q=")[1].split("&")[0]}'
@@ -79,12 +79,15 @@ class SlowAccurate:
 
                 # 獲取總共的頁數(只有一頁的會錯誤)
                 try:
-                    TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()-1]/text()')[0]
+                    if re.match(SearchPage,url):
+                        TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()]/text()')[0]
+                    elif re.match(TagPage,url):
+                        TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()-1]/text()')[0]
                 except:TotalPages = "1"
 
                 # 獲取頁面所有URL
-                async def GetLink(session, urls):
-                    async with session.get(urls) as response:
+                async def GetLink(session, url):
+                    async with session.get(url) as response:
                         html = await response.text()
                         tree = etree.fromstring(html, parser)
                         links = []
@@ -98,8 +101,11 @@ class SlowAccurate:
                     async with aiohttp.ClientSession(headers=headers) as session:
                         PageList = []
                         for page in range(int(TotalPages)):
-                            if int(TotalPages) != 1:
+                            if int(TotalPages) != 1 and re.match(SearchPage,url):
+                                url = f"https://www.wnacg.org/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=&p={page+1}"
+                            elif int(TotalPages) != 1 and re.match(TagPage,url):
                                 url = f"https://www.wnacg.org/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                            
                             PageList.append(url)
 
                         tasks = []
@@ -110,7 +116,6 @@ class SlowAccurate:
                         for links in results:
                             AllLinks.extend(links)
                 asyncio.run(RanGet(url))
-
             else:print("這並非支持的網址格式")
 
         if Judge:
@@ -118,6 +123,8 @@ class SlowAccurate:
                SlowAccurate.BasicSettings(_input)
 
     # 取得基本訊息(這邊為了通用性,做了較多的數據處理,導致剛開始會跑比較久)
+    thread = 0
+    download = None
     def BasicSettings(Url):
         SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
         if re.match(SupportedFormat,Url):
@@ -141,7 +148,8 @@ class SlowAccurate:
 
             # 漫畫名稱
             NameProcessing = tree.xpath('//h2/text()')[0].strip()
-            NameMerge = NameProcessing
+            # 處理非法字元
+            NameMerge = re.sub(r'[<>:"/\\|?*]', '', NameProcessing)
 
             # 獲取主頁所有圖片分頁的連結
             async def GetImageLink(i, headers):
@@ -190,14 +198,22 @@ class SlowAccurate:
             asyncio.run(LinkRun())
             asyncio.run(ImageRun())
 
-            #創建文件夾
-            SlowAccurate.Ffolder(NameMerge)
+            SlowAccurate.DownloadWork(ComicPictureLink,Url,NameMerge)
 
-            # 開始請求圖片
-            SlowAccurate.DataRequest(ComicPictureLink,Url,NameMerge)
+            # 多線程測試
+            # SlowAccurate.download = threading.Thread(target=SlowAccurate.DownloadWork,args=(ComicPictureLink,Url,NameMerge))
+            # SlowAccurate.download.start()
 
         else:
             print("這並非支持的網址格式")
+    
+    def DownloadWork(ComicPictureLink,Url,NameMerge):
+
+        download_path = os.path.join(dir, NameMerge)
+        #創建文件夾
+        SlowAccurate.Ffolder(download_path)
+        # 開始請求圖片
+        SlowAccurate.DataRequest(ComicPictureLink,Url,NameMerge)
 
     # 獲取漫畫數據
     def DataRequest(ComicsInternalLinks,MangaURL,NameMerge):
@@ -219,33 +235,24 @@ class SlowAccurate:
     
                 SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
                 time.sleep(0.1)
-                executor.submit(SlowAccurate.Download, SaveName, MangaURL , page , headers)
+                executor.submit(SlowAccurate.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
                 print(f"{NameMerge}-{SaveName}")
   
                 SaveNameFormat += 1
 
-    PathStatus = False
     # 創建資料夾
     def Ffolder(FolderName):
-        if SlowAccurate.PathStatus:
-            os.chdir(os.path.join(".."))
-        else:SlowAccurate.PathStatus = True
-        
         try:
-            #刪除名稱中的非法字元
-            name = re.sub(r'[<>:"/\\|?*]', '', FolderName)
-            os.mkdir(name) # 在該路徑下用漫畫名創建一個空資料夾
-            os.chdir(os.path.join(os.getcwd(), name)) # 將預設路徑導入至該資料夾
+            os.mkdir(FolderName) # 用漫畫名創建一個空資料夾(再傳遞時已經包含路徑+名稱)
         except:
-            os.chdir(os.path.join(os.getcwd(), name))
             pass
 
     # 下載方法
-    def Download(SaveName,MangaURL,Image_URL,headers):
+    def Download(Path,SaveName,MangaURL,Image_URL,headers):
 
         ImageData = requests.get(Image_URL, headers=headers)
         if ImageData.status_code == 200:
-            with open(SaveName,"wb") as f:
+            with open(os.path.join(Path, SaveName),"wb") as f:
                 f.write(ImageData.content)
         else:print(f"請求錯誤:\n漫畫網址:{MangaURL}\n圖片網址:{Image_URL}")
 
@@ -273,8 +280,8 @@ class FastNormal:
             url = unquote(Url)
             Match = False
             # r 為原始字串符 他將不會轉譯 \ 反斜
-            SearchPage = r'https://www\.wnacg\.org/search/\?q=.+'
-            TagPage = r'^https:\/\/www\.wnacg\.org\/albums.*\.html$'
+            SearchPage = r'https://www\.wnacg\.org/search/.*\?q=.+'
+            TagPage = r'^https:\/\/www\.wnacg\.org\/albums.*'
 
             if re.match(SearchPage,url):
                 url = f'https://www.wnacg.org/search/?q={url.split("?q=")[1].split("&")[0]}'
@@ -300,7 +307,12 @@ class FastNormal:
 
                 # 獲取總共的頁數(只有一頁的會錯誤)
                 try:
-                    TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()-1]/text()')[0]
+
+                    if re.match(SearchPage,url):
+                       TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()]/text()')[0]
+                    elif re.match(TagPage,url):
+                       TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()-1]/text()')[0]
+
                 except:TotalPages = "1"
 
                 # 獲取頁面所有URL
@@ -319,8 +331,11 @@ class FastNormal:
                     async with aiohttp.ClientSession(headers=headers) as session:
                         PageList = []
                         for page in range(int(TotalPages)):
-                            if int(TotalPages) != 1:
+                            if int(TotalPages) != 1 and re.match(SearchPage,url):
+                                url = f"https://www.wnacg.org/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=&p={page+1}"
+                            elif int(TotalPages) != 1 and re.match(TagPage,url):
                                 url = f"https://www.wnacg.org/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                            
                             PageList.append(url)
 
                         tasks = []
@@ -497,39 +512,47 @@ class FastNormal:
     使用說明 : 輸入該漫畫的網址,接著就會自動下載 (支援: 搜尋頁面 / Tag頁面 / 漫畫頁面)
 
     前面為 : SlowAccurate. 是慢速下載但是可以很精準的抓到所有類型
+    (這個下載數量多,下載完畢後有可能卡住,不會自動結束)
+
     前面為 : FastNormal. 處理的比較快 同時無法完全的通用 目前已經用多重判斷 盡量讓其通用
     (但只要頁面較多處理就一定比較久,並不是卡住)
 
-    BatchInput 可放兩種 (注意格式!!)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    BatchInput 只能放一種,只有漫畫頁面
+    1. BasicSettings (格式為:https://www.wnacg.org/photos...)
+
+    BatchInput 可放三種 (注意格式!!)
     1. 為搜尋某Tag標籤搜尋頁網址 , 他將會把所有搜尋到的全部下載 (格式為:https://www.wnacg.org/albums...)
-    2. Batch , 同時放置多個需下載的(無上限) , 漫畫頁面網址 (格式為:https://www.wnacg.org/photos...)
-    3. BasicSettings 也是 (格式為:https://www.wnacg.org/photos...)
+    2. 搜尋的網址連結 (格式為:https://www.wnacg.org/search/index.php?q=...)
+    3. Batch , 同時放置多個需下載的(無上限) , 漫畫頁面網址 (格式為:https://www.wnacg.org/photos...)
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     SlowAccurate. 以最大優化處理速度,如果還是慢,那是伺服器響應,和網路問題
-
     現有的問題 : 為了提升速度使用了異步同時請求,因此可能下載下來的順序會是亂的
+    多線程同步下載待測試
 """
 
 if __name__ == "__main__":
 
     # 批量下載列表
     Batch = [
-        "",
+        ""
     ]
 
     """處理速度較於緩慢,但可精準的下載所有類型"""
 
     # 單獨下載
-    #SlowAccurate.BasicSettings("#")
+    #SlowAccurate.BasicSettings("")
 
     # 批量下載
-    #SlowAccurate.BatchInput("#")
-
+    SlowAccurate.BatchInput(Batch)
 
     """處理速度較於快速,但會有一些下載失敗(目前有Bug待修正...)"""
 
     # 單獨下載
-    FastNormal.BasicSettings("#")
+    #FastNormal.BasicSettings("#")
 
     # 批量下載
     #FastNormal.BatchInput("#")
