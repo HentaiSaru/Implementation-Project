@@ -27,15 +27,30 @@ def __init__(self,Url,ComicsInternalLinks,MangaURL,NameMerge,FolderName,SaveName
     self.pages_format = pages_format
     self.ComicsInternalLinks = ComicsInternalLinks
 
+# 計算運行線程數
+def Threading():
+    count = 0
+    while True:
+        time.sleep(1)
+
+        if threading.active_count() == 3:
+            count += 1
+        else:count = 0
+
+        if count == 3:
+            os._exit(0)
+
 """ 較慢但通用多種下載 """
 class SlowAccurate:
+    # 判斷下載的類型
+    DownloadType = False
 
     # 批量輸入下載
     def BatchInput(Url):
         # 用於確認輸出
         Judge = False
         AllLinks = []
-
+    
         if isinstance(Url,list):
 
             SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
@@ -119,94 +134,102 @@ class SlowAccurate:
             else:print("這並非支持的網址格式")
 
         if Judge:
+            SlowAccurate.DownloadType = True
             for _input in AllLinks: # 懶得處理線程鎖,廢棄多線程
                SlowAccurate.BasicSettings(_input)
 
-    # 取得基本訊息(這邊為了通用性,做了較多的數據處理,導致剛開始會跑比較久)
+    # 取得基本訊息(這邊為了通用性,做了較多的數據處理,剛開始會跑比較久)
     Work = queue.Queue()
     def BasicSettings(Url):
-        SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
-        if re.match(SupportedFormat,Url):
 
-            ComicsInternalLinks = []
-            ComicPictureLink = []
+        try:
+            SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
 
-            session = requests.Session()
-            headers = {
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
-            }
-            
-            Url = f"https://www.wnacg.org/photos-index-{'page-1'}-aid-{Url.split('aid-')[1]}"
-            reques = session.get(Url)
-            html = reques.content
-            parser = etree.HTMLParser()
-            tree = etree.fromstring(html, parser)
+            if re.match(SupportedFormat,Url):
 
-            # 主頁最終頁數
-            Home_Pages = int(re.findall(r'\d+', tree.xpath('//label[contains(text(),"頁數：")]/text()')[0])[0])
+                ComicsInternalLinks = []
+                ComicPictureLink = []
 
-            # 漫畫名稱
-            NameProcessing = tree.xpath('//h2/text()')[0].strip()
-            # 處理非法字元
-            NameMerge = re.sub(r'[<>:"/\\|?*]', '', NameProcessing)
+                session = requests.Session()
+                headers = {
+                    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+                }
 
-            # 獲取主頁所有圖片分頁的連結
-            async def GetImageLink(i, headers):
-                async with aiohttp.ClientSession(headers=headers) as session:
-                    async with session.get(f"https://www.wnacg.org/photos-index-page-{i}-aid-{Url.split('aid-')[1]}") as response:
-                        html = await response.text()
-                        parser = etree.HTMLParser()
-                        tree = etree.fromstring(html, parser)
-                        internal_links = [f"https://www.wnacg.org{x.get('href')}" for x in tree.xpath("//div[@class='pic_box tb']/a")]
-                        return internal_links
-                    
-            # 使用異步同時發起請求 (只要不同時請求就不會發生數據重複,但是數據量多時,可能會很慢)
-            async def LinkRun():
-                tasks = []
-                links_set = set()
-                for i in range(1, Home_Pages+1):
-                    tasks.append(asyncio.create_task(GetImageLink(i, headers)))
-                # 等待完成
-                image_links = await asyncio.gather(*tasks)
-                for link in image_links:
-                    # 將其轉換為Set避免重複
-                    links_set.update(link)
-                # 轉換為list並造順序排列
-                ComicsInternalLinks[:] = sorted(list(links_set), key=lambda x: urlparse(x).path)
-            
-            # 使用所有的分頁連結,去請求每個連結對應的,圖片連結
-            async def GetImage(link, headers):
-                async with aiohttp.ClientSession(headers=headers) as session:
-                    async with session.get(link) as response:
-                        html = await response.text()
-                        parser = etree.HTMLParser()
-                        tree = etree.fromstring(html, parser)
-                        image_link = tree.xpath('//img[@id="picarea"]/@src')[0]
-                        return f"https:{image_link}"
-            
-            # 使用異步同時發起請求,獲取所有對應的圖片連結
-            async def ImageRun():
-                tasks = []
-                for link in ComicsInternalLinks:
-                    tasks.append(asyncio.create_task(GetImage(link, headers)))
-                image_links = await asyncio.gather(*tasks)
-                for link in image_links:
-                    ComicPictureLink.append(link)
-                ComicPictureLink.sort() #先暫時用這種方式排序
+                Url = f"https://www.wnacg.org/photos-index-{'page-1'}-aid-{Url.split('aid-')[1]}"
+                reques = session.get(Url)
+                html = reques.content
+                parser = etree.HTMLParser()
+                tree = etree.fromstring(html, parser)
 
-            asyncio.run(LinkRun())
-            asyncio.run(ImageRun())
+                # 主頁最終頁數
+                Home_Pages = int(re.findall(r'\d+', tree.xpath('//label[contains(text(),"頁數：")]/text()')[0])[0])
 
-            # 同步請求,工作序列(同時下載多本)
-            SlowAccurate.Work.put((ComicPictureLink,Url,NameMerge))
+                # 漫畫名稱
+                NameProcessing = tree.xpath('//h2/text()')[0].strip()
+                # 處理非法字元
+                NameMerge = re.sub(r'[<>:"/\\|?*]', '', NameProcessing)
 
-            # 單線程請求(適用於單本加速下載)
-            # download_path = os.path.join(dir, NameMerge)
-            # SlowAccurate.Ffolder(download_path)
-            # SlowAccurate.DataRequest(ComicPictureLink,Url,NameMerge)
+                # 獲取主頁所有圖片分頁的連結
+                async def GetImageLink(i, headers):
+                    async with aiohttp.ClientSession(headers=headers) as session:
+                        async with session.get(f"https://www.wnacg.org/photos-index-page-{i}-aid-{Url.split('aid-')[1]}") as response:
+                            html = await response.text()
+                            parser = etree.HTMLParser()
+                            tree = etree.fromstring(html, parser)
+                            internal_links = [f"https://www.wnacg.org{x.get('href')}" for x in tree.xpath("//div[@class='pic_box tb']/a")]
+                            return internal_links
 
-        else:
-            print("這並非支持的網址格式")
+                # 使用異步同時發起請求 (只要不同時請求就不會發生數據重複,但是數據量多時,可能會很慢)
+                async def LinkRun():
+                    tasks = []
+                    links_set = set()
+                    for i in range(1, Home_Pages+1):
+                        tasks.append(asyncio.create_task(GetImageLink(i, headers)))
+                    # 等待完成
+                    image_links = await asyncio.gather(*tasks)
+                    for link in image_links:
+                        # 將其轉換為Set避免重複
+                        links_set.update(link)
+                    # 轉換為list並造順序排列
+                    ComicsInternalLinks[:] = sorted(list(links_set), key=lambda x: urlparse(x).path)
+
+                # 使用所有的分頁連結,去請求每個連結對應的,圖片連結
+                async def GetImage(link, headers):
+                    async with aiohttp.ClientSession(headers=headers) as session:
+                        async with session.get(link) as response:
+                            html = await response.text()
+                            parser = etree.HTMLParser()
+                            tree = etree.fromstring(html, parser)
+                            image_link = tree.xpath('//img[@id="picarea"]/@src')[0]
+                            return f"https:{image_link}"
+
+                # 使用異步同時發起請求,獲取所有對應的圖片連結
+                async def ImageRun():
+                    tasks = []
+                    for link in ComicsInternalLinks:
+                        tasks.append(asyncio.create_task(GetImage(link, headers)))
+                    image_links = await asyncio.gather(*tasks)
+                    for link in image_links:
+                        ComicPictureLink.append(link)
+                    ComicPictureLink.sort() #先暫時用這種方式排序
+
+                asyncio.run(LinkRun())
+                asyncio.run(ImageRun())
+
+                if SlowAccurate.DownloadType:
+                    # 同步請求,工作序列(同時下載多本)
+                    SlowAccurate.Work.put((ComicPictureLink,Url,NameMerge))
+                elif SlowAccurate.DownloadType == False:
+                    # 單線程請求(適用於單本加速下載)
+                    download_path = os.path.join(dir, NameMerge)
+                    SlowAccurate.Ffolder(download_path)
+                    SlowAccurate.SingleDownload(ComicPictureLink,Url,NameMerge)
+
+            else:
+                print("這並非支持的網址格式")
+
+        except TypeError:
+            print("請放單獨的漫畫網址")
 
     def DownloadWork():
         # 允許最大同時下載數
@@ -226,7 +249,7 @@ class SlowAccurate:
                     #創建文件夾
                     SlowAccurate.Ffolder(download_path)
                     # 開始請求圖片
-                    SlowAccurate.DataRequest(ComicPictureLink,Url,NameMerge)
+                    SlowAccurate.SimultaneousDownload(ComicPictureLink,Url,NameMerge)
 
                 if len(active_threads) < MAX_THREADS:
                     download = threading.Thread(target=Simultaneous)
@@ -237,9 +260,9 @@ class SlowAccurate:
                         if not thread.is_alive():
                             active_threads.remove(thread)
                             break
-
-    # 獲取漫畫數據
-    def DataRequest(ComicsInternalLinks,MangaURL,NameMerge):
+    
+    # 轉換漫畫資訊 多本同時下載(單本下載數量很慢)
+    def SimultaneousDownload(ComicsInternalLinks,MangaURL,NameMerge):
         SaveNameFormat = 1
 
         headers = {
@@ -252,22 +275,36 @@ class SlowAccurate:
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
         }
 
-        # 需同時下載多本,這邊需要註解掉
-        #with concurrent.futures.ThreadPoolExecutor(max_workers=512) as executor:
-            
         for page in ComicsInternalLinks:
             SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
-
-            #time.sleep(0.1)
-
-            # 單本下載加速
-            #executor.submit(SlowAccurate.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
-
-            # 同時下載多本
+            # 通時下載多本
             SlowAccurate.Download(os.path.join(dir, NameMerge),SaveName,MangaURL,page,headers)
-
             print(f"{NameMerge}-{SaveName}")
             SaveNameFormat += 1
+
+    # 轉換漫畫資訊 單本下載加速
+    def SingleDownload(ComicsInternalLinks,MangaURL,NameMerge):
+        SaveNameFormat = 1
+
+        headers = {
+            "sec-fetch-dest": "image",
+            "sec-fetch-mode": "no-cors",
+            "sec-fetch-site": "cross-site",
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "sec-gpc": "1",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        }
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=512) as executor:
+            
+            for page in ComicsInternalLinks:
+                SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
+                # 單本下載加速     
+                executor.submit(SlowAccurate.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
+                print(f"{NameMerge}-{SaveName}")
+                SaveNameFormat += 1
+                time.sleep(0.1)
 
     # 創建資料夾
     def Ffolder(FolderName):
@@ -535,16 +572,18 @@ class FastNormal:
         return ImageData
 
 """
-    使用前請詳閱說明書 !!
+    !! 使用前請詳閱說明書
 
     爬蟲適用網站 : https://www.wnacg.org/
     使用說明 : 輸入該漫畫的網址,接著就會自動下載 (支援: 搜尋頁面 / Tag頁面 / 漫畫頁面)
 
     前面為 : SlowAccurate. 是慢速下載但是可以很精準的抓到所有類型
-    (這個下載數量多,下載完畢後有可能卡住,不會自動結束)
+    (目前只有他支援批量下載時,可同時下載10本)
 
     前面為 : FastNormal. 處理的比較快 同時無法完全的通用 目前已經用多重判斷 盡量讓其通用
-    (但只要頁面較多處理就一定比較久,並不是卡住)
+    (但只要頁面較多處理就一定比較久 , 懶得修復其功能性)
+
+    !! 重要不要同時使用超過一種的下載方式 , 批量就批量 , 單獨就單獨 , 不然數據可能會出錯
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -560,15 +599,18 @@ class FastNormal:
 
     SlowAccurate. 以最大優化處理速度,如果還是慢,那是伺服器響應,和網路問題
     現有的問題 : 為了提升速度使用了異步同時請求,因此可能下載下來的順序會是亂的
-    多線程同步下載(單本下載加速,就無法使用多本同時下載)
 """
 
 if __name__ == "__main__":
 
+    """計算運行線程,用於結束程式運行"""
+    threading.Thread(target=Threading).start()
     """加速工作隊列"""
     threading.Thread(target=SlowAccurate.DownloadWork).start()
 
-    # 批量下載列表
+    """~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"""
+
+    # 批量下載列表(以列表的方式,放入多個漫畫網址,最後將 Batch 放至批量下載進行傳遞)
     Batch = []
 
     """處理速度較於緩慢(那種2-300頁的真的很慢),但可精準的下載所有類型"""
@@ -576,9 +618,9 @@ if __name__ == "__main__":
     # 單獨下載
     #SlowAccurate.BasicSettings("")
     # 批量下載
-    SlowAccurate.BatchInput("")
+    #SlowAccurate.BatchInput("")
 
-    """處理速度較於快速,但會有一些下載失敗(目前有Bug待修正...)"""
+    """處理速度較於快速,但會有一些下載失敗(懶得修復建議使用上方的)"""
 
     # 單獨下載
     #FastNormal.BasicSettings("#")
