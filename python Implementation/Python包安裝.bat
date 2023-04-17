@@ -57,6 +57,10 @@ pip install chardet
 pip install opencc
 
 
+:: 事件檢測與進程相關資訊
+pip install psutil
+
+
 :: RSS解析
 pip install feedparser
 
