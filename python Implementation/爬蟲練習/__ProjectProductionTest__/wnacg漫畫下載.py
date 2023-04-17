@@ -12,7 +12,7 @@ import re
 dir = os.path.abspath("R:/") # 可更改預設路徑
 os.chdir(dir)
 
-# 程式入口點於最下方 (495行)
+# 程式入口點於最下方 (574行)
 
 """ 初始化宣告 """
 def __init__(self,Url,ComicsInternalLinks,MangaURL,NameMerge,FolderName,SaveName,Image_URL,headers,pages_format,ComicLink):
