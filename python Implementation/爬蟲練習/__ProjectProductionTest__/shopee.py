@@ -24,7 +24,6 @@ def add():
     Settings.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36')
     Settings.add_argument('--remote-debugging-address=0.0.0.0')
     Settings.add_argument(f"--remote-debugging-port={random.randint(1024,65535)}")
-    Settings.add_argument("user-data-dir=R:/ChromTest")
     Settings.add_argument('--disk-cache-dir=R:/caching')
     Settings.add_argument('--start-maximized')
     Settings.add_argument('--disable-notifications')
