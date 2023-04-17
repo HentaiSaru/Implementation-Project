@@ -18,6 +18,24 @@ import re
 dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(dir)
 
+"""
+Versions 1.0
+
+功能
+[+] 可輸入多個網址
+[+] 可多線程獲取資訊
+
+使用說明
+在創建的json檔案中輸入Mega的網址
+將該程式使用工作排程器使用
+就可以定期檢測是否有更新
+
+使用注意!!
+因為是多線程同時作業
+沒有特別作處理 因此延遲別設置太短
+會出現數據錯亂
+"""
+
 class BasicSettings:
     def __init__(self):
         self.verify = r'^.{8}#.{22}$'
@@ -48,6 +66,7 @@ class BasicSettings:
         OutFormat = json.dumps(Format, indent=4 , separators=(',',': '))
         with open("Mega.json", "w") as f:
             f.write(OutFormat)
+
 settings = BasicSettings()
 
 class DataProcessing:
