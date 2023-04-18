@@ -25,6 +25,9 @@ Versions 1.0
 [+] 可輸入多個網址
 [+] 可多線程獲取資訊
 
+BUG
+[!] 當網路有問題 或 使用無頭時 有時候會卡住
+
 使用說明
 在創建的json檔案中輸入Mega的網址
 將該程式使用工作排程器使用
@@ -89,6 +92,7 @@ class DataProcessing:
 
         if self.state:
             if self.data == AllData:
+                print("未發現更新")
                 #messagebox.showinfo("沒有新資訊",f"未發現更新")
                 pass
             else:
