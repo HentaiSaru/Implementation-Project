@@ -99,6 +99,8 @@ pip install pymem
 pip install pywin32
 :: 畫面截圖與錄影
 pip install mss
+:: 獲取GPU資訊
+pip install GPUtil
 
 
 :: AI庫 深度學習與神經網路
