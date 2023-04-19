@@ -17,7 +17,7 @@ cls
 
 :: 打包EXE
 pip install pyinstaller
-
+pip install cx_Freeze
 
 :: 加密
 pip install tinyaes
