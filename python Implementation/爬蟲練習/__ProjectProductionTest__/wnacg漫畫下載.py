@@ -546,13 +546,13 @@ class FastNormal:
     PathStatus = False
     # 創建資料夾
     def Ffolder(FolderName):
+        #刪除名稱中的非法字元
+        name = re.sub(r'[<>:"/\\|?*]', '', FolderName)
         try:
             if SlowAccurate.PathStatus:
                 os.chdir(os.path.join(".."))
             else:SlowAccurate.PathStatus = True
         
-            #刪除名稱中的非法字元
-            name = re.sub(r'[<>:"/\\|?*]', '', FolderName)
             os.mkdir(name) # 在該路徑下用漫畫名創建一個空資料夾
             os.chdir(os.path.join(os.getcwd(), name)) # 將預設路徑導入至該資料夾
         except:
@@ -611,19 +611,21 @@ if __name__ == "__main__":
     """~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"""
 
     # 批量下載列表(以列表的方式,放入多個漫畫網址,最後將 Batch 放至批量下載進行傳遞)
-    Batch = []
+    Batch = [
+        "",
+    ]
 
     """處理速度較於緩慢(那種2-300頁的真的很慢),但可精準的下載所有類型"""
 
     # 單獨下載
     #SlowAccurate.BasicSettings("")
     # 批量下載
-    #SlowAccurate.BatchInput("")
+    SlowAccurate.BatchInput(Batch)
 
-    """處理速度較於快速,但會有一些下載失敗(懶得修復建議使用上方的)"""
+    """處理速度較於快速,但會有一些下載失敗(懶得修復問題,不建議使用)"""
 
     # 單獨下載
     #FastNormal.BasicSettings("#")
 
     # 批量下載
-    #FastNormal.BatchInput("#")
+    # FastNormal.BatchInput("")
