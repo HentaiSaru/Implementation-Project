@@ -51,6 +51,10 @@ pip install selenium
 pip install schedule
 
 
+:: 版本比對
+pip install packaging
+
+
 :: 字符編碼檢測
 pip install chardet
 :: 語言文字轉換
