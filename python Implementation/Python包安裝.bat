@@ -108,7 +108,8 @@ pip install GPUtil
 
 
 :: AI庫 深度學習與神經網路
-pip install torch
+:: pip install torch (Cpu版本)
+:: GPU版本載點 https://pytorch.org/get-started/locally/
 
 pip install --upgrade setuptools
 pip install --upgrade wheel
