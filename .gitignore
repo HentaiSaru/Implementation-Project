@@ -6,6 +6,7 @@
 *.json
 *.csv
 *.exe
+*.pt
 *default
 pypy3.9
 Virtual
