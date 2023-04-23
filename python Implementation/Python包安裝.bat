@@ -7,12 +7,11 @@ mshta vbscript:createobject("shell.application").shellexecute("%~s0","goto :Admi
 cls
 
 @echo pip principal update==========
-pip install --upgrade pip
+python.exe -m pip install --upgrade pip
 cls
 
-
-@echo pip installation package======
 @echo ~
+@echo pip installation package======
 @echo ~
 
 :: 打包EXE
@@ -89,9 +88,9 @@ pip install pystray
 pip install PyAutoGUI
 :: 圖像處理和操作
 pip install Pillow
-:: 視覺與圖像處理
+:: 視覺與圖像處理(完整)
+pip install opencv-contrib-python
 pip install opencv-python
-
 
 :: 處理鍵盤操作
 pip install keyboard
