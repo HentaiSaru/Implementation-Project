@@ -1,15 +1,14 @@
-import torchvision.transforms as transforms
 import concurrent.futures
 import numpy as np
 import pyautogui
-import threading
 import torch
+import glob
 import time
 import cv2
 import mss
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
+   
 class ScreenCapture:
     def __init__(self,refresh=None):
         self.refresh = refresh
@@ -19,7 +18,7 @@ class ScreenCapture:
         if self.refresh != None:
             if self.refresh == 144:self.refresh = 0.007
             elif self.refresh == 60:self.refresh = 0.0167
-        else:self.refresh = 0
+        else:self.refresh = 1
 
     def debug(self,capture):
         win_size_w = 640
@@ -38,12 +37,11 @@ class ScreenCapture:
         with mss.mss() as sct:
             while True:
                 time.sleep(self.refresh)
-                screen = sct.grab(capture)
-                img = np.array(screen)
+                img = np.array(sct.grab(capture))
 
                 # 找到匹配圖
-                #Seek.Find(img)
-                executor.submit(Seek.Find, img)
+                Seek.Find(img)
+                #executor.submit(Seek.Find,img)
 
                 # 重新縮放窗口圖片大小
                 img = cv2.resize(img, (win_size_h, win_size_w))
@@ -64,48 +62,35 @@ class ScreenCapture:
                 screen = sct.grab(capture)
 
 class Match:
-    def __init__(self,img,threshold,device=torch.device('cuda')):
+    def __init__(self,img,threshold):
         self.template = []
         self.template_names = []
         self.match = threshold
-        self.device = device
 
-        for tensor in torch.load(img):
-            print(tensor)
-
-        # for img_path in img:
-        #     # 讀取圖片並轉換為灰度圖像
-        #     img = cv2.imread(img_path)
-        #     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        #     # 將轉換後的圖像張量加入模板列表
-        #     tensor_gray = torch.from_numpy(img_gray).unsqueeze(0).unsqueeze(0).to(self.device)
-        #     self.template.append(tensor_gray)
-
-        #     # 保存模板名稱
-        #     self.template_names.append(img_path)
-        # # 將模板轉移到GPU上
-        # self.template = [template.to(self.device) for template in self.template]
+        for process in img:
+            absolute = process.replace('\\', '/')
+            self.template.append(cv2.imread(absolute,0))
+            self.template_names.append(absolute.split("/")[1])
         
     def Find(self,photo):
-        # 灰階轉換
-        img_gray = cv2.cvtColor(photo, cv2.COLOR_BGR2GRAY)
-        # # 將photo轉換為PyTorch張量，並移動到GPU
-        # img_tensor = torch.from_numpy(img_gray).unsqueeze(0).unsqueeze(0).float().to(self.device)
 
-        # for index, template in enumerate(self.template):
-        #     # 使用conv2d函數進行匹配
-        #     res = torch.nn.functional.conv2d(img_tensor, template).squeeze()
+        gray = cv2.cvtColor(photo, cv2.COLOR_BGR2GRAY)
 
-        #     # 匹配狀態 (轉換回CPU處理,並保存到numpy數組)
-        #     loc = np.where(res.cpu().numpy() >= self.match)
+        for index, template in enumerate(self.template):
 
-        #     # 匹配成功
-        #     if len(loc[0]) > 0:
-        #         self.template_names[index]
-        #         #Action.draw(loc,template,photo)
-        #         #Action.action(loc,self.template)
+            # 使用conv2d函數進行匹配
+            res = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF_NORMED)
 
+            # 匹配狀態
+            loc = np.where(res >= self.match)
+
+            # 匹配成功
+            if len(loc[0]) > 0:
+                self.template_names[index]
+                Action.draw(loc,template,photo)
+                #Action.action(loc,self.template)
+
+# 操作邏輯
 class Operate:
     def __init__(self):
         self.no = None
@@ -128,21 +113,24 @@ class Operate:
         # 點擊
         pyautogui.click(x,y)
 
-
+# 獲取螢幕大小
 def get_screen_size():
     screen_size = pyautogui.size()
     return screen_size[0] , screen_size[1]
 
-# Screen = ScreenCapture(144)
-# Script = ["Image/final.pt"]
-# Seek = Match(Script,0.9)
-# Action = Operate()
+if __name__ == "__main__":
+    # 可設置刷新率
+    Screen = ScreenCapture(144)
+    # 設置模型與置信度
+    template = glob.glob('Image/*.[jp][pn]g')
+    Seek = Match(template,0.7)
+    # 匹配後操作
+    Action = Operate()
 
-# w , h = get_screen_size()
-# capture = {"top": 0, "left": 0, "width": w, "height": h}
+    # 截圖大小設置
+    w , h = get_screen_size()
+    capture = {"top": 0, "left": 0, "width": w, "height": h}
 
-#Screen.debug(capture)
-#Screen.NoWindow(capture)
-
-tensor =torch.load("Image/final.pt")
-print(tensor)
+    # 啟動方式
+    Screen.debug(capture)
+    #Screen.NoWindow(capture)
