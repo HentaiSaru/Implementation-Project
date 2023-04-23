@@ -88,9 +88,17 @@ pip install pystray
 pip install PyAutoGUI
 :: 圖像處理和操作
 pip install Pillow
-:: 視覺與圖像處理(完整)
-pip install opencv-contrib-python
+
+:: 視覺與圖像處理
 pip install opencv-python
+::編譯 opencv - gpu版本
+::顯卡算力-> https://developer.nvidia.com/cuda-gpus#compute
+:: GPU版本載點 https://pytorch.org/get-started/locally/
+:: GPU開發工具下載 https://developer.nvidia.com/cuda-downloads
+:: Cudnn https://developer.nvidia.com/rdp/cudnn-download
+:: 編譯器 https://cmake.org/files/
+:: https://github.com/opencv/opencv/tree/4.7.0
+:: https://github.com/opencv/opencv_contrib/tree/4.7.0
 
 :: 處理鍵盤操作
 pip install keyboard
@@ -108,7 +116,6 @@ pip install GPUtil
 
 :: AI庫 深度學習與神經網路
 :: pip install torch (Cpu版本)
-:: GPU版本載點 https://pytorch.org/get-started/locally/
 
 pip install --upgrade setuptools
 pip install --upgrade wheel
