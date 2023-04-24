@@ -100,6 +100,22 @@ pip install opencv-python
 :: https://github.com/opencv/opencv/tree/4.7.0
 :: https://github.com/opencv/opencv_contrib/tree/4.7.0
 
+:: 編譯設置
+:: WITH_CUDA -> 開
+:: OPENCV_DNN_CUDA -> 開
+:: ENABLE_FAST_MATH -> 開
+:: PYTHON -> 看到能開的都開(除了有test的)
+:: OPENCV_EXTRA_MODULES_PATH -> 指定opencv_contrib的modules
+:: BUILD_opencv_world -> 開
+:: OPENCV_ENABLE_NONFREE -> 開
+:: CUDA_ARCH_BIN -> 根據顯卡算力設置
+:: WITH_CUDNN -> 開
+:: CUDA_FAST_MATH -> 開
+:: test -> 可以都關掉
+:: java -> 可以都關掉
+:: OPENCV_GENERATE_SETUPVARS -> 關
+:: 最後開啟 OpenCV.sln -> 用 vs 並且編譯 opencv_python3
+
 :: 處理鍵盤操作
 pip install keyboard
 :: 控制和監控輸入設備
