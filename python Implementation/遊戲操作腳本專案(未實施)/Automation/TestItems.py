@@ -52,9 +52,12 @@ class Matching:
     def __init__(self,template,threshold,refresh=None,use_window=False):
         self.Capture = {"top": 0, "left": 0, "width": width, "height": height}
         self.refresh = refresh
-        self.template = []
-        self.template_names = []
+        self.Action = ActionScript()
+        self.template_data = {}
         self.threshold = threshold
+        self.lock = threading.Lock()
+        self.stream = cv2.cuda_Stream()
+        cv2.cuda_TargetArchs('compute_30')
 
         if use_window:
             self.Scan = ScreenScan("DeBug")
@@ -65,8 +68,8 @@ class Matching:
 
         for process in template:
             absolute = process.replace('\\', '/')
-            self.template.append(cv2.imread(absolute,0))
-            self.template_names.append(absolute.split("/")[1])
+            name = absolute.split("/")[1]
+            self.template_data[name] = cv2.imread(absolute, 0)
 
         if self.refresh != None:
             if self.refresh == 144:self.refresh = 0.007
@@ -78,15 +81,16 @@ class Matching:
         while True:
             time.sleep(self.refresh)
 
-            picture = self.ScreenshotUse(self.Capture)
+            # 獲取畫面截圖
+            Screen = self.ScreenshotUse(self.Capture)
             # 灰度轉換
-            gray = cv2.cvtColor(picture, cv2.COLOR_BGR2GRAY)
+            GrayScreen = cv2.cvtColor(Screen, cv2.COLOR_BGR2GRAY)
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=len(self.template)) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=len(self.template_data)) as executor:
                 futures = []
-
-                for index, template in enumerate(self.template):
-                    futures.append(executor.submit(self.Match_Template , gray , template , index , picture))
+                
+                for TemplateName , Template in self.template_data.items():
+                    futures.append(executor.submit(self.Match_Template , GrayScreen , Template , TemplateName , Screen))
 
                 for _ in concurrent.futures.as_completed(futures):
                     pass
@@ -96,39 +100,48 @@ class Matching:
 
         cv2.destroyAllWindows()
 
-    def Match_Template(self,gray, template, index, picture):
-
+    def Match_Template(self, GrayScreen , Template , TemplateName , Screen):
+        """預設可用匹配模板
+        cv2.TM_CCOEFF
+        cv2.TM_CCOEFF_NORMED
+        cv2.TM_CCORR
+        cv2.TM_CCORR_NORMED
+        cv2.TM_SQDIFF
+        cv2.TM_SQDIFF_NORMED
+        """
+        
         # 進行匹配
-        res = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF_NORMED)
+        result = cv2.cuda_TemplateMatching(self.Screen_Transition(GrayScreen) , self.Template_Conversion(Template) , cv2.TM_CCOEFF_NORMED , stream=self.stream)
+        print(result)
+        # 取得匹配成功位置
+        _, _, _, max_loc = cv2.cuda.minMaxLoc(result)
+        
+        
+        # if cv2.cuda.max(result)[0] > self.threshold:
+        #     self.lock.acquire()
+        #     print(TemplateName)
+        #     self.Action.DrawBox(max_loc,Screen,self.Template_Conversion(Template))
+        #     self.lock.release()
 
-        # 匹配狀態
-        loc = np.where(res >= self.threshold)
-
-        # 成功匹配操作
-        if len(loc[0]) > 0:
-            # 畫框
-            # DrawBox = Action.DrawBox(loc, template, picture)
-            # if self.use_window:
-            #     cv2.imshow(self.scan.name, DrawBox)
-
-            print(self.template_names[index])
-
+    def Template_Conversion(self,template):
+        return cv2.cuda_GpuMat(template)
+    
+    def Screen_Transition(self,template):
+        return cv2.cuda_GpuMat(template)
 class ActionScript:
     def __init__(self):
         pass
 
     # 多線程匹配目前無法正確繪製
-    def DrawBox(self,loc,template,image):
-        w,h = template.shape[::-1]
-        for img in zip(*loc[::-1]):
-            cv2.rectangle(image , img , (img[0] + w, img[1] + h), (0, 255, 0), 2)
-        return image
-    
-Action = ActionScript()
+    def DrawBox(self,loc,Screen,Template):
+        h, w = Template.shape
+        top_left = (int(loc.x), int(loc.y))
+        bottom_right = (int(loc.x + w), int(loc.y + h))
+        cv2.cuda.drawRect(Screen, top_left, bottom_right, (0, 255, 0), 2)
 
 if __name__ == "__main__":
     # 獲取模板(暫時先不進行預處理)
     template = glob.glob('Image/*.[jp][pn]g')
     # 傳入模板,置信度,刷新率,是否使用窗口(刷新預設1,窗口使用預設無)
-    Match = Matching(template,0.7,144,True)
+    Match = Matching(template,0.7,use_window=True)
     Match.Find_A_Template()
