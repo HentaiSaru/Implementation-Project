@@ -1,6 +1,7 @@
 from urllib.parse import unquote , urlparse
 import concurrent.futures
 from lxml import etree
+from tqdm import tqdm
 import threading
 import requests
 import asyncio
@@ -32,8 +33,7 @@ def Threading():
     count = 0
     while True:
         time.sleep(1)
-
-        if threading.active_count() == 3:
+        if threading.active_count() == 4:
             count += 1
         else:count = 0
 
@@ -274,12 +274,14 @@ class SlowAccurate:
             "sec-gpc": "1",
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
         }
-
+        pbar = tqdm(total=len(ComicsInternalLinks),desc=NameMerge)
         for page in ComicsInternalLinks:
             SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
-            # 通時下載多本
+            # 同時下載多本
             SlowAccurate.Download(os.path.join(dir, NameMerge),SaveName,MangaURL,page,headers)
-            print(f"{NameMerge}-{SaveName}")
+
+            pbar.update(1)
+            
             SaveNameFormat += 1
 
     # 轉換漫畫資訊 單本下載加速
@@ -296,13 +298,16 @@ class SlowAccurate:
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
         }
 
+        pbar = tqdm(total=len(ComicsInternalLinks),desc=NameMerge)
         with concurrent.futures.ThreadPoolExecutor(max_workers=512) as executor:
             
             for page in ComicsInternalLinks:
                 SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
                 # 單本下載加速     
                 executor.submit(SlowAccurate.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
-                print(f"{NameMerge}-{SaveName}")
+
+                pbar.update(1)
+
                 SaveNameFormat += 1
                 time.sleep(0.1)
 
@@ -597,8 +602,9 @@ class FastNormal:
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    SlowAccurate. 以最大優化處理速度,如果還是慢,那是伺服器響應,和網路問題
-    現有的問題 : 為了提升速度使用了異步同時請求,因此可能下載下來的順序會是亂的
+    [+] SlowAccurate 方法更新進度條顯示 , 批量下載顯示可能有Bug
+    [*] 待修復重複下載漫畫下載問題
+    
 """
 
 if __name__ == "__main__":
@@ -620,7 +626,7 @@ if __name__ == "__main__":
     # 單獨下載
     #SlowAccurate.BasicSettings("")
     # 批量下載
-    SlowAccurate.BatchInput(Batch)
+    SlowAccurate.BatchInput("")
 
     """處理速度較於快速,但會有一些下載失敗(懶得修復問題,不建議使用)"""
 
