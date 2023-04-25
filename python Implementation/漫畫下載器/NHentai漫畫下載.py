@@ -74,7 +74,7 @@ class ComicsHomePage:
                 if index == 4 or index == 6 or index == 8:continue # 這邊是排除不需要的數據
                 else:self.labelbox[tag.text.strip().rstrip(':')] = tag.xpath(".//span[@class='name']/text()")
         except:
-            print("請嘗試將ComicsHomePage,第三參數設置為False\n接著再次嘗試使用")
+            print("請嘗試將ComicsHomePage,第三參數設置為False\n或者再次運行")
             os._exit(0)
 
         # self.labelbox 大致格式
@@ -97,6 +97,7 @@ class ComicsHomePage:
 
 """
 該網站的反爬機制,無法使用免費版的cloudscraper進行繞過,因此使用自動化操作
+有時候跳出的是,機器人驗證的部份,目前無解決相關問題,所以可以再次運行試試
 """
 if __name__ == "__main__":
     # 設置 url,延遲時間(預設7秒),隱藏窗口(預設是True)
