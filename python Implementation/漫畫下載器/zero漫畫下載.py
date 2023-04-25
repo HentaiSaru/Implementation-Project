@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import concurrent.futures
-import threading
 import requests
 import opencc
 import time
@@ -12,6 +11,7 @@ os.chdir(dir)
 
 # 程式入口點於最下方
 # 無法下載第一話就需要VIP權限的(第一話可直接觀看,第二話需要VIP,這種的可以)
+# 早期製作 , 未來很閒再重構代碼
 
 # 簡中轉繁
 def Converter(language):
@@ -175,7 +175,7 @@ def download_settings(url):
 if __name__ == "__main__":
 
     """懶人批量下載"""
-    # 網址 (如果601,602 這種頁面類型,使用懶人批量下載失敗,用自訂下載 ,修改 命名格式 1~3 或 副檔名 jpg/png)
+    # 網址 (如果601,602 這種頁面類型, 使用懶人批量下載失敗 , 用自訂下載 , 修改 命名格式 1~3 或 副檔名 jpg/png)
     #download_settings("#")
 
     """自訂下載(用於當批量下載不到,可以賭運氣看看)"""
