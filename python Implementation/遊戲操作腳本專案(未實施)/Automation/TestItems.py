@@ -109,7 +109,7 @@ class Matching:
         cv2.TM_SQDIFF
         cv2.TM_SQDIFF_NORMED
         """
-        
+        # !等待修復 , 想嘗試使用gpu加速匹配 , 但找不到處理該類型數據的方法
         # 進行匹配
         result = cv2.cuda_TemplateMatching(self.Screen_Transition(GrayScreen) , self.Template_Conversion(Template) , cv2.TM_CCOEFF_NORMED , stream=self.stream)
         print(result)
