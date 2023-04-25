@@ -134,9 +134,13 @@ class ActionScript:
 
     # 多線程匹配目前無法正確繪製
     def DrawBox(self,loc,Screen,Template):
+        # 模板大小
         h, w = Template.shape
+        # 匹配位置的 左上
         top_left = (int(loc.x), int(loc.y))
+        # 匹配位置 右下
         bottom_right = (int(loc.x + w), int(loc.y + h))
+        # 在螢幕截圖上繪製,左上座標,右下座標,顏色綠色,寬度為2
         cv2.cuda.drawRect(Screen, top_left, bottom_right, (0, 255, 0), 2)
 
 if __name__ == "__main__":
