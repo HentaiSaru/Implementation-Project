@@ -44,7 +44,11 @@ pip install aiofiles
 
 :: 自動化操作
 pip install selenium
+:: 反爬自動化
+pip install undetected_chromedriver
 
+:: 繞過反爬檢測
+pip install cloudscraper
 
 :: 日期時間取得
 pip install schedule
