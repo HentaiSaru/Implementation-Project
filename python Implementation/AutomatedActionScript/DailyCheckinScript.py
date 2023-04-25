@@ -1,8 +1,6 @@
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from tkinter import messagebox
 from selenium import webdriver
@@ -16,8 +14,7 @@ import time
 import pytz
 import sys
 import os
-dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-os.chdir(dir)
+os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
 
 # 清除非正常關閉時遺留的垃圾
 def TrashRemoval():
@@ -25,14 +22,15 @@ def TrashRemoval():
     os.system('for /d %d in ("C:\Program Files (x86)\scoped_dir*") do rd /s /q "%d" >nul 2>&1')
 
 class Login:
+    def __init__(self):
+        self.UserInformation = None
 
     # 讀取登入資料檔案 和 創建登入資料檔案格式
-    def Get_login_information():
-        global UserInformation
+    def Get_login_information(self):
 
         try:
             with open("UserInformation.json","r") as User:
-                UserInformation = json.load(User)
+                self.UserInformation = json.load(User)
         except:
             messagebox.showerror("沒有找到設置", "當前路徑不存在UserInformation.json\n已在當前目錄下創建")
             Format = [
@@ -60,27 +58,29 @@ class Login:
             pass
 
     # 取得登入資料
-    def Get_login(key):
+    def Get_login(self,key):
         Login.Get_login_information()
         login = []
-        global UserInformation
 
         try:
             match key:
                 case "wuyong":
-                    login.append(UserInformation[0])
+                    login.append(self.UserInformation[0])
                     return login
                 case "Genshin":
-                    return UserInformation[1]
+                    return self.UserInformation[1]
                 case _:
                     return None
         except:
             pass
 
-class GetParametric:
+class GetParametric():
+    def __init__(self):
+        self.count = 0
+        self.port = 1024
 
     # 計算等待秒數
-    def WaitingTime():
+    def WaitingTime(self):
         TaipeiTimezone = pytz.timezone('Asia/Taipei')
         TargetTime = datetime.time(hour=0, minute=0, second=0)
         current_time = datetime.datetime.now(TaipeiTimezone).time()
@@ -91,52 +91,47 @@ class GetParametric:
         return seconds_to_wait
 
     # 讀取pkl保存的資料並打印出來
-    def CookieView(path,pkl):
+    def CookieView(self,path,pkl):
         
         with open(f'./{path}/{pkl}.pkl', 'rb') as f:
             cookies = pickle.load(f)
         print(cookies)
 
     # 創建的數據檔名獲取
-    def databases(web):
+    def databases(self,web):
         return web+"default"
     
-    def datacreation(cookies,path,name):
+    def datacreation(self,cookies,path,name):
         pickle.dump(cookies, open(f"{path}/{name}.pkl","wb"))
 
-    global count , port
-    count = 0
-    port = 1024
-
     # 隨機端口分配
-    def RandomPort():
-        global count , port
-        count += 1
+    def RandomPort(self):
+        self.count += 1
 
-        if port <= 65535:
-            if count == 1:
-                return random.randint(port, port*1.5)
-            elif count > 1:
-                port *= 1.5 + 1
-                return random.randint(port, port*1.5)
+        if self.port <= 65535:
+            if self.count == 1:
+                return random.randint(self.port, self.port*1.5)
+            elif self.count > 1:
+                self.port *= 1.5 + 1
+                return random.randint(self.port, self.port*1.5)
         else:return random.randint(1024,65535) # 先隨便寫個
 
 # selenium創建 相關設置
 def add(page):
     Settings = Options()
     # 在完整輸入每個網站的登入狀態前,可以先都開啟窗口測試,也就是把headless註解掉
-    #Settings.add_argument("--headless")
+    # Settings.add_argument("--headless")
     Settings.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36')
     Settings.add_argument('--remote-debugging-address=0.0.0.0')
     # 為了要同時多開窗口操作,Port和配置檔,不能是一樣的
-    Settings.add_argument(f"user-data-dir={GetParametric.databases(page)}")
-    Settings.add_argument('--disk-cache-dir=R:/caching')
-    Settings.add_argument(f"--remote-debugging-port={GetParametric.RandomPort()}")
-    Settings.add_argument('--start-maximized') # 開啟最大化
-    Settings.add_argument('--disable-notifications')
-    Settings.add_argument('--ignore-certificate-errors')
-    Settings.add_argument('--disable-popup-blocking')
     Settings.add_argument('--log-level=3')
+    Settings.add_argument('--start-maximized') # 開啟最大化
+    Settings.add_argument('--disk-cache-dir=R:/caching')
+    Settings.add_argument(f"user-data-dir={GetParametric().databases(page)}")
+    Settings.add_argument(f"--remote-debugging-port={GetParametric().RandomPort()}")
+    Settings.add_argument('--disable-notifications')
+    Settings.add_argument('--disable-popup-blocking')
+    Settings.add_argument('--ignore-certificate-errors')
     Settings.add_experimental_option('excludeSwitches', ['enable-logging'])
     Settings.add_experimental_option('excludeSwitches', ['enable-automation'])
     Settings.add_experimental_option('useAutomationExtension', False)
@@ -164,7 +159,7 @@ class forum:
             SmallPotionQuantity = html.select_one("div.item-wrap:-soup-contains('小型體力藥水') div.text-white.absolute.bottom-0.right-3.CENnO4Uu4CssJR9PLmCG").text
             Quantity = int(SmallPotionQuantity.split("x")[1])
 
-            for i in range(Quantity):
+            for _ in range(Quantity):
 
                 potionuse = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='OvtXIlmLtXEE_eWpy1jH px-4']")))
                 potionuse.click()
@@ -180,7 +175,7 @@ class forum:
             MediumPotionQuantity = html.select_one("div.item-wrap:-soup-contains('中型體力藥水') div.text-white.absolute.bottom-0.right-3.CENnO4Uu4CssJR9PLmCG").text
             Quantity = int(MediumPotionQuantity.split("x")[1])
 
-            for i in range(Quantity):
+            for _ in range(Quantity):
 
                     potionuse = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='OvtXIlmLtXEE_eWpy1jH px-4']")))
                     potionuse.click()
@@ -213,10 +208,10 @@ class forum:
 
         # 先點選5次畫布,因為使用相對位置找不到,所以用絕對位置,可能之後需要修改
         mining = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/div/div/div[2]/div/div[1]/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div[2]/canvas")))
-        for i in range(5):jkfdriver.execute_script("arguments[0].click();", mining)
+        for _ in range(5):jkfdriver.execute_script("arguments[0].click();", mining)
         
         # 按再一次
-        for i in range(Quantity-1): # 因為上面執行過一遍,這邊-1
+        for _ in range(Quantity-1): # 因為上面執行過一遍,這邊-1
             time.sleep(0.1)
             again = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH,"//div[@class='OvtXIlmLtXEE_eWpy1jH'][text()='再挖一次']")))
             again.click()
@@ -246,9 +241,9 @@ class forum:
         startexplore.click()
 
         explore = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/div/div/div[2]/div/div[1]/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div[2]/canvas")))
-        for i in range(5):jkfdriver.execute_script("arguments[0].click();", explore)
+        for _ in range(5):jkfdriver.execute_script("arguments[0].click();", explore)
 
-        for i in range(Quantity-1): # 因為上面執行過一遍,這邊-1
+        for _ in range(Quantity-1): # 因為上面執行過一遍,這邊-1
             time.sleep(0.1)
             again = WebDriverWait(jkfdriver,10).until(EC.element_to_be_clickable((By.XPATH,"//div[@class='OvtXIlmLtXEE_eWpy1jH'][text()='再挖一次']")))
             again.click()
@@ -275,7 +270,7 @@ class script:
         Wuyongbutton.click()
 
         time.sleep(Sc)
-        GetParametric.datacreation(Wuyongdriver.get_cookies(),GetParametric.databases("wuyong"),"wuyongCookies")
+        GetParametric().datacreation(Wuyongdriver.get_cookies(),GetParametric().databases("wuyong"),"wuyongCookies")
         Wuyongdriver.quit()
 
     def Open_miaoaaa(Sc):
@@ -295,7 +290,7 @@ class script:
         """
 
         time.sleep(Sc)
-        GetParametric.datacreation(miaoaaadriver.get_cookies(),GetParametric.databases("miaoaaa"),"MiaCookies")
+        GetParametric().datacreation(miaoaaadriver.get_cookies(),GetParametric().databases("miaoaaa"),"MiaCookies")
         miaoaaadriver.quit()
 
     def Open_Genshin(Sc):
@@ -362,7 +357,7 @@ class script:
         except:pass
 
         time.sleep(Sc)
-        GetParametric.datacreation(Genshindriver.get_cookies(),GetParametric.databases("Genshin"),"GenshinCookies")
+        GetParametric().datacreation(Genshindriver.get_cookies(),GetParametric().databases("Genshin"),"GenshinCookies")
         Genshindriver.quit()
     # 這邊就沒有做Cookie和登入的部份,就手動登入按保存吧
     def Open_black(Sc):
@@ -370,14 +365,14 @@ class script:
         blackdriver.get("https://black.is-best.site/plugin.php?id=gsignin:index")
 
         # 等待到指定時間才運行
-        time.sleep(GetParametric.WaitingTime()+0.7) # 成功測試
-        for i in range(3): # 總會有失敗的時候,重複三次
+        time.sleep(GetParametric().WaitingTime()+0.7) # 成功測試
+        for _ in range(3): # 總會有失敗的時候,重複三次
             blackdriver.refresh()
             blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
             blackbutton.click()
 
         time.sleep(Sc)
-        GetParametric.datacreation(blackdriver.get_cookies(),GetParametric.databases("black"),"blackCookies")
+        GetParametric().datacreation(blackdriver.get_cookies(),GetParametric().databases("black"),"blackCookies")
         blackdriver.quit()
 
 if __name__ == "__main__":
@@ -385,7 +380,7 @@ if __name__ == "__main__":
     # ===== 網站簽到 =====
     # 後方的 args 是用於傳遞 tuple 內的數值,將其設置為窗口關閉的延遲時間
     threading.Thread(target=script.Open_black,args=(5,)).start()
-    time.sleep(GetParametric.WaitingTime()+20)
+    time.sleep(GetParametric().WaitingTime()+20)
     threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
     time.sleep(1)
     threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
@@ -406,7 +401,7 @@ if __name__ == "__main__":
     #forum.jkf_explore(10,"巨木森林",5)
 
     # 輸出Cookie內容的方法 資料位置 , 要開啟的Cookie檔案名
-    #GetParametric.CookieView("blackdefault","blackCookies")
+    #GetParametric().CookieView("blackdefault","blackCookies")
 
     # 刪除 selenium 非正常關閉時,的遺留資料夾
-    # TrashRemoval()
+    TrashRemoval()
