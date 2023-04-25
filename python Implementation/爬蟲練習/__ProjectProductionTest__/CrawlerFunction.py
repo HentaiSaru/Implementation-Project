@@ -6,8 +6,6 @@ from selenium.webdriver.common.by import By
 from urllib.parse import unquote
 from selenium import webdriver
 from bs4 import BeautifulSoup
-from pynput import keyboard
-import threading
 import requests
 import datetime
 import random
