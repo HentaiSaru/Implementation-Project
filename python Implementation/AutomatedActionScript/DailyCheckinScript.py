@@ -34,7 +34,7 @@ class Login:
             with open("UserInformation.json","r") as User:
                 self.UserInformation = json.load(User)
         except:
-            messagebox.showerror("沒有找到設置", "當前路徑不存在UserInformation.json\n已在當前目錄下創建\n請填寫數據後再次運行")
+            messagebox.showerror("沒有找到設置", "當前路徑不存在UserInformation.json\n已在當前目錄下創建\n請填寫數據後再次運行",parent=None)
             Format = [
                 {
                     "domain": "null",
