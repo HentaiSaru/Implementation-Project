@@ -2,6 +2,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 import undetected_chromedriver as uc
+import chromedriver_autoinstaller
+from bs4 import BeautifulSoup
 from lxml import etree
 from tqdm import tqdm
 import cloudscraper
@@ -9,17 +11,56 @@ import threading
 import requests
 import random
 import time
+import sys
 import re
 import os
 dir = os.path.abspath("R:/") # 可更改預設路徑
 os.chdir(dir)
+
+class Automation:
+    def __init__(self,head):
+        self.configuration = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),"drive")
+        self.drivepath = os.path.join(self.configuration,'112','chromedriver.exe')
+        self.UserData = os.path.join(dir,"Data")
+        
+        # 選項設置
+        self.Settings = uc.ChromeOptions()
+        if head:self.Settings.add_argument("--headless")
+        self.Settings.add_argument(f"--remote-debugging-port={random.randint(1024,65535)}")
+        self.Settings.add_argument("--disable-extensions")
+        self.Settings.add_argument('--no-first-run --no-service-autorun --password-store=basic')
+
+    # 創建驅動路徑(這樣後續開啟會比較快)
+    def driver_creation(self):
+        os.mkdir(self.configuration)
+        chromedriver_autoinstaller.install(path=self.configuration)
+
+    # 當沒有找到驅動時會創建再當前路徑
+    def browser(self):
+        try:
+            return uc.Chrome(
+                options=self.Settings,
+                driver_executable_path=self.drivepath,
+                user_data_dir=self.UserData
+            )
+        except:
+            self.driver_creation()
+            return uc.Chrome(
+                options=self.Settings,
+                driver_executable_path=self.drivepath,
+                user_data_dir=self.UserData
+            )
+
 # 漫畫主頁處理
 class Verify:
-    def __init__(self,enter,pages):
+    def __init__(self,enter,pages,head,delay):
         self.search = r"https://nhentai\.net/.*"
         self.mangapage = r"https://nhentai\.net/g/\d+"
         self.correctbox = []
         self.pages = pages
+        self.head = head
+        Auto = Automation(self.head)
+        browser = Auto.browser()
 
         if isinstance(enter,list):
             # 將錯誤的網址格式排除
@@ -42,39 +83,46 @@ class Verify:
                 if enter.find("?page") != -1:url = f"{enter.split('?page=')[0]}?page=1"
                 else:url = f"{enter}?page=1"
                 
-                for page in range(1,self.pages+1):
-                    print(f"{url.split('?page=')[0]}?page={page}")
-                # 待更新...
+                # 首次開啟
+                browser.get(url)
+                # 延遲載入
+                time.sleep(delay)
+
+                html = BeautifulSoup(browser.page_source,"html.parser")
+
+                for a in html.find_all("a", class_="cover"):
+                    self.correctbox.append(rf"https://nhentai.net{a.get('href')}")
+                
+                print(len(self.correctbox))
+                time.sleep(10)
+                browser.quit()
+                # for page in range(2,self.pages+2): 
+                    
+                #     browser.get(f"{url.split('?page=')[0]}?page={page}")
+                #     time.sleep(3)
             else:pass
 
     # 開始請求
     def run(self,url):
         for deal in url:download.Data_Request(deal)
 class ComicsHomePage:
-    def __init__(self,delay=7,head=True):
-        self.head = head    # 判斷是否隱藏窗口
+    def __init__(self,delay=7):
+        self.head = True    # 判斷是否隱藏窗口
         self.Delay = delay  # 延遲處理
         self.title = ""     # 漫畫名稱
         self.labelbox = {}  # 保存標籤數據
         self.Home = None    # 主頁Html存放
         self.SaveNameFormat = 1
         self.headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"}
-
-    def add(self):
-        Settings = uc.ChromeOptions()
-        if self.head:Settings.add_argument("--headless")
-        Settings.add_argument(f"--remote-debugging-port={random.randint(1024,65535)}")
-        Settings.add_argument('--user-data-dir=R:/')
-        Settings.add_argument('--no-first-run --no-service-autorun --password-store=basic')
-        return Settings
     
     def enter(self,Url,pages=None,delay=None,head=None):
         if delay != None:self.Delay = delay
-        if head != None:self.Title = head 
-        Verify(Url,pages)
+        if head != None:self.head = head 
+        Verify(Url,pages,self.head,self.Delay)
     
     def Data_Request(self,Url):
-        browser = uc.Chrome(self.add())
+        Auto = Automation(self.head)
+        browser = Auto.browser()
         # 開啟漫畫主頁
         browser.get(Url)
 
@@ -157,4 +205,4 @@ if __name__ == "__main__":
     Batch_Box = []
 
     # url,頁數,延遲,隱藏窗口
-    download.enter("https://nhentai.net/character/kuroyukihime/",10,3)
+    download.enter("https://nhentai.net/character/kuroyukihime/",10,3,False)
