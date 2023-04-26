@@ -1,4 +1,5 @@
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -16,12 +17,14 @@ Settings.add_argument('--disable-notifications')
 Settings.add_argument('--ignore-certificate-errors')
 Settings.add_argument('--disable-popup-blocking')
 Settings.add_argument('--log-level=3')
+Settings.add_argument('--disable-blink-features=AutomationControlled')
 Settings.add_experimental_option('excludeSwitches', ['enable-logging'])
 Settings.add_experimental_option('excludeSwitches', ['enable-automation'])
 Settings.add_experimental_option('useAutomationExtension', False)
 driver = webdriver.Chrome(options=Settings)
 driver.get("https://www.google.com.tw/")
 driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+
 while True:
     try:
         time.sleep(5)
