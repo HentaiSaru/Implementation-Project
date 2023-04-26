@@ -46,6 +46,8 @@ pip install aiofiles
 pip install selenium
 :: 反爬自動化
 pip install undetected_chromedriver
+:: 驅動安裝
+pip install chromedriver_autoinstaller
 
 :: 繞過反爬檢測
 pip install cloudscraper
