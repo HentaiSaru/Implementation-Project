@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from tkinter import messagebox
 from selenium import webdriver
 from bs4 import BeautifulSoup
+from lxml import etree
 import threading
 import datetime
 import random
@@ -13,6 +14,7 @@ import json
 import time
 import pytz
 import sys
+import re
 import os
 os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
 
@@ -32,7 +34,7 @@ class Login:
             with open("UserInformation.json","r") as User:
                 self.UserInformation = json.load(User)
         except:
-            messagebox.showerror("沒有找到設置", "當前路徑不存在UserInformation.json\n已在當前目錄下創建")
+            messagebox.showerror("沒有找到設置", "當前路徑不存在UserInformation.json\n已在當前目錄下創建\n請填寫數據後再次運行")
             Format = [
                 {
                     "domain": "null",
@@ -48,14 +50,18 @@ class Login:
                     "value": "null"
                 },
                 {
-                    "account":"null",
-                    "password":"null"
+                    "Genshin_account":"null",
+                    "Genshin_password":"null"
+                },
+                {
+                    "StarRail_account":"null",
+                    "StarRail_password":"null"
                 }
             ]
             OutFormat = json.dumps(Format, indent=4 , separators=(',',': '))
             with open("UserInformation.json","w") as User:
                 User.write(OutFormat)
-            pass
+            os._exit(0)
 
     # 取得登入資料
     def Get_login(self,key):
@@ -69,11 +75,13 @@ class Login:
                     return login
                 case "Genshin":
                     return self.UserInformation[1]
+                case "StarRail":
+                    return self.UserInformation[2]
                 case _:
                     return None
         except:
             pass
-
+Login = Login()
 class GetParametric():
     def __init__(self):
         self.count = 0
@@ -359,6 +367,64 @@ class script:
         time.sleep(Sc)
         GetParametric().datacreation(Genshindriver.get_cookies(),GetParametric().databases("Genshin"),"GenshinCookies")
         Genshindriver.quit()
+
+    def Open_StarRail(Sc):
+
+        StarRail = webdriver.Chrome(options=add("StarRail"))
+        StarRail.get("https://act.hoyolab.com/bbs/event/signin/hkrpg/index.html?act_id=e202303301540311&hyl_auth_required=true&hyl_presentation_style=fullscreen&lang=zh-tw&plat_type=pc")
+        StarRail.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+
+        # 關閉彈出窗口
+        try:
+            StarRailClos = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='components-pc-assets-__dialog_---dialog-close---3G9gO2']")))
+            StarRailClos.click()
+        except:pass
+
+        # 確認登入狀態
+        html = etree.fromstring(StarRail.page_source,etree.HTMLParser())
+        login = html.xpath("//img[@class='mhy-hoyolab-account-block__avatar-icon']")[0].get("src")
+
+        if re.match(r"data:image/png;base64,.*",login): 
+            loginclick = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='mhy-hoyolab-account-block__avatar-icon']")))
+            loginclick.click()
+
+            # 使用FaceBook登入 , [3] 是fb
+            loginbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//div[3][@class='account-sea-third-party-login-item']//img[@class='account-sea-login-icon']")))
+            loginbutton.click()
+
+            time.sleep(1.5)
+            handles = StarRail.window_handles
+            for handle in handles:
+                StarRail.switch_to.window(handle)
+
+            acc , pas  = Login.Get_login("StarRail").values()
+
+            accountbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='email']")))
+            accountbutton.click()
+            accountbutton.send_keys(acc)
+
+            passwordbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='pass']")))
+            passwordbutton.click()
+            passwordbutton.send_keys(pas)
+
+            loginbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='login']")))
+            loginbutton.click()
+
+            time.sleep(1.5) # 測試 可能有錯誤
+            handles = StarRail.window_handles
+            for handle in handles:
+                StarRail.switch_to.window(handle)
+
+        # 待測試
+        time.sleep(1)  
+        checkinday = int(html.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
+        checkin = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='components-pc-assets-__prize-list_---item---F852VZ']/span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
+        StarRail.execute_script("arguments[0].click();", checkin)
+
+        time.sleep(Sc)
+        GetParametric().datacreation(StarRail.get_cookies(),GetParametric().databases("StarRail"),"StarRailCookies")
+        StarRail.quit()
+
     # 這邊就沒有做Cookie和登入的部份,就手動登入按保存吧
     def Open_black(Sc):
         blackdriver = webdriver.Chrome(options=add("black"))
@@ -378,15 +444,18 @@ class script:
 if __name__ == "__main__":
 
     # ===== 網站簽到 =====
-    # 後方的 args 是用於傳遞 tuple 內的數值,將其設置為窗口關閉的延遲時間
-    threading.Thread(target=script.Open_black,args=(5,)).start()
-    time.sleep(GetParametric().WaitingTime()+20)
-    threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
+    # 後方的 args 是用於傳遞 tuple 內的數值 , 設置窗口關閉的延遲時間
+    # threading.Thread(target=script.Open_black,args=(5,)).start()
+    # time.sleep(GetParametric().WaitingTime()+20)
+    # threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
+    # time.sleep(1)
+    # threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
+    # 原神簽到
     time.sleep(1)
-    threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
+    #threading.Thread(target=script.Open_Genshin,args=(5,)).start()
+    # 星穹鐵道簽到
     time.sleep(1)
-    threading.Thread(target=script.Open_Genshin,args=(5,)).start()
-
+    #threading.Thread(target=script.Open_StarRail,args=(5,)).start()
 
     """反覆操作預計之後使用scapy進行封包修改操作"""
     # Jkf論壇使用體力藥水(此腳本就是藥水全部都用完)
@@ -404,4 +473,4 @@ if __name__ == "__main__":
     #GetParametric().CookieView("blackdefault","blackCookies")
 
     # 刪除 selenium 非正常關閉時,的遺留資料夾
-    TrashRemoval()
+    # TrashRemoval()
