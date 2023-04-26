@@ -445,17 +445,17 @@ if __name__ == "__main__":
 
     # ===== 網站簽到 =====
     # 後方的 args 是用於傳遞 tuple 內的數值 , 設置窗口關閉的延遲時間
-    # threading.Thread(target=script.Open_black,args=(5,)).start()
-    # time.sleep(GetParametric().WaitingTime()+20)
-    # threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
-    # time.sleep(1)
-    # threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
+    threading.Thread(target=script.Open_black,args=(5,)).start()
+    time.sleep(GetParametric().WaitingTime()+20)
+    threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
+    time.sleep(1)
+    threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
     # 原神簽到
     time.sleep(1)
-    #threading.Thread(target=script.Open_Genshin,args=(5,)).start()
+    threading.Thread(target=script.Open_Genshin,args=(5,)).start()
     # 星穹鐵道簽到
     time.sleep(1)
-    #threading.Thread(target=script.Open_StarRail,args=(5,)).start()
+    threading.Thread(target=script.Open_StarRail,args=(5,)).start()
 
     """反覆操作預計之後使用scapy進行封包修改操作"""
     # Jkf論壇使用體力藥水(此腳本就是藥水全部都用完)
