@@ -419,7 +419,8 @@ class script:
         time.sleep(1)  
         checkinday = int(html.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
         checkin = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='components-pc-assets-__prize-list_---item---F852VZ']/span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
-        StarRail.execute_script("arguments[0].click();", checkin)
+        checkin.click()
+        #StarRail.execute_script("arguments[0].click();", checkin)
 
         time.sleep(Sc)
         GetParametric().datacreation(StarRail.get_cookies(),GetParametric().databases("StarRail"),"StarRailCookies")
