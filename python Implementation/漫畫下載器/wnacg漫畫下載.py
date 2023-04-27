@@ -283,6 +283,7 @@ class SlowAccurate:
             pbar.update(1)
             
             SaveNameFormat += 1
+        pbar.close()
 
     # 轉換漫畫資訊 單本下載加速
     def SingleDownload(ComicsInternalLinks,MangaURL,NameMerge):
@@ -310,6 +311,8 @@ class SlowAccurate:
 
                 SaveNameFormat += 1
                 time.sleep(0.1)
+                
+        pbar.close()
 
     # 創建資料夾
     def Ffolder(FolderName):
