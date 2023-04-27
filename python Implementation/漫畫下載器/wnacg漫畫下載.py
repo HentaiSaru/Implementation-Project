@@ -33,8 +33,7 @@ def Threading():
     count = 0
     while True:
         time.sleep(1)
-        if threading.active_count() == 4:
-            count += 1
+        if threading.active_count() == 4:count += 1
         else:count = 0
 
         if count == 3:
@@ -60,7 +59,7 @@ class SlowAccurate:
                 if re.match(SupportedFormat,url):
                     Judge = True
                     AllLinks.append(url)
-                else:print("這並非支持的網址格式")
+                else:print(f"這並非支持的網址格式{url}")
 
         else:
             url = unquote(Url)
@@ -131,17 +130,18 @@ class SlowAccurate:
                         for links in results:
                             AllLinks.extend(links)
                 asyncio.run(RanGet(url))
-            else:print("這並非支持的網址格式")
+            else:print(f"這並非支持的網址格式{Url}")
 
         if Judge:
             SlowAccurate.DownloadType = True
             for _input in AllLinks: # 懶得處理線程鎖,廢棄多線程
                SlowAccurate.BasicSettings(_input)
 
+    
     # 取得基本訊息(這邊為了通用性,做了較多的數據處理,剛開始會跑比較久)
     Work = queue.Queue()
     def BasicSettings(Url):
-
+        
         try:
             SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
 
@@ -226,7 +226,7 @@ class SlowAccurate:
                     SlowAccurate.SingleDownload(ComicPictureLink,Url,NameMerge)
 
             else:
-                print("這並非支持的網址格式")
+                print(f"這並非支持的網址格式{Url}")
 
         except TypeError:
             print("請放單獨的漫畫網址")
@@ -345,7 +345,7 @@ class FastNormal:
                 if re.match(SupportedFormat,url):
                     Judge = True
                     AllLinks.append(url)
-                else:print("這並非支持的網址格式")
+                else:print(f"這並非支持的網址格式{Url}")
 
         else:
             url = unquote(Url)
@@ -418,7 +418,7 @@ class FastNormal:
                             AllLinks.extend(links)
                 asyncio.run(RanGet(url))
 
-            else:print("這並非支持的網址格式")
+            else:print(f"這並非支持的網址格式{Url}")
 
         if Judge:
             for _input in AllLinks:
@@ -582,13 +582,13 @@ class FastNormal:
     爬蟲適用網站 : https://www.wnacg.org/
     使用說明 : 輸入該漫畫的網址,接著就會自動下載 (支援: 搜尋頁面 / Tag頁面 / 漫畫頁面)
 
+    [預設使用類型]
     前面為 : SlowAccurate. 是慢速下載但是可以很精準的抓到所有類型
     (目前只有他支援批量下載時,可同時下載10本)
 
+    [目前棄用無優化 , 但是可以使用]
     前面為 : FastNormal. 處理的比較快 同時無法完全的通用 目前已經用多重判斷 盡量讓其通用
     (但只要頁面較多處理就一定比較久 , 懶得修復其功能性)
-
-    !! 重要不要同時使用超過一種的下載方式 , 批量就批量 , 單獨就單獨 , 不然數據可能會出錯
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -596,14 +596,16 @@ class FastNormal:
     1. BasicSettings (格式為:https://www.wnacg.org/photos...)
 
     BatchInput 可放三種 (注意格式!!)
-    1. 為搜尋某Tag標籤搜尋頁網址 , 他將會把所有搜尋到的全部下載 (格式為:https://www.wnacg.org/albums...)
+    1. 為搜尋某Tag標籤搜尋頁網址 , 他將會把{!所有搜尋到的全部下載!} (格式為:https://www.wnacg.org/albums...)
     2. 搜尋的網址連結 (格式為:https://www.wnacg.org/search/index.php?q=...)
     3. Batch , 同時放置多個需下載的(無上限) , 漫畫頁面網址 (格式為:https://www.wnacg.org/photos...)
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     [+] SlowAccurate 方法更新進度條顯示 , 批量下載顯示可能有Bug
-    [*] 待修復重複下載漫畫下載問題
+    [+] 改成直接輸入網址下載
+    [*] 待修復重複下載漫畫下載問題(有點懶~)
+    [*] 待修復有時候線程無法終止問題(程式無法自行結束)
     
 """
 
@@ -616,17 +618,26 @@ if __name__ == "__main__":
 
     """~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"""
 
-    # 批量下載列表(以列表的方式,放入多個漫畫網址,最後將 Batch 放至批量下載進行傳遞)
-    Batch = [
-        "",
-    ]
+    # 批量下載列表
+    Batch = []
 
-    """處理速度較於緩慢(那種2-300頁的真的很慢),但可精準的下載所有類型"""
+    """處理速度較於緩慢,但可精準的下載所有類型(輸入到重覆的網址,只會覆蓋下載,不會再創一個新的)"""
 
-    # 單獨下載
-    #SlowAccurate.BasicSettings("")
-    # 批量下載
-    SlowAccurate.BatchInput("")
+    print("輸入網址(要開始下載輸入 s ):")
+    while True:
+        url = input("\n輸入:")
+        if url.lower() == "s":
+            os.system("cls")
+            print("開始下載...")
+            break
+        else:Batch.append(url)
+    if len(Batch) == 1:
+        # 單獨下載
+        SlowAccurate.BasicSettings(Batch[0])
+    elif len(Batch) > 1:
+        # 批量下載
+        SlowAccurate.BatchInput(Batch)
+    else:os._exit(0)
 
     """處理速度較於快速,但會有一些下載失敗(懶得修復問題,不建議使用)"""
 
