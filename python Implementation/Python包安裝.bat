@@ -17,63 +17,51 @@ cls
 :: 打包EXE
 pip install pyinstaller
 pip install cx_Freeze
-
+::------------------------::
 :: 加密
 pip install tinyaes
-
-
 :: 解密反編譯
 pip install uncompyle6
-
-
-:: discord Bot交互相關
-pip install discord_webhook
-
-
+::------------------------::
 :: 爬蟲
 pip install requests
 pip install Scrapy
 pip install beautifulsoup4
 pip install urllib3
-
+::------------------------::
 :: 異步請求
 pip install aiohttp
-
 :: 異步讀寫檔案
 pip install aiofiles
-
+::------------------------::
 :: 自動化操作
 pip install selenium
 :: 反爬自動化
 pip install undetected_chromedriver
 :: 驅動安裝
 pip install chromedriver_autoinstaller
-
 :: 繞過反爬檢測
 pip install cloudscraper
-
-:: 日期時間取得
-pip install schedule
-
-
-:: 版本比對
-pip install packaging
-
-
+::------------------------::
+:: RSS解析
+pip install feedparser
 :: 字符編碼檢測
 pip install chardet
 :: 語言文字轉換
 pip install opencc
-
-
+::------------------------::
 :: 事件檢測與進程相關資訊
 pip install psutil
-
-
-:: RSS解析
-pip install feedparser
-
-
+:: 獲取GPU資訊
+pip install GPUtil
+::------------------------::
+:: 日期時間取得
+pip install schedule
+:: 版本比對
+pip install packaging
+:: 檔案下載
+pip install wget
+::------------------------::
 :: 數值分析
 pip install numpy
 :: 數據操作
@@ -84,8 +72,21 @@ pip install scipy
 pip install matplotlib
 :: 機器學習與數據挖掘
 pip install scikit-learn
-
-
+:: AI庫 深度學習與神經網路
+:: pip install torch (Cpu版本)
+:: (GPU版) https://pytorch.org/get-started/locally/
+::------------------------::
+:: 處理鍵盤操作
+pip install keyboard
+:: 控制和監控輸入設備
+pip install pynput
+:: 內存讀寫
+pip install pymem
+:: 訪問windows API
+pip install pywin32
+:: 畫面截圖與錄影
+pip install mss
+::------------------------::
 :: 創建GUI
 pip install PyQt5
 :: 創建系托盤圖標和菜單
@@ -94,9 +95,13 @@ pip install pystray
 pip install PyAutoGUI
 :: 圖像處理和操作
 pip install Pillow
+::------------------------::
+:: discord Bot交互相關
+pip install discord_webhook
+::------------------------::
+:: 視覺與圖像處理 - Cpu版本
+:: pip install opencv-python
 
-:: 視覺與圖像處理
-pip install opencv-python
 ::編譯 opencv - gpu版本
 ::顯卡算力-> https://developer.nvidia.com/cuda-gpus#compute
 :: GPU版本載點 https://pytorch.org/get-started/locally/
@@ -122,23 +127,6 @@ pip install opencv-python
 :: java -> 可以都關掉
 :: OPENCV_GENERATE_SETUPVARS -> 關
 :: 最後開啟 OpenCV.sln -> 用 vs 並且編譯 INSTALL
-
-:: 處理鍵盤操作
-pip install keyboard
-:: 控制和監控輸入設備
-pip install pynput
-:: 內存讀寫
-pip install pymem
-:: 訪問windows API
-pip install pywin32
-:: 畫面截圖與錄影
-pip install mss
-:: 獲取GPU資訊
-pip install GPUtil
-
-
-:: AI庫 深度學習與神經網路
-:: pip install torch (Cpu版本)
 
 pip install --upgrade setuptools
 pip install --upgrade wheel
