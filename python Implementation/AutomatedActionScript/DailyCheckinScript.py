@@ -410,17 +410,16 @@ class script:
             loginbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='login']")))
             loginbutton.click()
 
-            time.sleep(1.5) # 測試 可能有錯誤
+            time.sleep(1.5) # 這邊是會出錯的(自行登入後,在運行一次)
             handles = StarRail.window_handles
             for handle in handles:
                 StarRail.switch_to.window(handle)
 
-        # 待測試
         time.sleep(1)  
         checkinday = int(html.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
         checkin = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='components-pc-assets-__prize-list_---item---F852VZ']/span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
         checkin.click()
-        #StarRail.execute_script("arguments[0].click();", checkin)
+        StarRail.execute_script("arguments[0].click();", checkin)
 
         time.sleep(Sc)
         GetParametric().datacreation(StarRail.get_cookies(),GetParametric().databases("StarRail"),"StarRailCookies")
