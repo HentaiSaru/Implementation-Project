@@ -410,7 +410,8 @@ class script:
             loginbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='login']")))
             loginbutton.click()
 
-            time.sleep(1.5) # 這邊是會出錯的(自行登入後,在運行一次)
+            # 這邊是會出錯的(自行登入後,在運行一次)
+            time.sleep(1.5)
             handles = StarRail.window_handles
             for handle in handles:
                 StarRail.switch_to.window(handle)
