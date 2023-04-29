@@ -33,10 +33,10 @@ CFG = [
 
     'mouse_sensitivity "0.400000" 														',  # 腰射 edpi:
     'mouse_use_per_scope_sensitivity_scalars "1"										',  # 是否開啟個別設置倍鏡 1(True) 2(False)
-    'mouse_zoomed_sensitivity_scalar_0 "0.560000" 										',  # x1倍鏡 edpi:739.5
-    'mouse_zoomed_sensitivity_scalar_1 "0.570000" 										',  # x2倍鏡 edpi:768.5
-    'mouse_zoomed_sensitivity_scalar_2 "0.600000" 										',  # x3倍鏡 edpi:797.5
-    'mouse_zoomed_sensitivity_scalar_3 "0.620000" 										',  # x4倍鏡 edpi:826.5
+    'mouse_zoomed_sensitivity_scalar_0 "0.530000" 										',  # x1倍鏡 edpi:739.5
+    'mouse_zoomed_sensitivity_scalar_1 "0.540000" 										',  # x2倍鏡 edpi:768.5
+    'mouse_zoomed_sensitivity_scalar_2 "0.570000" 										',  # x3倍鏡 edpi:797.5
+    'mouse_zoomed_sensitivity_scalar_3 "0.590000" 										',  # x4倍鏡 edpi:826.5
     'mouse_zoomed_sensitivity_scalar_4 "0.860000"										',  # x6倍鏡
     'mouse_zoomed_sensitivity_scalar_5 "0.860000"										',  # x8倍鏡
     'mouse_zoomed_sensitivity_scalar_6 "0.860000"										',  # x10倍鏡
