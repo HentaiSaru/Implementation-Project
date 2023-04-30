@@ -132,6 +132,7 @@ def add(page):
     Settings.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36')
     Settings.add_argument('--remote-debugging-address=0.0.0.0')
     # 為了要同時多開窗口操作,Port和配置檔,不能是一樣的
+    Settings.add_argument("--no-sandbox")
     Settings.add_argument('--log-level=3')
     Settings.add_argument('--start-maximized') # 開啟最大化
     Settings.add_argument('--disk-cache-dir=R:/caching')
@@ -399,26 +400,41 @@ class script:
 
             acc , pas  = Login.Get_login("StarRail").values()
 
-            accountbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='email']")))
-            accountbutton.click()
-            accountbutton.send_keys(acc)
+            try:
 
-            passwordbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='pass']")))
-            passwordbutton.click()
-            passwordbutton.send_keys(pas)
+                accountbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='email']")))
+                accountbutton.click()
+                accountbutton.send_keys(acc)
 
-            loginbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='login']")))
-            loginbutton.click()
+                passwordbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='pass']")))
+                passwordbutton.click()
+                passwordbutton.send_keys(pas)
 
-            # 這邊是會出錯的(自行登入後,在運行一次)
-            time.sleep(1.5)
-            handles = StarRail.window_handles
-            for handle in handles:
-                StarRail.switch_to.window(handle)
+                loginbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='login']")))
+                loginbutton.click()
 
-        time.sleep(1)  
+            except:
+
+                passwordbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='pass']")))
+                passwordbutton.click()
+                passwordbutton.send_keys(pas)
+                
+                continuebutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//label[@class='uiButton uiButtonConfirm uiButtonLarge']")))
+                continuebutton.click()
+
+            while True:
+                handles = StarRail.window_handles
+                for handle in handles:
+                    StarRail.switch_to.window(handle)
+                    if "《崩壞：星穹鐵道》每日簽到" in StarRail.title:break
+                    else:time.sleep(0.5)
+                break
+
         checkinday = int(html.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
+        time.sleep(1)
         checkin = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='components-pc-assets-__prize-list_---item---F852VZ']/span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
+        
+        # 功能測試
         checkin.click()
         StarRail.execute_script("arguments[0].click();", checkin)
 
