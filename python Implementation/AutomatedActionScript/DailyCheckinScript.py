@@ -381,54 +381,56 @@ class script:
             StarRailClos.click()
         except:pass
 
-        # 確認登入狀態
-        html = etree.fromstring(StarRail.page_source,etree.HTMLParser())
-        login = html.xpath("//img[@class='mhy-hoyolab-account-block__avatar-icon']")[0].get("src")
+        try:
+            # 確認登入狀態
+            html = etree.fromstring(StarRail.page_source,etree.HTMLParser())
+            login = html.xpath("//img[@class='mhy-hoyolab-account-block__avatar-icon']")[0].get("src")
 
-        if re.match(r"data:image/png;base64,.*",login): 
-            loginclick = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='mhy-hoyolab-account-block__avatar-icon']")))
-            loginclick.click()
+            if re.match(r"data:image/png;base64,.*",login): 
+                loginclick = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='mhy-hoyolab-account-block__avatar-icon']")))
+                loginclick.click()
 
-            # 使用FaceBook登入 , [3] 是fb
-            loginbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//div[3][@class='account-sea-third-party-login-item']//img[@class='account-sea-login-icon']")))
-            loginbutton.click()
-
-            time.sleep(1.5)
-            handles = StarRail.window_handles
-            for handle in handles:
-                StarRail.switch_to.window(handle)
-
-            acc , pas  = Login.Get_login("StarRail").values()
-
-            try:
-
-                accountbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='email']")))
-                accountbutton.click()
-                accountbutton.send_keys(acc)
-
-                passwordbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='pass']")))
-                passwordbutton.click()
-                passwordbutton.send_keys(pas)
-
-                loginbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='login']")))
+                # 使用FaceBook登入 , [3] 是fb
+                loginbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//div[3][@class='account-sea-third-party-login-item']//img[@class='account-sea-login-icon']")))
                 loginbutton.click()
 
-            except:
-
-                passwordbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='pass']")))
-                passwordbutton.click()
-                passwordbutton.send_keys(pas)
-                
-                continuebutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//label[@class='uiButton uiButtonConfirm uiButtonLarge']")))
-                continuebutton.click()
-
-            while True:
+                time.sleep(1.5)
                 handles = StarRail.window_handles
                 for handle in handles:
                     StarRail.switch_to.window(handle)
-                    if "《崩壞：星穹鐵道》每日簽到" in StarRail.title:break
-                    else:time.sleep(0.5)
-                break
+
+                acc , pas  = Login.Get_login("StarRail").values()
+
+                try:
+
+                    accountbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='email']")))
+                    accountbutton.click()
+                    accountbutton.send_keys(acc)
+
+                    passwordbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='pass']")))
+                    passwordbutton.click()
+                    passwordbutton.send_keys(pas)
+
+                    loginbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='login']")))
+                    loginbutton.click()
+
+                except:
+
+                    passwordbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='pass']")))
+                    passwordbutton.click()
+                    passwordbutton.send_keys(pas)
+
+                    continuebutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//label[@class='uiButton uiButtonConfirm uiButtonLarge']")))
+                    continuebutton.click()
+
+                while True:
+                    handles = StarRail.window_handles
+                    for handle in handles:
+                        StarRail.switch_to.window(handle)
+                        if "《崩壞：星穹鐵道》每日簽到" in StarRail.title:break
+                        else:time.sleep(0.5)
+                    break
+        except:pass
 
         checkinday = int(html.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
         time.sleep(1)
