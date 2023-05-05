@@ -54,8 +54,7 @@ class Crawl:
             if choose == "yes":
                 os.system(f"start {self.Download}")
         else:
-            pass
-            #messagebox.showinfo("沒有新版本","您當前的驅動是最新版本",parent=None)
+            messagebox.showinfo("沒有新版本",f"您當前的驅動{self.GPUDriver}是最新版本",parent=None)
         
 if __name__ == "__main__":
     
