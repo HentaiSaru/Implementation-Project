@@ -310,7 +310,7 @@ class script:
 
         # 關閉彈出窗口,如果有的話
         try:
-            Genshinbutton = WebDriverWait(Genshindriver,3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
+            Genshinbutton = WebDriverWait(Genshindriver,2).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
             Genshinbutton.click()
         except:pass
 
@@ -375,9 +375,9 @@ class script:
         StarRail.get("https://act.hoyolab.com/bbs/event/signin/hkrpg/index.html?act_id=e202303301540311&hyl_auth_required=true&hyl_presentation_style=fullscreen&lang=zh-tw&plat_type=pc")
         StarRail.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
-        # 關閉彈出窗口
+        # 關閉彈出窗口(這個等待時間低於3秒,可能數據會加載錯誤)
         try:
-            StarRailClos = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='components-pc-assets-__dialog_---dialog-close---3G9gO2']")))
+            StarRailClos = WebDriverWait(StarRail,4).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='components-pc-assets-__dialog_---dialog-close---3G9gO2']")))
             StarRailClos.click()
         except:pass
 
@@ -432,13 +432,12 @@ class script:
                     break
         except:pass
 
+        # 延遲待測試 , 根據網速不同有所差異
         checkinday = int(html.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
-        time.sleep(1)
-        checkin = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='components-pc-assets-__prize-list_---item---F852VZ']/span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
+        checkin = WebDriverWait(StarRail,7).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='components-pc-assets-__prize-list_---item---F852VZ']/span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
         
-        # 功能測試
         checkin.click()
-        StarRail.execute_script("arguments[0].click();", checkin)
+        #StarRail.execute_script("arguments[0].click();", checkin)
 
         time.sleep(Sc)
         GetParametric().datacreation(StarRail.get_cookies(),GetParametric().databases("StarRail"),"StarRailCookies")
@@ -471,10 +470,10 @@ if __name__ == "__main__":
     threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
     # 原神簽到
     time.sleep(1)
-    threading.Thread(target=script.Open_Genshin,args=(5,)).start()
+    threading.Thread(target=script.Open_Genshin,args=(10,)).start()
     # 星穹鐵道簽到
     time.sleep(1)
-    threading.Thread(target=script.Open_StarRail,args=(5,)).start()
+    threading.Thread(target=script.Open_StarRail,args=(10,)).start()
 
     """反覆操作預計之後使用scapy進行封包修改操作"""
     # Jkf論壇使用體力藥水(此腳本就是藥水全部都用完)
