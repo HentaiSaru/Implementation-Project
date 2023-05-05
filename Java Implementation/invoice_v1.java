@@ -52,7 +52,7 @@ class FP extends _for implements arr{
         return 10000000;
     }
 }
-public class invoice {
+public class invoice_v1 {
     public static void main(String[] argv){
         boolean w = true;  //?啟動輸入
         int j = 0;  //?計算丟入次數
