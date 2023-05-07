@@ -1,8 +1,3 @@
-import configparser as config
-import tkinter as tk
-from tkinter import filedialog
-import os
-
 CFG = [
     # 特別按鍵設置=====================================================================================
     'bind_US_standard "F2"  "exec autoexec.cfg"											',# 重新加載 autoexec (刷新Cfg)
@@ -33,10 +28,10 @@ CFG = [
 
     'mouse_sensitivity "0.400000" 														',  # 腰射 edpi:
     'mouse_use_per_scope_sensitivity_scalars "1"										',  # 是否開啟個別設置倍鏡 1(True) 2(False)
-    'mouse_zoomed_sensitivity_scalar_0 "0.530000" 										',  # x1倍鏡 edpi:739.5
-    'mouse_zoomed_sensitivity_scalar_1 "0.540000" 										',  # x2倍鏡 edpi:768.5
-    'mouse_zoomed_sensitivity_scalar_2 "0.570000" 										',  # x3倍鏡 edpi:797.5
-    'mouse_zoomed_sensitivity_scalar_3 "0.590000" 										',  # x4倍鏡 edpi:826.5
+    'mouse_zoomed_sensitivity_scalar_0 "0.520000" 										',  # x1倍鏡 edpi:739.5
+    'mouse_zoomed_sensitivity_scalar_1 "0.530000" 										',  # x2倍鏡 edpi:768.5
+    'mouse_zoomed_sensitivity_scalar_2 "0.560000" 										',  # x3倍鏡 edpi:797.5
+    'mouse_zoomed_sensitivity_scalar_3 "0.580000" 										',  # x4倍鏡 edpi:826.5
     'mouse_zoomed_sensitivity_scalar_4 "0.860000"										',  # x6倍鏡
     'mouse_zoomed_sensitivity_scalar_5 "0.860000"										',  # x8倍鏡
     'mouse_zoomed_sensitivity_scalar_6 "0.860000"										',  # x10倍鏡
@@ -179,30 +174,34 @@ CFG = [
 ]
 
 # ===================================================上面才是設定值,下面不用觀看=============================================================
-
 """~~~~~~~~~~~~~~~~~~~~
-Versions 1.2
-[+] 修復了例外Bug
-[+] 修復環境差異造成的例外
-[+] 重構了一小部份代碼
+Versions 1.3
+[+] 功能代碼重構
+[+] 多線程輸出加速
 
 預計增加
 [+] UI介面
-[+] 更易維護與觀看的代碼
-~~~~~~~~~~~~~~~~~~~~""" 
+~~~~~~~~~~~~~~~~~~~~"""
+
+from tkinter import filedialog
+import configparser as config
+import tkinter as tk
+import threading
+import os
 
 os.system('color A')
 os.system('@echo off')
 os.system('cls')
 os.system('@ ECHO.')
 os.system('@ ECHO.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ APEX-CFG設置程序 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-os.system('@ ECHO                                                   適用於15賽季')
+os.system('@ ECHO.')
+os.system('@ ECHO                                                  測試15賽季適用')
 os.system('@ ECHO.')
 os.system('@ ECHO                                                     使用說明')
 os.system('@ ECHO.')
-os.system('@ ECHO                               最多可設置兩個路徑,第一次設置完成後,之後就不會再跳出設置了')
+os.system('@ ECHO                               最多可設置兩個路徑 , 第一次設置完成後 , 就不會再跳出設置了')
 os.system('@ ECHO.')
-os.system('@ ECHO                            需要重新設置的,就將生成的[CFG_Set.ini]刪除掉,程式運行完再按一次關閉')
+os.system('@ ECHO                          需要重新設置的 , 就將生成的[CFG_Set.ini]刪除掉 , 再次運行程式進行設置')
 os.system('@ ECHO.')
 os.system('@ ECHO -----------------------------------------------------------------------------------------------------------------------')
 os.system('@ ECHO                                                按任意鍵開始運行程式')
@@ -210,132 +209,128 @@ os.system('@ ECHO --------------------------------------------------------------
 os.system('@ ECHO.')
 os.system('pause')
 os.system('cls')
+class Automatic:
+    def __init__(self):
+        self.set = None     # 保存設定設置
+        self.file = None    # 保存檔案開啟
+        self.path1 = None   # 設置路徑1
+        self.path2 = None   # 設置路徑2
+        self.filename = "/autoexec.cfg" #檔名格式宣告
 
-def fac(path):
-    with open(path, 'w') as Auto:
-        for output in CFG:
-            Auto.write(output + '\n')
+        # ============= 讀取設置檔 =============
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        try:
+            # 環境不同有解析失敗的問題,改成直接讀取
+            with open('CFG_Set.ini', 'r') as c:
+                contents = c.read()
 
-# ========== 讀取設置檔 ==========
-try:
+            InSet = config.ConfigParser()
+            InSet.read_string(contents)
 
-    """FileSet = "./CFG_Set.ini"
-    InSet = config.ConfigParser()
-    #InSet.read(FileSet, encoding='utf-8')
+            # 設置讀取
+            self.path1 = InSet.get('set', 'path1')
+            self.path2 = InSet.get('set', 'path2')
 
-    path1 = InSet.get("set","path1")
-    path2 = InSet.get("set","path2")"""
+            # 輸出第一設置路徑
+            threading.Thread(target=self.output,args=(self.path1,)).start()
 
-    # 因環境不同有解析失敗的問題,改成直接讀取
-    with open('CFG_Set.ini', 'r') as c:
-        contents = c.read()
+        # ======== 判斷設置檔是否存在第二項位置 ========
+            if self.path2.lower() != "null":
+                # 輸出第二設置路徑
+                threading.Thread(target=self.output,args=(self.path2,)).start()
+            elif self.path2.lower() == "null":pass
 
-    InSet = config.ConfigParser()
-    InSet.read_string(contents)
-
-    path1 = InSet.get('set', 'path1')
-    path2 = InSet.get('set', 'path2')
-
-    fac(path1)
-
-# ========== 判斷設置檔是否存在第二項位置 ==========
-    if path2.lower() != "null":
-        fac(path2)
-
-    elif path2.lower() == "null":
-        pass
-
-except (FileNotFoundError, config.ParsingError) as e:
-# ========== 因為無設置檔所以創建一個 ==========
-    filename = "/autoexec.cfg" #檔名格式宣告
-    file = open('CFG_Set.ini', 'w')
-
-    FileSet = "./CFG_Set.ini"
-    InSet = config.ConfigParser()
-    InSet.read(FileSet , "UTF-8")
-
-    """也可使用 file.write("[set]\n") 去進行寫入,這方法較為簡單"""
-    InSet.add_section('set')
-
-    root = tk.Tk()
-    root.withdraw()
-    
-# ========== 開始設置 ==========
-    print('請選擇您的APEX資料夾,內的CFG資料夾的')
-    # 選擇文件 -> askopenfilename()  選擇資料夾 -> askdirectory()
-    path1 = filedialog.askdirectory()
-
-    # 改成讀取到選擇位置後,直接在該路徑創建 .cfg 且隨意寫入個東西
-    Cfg_File = os.path.join(path1,'autoexec.cfg')
-    with open(Cfg_File, 'w') as cfg_file:
-       cfg_file.write('\n')
-
-    # 創建完後再將字串加入,方便寫入至設定ini檔保存
-    path1+=filename
-
-# ========== 第二項設置詢問 ==========
-    path2 = input('是否需要設置第二個位置(Y/N):')
-    
-# ========== 怕有額外的錯誤使用except ==========
-    """舊版的手動輸入,要讓設置檔的路徑顯示是反斜 \\ 可以這樣打"""  
-
-    try:
-
-        # ===== 輸入是y時 ===== 
-        if path2.lower() == 'y':
-            path2 = filedialog.askdirectory()
-            Cfg_File = os.path.join(path2,'autoexec.cfg')
-
-            with open(Cfg_File, 'w') as cfg_file:
-                cfg_file.write('\n')
-
-            path2+=filename
-
-        # ===== 輸入是n時,在ini設置寫入NULL ===== 
-        elif path2.lower() == 'n':
-            path2 = "NULL" 
-
-        # ===== 有正常輸入時,設置寫入位置,然後呼叫輸出方法 =====
-        else:
-            print("輸入錯誤 , 請輸入 Y 或 N")
-            pass
-
-        # ===== (原本是手動輸入的驗證,改成直接選擇這邊就非必要了) =====
-        if os.path.isfile(path1) and os.path.isfile(path2):
-            
-            InSet.set('set','path1', path1) #將輸入的路徑位置設置寫入
-            InSet.set('set','path2', path2)
-
-            fac(path1)
-            fac(path2)
+            # 用於已有設置ini檔,運行成功的提示
+            print('運行成功')
+            input('\n按任意鍵結束運行...')
         
-        elif os.path.isfile(path1) and path2 == "NULL":
+        # 當出現讀取錯誤時創建
+        except:self.file_creation()
 
-            InSet.set('set','path1', path1) #將輸入的路徑位置設置寫入
-            InSet.set('set','path2', path2)
+    # ========== 創建一個設置檔 ==========
+    def file_creation(self):
+        # 創建
+        self.file = open("CFG_Set.ini", "w")
 
-            fac(path1)
+        # 讀取並使用config設置
+        self.set = config.ConfigParser()
+        self.set.read("CFG_Set.ini" , "UTF-8")
 
-        else:
-            raise InvalidFilePathError()
-        
-        # ===== 通過驗證後最後將路徑寫入至Config =====
-        file.close()
-        with open(FileSet, 'w') as configfile:InSet.write(configfile)
+        """也可使用 file.write("[set]\n") 去進行寫入,這方法較為簡單"""
+        # 添加寫入 set
+        self.set.add_section('set')
 
-        print('運行成功')
-        input('\n按任意鍵結束運行...')
-        os._exit(0) #正常運行結束後,以不返回例外強制結束程式
+        # 呼叫設置方法
+        self.settings()
 
-    except:
+    # ========== 開始設置 ==========
+    def settings(self):
+        #! 選擇文件 -> askopenfilename()  選擇資料夾 -> askdirectory()
 
-        file.close()
-        os.system('cls')
-        print('運行錯誤,請重新運行\n')
+        # 調用選取窗口
+        root = tk.Tk()
+        root.withdraw()
 
-        os.system("del /f /s /q CFG_Set.ini >nul 2>&1") #採用靜默刪除指令
-        input('\n按任意鍵結束運行...')
+        print('請選擇您的APEX資料夾,內的CFG資料夾的')
+        self.path1 = filedialog.askdirectory()
+        Cfg_File = os.path.join(self.path1,'autoexec.cfg')
 
-# 用於已有設置ini檔,運行成功的提示
-print('運行成功')
-input('\n按任意鍵結束運行...')
+        with open(Cfg_File, 'w') as cfg_file:
+           cfg_file.write('\n')
+
+        # 創建完後再將字串加入,方便寫入至設定ini檔保存
+        self.path1 += self.filename
+        self.set.set('set','path1', self.path1)
+
+        # ========== 第二項設置詢問 ==========
+        try:
+            while True:
+                self.path2 = input('是否需要設置第二個位置(Y/N):')
+
+                if self.path2.lower() == 'y':
+
+                    self.path2 = filedialog.askdirectory()
+                    Cfg_File = os.path.join(self.path2,'autoexec.cfg')
+
+                    with open(Cfg_File, 'w') as cfg_file:
+                        cfg_file.write('\n')
+
+                    self.path2 += self.filename
+                    self.set.set('set','path2', self.path2)
+                    break
+
+                elif self.path2.lower() == 'n':
+                    self.path2 = "NULL"
+                    break
+
+                else:
+                    print("輸入錯誤 , 請輸入 Y 或 N\n")
+                    continue
+
+            # 全部設置完就輸出第一路徑和第二路徑
+            threading.Thread(target=self.output,args=(self.path1,)).start()
+            threading.Thread(target=self.output,args=(self.path2,)).start()
+            # 保存設置
+            threading.Thread(target=self.save_settings).start()
+
+            print('運行成功')
+            input('\n按任意鍵結束運行...')
+            # os._exit(0)
+        except:
+            os.system('cls')
+            print('運行錯誤,請重新運行\n')
+            # 基本上不會有出錯的時候
+            os.system("del /f /s /q CFG_Set.ini >nul 2>&1") #採用靜默刪除指令
+            input('\n按任意鍵結束運行...')
+
+    def output(self,path):
+        with open(path, 'w') as Auto:
+            for out in CFG:Auto.write(out + '\n')
+    
+    def save_settings(self):
+        with open("CFG_Set.ini", "w") as f:
+            self.set.write(f,delimiter='')
+        self.file.close()
+
+if __name__ == "__main__":
+    Automatic()
