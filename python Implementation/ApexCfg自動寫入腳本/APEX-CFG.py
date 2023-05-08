@@ -66,20 +66,23 @@ CFG = [
     'snd_mixahead "0.03"																',  # 減少聲音延遲
     'snd_async_fullyasync "1"															',  # 聲音同步
     'sound_classic_music "0"															',  # 經典聲音音量
-    'snd_musicvolume "0"																',  # 聲音音量
+    'snd_musicvolume "0"																',  # 禁用不必要的聲音
     'sound_musicReduced "0"															    ',  # 遊戲BGM音量
     'voice_forcemicrecord "0"															',  # 錄音功能關閉
     'snd_headphone_pan_exponent "2"													    ',  # 使對的方向聲音你所面會更清晰
-    'snd_setmixer PlayerFootsteps vol "0.1"												',  # 自己腳步聲音量
+    'snd_setmixer PlayerFootsteps vol "0.01"											',  # 自己腳步聲音量
     'snd_setmixer GlobalFootsteps vol "3"											    ',  # 別人腳步聲音量
-    'cl_footstep_event_max_dist "10000" 												',  # 增加敵人腳步聲傳遞範圍
-    'rope_wind_dist "8000"																',  # 增大敵人使用繩索的聲音
+    'cl_footstep_event_max_dist "5000" 												    ',  # 增加敵人腳步聲傳遞範圍
+    'rope_wind_dist "5000"																',  # 增大敵人使用繩索的聲音
     'player_setting_enable_heartbeat_sounds "0"                                         ',  # 禁用席爾的心跳聲
     'sound_volume_music_game "0.000000"												    ',  # 不知道
     'sound_volume_music_lobby "50.000000"												',  # 不知道
     'miles_occlusion "0"                                                                ',  # 以下為取消牆壁吸收音量(可能無效了)
     'miles_occlusion_force "0"',
     'miles_occlusion_partial "0"',
+    'snd_mix_async "1"',
+    'miles_nonactor_occlusion "0"',
+    'miles_occlusion_server_sounds_per_frame "0"',
 
     # 光影效果=======================================================================================
 
@@ -89,10 +92,14 @@ CFG = [
     'mat_autoexposure_max "1.9" 														',  # 光照強度最大值
     'mat_autoexposure_speed "2" 														',  # 畫面曝光轉變的速度
     'mat_hide_sun_in_last_cascade "1" 													',  # 最後一個級聯中的太陽能照明
-    'mat_colcorrection_disableentities "0" 												',  # 更換濾色器（稍微去除離場時“失明”的效果)
+    'mat_colcorrection_disableentities "1" 												',  # 更換濾色器（稍微去除離場時“失明”的效果)
     'mat_autoexposure_max_multiplier "1.7" 												',  # 光強度最大乘數
     'mat_autoexposure_min_multiplier "1.7" 												',  # 光強度最小的乘數
     'mat_autoexposure_override_min_max "1"												',  # 曝光最大值最小值
+    'mat_colorcorrection_editor "1"                                                     ',  # 顏色校正編輯
+    'mat_sun_highlight_size "0"                                                         ',  # 改變來自太陽的亮點的大小
+    'mat_fullbright "1"                                                                 ',  # 開啟幾何圖形的自發光功能
+    'mat_colorcorrection "1"                                                            ',  # 顏色校正
 
     # 優化FPS=======================================================================================
 
@@ -112,13 +119,12 @@ CFG = [
     'r_shadowrendertotexture "0" 														',  # 降低陰影質量 (變的更亮) 0 最低
     'r_worldlights "0"																	',  # 光源減少
     'r_dxgi_max_frame_latency "0"														',  # 延遲最大幀
-    'r_maxdlights "0"																	',  # 不知道
     'nomansky																		    ',  # 減少天空渲染
     'noforcemaccel																	    ',  # 不知道
     'noforcemspd																		',  # 不知道
     'host_writeconfig																	',  # 不知道
-    'staticProp_max_scaled_dist "1000"													',  # 靜態物體渲染距離
-    'r_particle_timescale "3"                                                           ',  # 加速粒子
+    'staticProp_max_scaled_dist "1500"													',  # 靜態物體渲染距離
+    'r_particle_timescale "6"                                                           ',  # 加速粒子
     'nx_static_lobby_mode "2"                                                           ',  # 減少加載時間
     'noise_filter_scale "0"                                                             ',  # 去除膠片顆粒
     'cl_show_splashes "0"                                                               ',  # 減少水濺效果
@@ -133,10 +139,47 @@ CFG = [
     'r_decalstaticprops "0"                                                             ',  # 在靜態道具上禁用貼花
     'shadow_always_update "0"                                                           ',  # 禁用陰影檢查
     'r_shadows "0"                                                                      ',  # 陰影  on(1)/off(0)（不完全）（有效）
+    'r_eyes "0"                                                                         ',  # 眼睛 (1)/降低質量(0)
     'r_teeth "0"                                                                        ',  # 牙齒開（1）/降低質量（0）
     'r_flex "0"                                                                         ',  # 使用面部動畫 on(1)/off(0)
     'r_maxdlights "0"                                                                   ',  # 優化屏幕上可見的動態光的最大數
     'stream_drop_unused "1"                                                             ',  # 丟棄未使用的紋理
+    'glow_outline_effect_enable "0"                                                     ',  # 減少熔巖中的發光效果
+    'mat_bumpmap "0"                                                                    ',  # 控制凹凸貼圖
+    'mat_specular "0"                                                                   ',  # 控制鏡面效果
+    'stream_cache_high_priority_static_models "1"                                       ',  # 預加載
+    'stream_cache_preload_from_rpak "1"                                                 ',  # 從rpak預加載到緩存
+    'viewmodel_selfshadow "0"                                                           ',  # 禁用玩家模型及其武器的陰影
+    'r_drawmodeldecals "0"                                                              ',  # 在模型上渲染貼花 開(1)/關(0)
+    'r_queued_post_processing "1"                                                       ',  # 將後期處理卸載到材質系統中。如果你的驅動/GPU能用的話，性能會有所提高（安慰劑）。
+    'g_ragdoll_fadespeed "10000"                                                        ',  # 布娃娃的褪色率（越高的褪色率越快，所以0不會褪色並導致內存洩露） (有效)
+    'g_ragdoll_lvfadespeed "10000"                                                      ',  # 低度暴力中布娃娃的褪色率 (有效)
+    'mp_usehwmmodels "-1"                                                               ',  # 不要使用或加載高質量的角色
+    'mp_usehwmvcds "-1"                                                                 ',  # 不要使用或加載高質量的人物面部表情 (有效)
+    'cl_phys_props_enable "0"                                                           ',  # 禁用懸臂
+    'cl_phys_props_max "0"                                                              ',  # 禁用懸臂
+    'props_break_max_pieces "0"                                                         ',  # 禁用搖臂
+    'rope_smooth "0"                                                                    ',  # 跳過對繩索的長時間平滑操作
+    'rope_collide "0"                                                                   ',  # 禁用繩索抖動
+    'mat_postprocess_enable "0"                                                         ',  # 移除強制HDR
+    'mat_dynamic_tonemapping "0"                                                        ',  # 禁用動態HDR色調映射
+    'mat_hdr_level "0"                                                                  ',  # 禁用完全HDR
+    'r_shadowmaxrendered "0"                                                            ',  # 遊戲將渲染的最大陰影 (不完全)
+    'r_drawtracers_firstperson "0"                                                      ',  # 子彈上沒有追蹤器
+    'mat_shadowstate "0"                                                                ',  # 無陰影(0)，玩家模型為陰影(2) (減少)
+    'mat_mip_linear "0"                                                                 ',  # 紋理過濾開(1)/關(0
+    'ssao_blur "0"                                                                      ',  # 模糊、反射和高光
+    'sssss_enable "0"                                                                   ',  # 禁用熒幕空間的次表面散射
+    'mat_reducefillrate "1"                                                             ',  # 簡化材料陰影
+    'cl_particle_fallback_multiplier "3"                                                ',  # 負載下回落到便宜效果的倍數
+    'cl_particle_fallback_base "2"                                                      ',  # 負載下回落到更便宜的效果的基礎
+    'cl_ragdoll_maxcount "0"                                                            ',  # 禁用布娃娃
+    'cl_phys_maxticks "0"                                                               ',  # 允許的物理點的數量
+    'r_lod_switch_scale "0.4"                                                           ',  # 低端模型的加載距離
+    'cl_detailfade "0"                                                                  ',  # 細節道具淡入的距離
+    'cl_detaildist "0"                                                                  ',  # 細節道具不再可見的距離
+    'r_jiggle_bones "0"',
+    'r_dxgi_max_frame_latency "1"',
 
     # 網路優化(loss丟失/choke阻塞)=======================================================================
     
