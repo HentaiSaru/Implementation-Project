@@ -13,7 +13,45 @@ import re
 dir = os.path.abspath("R:/") # 可更改預設路徑
 os.chdir(dir)
 
-# 程式入口點於最下方 (574行)
+"""
+    * 使用前請詳閱說明書
+
+    爬蟲適用網站 : https://www.wnacg.com/
+    使用說明 : 輸入該漫畫的網址 , 接著就會自動下載
+    (支援: 
+    ? 搜尋頁面 : https://www.wnacg.com/search/index.php?q=...
+    ? Tag頁面 : https://www.wnacg.com/albums...
+    ? 漫畫頁面 : https://www.wnacg.com/photos...
+    )
+
+    !! 現在都只要直接運行程式後輸入網址即可 , 預設使用 SlowAccurate
+
+    [預設使用類型] SlowAccurate
+    
+    優點=>
+    * 精準處理所有連結
+    * 支持同時批量下載多本漫畫
+    缺點=>
+    * 網址處理較慢
+    * 線程處理不精確 可能下載完但程式不會自動關閉 需要手動關閉 (通常大量下載時才會出錯)
+
+    [目前棄用無優化 , 但是可以使用] FastNormal
+    
+    優點=>
+    * 高速處理網址 (使用網址命名規則去變換)
+    * 下載速度稍快
+    缺點=>
+    * 無後續更新優化
+    * 網址不準確 有時候會下載失敗 因為是使用命名規則去變換 只要剛好不符合就會變成錯誤網址
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    [+] SlowAccurate 方法更新進度條顯示 , 批量下載顯示可能有Bug
+    [+] 改成直接輸入網址下載
+    [*] 待修復重複下載漫畫下載問題(有點懶~)
+    [*] 待修復有時候線程無法終止問題(程式無法自行結束)
+    
+"""
 
 """ 初始化宣告 """
 def __init__(self,Url,ComicsInternalLinks,MangaURL,NameMerge,FolderName,SaveName,Image_URL,headers,pages_format,ComicLink):
@@ -28,7 +66,7 @@ def __init__(self,Url,ComicsInternalLinks,MangaURL,NameMerge,FolderName,SaveName
     self.pages_format = pages_format
     self.ComicsInternalLinks = ComicsInternalLinks
 
-# 計算運行線程數
+# 計算運行線程數 (需要修正)
 def Threading():
     count = 0
     while True:
@@ -39,7 +77,7 @@ def Threading():
         if count == 3:
             os._exit(0)
 
-""" 較慢但通用多種下載 """
+""" 較慢但通用多種下載 (新方法) """
 class SlowAccurate:
     # 判斷下載的類型
     DownloadType = False
@@ -52,7 +90,7 @@ class SlowAccurate:
     
         if isinstance(Url,list):
 
-            SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
+            SupportedFormat = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
 
             for url in Url:
 
@@ -66,20 +104,20 @@ class SlowAccurate:
             Match = False
 
             # r 為原始字串符 他將不會轉譯 \ 反斜
-            SearchPage = r'https://www\.wnacg\.org/search/.*\?q=.+'
-            TagPage = r'^https:\/\/www\.wnacg\.org\/albums.*'
+            SearchPage = r'https://www\.wnacg\.com/search/.*\?q=.+'
+            TagPage = r'^https:\/\/www\.wnacg\.com\/albums.*'
 
             if re.match(SearchPage,url):
-                url = f'https://www.wnacg.org/search/?q={url.split("?q=")[1].split("&")[0]}'
+                url = f'https://www.wnacg.com/search/?q={url.split("?q=")[1].split("&")[0]}'
                 Match = True
             elif re.match(TagPage,url):
-                url = f'https://www.wnacg.org/albums-index-page-1-tag-{url.split("-tag-")[1]}'
+                url = f'https://www.wnacg.com/albums-index-page-1-tag-{url.split("-tag-")[1]}'
                 Match = True
 
             if Match:
                 Judge = True
                 headers = {
-                    "authority": "www.wnacg.org",
+                    "authority": "www.wnacg.com",
                     "cache-control": "no-cache",
                     "pragma": "no-cache",
                     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
@@ -106,7 +144,7 @@ class SlowAccurate:
                         tree = etree.fromstring(html, parser)
                         links = []
                         for i in tree.xpath('//div[@class="pic_box"]'):
-                            link = f"https://www.wnacg.org{i.find('a').get('href')}"
+                            link = f"https://www.wnacg.com{i.find('a').get('href')}"
                             links.append(link)
                         return links
 
@@ -116,9 +154,9 @@ class SlowAccurate:
                         PageList = []
                         for page in range(int(TotalPages)):
                             if int(TotalPages) != 1 and re.match(SearchPage,url):
-                                url = f"https://www.wnacg.org/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=&p={page+1}"
+                                url = f"https://www.wnacg.com/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=&p={page+1}"
                             elif int(TotalPages) != 1 and re.match(TagPage,url):
-                                url = f"https://www.wnacg.org/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                                url = f"https://www.wnacg.com/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
                             
                             PageList.append(url)
 
@@ -143,7 +181,7 @@ class SlowAccurate:
     def BasicSettings(Url):
         
         try:
-            SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
+            SupportedFormat = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
 
             if re.match(SupportedFormat,Url):
 
@@ -155,7 +193,7 @@ class SlowAccurate:
                     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
                 }
 
-                Url = f"https://www.wnacg.org/photos-index-{'page-1'}-aid-{Url.split('aid-')[1]}"
+                Url = f"https://www.wnacg.com/photos-index-{'page-1'}-aid-{Url.split('aid-')[1]}"
                 reques = session.get(Url)
                 html = reques.content
                 parser = etree.HTMLParser()
@@ -172,11 +210,11 @@ class SlowAccurate:
                 # 獲取主頁所有圖片分頁的連結
                 async def GetImageLink(i, headers):
                     async with aiohttp.ClientSession(headers=headers) as session:
-                        async with session.get(f"https://www.wnacg.org/photos-index-page-{i}-aid-{Url.split('aid-')[1]}") as response:
+                        async with session.get(f"https://www.wnacg.com/photos-index-page-{i}-aid-{Url.split('aid-')[1]}") as response:
                             html = await response.text()
                             parser = etree.HTMLParser()
                             tree = etree.fromstring(html, parser)
-                            internal_links = [f"https://www.wnacg.org{x.get('href')}" for x in tree.xpath("//div[@class='pic_box tb']/a")]
+                            internal_links = [f"https://www.wnacg.com{x.get('href')}" for x in tree.xpath("//div[@class='pic_box tb']/a")]
                             return internal_links
 
                 # 使用異步同時發起請求 (只要不同時請求就不會發生數據重複,但是數據量多時,可能會很慢)
@@ -330,7 +368,7 @@ class SlowAccurate:
                 f.write(ImageData.content)
         else:print(f"請求錯誤:\n漫畫網址:{MangaURL}\n圖片網址:{Image_URL}")
 
-""" 較快但有些下載不了 """
+""" 較快但有些下載不了 (舊方法) """
 class FastNormal:
 
     # 批量輸入下載
@@ -341,7 +379,7 @@ class FastNormal:
 
         if isinstance(Url,list):
 
-            SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
+            SupportedFormat = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
 
             for url in Url:
 
@@ -354,20 +392,20 @@ class FastNormal:
             url = unquote(Url)
             Match = False
             # r 為原始字串符 他將不會轉譯 \ 反斜
-            SearchPage = r'https://www\.wnacg\.org/search/.*\?q=.+'
-            TagPage = r'^https:\/\/www\.wnacg\.org\/albums.*'
+            SearchPage = r'https://www\.wnacg\.com/search/.*\?q=.+'
+            TagPage = r'^https:\/\/www\.wnacg\.com\/albums.*'
 
             if re.match(SearchPage,url):
-                url = f'https://www.wnacg.org/search/?q={url.split("?q=")[1].split("&")[0]}'
+                url = f'https://www.wnacg.com/search/?q={url.split("?q=")[1].split("&")[0]}'
                 Match = True
             elif re.match(TagPage,url):
-                url = f'https://www.wnacg.org/albums-index-page-1-tag-{url.split("-tag-")[1]}'
+                url = f'https://www.wnacg.com/albums-index-page-1-tag-{url.split("-tag-")[1]}'
                 Match = True
 
             if Match:
                 Judge = True
                 headers = {
-                    "authority": "www.wnacg.org",
+                    "authority": "www.wnacg.com",
                     "cache-control": "no-cache",
                     "pragma": "no-cache",
                     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
@@ -396,7 +434,7 @@ class FastNormal:
                         tree = etree.fromstring(html, parser)
                         links = []
                         for i in tree.xpath('//div[@class="pic_box"]'):
-                            link = f"https://www.wnacg.org{i.find('a').get('href')}"
+                            link = f"https://www.wnacg.com{i.find('a').get('href')}"
                             links.append(link)
                         return links
 
@@ -406,9 +444,9 @@ class FastNormal:
                         PageList = []
                         for page in range(int(TotalPages)):
                             if int(TotalPages) != 1 and re.match(SearchPage,url):
-                                url = f"https://www.wnacg.org/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=&p={page+1}"
+                                url = f"https://www.wnacg.com/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=&p={page+1}"
                             elif int(TotalPages) != 1 and re.match(TagPage,url):
-                                url = f"https://www.wnacg.org/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                                url = f"https://www.wnacg.com/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
                             
                             PageList.append(url)
 
@@ -428,7 +466,7 @@ class FastNormal:
                 FastNormal.BasicSettings(_input)
 
     def BasicSettings(Url):
-        SupportedFormat = r'^https:\/\/www\.wnacg\.org\/photos.*\d+\.html$'
+        SupportedFormat = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
         if re.match(SupportedFormat,Url):
 
             total_pages_format = []
@@ -438,7 +476,7 @@ class FastNormal:
                 "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
             }
 
-            Url = f"https://www.wnacg.org/photos-index-{'page-1'}-aid-{Url.split('aid-')[1]}"
+            Url = f"https://www.wnacg.com/photos-index-{'page-1'}-aid-{Url.split('aid-')[1]}"
             reques = session.get(Url)
             html = reques.content
             parser = etree.HTMLParser()
@@ -468,7 +506,7 @@ class FastNormal:
             async def main(home_pages, headers):
                 async with aiohttp.ClientSession() as session:
                     # 先將總共頁數的網址全部存入
-                    urllist = [f"https://www.wnacg.org/photos-index-page-{i}-aid-{Url.split('aid-')[1]}" for i in range(1, home_pages+1)]
+                    urllist = [f"https://www.wnacg.com/photos-index-page-{i}-aid-{Url.split('aid-')[1]}" for i in range(1, home_pages+1)]
                     # 呼叫get_format獲取所有的格式
                     tasks = [asyncio.create_task(get_format(session, url, headers, UrlQueue)) for url in urllist]
                     # 等待完成
@@ -579,39 +617,6 @@ class FastNormal:
 
         return ImageData
 
-"""
-    !! 使用前請詳閱說明書
-
-    爬蟲適用網站 : https://www.wnacg.org/
-    使用說明 : 輸入該漫畫的網址,接著就會自動下載 (支援: 搜尋頁面 / Tag頁面 / 漫畫頁面)
-
-    [預設使用類型]
-    前面為 : SlowAccurate. 是慢速下載但是可以很精準的抓到所有類型
-    (目前只有他支援批量下載時,可同時下載10本)
-
-    [目前棄用無優化 , 但是可以使用]
-    前面為 : FastNormal. 處理的比較快 同時無法完全的通用 目前已經用多重判斷 盡量讓其通用
-    (但只要頁面較多處理就一定比較久 , 懶得修復其功能性)
-
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    BatchInput 只能放一種,只有漫畫頁面
-    1. BasicSettings (格式為:https://www.wnacg.org/photos...)
-
-    BatchInput 可放三種 (注意格式!!)
-    1. 為搜尋某Tag標籤搜尋頁網址 , 他將會把{!所有搜尋到的全部下載!} (格式為:https://www.wnacg.org/albums...)
-    2. 搜尋的網址連結 (格式為:https://www.wnacg.org/search/index.php?q=...)
-    3. Batch , 同時放置多個需下載的(無上限) , 漫畫頁面網址 (格式為:https://www.wnacg.org/photos...)
-
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    [+] SlowAccurate 方法更新進度條顯示 , 批量下載顯示可能有Bug
-    [+] 改成直接輸入網址下載
-    [*] 待修復重複下載漫畫下載問題(有點懶~)
-    [*] 待修復有時候線程無法終止問題(程式無法自行結束)
-    
-"""
-
 if __name__ == "__main__":
 
     """計算運行線程,用於結束程式運行"""
@@ -621,10 +626,9 @@ if __name__ == "__main__":
 
     """~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"""
 
+    """處理速度較於緩慢,但可精準的下載所有類型(輸入到重覆的網址,只會覆蓋下載,不會再創一個新的)"""
     # 批量下載列表
     Batch = []
-
-    """處理速度較於緩慢,但可精準的下載所有類型(輸入到重覆的網址,只會覆蓋下載,不會再創一個新的)"""
 
     print("輸入網址(要開始下載輸入 s ):")
     while True:
@@ -648,4 +652,4 @@ if __name__ == "__main__":
     #FastNormal.BasicSettings("#")
 
     # 批量下載
-    # FastNormal.BatchInput("")
+    # FastNormal.BatchInput("#")
