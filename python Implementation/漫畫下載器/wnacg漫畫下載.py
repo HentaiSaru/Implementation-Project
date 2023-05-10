@@ -24,9 +24,9 @@ os.chdir(dir)
     ? 漫畫頁面 : https://www.wnacg.com/photos...
     )
 
-    !! 現在都只要直接運行程式後輸入網址即可 , 預設使用 SlowAccurate
+    !! 現在都只要直接運行程式後輸入網址即可 , 預設使用 self
 
-    [預設使用類型] SlowAccurate
+    [預設使用類型] self
     
     優點=>
     * 精準處理所有連結
@@ -46,8 +46,8 @@ os.chdir(dir)
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    [+] SlowAccurate 方法更新進度條顯示 , 批量下載顯示可能有Bug
-    [+] 改成直接輸入網址下載
+    [+] 修改網址判斷方式
+    [*] 待修正,修改判斷網址方式後遺留的非必要代碼
     [*] 待修復重複下載漫畫下載問題(有點懶~)
     [*] 待修復有時候線程無法終止問題(程式無法自行結束)
     
@@ -79,122 +79,110 @@ def Threading():
 
 """ 較慢但通用多種下載 (新方法) """
 class SlowAccurate:
-    # 判斷下載的類型
-    DownloadType = False
+    def __init__(self):
+        self.TagPage = r'^https:\/\/www\.wnacg\.com\/albums.*'
+        self.SearchPage = r'https://www\.wnacg\.com/search/.*\?q=.+'
+        self.ComicPage = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
+        self.SupportedFormat = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
+        self.session = requests.Session()
+        self.headers = {
+            "authority": "www.wnacg.com",
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
+        }
+
+        # 判斷下載的類型
+        self.DownloadType = False
+    
+        # 隊列保存
+        self.Work = queue.Queue()
+
+    def URL_Classification(self,box):
+        
+        for url in box:
+            if re.match(self.TagPage,url) or re.match(self.SearchPage,url):
+                self.BatchProcessing(url)
+            elif re.match(self.ComicPage,url):
+                self.DataProcessing(url)
+            else:print(f"這並非支持的網址格式{url}")
 
     # 批量輸入下載
-    def BatchInput(Url):
-        # 用於確認輸出
-        Judge = False
+    def BatchProcessing(self,Url):
+        self.DownloadType = True
+        url = unquote(Url)
         AllLinks = []
-    
-        if isinstance(Url,list):
 
-            SupportedFormat = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
+        if re.match(self.SearchPage,url):
+            url = f'https://www.wnacg.com/search/?q={url.split("?q=")[1].split("&")[0]}'
+        elif re.match(self.TagPage,url):
+            url = f'https://www.wnacg.com/albums-index-page-1-tag-{url.split("-tag-")[1]}'
 
-            for url in Url:
+        # 首次取得數據
+        request = self.session.get(url, headers=self.headers)
+        parser = etree.HTMLParser()
+        tree = etree.fromstring(request.content, parser)
 
-                if re.match(SupportedFormat,url):
-                    Judge = True
-                    AllLinks.append(url)
-                else:print(f"這並非支持的網址格式{url}")
+        # 獲取總共的頁數(只有一頁的會錯誤)
+        try:
+            if re.match(self.SearchPage,url):
+                TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()]/text()')[0]
+            elif re.match(self.TagPage,url):
+                TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()-1]/text()')[0]
+        except:TotalPages = "1"
 
-        else:
-            url = unquote(Url)
-            Match = False
+        # 獲取頁面所有URL
+        async def GetLink(session, url):
+            async with session.get(url) as response:
+                html = await response.text()
+                tree = etree.fromstring(html, parser)
+                links = []
+                for i in tree.xpath('//div[@class="pic_box"]'):
+                    link = f"https://www.wnacg.com{i.find('a').get('href')}"
+                    links.append(link)
+                return links
+            
+        # 將所有頁面網址輸出,再將網址全部使用GetLink獲取頁面所有網址
+        async def RanGet(url):
+            async with aiohttp.ClientSession(headers=self.headers) as session:
+                PageList = []
+                for page in range(int(TotalPages)):
+                    if int(TotalPages) != 1 and re.match(self.SearchPage,url):
+                        url = f"https://www.wnacg.com/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=&p={page+1}"
+                    elif int(TotalPages) != 1 and re.match(self.TagPage,url):
+                        url = f"https://www.wnacg.com/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                    PageList.append(url)
+                    
+                tasks = []
+                for page in PageList:
+                    task = asyncio.create_task(GetLink(session, page))
+                    tasks.append(task)
+                results = await asyncio.gather(*tasks)
 
-            # r 為原始字串符 他將不會轉譯 \ 反斜
-            SearchPage = r'https://www\.wnacg\.com/search/.*\?q=.+'
-            TagPage = r'^https:\/\/www\.wnacg\.com\/albums.*'
+                for links in results:
+                    AllLinks.extend(links)
 
-            if re.match(SearchPage,url):
-                url = f'https://www.wnacg.com/search/?q={url.split("?q=")[1].split("&")[0]}'
-                Match = True
-            elif re.match(TagPage,url):
-                url = f'https://www.wnacg.com/albums-index-page-1-tag-{url.split("-tag-")[1]}'
-                Match = True
+        asyncio.run(RanGet(url))
 
-            if Match:
-                Judge = True
-                headers = {
-                    "authority": "www.wnacg.com",
-                    "cache-control": "no-cache",
-                    "pragma": "no-cache",
-                    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
-                }
-
-                # 首次取得數據
-                session = requests.Session()
-                request = session.get(url, headers=headers)
-                parser = etree.HTMLParser()
-                tree = etree.fromstring(request.content, parser)
-
-                # 獲取總共的頁數(只有一頁的會錯誤)
-                try:
-                    if re.match(SearchPage,url):
-                        TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()]/text()')[0]
-                    elif re.match(TagPage,url):
-                        TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()-1]/text()')[0]
-                except:TotalPages = "1"
-
-                # 獲取頁面所有URL
-                async def GetLink(session, url):
-                    async with session.get(url) as response:
-                        html = await response.text()
-                        tree = etree.fromstring(html, parser)
-                        links = []
-                        for i in tree.xpath('//div[@class="pic_box"]'):
-                            link = f"https://www.wnacg.com{i.find('a').get('href')}"
-                            links.append(link)
-                        return links
-
-                # 將所有頁面網址輸出,再將網址全部使用GetLink獲取頁面所有網址
-                async def RanGet(url):
-                    async with aiohttp.ClientSession(headers=headers) as session:
-                        PageList = []
-                        for page in range(int(TotalPages)):
-                            if int(TotalPages) != 1 and re.match(SearchPage,url):
-                                url = f"https://www.wnacg.com/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=&p={page+1}"
-                            elif int(TotalPages) != 1 and re.match(TagPage,url):
-                                url = f"https://www.wnacg.com/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
-                            
-                            PageList.append(url)
-
-                        tasks = []
-                        for page in PageList:
-                            task = asyncio.create_task(GetLink(session, page))
-                            tasks.append(task)
-                        results = await asyncio.gather(*tasks)
-                        for links in results:
-                            AllLinks.extend(links)
-                asyncio.run(RanGet(url))
-            else:print(f"這並非支持的網址格式{Url}")
-
-        if Judge:
-            SlowAccurate.DownloadType = True
-            for _input in AllLinks: # 懶得處理線程鎖,廢棄多線程
-               SlowAccurate.BasicSettings(_input)
-
+        for _input in AllLinks: # 懶得處理線程鎖,廢棄多線程
+            self.DataProcessing(_input)
     
     # 取得基本訊息(這邊為了通用性,做了較多的數據處理,剛開始會跑比較久)
-    Work = queue.Queue()
-    def BasicSettings(Url):
+    def DataProcessing(self,Url):
         
         try:
-            SupportedFormat = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
-
-            if re.match(SupportedFormat,Url):
+            
+            if re.match(self.SupportedFormat,Url):
 
                 ComicsInternalLinks = []
                 ComicPictureLink = []
 
-                session = requests.Session()
                 headers = {
                     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
                 }
 
                 Url = f"https://www.wnacg.com/photos-index-{'page-1'}-aid-{Url.split('aid-')[1]}"
-                reques = session.get(Url)
+                reques = self.session.get(Url)
                 html = reques.content
                 parser = etree.HTMLParser()
                 tree = etree.fromstring(html, parser)
@@ -254,30 +242,29 @@ class SlowAccurate:
                 asyncio.run(LinkRun())
                 asyncio.run(ImageRun())
 
-                if SlowAccurate.DownloadType:
+                if self.DownloadType:
                     # 同步請求,工作序列(同時下載多本)
-                    SlowAccurate.Work.put((ComicPictureLink,Url,NameMerge))
-                elif SlowAccurate.DownloadType == False:
+                    self.Work.put((ComicPictureLink,Url,NameMerge))
+                elif self.DownloadType == False:
                     # 單線程請求(適用於單本加速下載)
                     download_path = os.path.join(dir, NameMerge)
-                    SlowAccurate.Ffolder(download_path)
-                    SlowAccurate.SingleDownload(ComicPictureLink,Url,NameMerge)
-
+                    self.Ffolder(download_path)
+                    self.SingleDownload(ComicPictureLink,Url,NameMerge)
             else:
                 print(f"這並非支持的網址格式{Url}")
 
         except TypeError:
             print("請放單獨的漫畫網址")
 
-    def DownloadWork():
+    def DownloadWork(self):
         # 允許最大同時下載數
         MAX_THREADS = 10
         active_threads = []
 
         while True:
             time.sleep(0.1)
-            if not SlowAccurate.Work.empty():
-                data = SlowAccurate.Work.get()
+            if not self.Work.empty():
+                data = self.Work.get()
                 ComicPictureLink = data[0]
                 Url = data[1]
                 NameMerge = data[2]
@@ -285,9 +272,9 @@ class SlowAccurate:
                 def Simultaneous():
                     download_path = os.path.join(dir, NameMerge)
                     #創建文件夾
-                    SlowAccurate.Ffolder(download_path)
+                    self.Ffolder(download_path)
                     # 開始請求圖片
-                    SlowAccurate.SimultaneousDownload(ComicPictureLink,Url,NameMerge)
+                    self.SimultaneousDownload(ComicPictureLink,Url,NameMerge)
 
                 if len(active_threads) < MAX_THREADS:
                     download = threading.Thread(target=Simultaneous)
@@ -300,7 +287,7 @@ class SlowAccurate:
                             break
     
     # 轉換漫畫資訊 多本同時下載(單本下載數量很慢)
-    def SimultaneousDownload(ComicsInternalLinks,MangaURL,NameMerge):
+    def SimultaneousDownload(self,ComicsInternalLinks,MangaURL,NameMerge):
         SaveNameFormat = 1
 
         headers = {
@@ -316,7 +303,7 @@ class SlowAccurate:
         for page in ComicsInternalLinks:
             SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
             # 同時下載多本
-            SlowAccurate.Download(os.path.join(dir, NameMerge),SaveName,MangaURL,page,headers)
+            self.Download(os.path.join(dir, NameMerge),SaveName,MangaURL,page,headers)
 
             pbar.update(1)
             
@@ -324,7 +311,7 @@ class SlowAccurate:
         pbar.close()
 
     # 轉換漫畫資訊 單本下載加速
-    def SingleDownload(ComicsInternalLinks,MangaURL,NameMerge):
+    def SingleDownload(self,ComicsInternalLinks,MangaURL,NameMerge):
         SaveNameFormat = 1
 
         headers = {
@@ -343,7 +330,7 @@ class SlowAccurate:
             for page in ComicsInternalLinks:
                 SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
                 # 單本下載加速     
-                executor.submit(SlowAccurate.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
+                executor.submit(self.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
 
                 pbar.update(1)
 
@@ -353,16 +340,14 @@ class SlowAccurate:
         pbar.close()
 
     # 創建資料夾
-    def Ffolder(FolderName):
-        try:
-            os.mkdir(FolderName) # 用漫畫名創建一個空資料夾(再傳遞時已經包含路徑+名稱)
-        except:
-            pass
+    def Ffolder(self,FolderName):
+        try:os.mkdir(FolderName) # 用漫畫名創建一個空資料夾(再傳遞時已經包含路徑+名稱)
+        except:pass
 
     # 下載方法
-    def Download(Path,SaveName,MangaURL,Image_URL,headers):
+    def Download(self,Path,SaveName,MangaURL,Image_URL,headers):
 
-        ImageData = requests.get(Image_URL, headers=headers)
+        ImageData = requests.get(Image_URL,headers=headers)
         if ImageData.status_code == 200:
             with open(os.path.join(Path, SaveName),"wb") as f:
                 f.write(ImageData.content)
@@ -595,9 +580,9 @@ class FastNormal:
         #刪除名稱中的非法字元
         name = re.sub(r'[<>:"/\\|?*]', '', FolderName)
         try:
-            if SlowAccurate.PathStatus:
+            if self.PathStatus:
                 os.chdir(os.path.join(".."))
-            else:SlowAccurate.PathStatus = True
+            else:self.PathStatus = True
         
             os.mkdir(name) # 在該路徑下用漫畫名創建一個空資料夾
             os.chdir(os.path.join(os.getcwd(), name)) # 將預設路徑導入至該資料夾
@@ -619,16 +604,16 @@ class FastNormal:
 
 if __name__ == "__main__":
 
+    Slow = SlowAccurate()
     """計算運行線程,用於結束程式運行"""
     threading.Thread(target=Threading).start()
     """加速工作隊列"""
-    threading.Thread(target=SlowAccurate.DownloadWork).start()
-
+    threading.Thread(target=Slow.DownloadWork).start()
+    
     """~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"""
 
     """處理速度較於緩慢,但可精準的下載所有類型(輸入到重覆的網址,只會覆蓋下載,不會再創一個新的)"""
-    # 批量下載列表
-    Batch = []
+    box = []
 
     print("輸入網址(要開始下載輸入 s ):")
     while True:
@@ -637,13 +622,8 @@ if __name__ == "__main__":
             os.system("cls")
             print("開始下載...")
             break
-        else:Batch.append(url)
-    if len(Batch) == 1:
-        # 單獨下載
-        SlowAccurate.BasicSettings(Batch[0])
-    elif len(Batch) > 1:
-        # 批量下載
-        SlowAccurate.BatchInput(Batch)
+        else:box.append(url)
+    if len(box) >= 1:Slow.URL_Classification(box)
     else:os._exit(0)
 
     """處理速度較於快速,但會有一些下載失敗(懶得修復問題,不建議使用)"""
