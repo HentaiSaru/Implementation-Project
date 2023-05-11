@@ -84,6 +84,8 @@ class SlowAccurate:
         self.SearchPage = r'https://www\.wnacg\.com/search/.*\?q=.+'
         self.ComicPage = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
         self.SupportedFormat = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
+        self.SeparateBox = [] 
+        self.BatchBox = []
         self.session = requests.Session()
         self.headers = {
             "authority": "www.wnacg.com",
@@ -102,14 +104,28 @@ class SlowAccurate:
         
         for url in box:
             if re.match(self.TagPage,url) or re.match(self.SearchPage,url):
-                self.BatchProcessing(url)
+                self.BatchBox.append(url)
             elif re.match(self.ComicPage,url):
-                self.DataProcessing(url)
+                self.SeparateBox.append(url)
             else:print(f"這並非支持的網址格式{url}")
+
+        # 搜尋頁預設都是同步下載
+        if len(self.BatchBox) > 0:
+            self.DownloadType = True
+            for url in self.BatchBox:self.BatchProcessing(url)
+
+        # 只有單條網址就使用,單本加速下載
+        if len(self.SeparateBox) == 1:
+            self.DataProcessing(self.SeparateBox[0])
+
+        # 大於一條以上使用同步下載
+        elif len(self.SeparateBox) > 1:
+            self.DownloadType = True
+            for url in self.SeparateBox:
+                self.DataProcessing(url)
 
     # 批量輸入下載
     def BatchProcessing(self,Url):
-        self.DownloadType = True
         url = unquote(Url)
         AllLinks = []
 

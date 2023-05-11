@@ -246,10 +246,10 @@ tag標籤排除
 """
 if __name__ == "__main__":
     # list 傳遞目前只適用於漫畫連結 , 搜尋連結不適用 
-    Batch_Box = ["https://nhentai.net/g/451445/","https://nhentai.net/g/450997/","https://nhentai.net/g/421050/"]
+    Batch_Box = [""]
 
     # 當無法正常啟用自動化窗口時 , 就啟用該方法 !!Google會被關掉
     # reset()
 
     # url , 頁數 , 隱藏窗口 (url可輸入,單本漫畫/搜尋連結/Batch_Box的list)
-    download.enter(Batch_Box)
+    download.enter("#")
