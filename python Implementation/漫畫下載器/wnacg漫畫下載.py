@@ -26,7 +26,7 @@ os.chdir(dir)
 
     !! 現在都只要直接運行程式後輸入網址即可 , 預設使用 self
 
-    [預設使用類型] self
+    [預設使用類型] SlowAccurate
     
     優點=>
     * 精準處理所有連結
@@ -35,7 +35,7 @@ os.chdir(dir)
     * 網址處理較慢
     * 線程處理不精確 可能下載完但程式不會自動關閉 需要手動關閉 (通常大量下載時才會出錯)
 
-    [目前棄用無優化 , 但是可以使用] FastNormal
+    [目前棄用無優化 , 經過多次修改可能無法使用] FastNormal
     
     優點=>
     * 高速處理網址 (使用網址命名規則去變換)
@@ -53,19 +53,6 @@ os.chdir(dir)
     
 """
 
-""" 初始化宣告 """
-def __init__(self,Url,ComicsInternalLinks,MangaURL,NameMerge,FolderName,SaveName,Image_URL,headers,pages_format,ComicLink):
-    self.Url = Url
-    self.headers = headers
-    self.MangaURL = MangaURL
-    self.SaveName = SaveName
-    self.MangaURL = NameMerge
-    self.Image_URL = Image_URL
-    self.ComicLink = ComicLink
-    self.FolderName = FolderName
-    self.pages_format = pages_format
-    self.ComicsInternalLinks = ComicsInternalLinks
-
 # 計算運行線程數 (需要修正)
 def Threading():
     count = 0
@@ -80,19 +67,19 @@ def Threading():
 """ 較慢但通用多種下載 (新方法) """
 class SlowAccurate:
     def __init__(self):
+        # 網址驗證格式
         self.TagPage = r'^https:\/\/www\.wnacg\.com\/albums.*'
         self.SearchPage = r'https://www\.wnacg\.com/search/.*\?q=.+'
         self.ComicPage = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
         self.SupportedFormat = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
+
+        # 網址分類保存
         self.SeparateBox = [] 
         self.BatchBox = []
+
+        # 數據請求
         self.session = requests.Session()
-        self.headers = {
-            "authority": "www.wnacg.com",
-            "cache-control": "no-cache",
-            "pragma": "no-cache",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
-        }
+        self.headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",}
 
         # 判斷下載的類型
         self.DownloadType = False
@@ -100,6 +87,7 @@ class SlowAccurate:
         # 隊列保存
         self.Work = queue.Queue()
 
+    # 網址分類
     def URL_Classification(self,box):
         
         for url in box:
@@ -124,7 +112,7 @@ class SlowAccurate:
             for url in self.SeparateBox:
                 self.DataProcessing(url)
 
-    # 批量輸入下載
+    # 搜尋頁面批量處理
     def BatchProcessing(self,Url):
         url = unquote(Url)
         AllLinks = []
@@ -183,7 +171,7 @@ class SlowAccurate:
         for _input in AllLinks: # 懶得處理線程鎖,廢棄多線程
             self.DataProcessing(_input)
     
-    # 取得基本訊息(這邊為了通用性,做了較多的數據處理,剛開始會跑比較久)
+    # (這邊為了通用性,做了較多的數據處理,剛開始會跑比較久)
     def DataProcessing(self,Url):
         
         try:
@@ -192,10 +180,6 @@ class SlowAccurate:
 
                 ComicsInternalLinks = []
                 ComicPictureLink = []
-
-                headers = {
-                    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
-                }
 
                 Url = f"https://www.wnacg.com/photos-index-{'page-1'}-aid-{Url.split('aid-')[1]}"
                 reques = self.session.get(Url)
@@ -226,7 +210,7 @@ class SlowAccurate:
                     tasks = []
                     links_set = set()
                     for i in range(1, Home_Pages+1):
-                        tasks.append(asyncio.create_task(GetImageLink(i, headers)))
+                        tasks.append(asyncio.create_task(GetImageLink(i, self.headers)))
                     # 等待完成
                     image_links = await asyncio.gather(*tasks)
                     for link in image_links:
@@ -249,7 +233,7 @@ class SlowAccurate:
                 async def ImageRun():
                     tasks = []
                     for link in ComicsInternalLinks:
-                        tasks.append(asyncio.create_task(GetImage(link, headers)))
+                        tasks.append(asyncio.create_task(GetImage(link, self.headers)))
                     image_links = await asyncio.gather(*tasks)
                     for link in image_links:
                         ComicPictureLink.append(link)
@@ -305,21 +289,12 @@ class SlowAccurate:
     # 轉換漫畫資訊 多本同時下載(單本下載數量很慢)
     def SimultaneousDownload(self,ComicsInternalLinks,MangaURL,NameMerge):
         SaveNameFormat = 1
-
-        headers = {
-            "sec-fetch-dest": "image",
-            "sec-fetch-mode": "no-cors",
-            "sec-fetch-site": "cross-site",
-            "cache-control": "no-cache",
-            "pragma": "no-cache",
-            "sec-gpc": "1",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
-        }
         pbar = tqdm(total=len(ComicsInternalLinks),desc=NameMerge)
+
         for page in ComicsInternalLinks:
             SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
             # 同時下載多本
-            self.Download(os.path.join(dir, NameMerge),SaveName,MangaURL,page,headers)
+            self.Download(os.path.join(dir, NameMerge),SaveName,MangaURL,page,self.headers)
 
             pbar.update(1)
             
@@ -329,24 +304,14 @@ class SlowAccurate:
     # 轉換漫畫資訊 單本下載加速
     def SingleDownload(self,ComicsInternalLinks,MangaURL,NameMerge):
         SaveNameFormat = 1
-
-        headers = {
-            "sec-fetch-dest": "image",
-            "sec-fetch-mode": "no-cors",
-            "sec-fetch-site": "cross-site",
-            "cache-control": "no-cache",
-            "pragma": "no-cache",
-            "sec-gpc": "1",
-            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
-        }
-
         pbar = tqdm(total=len(ComicsInternalLinks),desc=NameMerge)
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=512) as executor:
             
             for page in ComicsInternalLinks:
                 SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
                 # 單本下載加速     
-                executor.submit(self.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , headers)
+                executor.submit(self.Download, os.path.join(dir, NameMerge) , SaveName, MangaURL , page , self.headers)
 
                 pbar.update(1)
 
@@ -369,7 +334,7 @@ class SlowAccurate:
                 f.write(ImageData.content)
         else:print(f"請求錯誤:\n漫畫網址:{MangaURL}\n圖片網址:{Image_URL}")
 
-""" 較快但有些下載不了 (舊方法) """
+""" 較快但有些下載不了 (舊方法未修正) """
 class FastNormal:
 
     # 批量輸入下載
@@ -596,9 +561,9 @@ class FastNormal:
         #刪除名稱中的非法字元
         name = re.sub(r'[<>:"/\\|?*]', '', FolderName)
         try:
-            if self.PathStatus:
+            if FastNormal.PathStatus:
                 os.chdir(os.path.join(".."))
-            else:self.PathStatus = True
+            else:FastNormal.PathStatus = True
         
             os.mkdir(name) # 在該路徑下用漫畫名創建一個空資料夾
             os.chdir(os.path.join(os.getcwd(), name)) # 將預設路徑導入至該資料夾
