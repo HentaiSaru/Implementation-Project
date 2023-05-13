@@ -1,5 +1,5 @@
 from tkinter import filedialog , messagebox
-from Crypto.Util.Padding import pad
+from Crypto.Util.Padding import unpad , pad
 from Crypto.Cipher import AES
 import tkinter as tk
 import threading
@@ -38,11 +38,18 @@ class FRAW:
         self.use_file = False
         self.use_folder = False
 
-    def open_file(self):
+    def Reset(self):
         gui.Content.delete('1.0', tk.END)
+        enc.Cipherbox.clear()
+        enc.ContentBox.clear()
+        dec.ContentBox.clear()
+        dec.RestoreResult.clear()
+        self.ContentBox.clear()
+        self.ContentDictionary.clear()
 
+    def open_file(self):
+        self.Reset()
         try:
-
             data = filedialog.askopenfilename()
 
             if not data:raise FileNotFoundError
@@ -62,8 +69,7 @@ class FRAW:
         except FileNotFoundError:pass    
 
     def open_folder(self):
-        gui.Content.delete('1.0', tk.END)
-
+        self.Reset()
         try:
             data = filedialog.askdirectory()
 
@@ -76,7 +82,7 @@ class FRAW:
 
             for file in os.listdir(self.directory):
 
-                if file.endswith(".txt"):
+                if file.endswith(".txt") or file.endswith(".encr"):
 
                     self.filename = file
                     path = os.path.join(self.directory,file)
@@ -103,7 +109,6 @@ class FRAW:
 class EncryptionCalculus:
     def __init__(self):
         self.key = None
-        self.md5 = None
         self.filename = None
         self.directory = None
         self.ContentBox = []
@@ -112,18 +117,19 @@ class EncryptionCalculus:
     def encryption(self):
         self.key = gui.passwoed
         for self.directory, self.filename, self.ContentBox in op.get_data():
-            self.MD5_Encryption()
+            self.Calculus()
 
-    def MD5_Encryption(self):
+    def Calculus(self):
         try:
-            self.md5 = hashlib.md5(self.key.encode('utf-8'))
-            gui.Content.delete('1.0', tk.END)
-            for md5 in self.ContentBox:
-                self.md5.update(md5.encode('utf-8'))
-                
-                ciphertext = self.md5.hexdigest()
-                Aes = self.AES_Encryption(ciphertext,self.Classical_Encryption(ciphertext))
-                final_ciphertext = self.Binary_Conversion(self.Classical_Encryption(Aes))
+            if self.key != None:
+                gui.Content.delete('1.0', tk.END)
+            else:raise Exception()
+
+            for encryp in self.ContentBox:
+                 
+                classical = self.Classical_Encryption(encryp).encode('utf-8')
+                Aes = self.Classical_Encryption(self.AES_Encryption(classical))
+                final_ciphertext = self.Binary_Conversion(self.Classical_Encryption(Aes)).encode('utf-8').hex()
 
                 threading.Thread(target=gui.Content.insert,args=(tk.END, f"{final_ciphertext}\n")).start()
                 self.Cipherbox.append(final_ciphertext)
@@ -131,13 +137,12 @@ class EncryptionCalculus:
         except Exception as e:
             messagebox.showerror("輸入錯誤","請設置密碼",parent=None)
 
-    def AES_Encryption(self,code,key):
-        md5_bytes = bytes.fromhex(code)
+    def AES_Encryption(self,code):
         key_bytes = pad(self.key.encode('utf-8'),32)
-        iv = bytes.fromhex(key.encode().hex())[:16]
+        iv = b"WeiChanghong8787"
 
         cipher = AES.new(key_bytes, AES.MODE_CBC, iv)
-        plaintext = pad(md5_bytes, AES.block_size)
+        plaintext = pad(code, AES.block_size)
         ciphertext = cipher.encrypt(plaintext)
 
         return ciphertext.hex()
@@ -152,6 +157,65 @@ class EncryptionCalculus:
         save = ""
         for char in code:
             save += chr(ord(char) + len(self.key))
+        return save
+    
+class DecryptionCalculus:
+    def __init__(self):
+        self.key = None
+        self.filename = None
+        self.directory = None
+        self.ContentBox = []
+        self.RestoreResult = []
+
+    def decryption(self):
+        self.key = gui.passwoed
+        self.Calculus()
+        # for self.directory, self.filename, self.ContentBox in op.get_data():
+            # self.MD5_Decryption()
+
+    def Calculus(self):
+        try:
+            if self.key != None:
+                gui.Content.delete('1.0', tk.END)
+            else:raise Exception()
+
+            for decrypt in enc.Cipherbox:
+
+                byte_str = bytes.fromhex(decrypt)
+                unicode_str = byte_str.decode('utf-8')
+
+                Aes_Recovery = self.Classical_Decryption(self.Binary_Conversion(unicode_str))
+                string_restore = self.AES_Decryption(self.Classical_Decryption(Aes_Recovery)).decode('utf-8')
+                final_restoration = self.Classical_Decryption(string_restore)
+            
+                threading.Thread(target=gui.Content.insert,args=(tk.END, f"{final_restoration}\n")).start()
+
+                self.RestoreResult.append(final_restoration)
+
+        except Exception as e:
+            messagebox.showerror("輸入錯誤","請輸入正確密碼",parent=None)
+
+    def AES_Decryption(self,code):
+        key_bytes = pad(self.key.encode('utf-8'), 32)
+        iv = b"WeiChanghong8787"
+
+        cipher = AES.new(key_bytes, AES.MODE_CBC, iv)
+        ciphertext_bytes = bytes.fromhex(code)
+        plaintext_bytes = cipher.decrypt(ciphertext_bytes)
+        plaintext = unpad(plaintext_bytes, AES.block_size)
+
+        return plaintext
+    
+    def Binary_Conversion(self,code):
+        binary_text = bin(int(code, 2) >> len(self.key))[2:].zfill(len(code))
+        hex_text = hex(int(binary_text, 2))[2:]
+        restore = binascii.unhexlify(hex_text.encode()).decode()
+        return restore
+    
+    def Classical_Decryption(self,code):
+        save = ""
+        for char in code:
+            save += chr(ord(char) - len(self.key))
         return save
 
 class GUI:
@@ -223,7 +287,7 @@ class GUI:
 
     def decrypt_button(self):
         
-        self.decrypt.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground)
+        self.decrypt.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=dec.decryption)
         self.decrypt.place(x=820,y=60)
 
     def overwrite_output(self):
@@ -238,6 +302,7 @@ class GUI:
 
 if __name__ == "__main__":
     enc = EncryptionCalculus()
+    dec = DecryptionCalculus()
     gui = GUI() 
     op = FRAW()
 
