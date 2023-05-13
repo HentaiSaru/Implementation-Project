@@ -20,6 +20,7 @@ pip install cx_Freeze
 ::------------------------::
 :: 加密
 pip install tinyaes
+pip install pycryptodome
 :: 解密反編譯
 pip install uncompyle6
 ::------------------------::
