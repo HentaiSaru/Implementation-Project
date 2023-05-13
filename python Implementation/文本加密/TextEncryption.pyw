@@ -1,6 +1,10 @@
 from tkinter import filedialog , messagebox
-import threading
+from Crypto.Util.Padding import pad
+from Crypto.Cipher import AES
 import tkinter as tk
+import threading
+import binascii
+import hashlib
 import os
 
 root = tk.Tk()
@@ -30,14 +34,21 @@ class FRAW:
         self.filename = None
         self.directory = None
         self.ContentBox = []
+        self.ContentDictionary = {}
+        self.use_file = False
+        self.use_folder = False
 
     def open_file(self):
+        gui.Content.delete('1.0', tk.END)
 
         try:
 
             data = filedialog.askopenfilename()
 
             if not data:raise FileNotFoundError
+
+            self.use_file = True
+            self.use_folder = False
 
             self.filename = os.path.basename(data)
             self.directory = os.path.dirname(data)
@@ -48,27 +59,100 @@ class FRAW:
                     self.ContentBox.append(line)
                     threading.Thread(target=gui.Content.insert,args=(tk.END, f"{line}\n")).start()
 
-        except FileNotFoundError:pass
-            
+        except FileNotFoundError:pass    
 
     def open_folder(self):
-        pass
+        gui.Content.delete('1.0', tk.END)
+
+        try:
+            data = filedialog.askdirectory()
+
+            if not data:raise FileNotFoundError
+
+            self.use_folder = True
+            self.use_file = False     
+
+            self.directory = os.path.abspath(data)
+
+            for file in os.listdir(self.directory):
+
+                if file.endswith(".txt"):
+
+                    self.filename = file
+                    path = os.path.join(self.directory,file)
+                    threading.Thread(target=gui.Content.insert,args=(tk.END, f"{self.filename}\n")).start()
+
+                    with open(path,'r',encoding='utf-8') as f:
+                        for line in f:
+                            line = line.strip()
+                            self.ContentBox.append(line)
+
+                    self.ContentDictionary[self.filename] = self.ContentBox.copy()
+                    self.ContentBox.clear()
+
+        except FileNotFoundError:pass
 
     def get_data(self):
-        return self.directory , self.filename , self.ContentBox
 
+        if self.use_file:
+            yield self.directory , self.filename , self.ContentBox
+
+        elif self.use_folder:
+            for filename , ContentBox in self.ContentDictionary.items():
+                yield self.directory,filename,ContentBox
 class EncryptionCalculus:
     def __init__(self):
         self.key = None
+        self.md5 = None
         self.filename = None
         self.directory = None
         self.ContentBox = []
+        self.Cipherbox = []
     
     def encryption(self):
-        self.directory , self.filename , self.ContentBox = op.get_data()
         self.key = gui.passwoed
-        print(self.filename)
-        print(self.key)
+        for self.directory, self.filename, self.ContentBox in op.get_data():
+            self.MD5_Encryption()
+
+    def MD5_Encryption(self):
+        try:
+            self.md5 = hashlib.md5(self.key.encode('utf-8'))
+            gui.Content.delete('1.0', tk.END)
+            for md5 in self.ContentBox:
+                self.md5.update(md5.encode('utf-8'))
+                
+                ciphertext = self.md5.hexdigest()
+                Aes = self.AES_Encryption(ciphertext,self.Classical_Encryption(ciphertext))
+                final_ciphertext = self.Binary_Conversion(self.Classical_Encryption(Aes))
+
+                threading.Thread(target=gui.Content.insert,args=(tk.END, f"{final_ciphertext}\n")).start()
+                self.Cipherbox.append(final_ciphertext)
+
+        except Exception as e:
+            messagebox.showerror("輸入錯誤","請設置密碼",parent=None)
+
+    def AES_Encryption(self,code,key):
+        md5_bytes = bytes.fromhex(code)
+        key_bytes = pad(self.key.encode('utf-8'),32)
+        iv = bytes.fromhex(key.encode().hex())[:16]
+
+        cipher = AES.new(key_bytes, AES.MODE_CBC, iv)
+        plaintext = pad(md5_bytes, AES.block_size)
+        ciphertext = cipher.encrypt(plaintext)
+
+        return ciphertext.hex()
+    
+    def Binary_Conversion(self,code):
+        hex_text = binascii.hexlify(code.encode()).decode()
+        binary_text = bin(int(hex_text, 16))[2:]
+        displacement = bin(int(binary_text, 2) << len(self.key))[2:]
+        return displacement
+
+    def Classical_Encryption(self,code):
+        save = ""
+        for char in code:
+            save += chr(ord(char) + len(self.key))
+        return save
 
 class GUI:
     def __init__(self):
@@ -100,7 +184,7 @@ class GUI:
 
     def folder_selection(self):
         
-        self.folder_button.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground)
+        self.folder_button.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=op.open_folder)
         self.folder_button.place(x=10,y=60)
 
     def password_input_box(self):
