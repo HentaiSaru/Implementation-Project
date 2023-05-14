@@ -162,6 +162,10 @@ class basic:
             os.startfile(folder_path)
 
     def Reselect(self):
+        self.SaveBox.clear()
+        self.ConversionBox.clear()
+        self.Content.delete("1.0", "end")
+        
         self.open_file()
         self.CreateOutput.destroy()
         self.OverwriteOutput.destroy()
