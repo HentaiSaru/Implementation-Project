@@ -4,7 +4,6 @@ from Crypto.Cipher import AES
 import tkinter as tk
 import threading
 import binascii
-import hashlib
 import os
 
 root = tk.Tk()
@@ -63,8 +62,8 @@ class FRAW:
             with open(data,'r',encoding='utf-8') as f:
                 for line in f:
                     line = line.strip()
-                    self.ContentBox.append(line)
                     threading.Thread(target=gui.Content.insert,args=(tk.END, f"{line}\n")).start()
+                    self.ContentBox.append(line)
 
         except FileNotFoundError:pass    
 
@@ -105,7 +104,7 @@ class FRAW:
 
         elif self.use_folder:
             for filename , ContentBox in self.ContentDictionary.items():
-                yield self.directory,filename,ContentBox
+                yield self.directory , filename , ContentBox
 class EncryptionCalculus:
     def __init__(self):
         self.key = None
@@ -158,7 +157,6 @@ class EncryptionCalculus:
         for char in code:
             save += chr(ord(char) + len(self.key))
         return save
-    
 class DecryptionCalculus:
     def __init__(self):
         self.key = None
@@ -169,9 +167,8 @@ class DecryptionCalculus:
 
     def decryption(self):
         self.key = gui.passwoed
-        self.Calculus()
-        # for self.directory, self.filename, self.ContentBox in op.get_data():
-            # self.MD5_Decryption()
+        for self.directory, self.filename, self.ContentBox in op.get_data():
+            self.Calculus()
 
     def Calculus(self):
         try:
@@ -179,7 +176,7 @@ class DecryptionCalculus:
                 gui.Content.delete('1.0', tk.END)
             else:raise Exception()
 
-            for decrypt in enc.Cipherbox:
+            for decrypt in self.ContentBox:
 
                 byte_str = bytes.fromhex(decrypt)
                 unicode_str = byte_str.decode('utf-8')
@@ -192,8 +189,14 @@ class DecryptionCalculus:
 
                 self.RestoreResult.append(final_restoration)
 
+        except ValueError:
+            messagebox.showerror(
+                "操作錯誤",
+                "可能的錯誤:\n1. 無開啟被加密文件\n2. 輸入了錯誤的密碼\n",
+                parent=None
+            )
         except Exception as e:
-            messagebox.showerror("輸入錯誤","請輸入正確密碼",parent=None)
+            messagebox.showerror("輸入錯誤","請輸入解密密碼",parent=None)
 
     def AES_Decryption(self,code):
         key_bytes = pad(self.key.encode('utf-8'), 32)
@@ -217,7 +220,6 @@ class DecryptionCalculus:
         for char in code:
             save += chr(ord(char) - len(self.key))
         return save
-
 class GUI:
     def __init__(self):
         self.passwoed = None
@@ -292,13 +294,48 @@ class GUI:
 
     def overwrite_output(self):
         
-        self.overwrite.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground)
+        self.overwrite.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=SaveOutput.Overwrite)
         self.overwrite.place(x=1000,y=10)
 
     def new_output(self):
 
-        self.new.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground)
+        self.new.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=SaveOutput.Create)
         self.new.place(x=1000,y=60)
+class SaveOutput:
+
+    def Create():
+        directory = enc.directory
+        filename = enc.filename
+        if directory == None:
+            messagebox.showerror("操作錯誤","沒有進行加解密操作",parent=None)
+        else:
+            ChangeName = os.path.join(directory,f'{filename.split(".")[0]}.encr')
+            
+            with open(ChangeName, "w", encoding="utf-8") as f:
+                for data in gui.Content.get("1.0", "end-1c"):
+                    f.write(data)
+
+            choose = messagebox.askquestion("輸出成功", "以輸出完畢,是否要開啟輸出位置")
+            if choose == "yes":
+                folder_path = os.path.dirname(directory)
+                os.startfile(folder_path)
+
+    def Overwrite():
+        directory = enc.directory
+        filename = enc.filename
+        if directory == None:
+            messagebox.showerror("操作錯誤","沒有進行加解密操作",parent=None)
+        else:
+            ChangeName = os.path.join(directory,filename)
+
+            with open(ChangeName, "w", encoding="utf-8") as f:
+                for data in gui.Content.get("1.0", "end-1c"):
+                    f.write(data)
+
+            choose = messagebox.askquestion("輸出成功", "以輸出完畢,是否要開啟輸出位置")
+            if choose == "yes":
+                folder_path = os.path.dirname(directory)
+                os.startfile(folder_path)
 
 if __name__ == "__main__":
     enc = EncryptionCalculus()
