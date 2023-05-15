@@ -1,14 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
-block_cipher = pyi_crypto.PyiBlockCipher(key='')
+block_cipher = pyi_crypto.PyiBlockCipher(key='X?44tNJ!Umu!WbY6b!dF2C2-zjZ?9N5r5l-!-q1pu-m9-9tqB0JRa?n!m!pn!-BD-nEbsm6JQlmOf-P56ng2?Lq8?3?!f9f?ZpKG')
 
 
 a = Analysis(
     ['TextEncryption.pyw'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('encrypted.ico', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
