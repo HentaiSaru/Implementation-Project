@@ -4,10 +4,13 @@ from Crypto.Cipher import AES
 import tkinter as tk
 import threading
 import binascii
+import hashlib
+import base64
+import zlib
 import os
 
 """
-Versions 1.0
+Versions 1.1
 
 [+] 多重加密
 [+] 批量加解密
@@ -160,6 +163,40 @@ class FRAW:
             elif self.use_folder:
                 for filename , ContentBox in self.decryption_dictionary.items():
                     yield self.directory , filename , ContentBox
+
+def MD5_Key(string):
+
+    md5 = hashlib.md5()
+    merge = ""
+
+    md5.update(string.encode('utf-8'))
+    results = md5.hexdigest()
+
+    for i in range(16):
+        char_sum = ord(results[i]) + ord(results[i+1])
+        char_sum %= 94
+        char_sum += 33
+        merge += chr(char_sum)
+
+    return (merge + merge[::-1]).encode('utf-8')
+
+def MD5_IV(string):
+
+    md5 = hashlib.md5()
+    merge = ""
+
+    md5.update(string.encode('utf-8'))
+    results = md5.hexdigest()
+    a_str = results[:16]
+    b_str = results[16:]
+
+    for i in range(16):
+        char_sum = ord(a_str[i]) + ord(b_str[i])
+        char_sum %= 94
+        char_sum += 33
+        merge += chr(char_sum)
+
+    return merge.encode("utf-8")
 class EncryptionCalculus:
     def __init__(self):
         self.key = None
@@ -194,7 +231,7 @@ class EncryptionCalculus:
                 self.OffsetCount += len(self.key)
                 final_ciphertext = self.Binary_Conversion(self.Classical_Encryption(Aes)).encode('utf-8').hex()
 
-                self.Cipherbox.append(final_ciphertext)
+                self.Cipherbox.append(self.Compression(final_ciphertext))
 
             threading.Thread(target=gui.Content.insert,args=(tk.END, f"{self.filename} - 加密完畢\n")).start()
             self.BatchDictionary[self.filename] = self.Cipherbox.copy()
@@ -203,14 +240,17 @@ class EncryptionCalculus:
             messagebox.showerror("輸入錯誤","請設置密碼",parent=None)
 
     def AES_Encryption(self,code):
-        key_bytes = pad(self.key.encode('utf-8'),32)
-        iv = b"WeiChanghong8787"
 
-        cipher = AES.new(key_bytes, AES.MODE_CBC, iv)
+        cipher = AES.new(MD5_Key(self.key), AES.MODE_CBC, MD5_IV(self.key))
         plaintext = pad(code, AES.block_size)
         ciphertext = cipher.encrypt(plaintext)
 
         return ciphertext.hex()
+    
+    def Compression(self,code):
+
+        com = zlib.compress(code.encode('utf-8'))
+        return base64.b64encode(com).decode('utf-8')
     
     def Binary_Conversion(self,code):
         hex_text = binascii.hexlify(code.encode()).decode()
@@ -249,7 +289,7 @@ class DecryptionCalculus:
 
             for decrypt in self.ContentBox:
 
-                byte_str = bytes.fromhex(decrypt)
+                byte_str = bytes.fromhex(self.Decompressed(decrypt).decode('utf-8'))
                 unicode_str = byte_str.decode('utf-8')
 
                 self.OffsetCount = 2
@@ -263,7 +303,7 @@ class DecryptionCalculus:
 
                 self.OffsetCount -= int(InitialOffset / 2)
                 final_restoration = self.Classical_Decryption(string_restore)
-            
+ 
                 threading.Thread(target=gui.Content.insert,args=(tk.END, f"{final_restoration}\n")).start()
 
                 self.RestoreResult.append(final_restoration)
@@ -280,15 +320,18 @@ class DecryptionCalculus:
             messagebox.showerror("輸入錯誤","請輸入解密密碼",parent=None)
 
     def AES_Decryption(self,code):
-        key_bytes = pad(self.key.encode('utf-8'), 32)
-        iv = b"WeiChanghong8787"
 
-        cipher = AES.new(key_bytes, AES.MODE_CBC, iv)
+        cipher = AES.new(MD5_Key(self.key), AES.MODE_CBC, MD5_IV(self.key))
         ciphertext_bytes = bytes.fromhex(code)
         plaintext_bytes = cipher.decrypt(ciphertext_bytes)
         plaintext = unpad(plaintext_bytes, AES.block_size)
 
         return plaintext
+    
+    def Decompressed(self,code):
+
+        com = base64.b64decode(code)
+        return zlib.decompress(com)
     
     def Binary_Conversion(self,code):
         binary_text = bin(int(code, 2) >> (len(self.key) + self.OffsetCount))[2:].zfill(len(code))
