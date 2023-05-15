@@ -1,4 +1,4 @@
-from tkinter import filedialog , messagebox
+from tkinter import filedialog , messagebox , colorchooser
 from Crypto.Util.Padding import unpad , pad
 from Crypto.Cipher import AES
 import tkinter as tk
@@ -25,7 +25,7 @@ Versions 1.1
 """
 
 root = tk.Tk()
-root.title("文本加密程式 v1.0")
+root.title("文本加密程式 v1.1")
 
 Icon = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'encrypted.ico')
 root.iconbitmap(Icon)
@@ -359,11 +359,13 @@ class GUI:
 
         self.file_button = tk.Button(self.top_frame , text="文件檔選擇")
         self.folder_button = tk.Button(self.top_frame , text="文件夾選擇")
+        self.text_box_color = tk.Button(self.top_frame , text="文本框文字色選擇")
+        self.background_frame_color = tk.Button(self.top_frame , text="文本框背景色選擇")
         self.encryption = tk.Button(self.top_frame , text="文本加密")
         self.decrypt = tk.Button(self.top_frame , text="文本解密")
         self.overwrite = tk.Button(self.top_frame , text="覆蓋輸出")
         self.new = tk.Button(self.top_frame , text="新建輸出")
-        self.password = tk.Entry(self.top_frame, font=("Microsoft Positive Bold", 50), width=17 , justify='center' , borderwidth=1, highlightthickness=2 , bg=PasswordBox , fg=DisplayText)
+        self.password = tk.Entry(self.top_frame, font=("Microsoft Positive Bold", 35), width=17 , justify='center' , borderwidth=1, highlightthickness=2 , bg=PasswordBox , fg=DisplayText)
         self.Scrollbar = tk.Scrollbar(self.scroll_bar_frame,cursor='hand2',relief="raised",width=23)
         self.Content = tk.Text(self.text_frame , bg=ChooseBackground , fg=root['background'] , yscrollcommand=self.Scrollbar.set)
 
@@ -377,9 +379,31 @@ class GUI:
         self.folder_button.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=op.open_folder)
         self.folder_button.place(x=10,y=60)
 
+    def text_choose_color(self):
+
+        color = colorchooser.askcolor(title="文字顏色選擇")
+        if color[1]:
+            self.Content.config(fg=color[1])
+
+    def background_choose_color(self):
+
+        color = colorchooser.askcolor(title="文字框背景顏色選擇")
+        if color[1]:
+            self.Content.config(bg=color[1])
+
+    def text_color(self):
+
+        self.text_box_color.config(font=("Arial Bold", 16), width=14, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=self.text_choose_color)
+        self.text_box_color.place(x=634,y=60)
+
+    def background_color(self):
+
+        self.background_frame_color.config(font=("Arial Bold", 16), width=14, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=self.background_choose_color)
+        self.background_frame_color.place(x=634,y=10)
+
     def password_input_box(self):
   
-        self.password.place(x=200,y=20)
+        self.password.place(x=195,y=47)
         self.password.insert(0,"密碼設置")
 
         def FocusInput(event):
@@ -409,22 +433,22 @@ class GUI:
     def encryption_button(self):
         
         self.encryption.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=enc.encryption)
-        self.encryption.place(x=820,y=10)
+        self.encryption.place(x=835,y=10)
 
     def decrypt_button(self):
         
         self.decrypt.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=dec.decryption)
-        self.decrypt.place(x=820,y=60)
+        self.decrypt.place(x=835,y=60)
 
     def overwrite_output(self):
         
         self.overwrite.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=SaveOutput.Overwrite)
-        self.overwrite.place(x=1000,y=10)
+        self.overwrite.place(x=1010,y=10)
 
     def new_output(self):
 
         self.new.config(font=("Arial Bold", 16), width=12, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=SaveOutput.Create)
-        self.new.place(x=1000,y=60)
+        self.new.place(x=1010,y=60)
 class SaveOutput:
 
     def RetrieveData():
@@ -498,11 +522,18 @@ if __name__ == "__main__":
 
     gui.file_selection()
     gui.folder_selection()
+
+    gui.text_color()
+    gui.background_color()
+
     gui.password_input_box()
+
     gui.encryption_button()
     gui.decrypt_button()
+
     gui.overwrite_output()
     gui.new_output()
+
     gui.encryption_display_box()
 
     root.mainloop()
