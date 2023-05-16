@@ -12,6 +12,7 @@ import os
 """
 Versions 1.1
 
+[+] 顯示換色
 [+] 多重加密
 [+] 批量加解密
 [+] 批量加密輸出
@@ -163,7 +164,6 @@ class FRAW:
             elif self.use_folder:
                 for filename , ContentBox in self.decryption_dictionary.items():
                     yield self.directory , filename , ContentBox
-
 def MD5_Key(string):
 
     md5 = hashlib.md5()
@@ -179,7 +179,6 @@ def MD5_Key(string):
         merge += chr(char_sum)
 
     return (merge + merge[::-1]).encode('utf-8')
-
 def MD5_IV(string):
 
     md5 = hashlib.md5()
