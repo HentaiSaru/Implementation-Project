@@ -316,8 +316,9 @@ class script:
 
         # 點選簽到位置 (已經簽到的就會找不到,因此當沒找到時,要讓他跳過)
         try:
-            Genshinbutton = WebDriverWait(Genshindriver,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
-            Genshinbutton.click()
+            for _ in range(3): # 測試
+                Genshinbutton = WebDriverWait(Genshindriver,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
+                Genshinbutton.click()
         except:pass
 
         # 如果沒有登入的話,幫你點推特登入
