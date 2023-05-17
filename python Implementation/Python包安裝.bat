@@ -89,7 +89,7 @@ pip install pywin32
 pip install mss
 ::------------------------::
 :: 創建GUI
-pip install PyQt5
+pip install PyQt6
 :: 創建系托盤圖標和菜單
 pip install pystray
 :: 自動化GUI交互
