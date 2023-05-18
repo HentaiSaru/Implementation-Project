@@ -6,9 +6,8 @@
 *.exe
 *.pt
 *default
-pypy3.9
-Virtual
 
 可用網址.bat
 影片教學.txt
+TextEncryption.pyw
 VideoDownloader.py
