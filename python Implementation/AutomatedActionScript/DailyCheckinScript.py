@@ -305,7 +305,7 @@ class script:
     def Open_Genshin(Sc):
 
         Genshindriver = webdriver.Chrome(options=add("Genshin"))
-        Genshindriver.get("https://act.hoyolab.com/ys/event/signin-sea-v3/index.html?act_id=e202102251931481")
+        Genshindriver.get("https://act.hoyolab.com/ys/event/signin-sea-v3/index.html?act_id=e202102251931481&hyl_auth_required=true&hyl_presentation_style=fullscreen&lang=zh-tw&bbs_theme=dark&bbs_theme_device=1")
         Genshindriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
         # 關閉彈出窗口,如果有的話
