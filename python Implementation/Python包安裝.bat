@@ -50,6 +50,9 @@ pip install feedparser
 pip install chardet
 :: 語言文字轉換
 pip install opencc
+:: 字串比對
+pip install fuzzywuzzy
+pip install python-Levenshtein
 ::------------------------::
 :: 事件檢測與進程相關資訊
 pip install psutil
