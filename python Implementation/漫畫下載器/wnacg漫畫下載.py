@@ -1,4 +1,5 @@
 from urllib.parse import unquote , urlparse
+from fuzzywuzzy import fuzz
 import concurrent.futures
 from lxml import etree
 from tqdm import tqdm
@@ -47,8 +48,8 @@ os.chdir(dir)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     [+] 修改網址判斷方式
+    [-] 嘗試添加判斷網址重複 , 進行分類失敗 , 網址格式太亂 , 如果要進行分類 , 不能剔除過多的數據 , 會導致相似度判斷時常錯誤
     [*] 待修正,修改判斷網址方式後遺留的非必要代碼
-    [*] 待修復重複下載漫畫下載問題(有點懶~)
     [*] 待修復有時候線程無法終止問題(程式無法自行結束)
     
 """
@@ -87,6 +88,11 @@ class SlowAccurate:
         # 隊列保存
         self.Work = queue.Queue()
 
+        # 網址處理保存
+        self.data = []
+        # 批量處理結果
+        self.results = None
+
     # 網址分類
     def URL_Classification(self,box):
         
@@ -118,7 +124,7 @@ class SlowAccurate:
         AllLinks = []
 
         if re.match(self.SearchPage,url):
-            url = f'https://www.wnacg.com/search/?q={url.split("?q=")[1].split("&")[0]}'
+            url = f'https://www.wnacg.com/search/?q={url.split("?q=")[1].split("&")[0]}&f=_all&s=create_time_DESC&syn=yes'
         elif re.match(self.TagPage,url):
             url = f'https://www.wnacg.com/albums-index-page-1-tag-{url.split("-tag-")[1]}'
 
@@ -127,24 +133,24 @@ class SlowAccurate:
         parser = etree.HTMLParser()
         tree = etree.fromstring(request.content, parser)
 
-        # 獲取總共的頁數(只有一頁的會錯誤)
+        # 獲取總共的頁數(功能測試有時候會有莫名的Bug)
         try:
             if re.match(self.SearchPage,url):
                 TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()]/text()')[0]
             elif re.match(self.TagPage,url):
-                TotalPages = tree.xpath('//div[@class="f_left paginator"]/a[last()-1]/text()')[0]
+                TotalPages = tree.xpath('//div[@class="f_left paginator"]/a/text()')[-1]
         except:TotalPages = "1"
 
         # 獲取頁面所有URL
         async def GetLink(session, url):
             async with session.get(url) as response:
                 html = await response.text()
-                tree = etree.fromstring(html, parser)
-                links = []
-                for i in tree.xpath('//div[@class="pic_box"]'):
+                tree = etree.fromstring(html,parser)
+                for i in tree.xpath('//div[@class="title"]'):
                     link = f"https://www.wnacg.com{i.find('a').get('href')}"
-                    links.append(link)
-                return links
+                    #title = re.sub(r'<.*?>|<|>','', i.find('a').get('title'))
+                    self.data.append(link)
+            return self.data
             
         # 將所有頁面網址輸出,再將網址全部使用GetLink獲取頁面所有網址
         async def RanGet(url):
@@ -152,24 +158,20 @@ class SlowAccurate:
                 PageList = []
                 for page in range(int(TotalPages)):
                     if int(TotalPages) != 1 and re.match(self.SearchPage,url):
-                        url = f"https://www.wnacg.com/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=&p={page+1}"
+                        PaginationLink = f"https://www.wnacg.com/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=create_time_DESC&p={page+1}"
                     elif int(TotalPages) != 1 and re.match(self.TagPage,url):
-                        url = f"https://www.wnacg.com/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
-                    PageList.append(url)
-                    
+                        PaginationLink = f"https://www.wnacg.com/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                    PageList.append(PaginationLink)
                 tasks = []
                 for page in PageList:
                     task = asyncio.create_task(GetLink(session, page))
                     tasks.append(task)
-                results = await asyncio.gather(*tasks)
-
-                for links in results:
-                    AllLinks.extend(links)
-
+                self.results = await asyncio.gather(*tasks)
+        
         asyncio.run(RanGet(url))
 
-        for _input in AllLinks: # 懶得處理線程鎖,廢棄多線程
-            self.DataProcessing(_input)
+        for Enter in self.results:
+            self.DataProcessing(Enter)
     
     # (這邊為了通用性,做了較多的數據處理,剛開始會跑比較久)
     def DataProcessing(self,Url):
