@@ -469,10 +469,8 @@ if __name__ == "__main__":
     threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
     time.sleep(1)
     threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
-    # 原神簽到
     time.sleep(1)
     threading.Thread(target=script.Open_Genshin,args=(10,)).start()
-    # 星穹鐵道簽到
     time.sleep(1)
     threading.Thread(target=script.Open_StarRail,args=(10,)).start()
 
