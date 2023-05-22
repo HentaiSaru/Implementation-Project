@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import *
 from tqdm import tqdm
 import threading
 import shutil
-import sys
 import os
 
 """ 簡易版檔案分類
@@ -71,7 +70,7 @@ class output:
             threading.Thread(target=self.copy_output,args=(out,new_path)).start()
             pbar.update(1)
 
-        choose = QMessageBox.question(None, "輸出完畢", "是否開啟存檔位置",QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        choose = QMessageBox.question(None, "輸出完畢", "是否開啟存檔位置", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         if choose == QMessageBox.StandardButton.Yes:
             os.startfile(self.save_route)
 
