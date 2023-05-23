@@ -12,6 +12,8 @@ Versions 1.0
 [+] 設置分類副檔名
 [+] 多線程複製輸出
 
+[*] 進階GUI版考慮製作
+
 """
 
 app = QApplication([])
@@ -43,7 +45,7 @@ class DataRead:
 
             if len(name) != 0:
 
-                for _filter_ in name:
+                for _filter_ in name: # 這邊可以嘗試將所有類型檔案,變成圓餅圖顯示
                     Complete = os.path.join(path,_filter_)
                     if Complete.endswith(f".{filter}"):
                         self.filter_data.append(Complete.replace("\\","/"))
