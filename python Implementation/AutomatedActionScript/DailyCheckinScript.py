@@ -96,7 +96,11 @@ class GetParametric():
             seconds_to_wait = (datetime.datetime.combine(datetime.date.today(), TargetTime) - datetime.datetime.combine(datetime.date.today(), current_time)).seconds
         else:
             seconds_to_wait = (datetime.datetime.combine(datetime.date.today() + datetime.timedelta(days=1), TargetTime) - datetime.datetime.combine(datetime.date.today(), current_time)).seconds
-        return seconds_to_wait
+        
+        if seconds_to_wait > 120:
+            return 5
+        else:
+            return seconds_to_wait
 
     # 讀取pkl保存的資料並打印出來
     def CookieView(self,path,pkl):
@@ -465,7 +469,7 @@ if __name__ == "__main__":
     # ===== 網站簽到 =====
     # 後方的 args 是用於傳遞 tuple 內的數值 , 設置窗口關閉的延遲時間
     threading.Thread(target=script.Open_black,args=(5,)).start()
-    time.sleep(GetParametric().WaitingTime()+20)
+    time.sleep(GetParametric().WaitingTime()+10)
     threading.Thread(target=script.Open_Wuyong,args=(5,)).start()
     time.sleep(1)
     threading.Thread(target=script.Open_miaoaaa,args=(15,)).start()
