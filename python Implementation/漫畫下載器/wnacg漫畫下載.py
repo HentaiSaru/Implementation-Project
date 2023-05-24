@@ -48,22 +48,11 @@ os.chdir(dir)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     [+] 修改網址判斷方式
+    [+] 修復下載完畢中止問題
     [-] 嘗試添加判斷網址重複 , 進行分類失敗 , 網址格式太亂 , 如果要進行分類 , 不能剔除過多的數據 , 會導致相似度判斷時常錯誤
     [*] 待修正,修改判斷網址方式後遺留的非必要代碼
-    [*] 待修復有時候線程無法終止問題(程式無法自行結束)
     
 """
-
-# 計算運行線程數 (需要修正)
-def Threading():
-    count = 0
-    while True:
-        time.sleep(1)
-        if threading.active_count() == 4:count += 1
-        else:count = 0
-
-        if count == 3:
-            os._exit(0)
 
 """ 較慢但通用多種下載 (新方法) """
 class SlowAccurate:
@@ -588,10 +577,10 @@ class FastNormal:
 if __name__ == "__main__":
 
     Slow = SlowAccurate()
-    """計算運行線程,用於結束程式運行"""
-    threading.Thread(target=Threading).start()
     """加速工作隊列"""
-    threading.Thread(target=Slow.DownloadWork).start()
+    WorkQueue = threading.Thread(target=Slow.DownloadWork)
+    WorkQueue.daemon = True
+    WorkQueue.start()
     
     """~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"""
 
