@@ -1,9 +1,10 @@
-import random
-from undetected_chromedriver import Chrome, ChromeOptions, install
 import multiprocessing
+import pyperclip
 import threading
 import requests
+import keyboard
 import time
+import re
 import os
 dir = os.path.abspath("R:/") # 可更改預設路徑
 os.chdir(dir)
@@ -31,15 +32,37 @@ def Download(Path,SaveName,Image_URL,headers):
             with open(SaveName,"wb") as f:
                 f.write(ImageData.content)
 
-def test():
-    install(path="R:/chromedriver.exe")
-    Settings = Chrome.ChromeOptions()
-    Settings.add_argument(f"--remote-debugging-port={random.randint(1024,65535)}")
-    browser = Chrome.Chrome(Settings)
-    browser.get("https://www.google.com.tw/" , executable_path="C:/my_chromedriver.exe")
-    time.sleep(10)
 
+class AutomaticCopy:
+    def __init__(self):
+        self.initial = r"https://nhentai.*"
+        self.download_trigger = False
+        self.clipboard_cache = None
 
-# for _ in range(5):
-#     threading.Thread(target=test).start()
-install(path="R:/chromedriver.exe")
+    def Read_clipboard(self):
+        while True:
+            clipboard = pyperclip.paste()
+            time.sleep(0.3)
+
+            if self.download_trigger:
+                print("開始下載")
+                break
+
+            elif clipboard != self.clipboard_cache and re.match(self.initial,clipboard): 
+                print(clipboard)
+                self.clipboard_cache = clipboard
+
+    def Download_command(self):
+         
+        while True:
+            if keyboard.is_pressed("alt+s"):
+                self.download_trigger = True
+                while keyboard.is_pressed("alt+s"):
+                    pass
+
+copy = AutomaticCopy()
+threading.Thread(target=copy.Read_clipboard).start()
+
+command = threading.Thread(target=copy.Download_command)
+command.daemon = True
+command.start()
