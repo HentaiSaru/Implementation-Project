@@ -65,6 +65,8 @@ pip install schedule
 pip install packaging
 :: 檔案下載
 pip install wget
+:: 讀取剪貼簿
+pip install pyperclip
 ::------------------------::
 :: 數值分析
 pip install numpy
