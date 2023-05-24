@@ -7,8 +7,11 @@ from lxml import etree
 from tqdm import tqdm
 import cloudscraper
 import threading
+import pyperclip
 import requests
+import keyboard
 import random
+import time
 import sys
 import re
 import os
@@ -91,15 +94,8 @@ class Verify:
             else:pass
 
         else:
-            # 將匹配的單條網址,傳入陣列,並導入請求
-            if re.match(self.mangapage,enter):
-                print("成功匹配...\n")
-
-                self.correctbox.append(enter)
-                self.run(self.correctbox)
-
             # 匹配搜尋頁面
-            elif re.match(self.search,enter):
+            if re.match(self.search,enter):
                 print("成功匹配...\n")
 
                 Auto = Automation(self.head)
@@ -236,20 +232,74 @@ class ComicsHomePage:
             with open(os.path.join(location,picturename),"wb") as f:
                 f.write(ImageData.content)
 download = ComicsHomePage()
+# 自動擷取剪貼簿
+class AutomaticCapture:
+    def __init__(self):
+        self.initial = r"https://nhentai/.*"
+        self.download_trigger = False
+        self.clipboard_cache = None # 緩存用於辨識狀態改變
+        self.download_list = set() # 保存輸入網址避免重複使用set
+
+    def Read_clipboard(self):
+        pyperclip.copy('')
+        while True:
+            clipboard = pyperclip.paste()
+            time.sleep(0.3)
+
+            # 下載觸發(將set轉成list,開始下載)
+            if self.download_trigger:
+                os.system("cls")
+                download.enter(list(self.download_list))
+                break
+
+            elif clipboard != self.clipboard_cache and re.match(self.initial,clipboard): # 基本驗證擷取格式
+                print(f"以擷取的網址:{clipboard}")
+                self.download_list.add(clipboard)
+                self.clipboard_cache = clipboard
+
+    def Download_command(self):
+        # 持續監測鍵盤按鍵是否為 alt+s
+        while True:
+            if keyboard.is_pressed("alt+s"):
+                self.download_trigger = True
+                while keyboard.is_pressed("alt+s"):
+                    pass
+
 """
 該網站的反爬機制,無法使用免費版的cloudscraper進行繞過,因此使用自動化操作
 有時候會被機器人驗證卡住,需要重新啟動
+!! 下載速度慢是正常的 , 他是模擬人類操作 , 一頁一頁去下載圖片(要快就要用js插件 但有時會卡住)
 
 製作想法:
 同名分類與排除
 tag標籤排除
 """
 if __name__ == "__main__":
-    # list 傳遞目前只適用於漫畫連結 , 搜尋連結不適用 
-    Batch_Box = [""]
 
     # 當無法正常啟用自動化窗口時 , 就啟用該方法 !!Google會被關掉
     # reset()
 
+    # list 傳遞目前只適用於漫畫連結 , 搜尋連結不適用 
+    Batch_Box = []
+
+###########################################################
+
+    #? 客製化下載方法
+
     # url , 頁數 , 隱藏窗口 (url可輸入,單本漫畫/搜尋連結/Batch_Box的list)
-    download.enter("#")
+    # download.enter(Batch_Box)
+
+###########################################################
+
+    #? 自動擷取剪貼簿(只適用單本漫畫連結)
+
+    print("自動擷取下載(如要使用搜尋頁面,使用客製化方法下載)\n複製網址完畢後 , 按下 Alt+S 開始下載")
+
+    capture = AutomaticCapture()
+    # 監聽剪貼版線程
+    threading.Thread(target=capture.Read_clipboard).start()
+
+    # 監聽鍵盤觸發下載(設置為守護線程,當主線程結束,守護線程自動終止)
+    command = threading.Thread(target=capture.Download_command)
+    command.daemon = True
+    command.start()
