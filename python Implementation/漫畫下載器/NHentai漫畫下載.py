@@ -235,7 +235,7 @@ download = ComicsHomePage()
 # 自動擷取剪貼簿
 class AutomaticCapture:
     def __init__(self):
-        self.initial = r"https://nhentai/.*"
+        self.initial = r"https://nhentai.*"
         self.download_trigger = False
         self.clipboard_cache = None # 緩存用於辨識狀態改變
         self.download_list = set() # 保存輸入網址避免重複使用set
