@@ -3,8 +3,10 @@ from fuzzywuzzy import fuzz
 import concurrent.futures
 from lxml import etree
 from tqdm import tqdm
+import pyperclip
 import threading
 import requests
+import keyboard
 import asyncio
 import aiohttp
 import queue
@@ -27,16 +29,17 @@ os.chdir(dir)
 
     !! 現在都只要直接運行程式後輸入網址即可 , 預設使用 self
 
-    [預設使用類型] SlowAccurate
+    [預設使用類型 - 實際應用邏輯] SlowAccurate
     
     優點=>
     * 精準處理所有連結
     * 支持同時批量下載多本漫畫
     缺點=>
-    * 網址處理較慢
-    * 線程處理不精確 可能下載完但程式不會自動關閉 需要手動關閉 (通常大量下載時才會出錯)
+    * 網址處理較慢(是真的慢,不是卡住)
+    * 線程處理有些問題(需手動結束程式)
 
-    [目前棄用無優化 , 經過多次修改可能無法使用] FastNormal
+    
+    [目前棄用無優化 , 經過多次修改可能無法使用 - 早期邏輯留念用] FastNormal
     
     優點=>
     * 高速處理網址 (使用網址命名規則去變換)
@@ -48,9 +51,21 @@ os.chdir(dir)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     [+] 修改網址判斷方式
-    [+] 修復下載完畢中止問題
-    [-] 嘗試添加判斷網址重複 , 進行分類失敗 , 網址格式太亂 , 如果要進行分類 , 不能剔除過多的數據 , 會導致相似度判斷時常錯誤
-    [*] 待修正,修改判斷網址方式後遺留的非必要代碼
+    [+] 自動擷取剪貼簿
+
+    [*] 優化處理速度(當前無能力)
+    [*] 修改判斷網址方式後遺留的非必要代碼
+
+    ? 問題說明(未來能力足夠再修復)
+    Todo -自動結束問題-
+    ! 自動結束程式 就只能一個網址一個網址載(開啟守護線程)
+    ! 因為該代碼下載是多線程的(主線程跑完就結束) , 如將Queue設置為守護 , 主線程處理完 , 他就直接跟著結束 , 程式就整個中止
+    ! 為了不這麼麻煩就是關閉守護線程 , 讓他無窮運行 , 最終就是只能手動結束 , 原本有個計算線程數中止的方法 , 但那個不夠通用 , 有時候剛好就是不一樣
+    ! 那他就會無法自行結束 , 故此將該方法刪除了
+
+    Todo -分類與重複問題-
+    ! 原本還做了漫畫名稱差異性判斷重複問題 , 但因為每本的命名格式差異問題 , 有時人看就是重複的但是 , 辨識會是不同 , 反之狀況也有
+    ! 原本考慮處理漫畫名 , 對齊段落分割後再判斷 , 但這不實際 , 因為每本漫畫的 , 命名段落有所差異 , 無法做到通用的處理 , 故此放棄分類處理
     
 """
 
@@ -110,7 +125,6 @@ class SlowAccurate:
     # 搜尋頁面批量處理
     def BatchProcessing(self,Url):
         url = unquote(Url)
-        AllLinks = []
 
         if re.match(self.SearchPage,url):
             url = f'https://www.wnacg.com/search/?q={url.split("?q=")[1].split("&")[0]}&f=_all&s=create_time_DESC&syn=yes'
@@ -164,9 +178,7 @@ class SlowAccurate:
     
     # (這邊為了通用性,做了較多的數據處理,剛開始會跑比較久)
     def DataProcessing(self,Url):
-        
         try:
-            
             if re.match(self.SupportedFormat,Url):
 
                 ComicsInternalLinks = []
@@ -185,7 +197,7 @@ class SlowAccurate:
                 NameProcessing = tree.xpath('//h2/text()')[0].strip()
                 # 處理非法字元
                 NameMerge = re.sub(r'[<>:"/\\|?*]', '', NameProcessing)
-
+                
                 # 獲取主頁所有圖片分頁的連結
                 async def GetImageLink(i, headers):
                     async with aiohttp.ClientSession(headers=headers) as session:
@@ -232,7 +244,7 @@ class SlowAccurate:
 
                 asyncio.run(LinkRun())
                 asyncio.run(ImageRun())
-
+                
                 if self.DownloadType:
                     # 同步請求,工作序列(同時下載多本)
                     self.Work.put((ComicPictureLink,Url,NameMerge))
@@ -574,29 +586,63 @@ class FastNormal:
 
         return ImageData
 
+class AutomaticCapture:
+    def __init__(self):
+        self.initial = r"https://www.wnacg.com/.*"
+        self.download_trigger = False
+        self.clipboard_cache = None
+        self.download_list = set()
+        self.detection = True
+
+    def Read_clipboard(self):
+        pyperclip.copy('')
+        while self.detection:
+            clipboard = pyperclip.paste()
+            time.sleep(0.3)
+
+            if self.download_trigger:
+                os.system("cls")
+
+            elif clipboard != self.clipboard_cache and re.match(self.initial,clipboard):
+                print(f"以擷取的網址:{clipboard}")
+                self.download_list.add(clipboard)
+                self.clipboard_cache = clipboard
+
+    def Download_command(self):
+        while self.detection:
+            if keyboard.is_pressed("alt+s"):
+                self.download_trigger = True
+                self.detection = False
+                while keyboard.is_pressed("alt+s"):
+                    pass
+
 if __name__ == "__main__":
 
     Slow = SlowAccurate()
-    """加速工作隊列"""
-    WorkQueue = threading.Thread(target=Slow.DownloadWork)
-    WorkQueue.daemon = True
-    WorkQueue.start()
-    
-    """~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"""
+    capture = AutomaticCapture()
 
     """處理速度較於緩慢,但可精準的下載所有類型(輸入到重覆的網址,只會覆蓋下載,不會再創一個新的)"""
     box = []
 
-    print("輸入網址(要開始下載輸入 s ):")
-    while True:
-        url = input("\n輸入:")
-        if url.lower() == "s":
-            os.system("cls")
-            print("開始下載...")
-            break
-        else:box.append(url)
-    if len(box) >= 1:Slow.URL_Classification(box)
-    else:os._exit(0)
+    print("複製網址後自動擷取(Alt+S 開始下載):")
+
+    clipboard = threading.Thread(target=capture.Read_clipboard)
+    clipboard.start()
+    command = threading.Thread(target=capture.Download_command)
+    command.start()
+    # 保險一點確保都結束了(異步運作時當某個線程有問題,會很麻煩的運行失效)
+    command.join()
+    clipboard.join()
+
+    if len(capture.download_list) != 0:
+        Slow.URL_Classification(list(capture.download_list))
+        WorkQueue = threading.Thread(target=Slow.DownloadWork)
+        # 啟用守護線程會有些問題(自己手動結束程式好了)
+        # WorkQueue.daemon = True
+        WorkQueue.start()
+    else:
+        print("無擷取內容")
+        os._exit(0)
 
     """處理速度較於快速,但會有一些下載失敗(懶得修復問題,不建議使用)"""
 
