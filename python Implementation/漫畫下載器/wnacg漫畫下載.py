@@ -5,6 +5,7 @@ from lxml import etree
 from tqdm import tqdm
 import pyperclip
 import threading
+import itertools
 import requests
 import keyboard
 import asyncio
@@ -50,18 +51,21 @@ os.chdir(dir)
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    [+] 修改網址判斷方式
+    Versions 1.0.1
+
+    [+] 網址網域修正
+    [+] 自動結束運行
     [+] 自動擷取剪貼簿
+    [+] Tag頁面處理問題修復
 
     [*] 優化處理速度(當前無能力)
     [*] 修改判斷網址方式後遺留的非必要代碼
 
     ? 問題說明(未來能力足夠再修復)
-    Todo -自動結束問題-
-    ! 自動結束程式 就只能一個網址一個網址載(開啟守護線程)
-    ! 因為該代碼下載是多線程的(主線程跑完就結束) , 如將Queue設置為守護 , 主線程處理完 , 他就直接跟著結束 , 程式就整個中止
-    ! 為了不這麼麻煩就是關閉守護線程 , 讓他無窮運行 , 最終就是只能手動結束 , 原本有個計算線程數中止的方法 , 但那個不夠通用 , 有時候剛好就是不一樣
-    ! 那他就會無法自行結束 , 故此將該方法刪除了
+    Todo -(搜尋頁面 和 Tag頁面)的批量下載問題-
+    ! 目前這些類型的會有某些沒下載到的問題 , 目前不確定原因 , 但可以確定的是 , 獲取的所有連結 , 和處理的工作 Queue , 次數都是正確的
+    ! 當前測試都是符合網頁顯示的數目 , 請求也是正常 , 推測是多線程的競爭問題 , 後續嘗試進行修復 , 通常單本下載 , 和各自複製的漫畫網址
+    ! 比較不會出現上述問題 , 只有懶惰想直接全下載時 , 才會有這些問題
 
     Todo -分類與重複問題-
     ! 原本還做了漫畫名稱差異性判斷重複問題 , 但因為每本的命名格式差異問題 , 有時人看就是重複的但是 , 辨識會是不同 , 反之狀況也有
@@ -78,6 +82,13 @@ class SlowAccurate:
         self.ComicPage = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
         self.SupportedFormat = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
 
+        # 工作應有次數
+        self.WorkCount = 0
+        # 工作實際次數
+        self.ProcessingCount = 0
+        # 隊列工作狀態
+        self.QueueWork = True
+
         # 網址分類保存
         self.SeparateBox = [] 
         self.BatchBox = []
@@ -92,8 +103,6 @@ class SlowAccurate:
         # 隊列保存
         self.Work = queue.Queue()
 
-        # 網址處理保存
-        self.data = []
         # 批量處理結果
         self.results = None
 
@@ -114,11 +123,13 @@ class SlowAccurate:
 
         # 只有單條網址就使用,單本加速下載
         if len(self.SeparateBox) == 1:
+            self.QueueWork = False
             self.DataProcessing(self.SeparateBox[0])
 
         # 大於一條以上使用同步下載
         elif len(self.SeparateBox) > 1:
             self.DownloadType = True
+            self.WorkCount += len(self.SeparateBox)
             for url in self.SeparateBox:
                 self.DataProcessing(url)
 
@@ -147,13 +158,14 @@ class SlowAccurate:
         # 獲取頁面所有URL
         async def GetLink(session, url):
             async with session.get(url) as response:
+                data = []
                 html = await response.text()
                 tree = etree.fromstring(html,parser)
                 for i in tree.xpath('//div[@class="title"]'):
                     link = f"https://www.wnacg.com{i.find('a').get('href')}"
                     #title = re.sub(r'<.*?>|<|>','', i.find('a').get('title'))
-                    self.data.append(link)
-            return self.data
+                    data.append(link)
+            return data
             
         # 將所有頁面網址輸出,再將網址全部使用GetLink獲取頁面所有網址
         async def RanGet(url):
@@ -163,16 +175,16 @@ class SlowAccurate:
                     if int(TotalPages) != 1 and re.match(self.SearchPage,url):
                         PaginationLink = f"https://www.wnacg.com/search/index.php?q={url.split('?q=')[1]}&m=&syn=yes&f=_all&s=create_time_DESC&p={page+1}"
                     elif int(TotalPages) != 1 and re.match(self.TagPage,url):
-                        PaginationLink = f"https://www.wnacg.com/albums-index-page-{int(url.split('-')[3])+1}-tag-{url.split('-')[-1]}"
+                        PaginationLink = f"https://www.wnacg.com/albums-index-page-{page+1}-tag-{url.split('-')[-1]}"
                     PageList.append(PaginationLink)
                 tasks = []
                 for page in PageList:
                     task = asyncio.create_task(GetLink(session, page))
                     tasks.append(task)
-                self.results = await asyncio.gather(*tasks)
+                self.results = list(itertools.chain(*await asyncio.gather(*tasks)))
         
         asyncio.run(RanGet(url))
-
+        self.WorkCount += len(self.results)
         for Enter in self.results:
             self.DataProcessing(Enter)
     
@@ -264,20 +276,23 @@ class SlowAccurate:
         MAX_THREADS = 10
         active_threads = []
 
-        while True:
-            time.sleep(0.1)
+        while self.QueueWork:
+            time.sleep(0.5) # 測試延長處理速度
             if not self.Work.empty():
+                self.ProcessingCount += 1
+
                 data = self.Work.get()
                 ComicPictureLink = data[0]
                 Url = data[1]
                 NameMerge = data[2]
-
+                pbar = tqdm(total=len(ComicPictureLink),desc=NameMerge)
+                
                 def Simultaneous():
                     download_path = os.path.join(dir, NameMerge)
                     #創建文件夾
                     self.Ffolder(download_path)
                     # 開始請求圖片
-                    self.SimultaneousDownload(ComicPictureLink,Url,NameMerge)
+                    self.SimultaneousDownload(ComicPictureLink,Url,NameMerge,pbar)
 
                 if len(active_threads) < MAX_THREADS:
                     download = threading.Thread(target=Simultaneous)
@@ -288,21 +303,28 @@ class SlowAccurate:
                         if not thread.is_alive():
                             active_threads.remove(thread)
                             break
+
+                if self.ProcessingCount == self.WorkCount:
+                    pbar.close()
+                    break
     
     # 轉換漫畫資訊 多本同時下載(單本下載數量很慢)
-    def SimultaneousDownload(self,ComicsInternalLinks,MangaURL,NameMerge):
+    def SimultaneousDownload(self,ComicsInternalLinks,MangaURL,NameMerge,pbar):
         SaveNameFormat = 1
-        pbar = tqdm(total=len(ComicsInternalLinks),desc=NameMerge)
 
         for page in ComicsInternalLinks:
             SaveName = f"{SaveNameFormat:03d}.{page.split('/')[-1].split('.')[1]}"
+
+            # 同步下載有很多bug , 這邊是處理當副檔名出現問題時的錯誤
+            if not SaveName.endswith(".png") and not SaveName.endswith(".jpg"):
+                SaveName = SaveName.rsplit(".", 1)[0] + ".png"
+
             # 同時下載多本
             self.Download(os.path.join(dir, NameMerge),SaveName,MangaURL,page,self.headers)
 
             pbar.update(1)
             
             SaveNameFormat += 1
-        pbar.close()
 
     # 轉換漫畫資訊 單本下載加速
     def SingleDownload(self,ComicsInternalLinks,MangaURL,NameMerge):
@@ -635,11 +657,10 @@ if __name__ == "__main__":
     clipboard.join()
 
     if len(capture.download_list) != 0:
-        Slow.URL_Classification(list(capture.download_list))
         WorkQueue = threading.Thread(target=Slow.DownloadWork)
-        # 啟用守護線程會有些問題(自己手動結束程式好了)
         # WorkQueue.daemon = True
         WorkQueue.start()
+        Slow.URL_Classification(list(capture.download_list))
     else:
         print("無擷取內容")
         os._exit(0)
@@ -648,6 +669,5 @@ if __name__ == "__main__":
 
     # 單獨下載
     #FastNormal.BasicSettings("#")
-
     # 批量下載
     # FastNormal.BatchInput("#")
