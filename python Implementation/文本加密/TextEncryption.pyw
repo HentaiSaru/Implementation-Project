@@ -281,10 +281,10 @@ class EncryptionCalculus:
                 # 最後將最終密文 , 進行壓縮轉換 , 進行保存
                 self.Cipherbox.append(self.Compression(final_ciphertext))
 
-                # 展示框顯示完成
-                threading.Thread(target=gui.Content.insert,args=(tk.END, f"{self.filename} - 加密完畢\n")).start()
-                # 將結果連同檔名 , 存入字典保存
-                self.BatchDictionary[self.filename] = self.Cipherbox.copy()
+            # 展示框顯示完成
+            threading.Thread(target=gui.Content.insert,args=(tk.END, f"{self.filename} - 加密完畢\n")).start()
+            # 將結果連同檔名 , 存入字典保存
+            self.BatchDictionary[self.filename] = self.Cipherbox.copy()
 
         except Exception as e:
             messagebox.showerror("輸入錯誤","請設置密碼",parent=None)
