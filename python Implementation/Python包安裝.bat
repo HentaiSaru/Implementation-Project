@@ -136,4 +136,8 @@ pip install discord_webhook
 
 pip install --upgrade setuptools
 pip install --upgrade wheel
+
+:: 有某個包不知道是啥問題 , 會亂創建奇怪的檔案 , 這邊是將其刪除
+del /f /s /q 用
+del /f /s /q 開
 pause
