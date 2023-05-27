@@ -333,7 +333,7 @@ if __name__ == "__main__":
         * url - 填寫連結字串
         * 自動試錯 - 預設是 False (啟用後當有很多格式錯誤的,會跑比較久)
     """
-    download.Automatic("http://www.zerobyw3.com/plugin.php?id=jameson_manhua&c=index&a=bofang&kuid=13101",True)
+    # download.Automatic("#",True)
 
 #################################################################################
 
@@ -353,4 +353,4 @@ if __name__ == "__main__":
     # 可使用自訂範圍 , 或是直接填入CB , 設置完成 , 直接再 Custom 尾數傳入 CB
     custom_range(1,10)
 
-    # download.Custom("",CB,trial=True)
+    download.Custom("#",601,trial=True,special=True)
