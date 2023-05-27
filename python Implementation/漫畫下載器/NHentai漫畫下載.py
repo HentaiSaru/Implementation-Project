@@ -18,6 +18,39 @@ import os
 dir = os.path.abspath("R:/") # 可更改預設路徑
 os.chdir(dir)
 
+"""
+    * 使用說明
+    
+    爬蟲適用網站 : https://nhentai.net/
+    !! 下載速度慢是正常的 , 他是模擬人類操作 , 一頁一頁去下載圖片
+
+    * 開發說明
+
+    該網站的反爬機制,無法使用免費版的cloudscraper進行繞過,因此使用自動化操作
+    有時候會被機器人驗證卡住 , 需要重新啟動 , 啟動無效可啟用 reset 方法
+
+    一般的selenium自動化 , 無法繞過該網站的機器人驗證
+    這邊使用的是 undetected_chromedriver , 這個雖然可通過驗證
+    但個人對該庫的應用並不熟 , 無法使用多線程多開 , 故此當前是每一本都一個一個操作
+    當批量下載時 , 速度會很感人
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Versions 1.0.0
+
+    [+] 單本漫畫下載
+    [+] 搜尋頁面下載
+    [+] 自動擷取複製
+
+    後續開發預想
+
+    [*] 漫畫Tag分類
+    [*] 指定Tag分類排除
+    [*] GUI操作介面
+
+"""
+
+# 重置方法
 def reset():
     print("重置中請稍後...")
     UserData = os.path.join(dir,"Data")
@@ -29,7 +62,6 @@ def reset():
     os.system("pip install --upgrade setuptools >nul 2>&1")
     os.system("pip install --upgrade wheel >nul 2>&1")
     print("重置完成...")
-
 # 取得自動化操作設置
 class Automation:
     def __init__(self,head):
@@ -265,15 +297,6 @@ class AutomaticCapture:
                 while keyboard.is_pressed("alt+s"):
                     pass
 
-"""
-該網站的反爬機制,無法使用免費版的cloudscraper進行繞過,因此使用自動化操作
-有時候會被機器人驗證卡住,需要重新啟動
-!! 下載速度慢是正常的 , 他是模擬人類操作 , 一頁一頁去下載圖片(要快就要用js插件 但有時會卡住)
-
-製作想法:
-同名分類與排除
-tag標籤排除
-"""
 if __name__ == "__main__":
 
     # 當無法正常啟用自動化窗口時 , 就啟用該方法 !!Google會被關掉
