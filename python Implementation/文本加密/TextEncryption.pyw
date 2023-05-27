@@ -54,6 +54,7 @@ class FRAW:
         self.directory = None
         self.use_file = False
         self.use_folder = False
+        self.indent = " " * 50
         self.ContentBox = [] # 讀取內容數據保存
         self.encrypted_dictionary = {} # 存放加密數據的字典
         self.decryption_dictionary = {} # 存放解密數據的字典
@@ -137,7 +138,7 @@ class FRAW:
                 
                     self.filename = file # 取得檔名
                     path = os.path.join(self.directory,file) # 將檔名與路徑合併
-                    threading.Thread(target=gui.Content.insert,args=(tk.END, f"{self.filename}\n")).start()
+                    threading.Thread(target=gui.Content.insert,args=(tk.END, f"{self.indent}{self.filename}\n")).start()
 
                     # 開啟該檔案內容
                     with open(path,'r',encoding='utf-8') as f:
@@ -155,7 +156,7 @@ class FRAW:
                 
                     self.filename = file
                     path = os.path.join(self.directory,file)
-                    threading.Thread(target=gui.Content.insert,args=(tk.END, f"{self.filename}\n")).start()
+                    threading.Thread(target=gui.Content.insert,args=(tk.END, f"{self.indent}{self.filename}\n")).start()
 
                     with open(path,'r',encoding='utf-8') as f:
                         for line in f:
@@ -164,7 +165,7 @@ class FRAW:
 
                     self.decryption_dictionary[self.filename] = self.ContentBox.copy()
                     self.ContentBox.clear()
-
+            
         except FileNotFoundError:pass
 
     # 獲取處理的數據
@@ -174,17 +175,17 @@ class FRAW:
         if type == "enc":
             if self.use_file: # 開啟文件檔(回傳:路徑,檔名,內容)
                 yield self.directory , self.filename , self.ContentBox
-        elif self.use_folder: # 開啟文件夾(先從字典獲取所需數據再回傳)
-            for filename , ContentBox in self.encrypted_dictionary.items():
-                yield self.directory , filename , ContentBox
+            elif self.use_folder: # 開啟文件夾(先從字典獲取所需數據再回傳)
+                for filename , ContentBox in self.encrypted_dictionary.items():
+                    yield self.directory , filename , ContentBox
 
         # 獲取解密數據
         elif type == "dec":
             if self.use_file:
                 yield self.directory , self.filename , self.ContentBox
-        elif self.use_folder:
-            for filename , ContentBox in self.decryption_dictionary.items():
-                yield self.directory , filename , ContentBox
+            elif self.use_folder:
+                for filename , ContentBox in self.decryption_dictionary.items():
+                    yield self.directory , filename , ContentBox
 
 # 對輸入的Key進行轉換
 def MD5_Key(string):
@@ -568,10 +569,10 @@ class SaveOutput:
             else:
                 SaveOutput.EncryptedOutput(ChangeName,content)
 
-            choose = messagebox.askquestion("輸出成功", "以輸出完畢,是否要開啟輸出位置")
-            if choose == "yes":
-                folder_path = os.path.dirname(ChangeName)
-            os.startfile(folder_path)
+        choose = messagebox.askquestion("輸出成功", "以輸出完畢,是否要開啟輸出位置")
+        if choose == "yes":
+            folder_path = os.path.dirname(ChangeName)
+        os.startfile(folder_path)
 
     def Overwrite():
 
@@ -589,10 +590,10 @@ class SaveOutput:
             else:
                 SaveOutput.EncryptedOutput(ChangeName,content)
 
-            choose = messagebox.askquestion("輸出成功", "以輸出完畢,是否要開啟輸出位置")
-            if choose == "yes":
-                folder_path = os.path.dirname(ChangeName)
-            os.startfile(folder_path)
+        choose = messagebox.askquestion("輸出成功", "以輸出完畢,是否要開啟輸出位置")
+        if choose == "yes":
+            folder_path = os.path.dirname(ChangeName)
+        os.startfile(folder_path)
 
 if __name__ == "__main__":
     enc = EncryptionCalculus() # 加密算法
