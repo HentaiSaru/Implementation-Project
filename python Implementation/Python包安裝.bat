@@ -67,6 +67,8 @@ pip install packaging
 pip install wget
 :: 讀取剪貼簿
 pip install pyperclip
+:: 可視化進度條
+pip install tqdm
 ::------------------------::
 :: 數值分析
 pip install numpy
