@@ -1,16 +1,19 @@
+import concurrent.futures
 from lxml import etree
+import threading
 import requests
 import opencc
 import re
 import os
 
-""" Versions 1.0.0 (Vip可下載)
+""" Versions 1.0.1 (Vip可下載)
 
 * 重構版 Zero漫畫下載器
 [+] 漫畫自動處理下載
+[+] 下載重新處理
+[+] 多線程加速(沒感覺)
 
 * 重構移除功能
-[-] 多線程下載
 [-] 自訂下載
 
 ! 可免費下載Vip觀看漫畫的版本 , 在漫畫網址處理的部份 , 都是模糊處理的
@@ -32,6 +35,8 @@ class DataProcessing:
         self.UrlFormat = fr"{DomainName()}plugin\.php\?id=(.*)"
         # 名稱格式
         self.Name = r"^(.*?)【"
+        # 只保留數字
+        self.Filter = re.compile(r'\d+')
         # 簡體轉繁體
         self.converter = opencc.OpenCC('s2twp.json')
         # 請求設置
@@ -39,15 +44,15 @@ class DataProcessing:
         self.session = requests.Session()
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"}
         # 數據保存
+        self.folder_name = None
         self.Manga_name = None
         self.Comics_number = []
         self.Home_page_link = []
         self.Retry_on_failure = {}
         # 第一頁的漫畫格式
         self.Comic_link_format = None
-        # 漫畫連結尾數
-        self.Mantissa = None
 
+    # 數據處理
     def DealWith(self,url):
         
         if re.match(self.UrlFormat,url):
@@ -61,7 +66,7 @@ class DataProcessing:
 
             # 獲取漫畫話數 , 漫畫連結
             for link in tree.xpath("//a[@class='uk-button uk-button-default']"):
-                self.Comics_number.append(link.xpath("./text()")[0])
+                self.Comics_number.append("".join(re.findall(self.Filter,link.xpath("./text()")[0])))
                 self.Home_page_link.append(f"{DomainName()}/{link.get('href').split('./')[1]}")
 
             # 請求內頁
@@ -76,6 +81,7 @@ class DataProcessing:
                 
         else:print("不符合的網址格式")
 
+    # 自動下載方法
     def Automatic(self,url):
 
         # 呼叫處理
@@ -89,65 +95,146 @@ class DataProcessing:
         location = f"{link[-4]}/{link[-3]}"
 
         # 漫畫尾數 , 副檔名
-        self.Mantissa = link[-1].split(".")[0]
+        Mantissa = link[-1].split(".")[0]
         FileExtension = link[-1].split(".")[1]
 
         # 以從主頁面獲取的頁數變換
-        for number  in self.Comics_number:
+        for number in self.Comics_number:
 
             # 初始頁數
             pages = 1
             # 資料夾名稱
-            folder_name = os.path.join(dir,f"{self.Manga_name} - 第{number}話")
-            # 創建資料夾
-            self.Ffolder(folder_name)
+            self.folder_name = os.path.join(dir,f"{self.Manga_name} - 第{number}話")
+            
+            def accelerate():
+                print(f"開始下載 - 第{number}話")
 
-            print(f"開始下載 - 第{number}話")
+                # 為了可下載需Vip權限的 , 因此使用模糊請求
+                for i in range(1000):
+                    # 頁數格式判斷
+                    if len(Mantissa) == 3:
+                        page = int(pages)+i
+                        page = f"{page:03d}"
+                    elif len(Mantissa) == 2:
+                        page = int(pages)+i
+                        page = f"{page:02d}"
+                    elif len(Mantissa) == 1:
+                        page = int(pages)+i
+                        page = f"{page:01d}"
 
-            # 為了可下載需Vip權限的 , 因此使用模糊請求
-            for i in range(1000):
-                # 頁數格式判斷
-                if len(self.Mantissa) == 3:
-                    page = int(pages)+i
-                    page = f"{page:03d}"
-                elif len(self.Mantissa) == 2:
-                    page = int(pages)+i
-                    page = f"{page:02d}"
-                elif len(self.Mantissa) == 1:
-                    page = int(pages)+i
-                    page = f"{page:01d}"
+                    # 漫畫連結的格式
+                    ComicLink = f"{domain}{location}/{number}/{page}.{FileExtension}"
+                    # 保存位置
+                    Save = os.path.join(self.folder_name,f"{page}.{FileExtension}")
 
-                # 漫畫連結的格式
-                ComicLink = f"{domain}{location}/{number}/{page}.{FileExtension}"
-                # 保存位置
-                Save = os.path.join(folder_name,f"{page}.{FileExtension}")
+                    # 下載請求(實際上並沒有多線程加速效果,不使用 join 會壞掉)
+                    control = threading.Thread(target=self.download,args=(Save,ComicLink))
+                    control.start()
+                    control.join()
 
-                # 下載請求
-                self.download(Save,ComicLink)
+                    # 請求失敗直接退出
+                    if self.Data_status != 200:
+                        break
+                    else:
+                        print("#",end="")
 
-                if self.Data_status != 200:
-                    break
-                else:
-                    print("#",end="")
+                print("")
 
-            print("")
+            # 這邊雖使用線程池 , 但個人感覺沒變快
+            with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+                executor.submit(accelerate)
 
+            # 線程池關閉
+            executor.shutdown()
+
+    # 自訂下載方法
+    def Custom(self,url:str , comics=None, mantissa=3 , FE="png"):
+
+        self.DealWith(url)
+        domain = DomainName().replace("www","tupa")
+
+        link = self.Comic_link_format.split("/")
+        location = f"{link[-4]}/{link[-3]}"
+
+        FileExtension = FE
+
+        # 計算尾數
+        def mantissa_calculation(pages,i):
+            if mantissa == 3:
+                page = int(pages)+i
+                page = f"{page:03d}"
+            elif mantissa == 2:
+                page = int(pages)+i
+                page = f"{page:02d}"
+            elif mantissa == 1:
+                page = int(pages)+i
+                page = f"{page:01d}"
+            return page
+        
+        # 操作下載
+        def operate(number):
+            pages = 1
+            self.folder_name = os.path.join(dir,f"{self.Manga_name} - 第{number}話")
+
+            def accelerate():
+                print(f"開始下載 - 第{number}話")
+
+                for i in range(1000):
+
+                    page = mantissa_calculation(pages,i)
+                    ComicLink = f"{domain}{location}/{number}/{page}.{FileExtension}"
+                    Save = os.path.join(self.folder_name,f"{page}.{FileExtension}")
+
+                    control = threading.Thread(target=self.download,args=(Save,ComicLink))
+                    control.start()
+                    control.join()
+
+                    if self.Data_status != 200:
+                        break
+                    else:
+                        print("#",end="")
+                print("")
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+                executor.submit(accelerate)
+            executor.shutdown()
+
+        # 設置是list(多重設置)
+        if isinstance(comics,list):
+            for number in comics:
+                operate(number)
+        # 沒有設置(預設)
+        elif comics == None:
+            for number in self.Comics_number:
+                operate(number)
+        # 有設置了某參數
+        else:
+            operate(comics)
+
+    # 資料夾創建
     def Ffolder(self,FolderName):
         try:os.mkdir(FolderName) 
         except:pass
 
+    # 自動測試正確的格式
     def Automatic_Trial_And_Error(self):
         pass
-
+    
+    # 下載方法
     def download(self,save,link):
-        Data_status =self.session.get(link,headers=self.headers)
+        # 請求後將狀態傳遞
+        Data_status = self.session.get(link,headers=self.headers)
         self.Data_status = Data_status.status_code
 
         if self.Data_status == 200:
-            with open(save,"wb") as f:
-                f.write(Data_status.content)
+            # (請求成功)沒有資料夾時創建
+            if os.path.exists(self.folder_name):
+                with open(save,"wb") as f:
+                    f.write(Data_status.content)
+            else:
+                self.Ffolder(self.folder_name)
 
 if __name__ == "__main__":
-    auto = DataProcessing()
+    download = DataProcessing()
 
-    auto.Automatic("#")
+    download.Automatic("http://www.zerobyw3.com/plugin.php?id=jameson_manhua&c=index&a=bofang&kuid=13073")
