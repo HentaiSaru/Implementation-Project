@@ -6,26 +6,25 @@ import opencc
 import re
 import os
 
-""" Versions 1.0.1 (Vip可下載)
+""" Versions 1.0.2 (Vip可下載)
 
 * 重構版 Zero漫畫下載器
-[+] 漫畫自動處理下載
+[+] 自訂下載
 [+] 下載重新處理
+[+] 漫畫自動處理下載
 [+] 多線程加速(沒感覺)
 
-* 重構移除功能
-[-] 自訂下載
+Todo - 相關說明 (詳細使用說明於代碼最下方)
 
-! 可免費下載Vip觀看漫畫的版本 , 在漫畫網址處理的部份 , 都是模糊處理的
+! 可免費下載Vip觀看漫畫的版本 , 因此在漫畫網址處理的部份 , 都是模糊處理的
 ! 也就是不是去精準獲取所有的連結 , 故此有時候會出現下載失敗 , 但是網頁是有辦法看到的狀況
-! 這就是網址請求錯誤而已 , 後續開發自訂下載 , 用來處理這部份問題
-
+! 這就是網址請求錯誤而已 , 使用自訂下載 , 來處理這部份問題
 """
 
 # 下載位置
 dir = os.path.abspath("R:/")
 
-# 域名(該網站會每過一段時間改域名)
+# 域名(該網站會每過一段時間改域名,在此處更改即可繼續使用)
 def DomainName():
     return "http://www.zerobyw3.com/"
 
@@ -148,7 +147,7 @@ class DataProcessing:
             executor.shutdown()
 
     # 自訂下載方法
-    def Custom(self,url:str , comics=None, mantissa=3 , FE="png"):
+    def Custom(self,url:str , comics=None, mantissa=3 , FE="png" , trial=False):
 
         self.DealWith(url)
         domain = DomainName().replace("www","tupa")
@@ -190,7 +189,11 @@ class DataProcessing:
                     control.join()
 
                     if self.Data_status != 200:
-                        break
+                        if trial:
+                            print("測試")
+                            break
+                        else:
+                            break
                     else:
                         print("#",end="")
                 print("")
@@ -207,7 +210,7 @@ class DataProcessing:
         elif comics == None:
             for number in self.Comics_number:
                 operate(number)
-        # 有設置了某參數
+        # 有設置某參數
         else:
             operate(comics)
 
@@ -234,7 +237,41 @@ class DataProcessing:
             else:
                 self.Ffolder(self.folder_name)
 
+# 快速設置範圍
+def custom_range(start,end):
+    for chapter in range(start,end+1):
+        CB.append(chapter)
+
 if __name__ == "__main__":
     download = DataProcessing()
+    CB = []
 
-    download.Automatic("http://www.zerobyw3.com/plugin.php?id=jameson_manhua&c=index&a=bofang&kuid=13073")
+    # 可使用自訂範圍 , 或是直接填入CB
+    # custom_range(1,10)
+
+#################################################################################
+
+    """ 自動下載說明
+
+        ? 可用參數 : (連結:str(url))
+        ! 只要填入漫畫連結 , 自動下載所有的漫畫 , 當無法下載 , 基本上就是網址格式錯誤
+        ! 可使用自訂下載 , 來一個一個測試 , 直到找到正確得請求網址
+
+        * 沒有其他的設置參數
+    """
+    # download.Automatic("")
+
+#################################################################################
+
+    """ 自訂下載說明
+
+        ? 可用參數 : (連結:str(url) , 漫畫章節:(int/list) , 尾數字數:(int) , 副檔名:str(png/jpg) , 自動試錯:(True/False
+        ! 參數只有 url 是必填 , 其餘可填可不填(都自訂還是填一下)
+
+        * url - 填寫連結字串
+        * 章節 - 填寫要下載的漫畫,第幾話 , 可使用上方CB來大量填寫 , 也可使用custom_range , 設置範圍
+        * 尾數 - 填 3 = 001 , 2 = 01 ... , 這是根據該網站的命名去測試到正確的格式
+        * 副檔名 - 就設置副檔名 , 以符合正確的連結格式 , 就可以請求成功
+        * 自動試錯 - 如果很懶得填寫 , 章節 尾數 副檔名 , 去測試到正確的Url , 可以嘗試使用
+    """
+    #download.Custom("http://www.zerobyw3.com/plugin.php?id=jameson_manhua&c=index&a=bofang&kuid=13073",CB,2,"jpg")
