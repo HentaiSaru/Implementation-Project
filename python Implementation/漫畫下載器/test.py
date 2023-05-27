@@ -60,9 +60,9 @@ class AutomaticCopy:
                 while keyboard.is_pressed("alt+s"):
                     pass
 
-copy = AutomaticCopy()
-threading.Thread(target=copy.Read_clipboard).start()
-
-command = threading.Thread(target=copy.Download_command)
-command.daemon = True
-command.start()
+# copy = AutomaticCopy()
+# threading.Thread(target=copy.Read_clipboard).start()
+# 
+# command = threading.Thread(target=copy.Download_command)
+# command.daemon = True
+# command.start()
