@@ -6,7 +6,7 @@ import time
 import os
 import re
 
-# !! 早期版以廢棄 , 以無更新優化 (留念以前寫的垃圾代碼)
+# !! 早期版已廢棄 , 以無更新優化 (留念以前寫的垃圾代碼)
 
 # 可設置下載的位置
 dir = os.path.dirname(os.path.abspath("R:/"))
