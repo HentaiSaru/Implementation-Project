@@ -1,5 +1,4 @@
-color 3F
+color 9f
 cls
-
 git pull
 pause
