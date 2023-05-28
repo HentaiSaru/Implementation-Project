@@ -20,12 +20,13 @@ class Crawl:
     def __init__(self,GpuUrl):
         self.Session = requests.Session()
         self.Header = {"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"}
+        self.Url = GpuUrl
+        self.Space = " " * 6
+        self.Download = None
         self.GPUDriver = None
         self.GetVersion = None
         self.ReleaseTime = None
-        self.Download = None
         self.GPU = GPUtil.getGPUs()
-        self.Url = GpuUrl
 
     def GetData(self):
         for Information in self.GPU:self.GPUDriver = Information.driver
@@ -50,7 +51,7 @@ class Crawl:
         if float(self.GPUDriver) < float(self.GetVersion):
             # 置頂窗口
             choose = messagebox.askquestion("發現新版本", 
-            f"您當前的驅動版本:{self.GPUDriver}\n目前有新版本:{self.GetVersion}\n發布日期:{self.ReleaseTime}\n\n      您是否要下載",parent=None)
+            f"您當前的驅動版本:{self.GPUDriver}\n目前有新版本:{self.GetVersion}\n發布日期:{self.ReleaseTime}\n\n{self.Space}您是否要下載",parent=None)
             if choose == "yes":
                 os.system(f"start {self.Download}")
         else:
