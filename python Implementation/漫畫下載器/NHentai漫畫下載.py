@@ -192,21 +192,21 @@ class ComicsHomePage:
     
     def Data_Request(self,Url):
         Auto = Automation(self.head)
-        self.browser = Auto.browser()
+        browser = Auto.browser()
 
         # 開啟漫畫主頁
-        self.browser.get(Url)
+        browser.get(Url)
 
         try: # 測試點選機器人認證
-            human = WebDriverWait(self.browser,1).until(EC.element_to_be_clickable((By.XPATH, "//input[@type='checkbox']")))
+            human = WebDriverWait(browser,1).until(EC.element_to_be_clickable((By.XPATH, "//input[@type='checkbox']")))
             human.click()
         except:pass
         
         # 測試延遲處理
-        WebDriverWait(self.browser,30).until(EC.element_to_be_clickable((By.XPATH,"//div[@class='thumbs']")))
+        WebDriverWait(browser,30).until(EC.element_to_be_clickable((By.XPATH,"//div[@class='thumbs']")))
 
         # 取得主頁代碼,並呼叫處理
-        self.Home = etree.fromstring(self.browser.page_source,etree.HTMLParser())
+        self.Home = etree.fromstring(browser.page_source,etree.HTMLParser())
         self.Data_Processing()
 
         # 處理完成後,獲取總共頁數,和創建資料夾
@@ -218,8 +218,8 @@ class ComicsHomePage:
         pbar = tqdm(total=int(Pages))
         
         for page in range(1,int(Pages)+1):
-            self.browser.get(f"{Url}/{page}/")
-            ImgUrl = etree.fromstring(self.browser.page_source,etree.HTMLParser()).xpath("//section[@id='image-container']/a/img")[0].get('src')
+            browser.get(f"{Url}/{page}/")
+            ImgUrl = etree.fromstring(browser.page_source,etree.HTMLParser()).xpath("//section[@id='image-container']/a/img")[0].get('src')
             
             if int(Pages) >= 100:SaveName = f"{self.SaveNameFormat:03d}.{ImgUrl.split('.')[-1]}"
             else:SaveName = f"{self.SaveNameFormat:02d}.{ImgUrl.split('.')[-1]}"
@@ -231,7 +231,7 @@ class ComicsHomePage:
 
         self.SaveNameFormat = 1
         pbar.close()
-        self.browser.quit()
+        browser.quit()
 
     # 處理主頁數據
     def Data_Processing(self):
