@@ -9,7 +9,7 @@ mshta vbscript:createobject("shell.application").shellexecute("%~s0","goto :Admi
 cls
 title 系統清理優化
 
-:: - Versions 1.0.0 -
+:: - Versions 1.0.1 -
 ::
 :: (說明) win10 沿用 win11 , 有些指令不適用 win11 , 但可正常運行
 :: 
@@ -19,7 +19,6 @@ title 系統清理優化
 :: [+] - Discord 緩存清理
 :: [+] - 網路設置優化
 :: [+] - 系統微優化
-:: [+] - 系統修復
 
 @echo off
 @ ECHO.
@@ -50,39 +49,61 @@ ipconfig /flushdns
 ipconfig /renew
 
 :: ========== 網路優化 ==========
-:: 禁用自動調整 TCP 接收窗口的功能
-netsh int tcp set global autotuninglevel=disabled
-:: 將 TCP 擁塞控制算法設置為 CTCP
-netsh int tcp set global congestionprovider=ctcp
-:: 啟用 TCP 解除安裝引擎
-netsh int tcp set global chimney=enabled
-:: 禁用 TCP 接收側縮放 (RSS)
-netsh int tcp set global rss=disabled
-:: 禁用 TCP 啟發式優化
-netsh int tcp set heuristics=disabled
+
+:: TCP 接收側縮放 (RSS) (disabled|enabled|default)
+netsh int tcp set global rss=enabled
+:: 接收窗口自動調整級別(disabled|highlyrestricted|restricted|normal|experimental)
+netsh int tcp set global autotuninglevel=normal
+:: TCP ECN 擁塞控制能力(disabled|enabled|default)
+netsh int tcp set global ecncapability=enabled
+:: TCP 時間戳(disabled|enabled|default)
+netsh int tcp set global timestamps=enabled
+:: TCP 初始時的超時 重傳時間 (300~3000)
+netsh int tcp set global initialrto=1000
+:: 接收段合併狀態 (disabled|enabled|default)
+netsh int tcp set global rsc=enabled
+:: SACK 用於改進丟包恢復和擁塞控制 (disabled|enabled|default)
+netsh int tcp set global nonsackrttresiliency=enabled
+:: 客戶端允許的最大 SYN 重傳次數 (2~8)
+netsh int tcp set global maxsynretransmissions=2
+:: TCP 快速啟用 (disabled|enabled|default)
+netsh int tcp set global fastopen=enabled
+:: TCP 快速回退,如果遠程端點不支持 TCP 快速打開或發生任何錯誤，將回退到正常的握手過程 (disabled|enabled|default)
+netsh int tcp set global fastopenfallback=enabled
+:: 擁塞控制算法 (disabled|enabled|default)
+netsh int tcp set global hystart=enabled
+:: 擁塞控制算法 (disabled|enabled|default)
+netsh int tcp set global prr=enabled
 :: 啟用數據中心擁塞控制算法 (DCA)
 netsh int tcp set global dca=enabled
-netsh int tcp set supplemental template=internet
-:: 啟用 TCP 時間戳
-netsh int tcp set global timestamps=enabled
-:: 禁用擁塞控制 ECN
-netsh int tcp set global ecncapability=disabled
-:: 禁用 TCP ECN
-netsh int tcp set global ecn=disable
-:: 啟用 TCP 快速打開
-netsh int tcp set global fastopen=enabled
-:: 刪除系統的 ARP 緩存
-netsh interface ip delete arpcache
+:: TCP 發送方的流量控制機制 (off|initialwindow|slowstart|always|default)
+netsh int tcp set global pacingprofile=always
+
+::--------------------------------------------------------------------------------------::
+
+:: netsh int tcp set supplemental template= (automatic|datacenter|internet|compat|custom)
+:: TCP 超時最小重傳時間 (20~300)
+netsh int tcp set supplemental template=datacenter minrto=200
+:: CP 在連接剛建立時允許發送的數據包數量 (2~64)
+netsh int tcp set supplemental template=datacenter icw=64
+:: 擁塞控制算法 (none|ctcp|dctcp|cubic|bbr2|default)
+netsh int tcp set supplemental template=datacenter congestionprovider=bbr2
+:: 擁塞窗口重啟 (disabled|enabled|default)
+netsh int tcp set supplemental template=datacenter enablecwndrestart=enabled
+:: TCP延遲應答的超時 (10~600)
+netsh int tcp set supplemental template=datacenter delayedacktimeout=100
+:: TCP延遲應答頻率 (1~255)
+netsh int tcp set supplemental template=datacenter delayedackfrequency=30
+
+::--------------------------------------------------------------------------------------::
+
+:: TCP 啟發式優化
+netsh int tcp set heuristics forcews=disabled
 :: 刪除系統中的證書緩存
 certutil -URLCache * delete
-:: 啟用網路層源站驗證
-netsh int ip set global source=validate-icmpv4
-:: 啟用網路層源站路由
-netsh int ip set global source=enable-ipv4-source-routing
-:: 啟用網路層轉發
-netsh int ip set global forwarding=enabled
-:: 禁用 TCP/IP v6 協議
-netsh int ipv6 uninstall
+:: 刪除系統的 ARP 緩存
+netsh int ip delete arpcache
+
 :: ========== 清理優化 ==========
 :: 刪除錯誤報告
 DEL /F /S /Q "C:\WINDOWS\PCHealth\ERRORREP\QSIGNOFF\*.*"
