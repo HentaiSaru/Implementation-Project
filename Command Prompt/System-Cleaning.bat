@@ -1,4 +1,4 @@
-:: - Versions 1.0.5 -
+:: - Versions 1.0.6 -
 :: 
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
@@ -22,7 +22,7 @@ title 系統清理優化
 @ ECHO.
 @ ECHO.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 系統緩存清理程序 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @ ECHO.
-@ ECHO                                                - Versions 1.0.5 -
+@ ECHO                                             - Versions 1.0.6 2023/05/30 -
 @ ECHO.
 @ ECHO                                        此程式只會清除(緩存/暫存)檔案不會影響系統                                 
 @ ECHO.
@@ -274,9 +274,8 @@ color B
 cls
 @echo 開始進行電腦優化
 
-:: 終極效能(創建)
+:: 終極效能
 powercfg -duplicatescheme 95533644-e700-4a79-a56c-a89e8cb109d9
-:: 終極效能(設置)
 powercfg.exe /setactive 95533644-e700-4a79-a56c-a89e8cb109d9
 
 :: 禁用休眠
@@ -324,6 +323,9 @@ Netsh advfirewall set currentprofile state on
 Netsh advfirewall set domainprofile state on
 netsh advfirewall set privateprofile state on
 netsh advfirewall set allprofiles state on
+
+:: 內建清理
+cleanmgr /sagerun:99
 
 color D
 cls
