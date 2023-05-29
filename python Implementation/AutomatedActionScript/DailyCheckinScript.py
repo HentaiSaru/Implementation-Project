@@ -318,6 +318,11 @@ class script:
             Genshinbutton.click()
         except:pass
 
+        try: # 某確認框
+            Genshinbutton = WebDriverWait(Genshindriver,2).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='mihoyo-cookie-tips__button mihoyo-cookie-tips__button--hk4e']")))
+            Genshinbutton.click()
+        except:pass
+
         # 點選簽到位置 (已經簽到的就會找不到,因此當沒找到時,要讓他跳過)
         try:
             for _ in range(3): # 測試
