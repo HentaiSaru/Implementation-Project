@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from urllib.parse import unquote
 from selenium import webdriver
 from bs4 import BeautifulSoup
+import threading
 import requests
 import datetime
 import random
@@ -425,9 +426,9 @@ def RequestsBiliBili(Input,pages):
     SaveBox(Input)
     driver.quit() # 關閉端口避免出錯 
 
-# search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
-# pages = eval(input("輸入要搜尋的頁數: "))
-# threading.Thread(target=RequestsGamer,args=(search,pages)).start()
+search = input("(盡量打完整名稱不然搜不到)\n請輸入查詢: ")
+pages = eval(input("輸入要搜尋的頁數: "))
+threading.Thread(target=RequestsGamer,args=(search,pages)).start()
 # threading.Thread(target=RequestsBiliBili,args=(search,pages)).start()
 
 TrashRemoval()
