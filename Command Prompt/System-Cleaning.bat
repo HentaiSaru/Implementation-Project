@@ -1,14 +1,3 @@
-@echo off
-chcp 65001 >nul 2>&1
-color C
-%1 %2
-ver|find "5.">nul&&goto :Admin
-mshta vbscript:createobject("shell.application").shellexecute("%~s0","goto :Admin","","runas",1)(window.close)&goto :eof
-:Admin
-
-cls
-title 系統清理優化
-
 :: - Versions 1.0.1 -
 ::
 :: (說明) win10 沿用 win11 , 有些指令不適用 win11 , 但可正常運行
@@ -19,6 +8,18 @@ title 系統清理優化
 :: [+] - Discord 緩存清理
 :: [+] - 網路設置優化
 :: [+] - 系統微優化
+:: [+] - 系統修復
+
+@echo off
+chcp 65001 >nul 2>&1
+color C
+%1 %2
+ver|find "5.">nul&&goto :Admin
+mshta vbscript:createobject("shell.application").shellexecute("%~s0","goto :Admin","","runas",1)(window.close)&goto :eof
+:Admin
+
+cls
+title 系統清理優化
 
 @echo off
 @ ECHO.
