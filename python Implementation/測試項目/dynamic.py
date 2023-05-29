@@ -1,15 +1,25 @@
 import requests
 
-url = "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/測試項目/backend.py"
-response = requests.get(url)
-
-code = response.text
+link_list = [
+    "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/測試項目/SourceCode_URL_Conversion.py",
+    "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/測試項目/backend.py",
+]
 
 namespace = {}
-exec(code,namespace)
 
+def link_request(url,name):
+    response = requests.get(url)
+    code = response.text
+    exec(code,name)
+
+for link in link_list:
+    link_request(link,namespace)
+
+og = namespace['ogcode']()
 cal = namespace['calculate']()
+
+print(og.convert(""))
+
 cal.count(input("數字:"),input("運算符:"),input("數字:"))
 result = cal.get_result()
-
 print(result)
