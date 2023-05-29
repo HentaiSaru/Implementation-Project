@@ -1,6 +1,6 @@
 import ModCheck
 
-""" Versions 1.1
+""" Versions 1.2
 
 [+] 單線程處理
 [+] 批量輸入比對

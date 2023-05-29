@@ -1,10 +1,9 @@
-import packaging.version
+from packaging.version import Version
 from lxml import etree
 import requests
 import os
 import re
-dir = os.path.dirname(os.path.abspath(__file__))
-os.chdir(dir)
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 class blackmod:
     def __init__(self,url=None):
@@ -51,7 +50,7 @@ class dataprocessing:
             
             for take in self.Record:
                 self.titlebox.append(take.split("@v=")[0].strip())
-                self.versionbox.append(packaging.version.Version(take.split("@v=")[1].strip()))
+                self.versionbox.append(take.split("@v=")[1].strip())
         except:
             with open("Temporary", "wb") as f:f.write("空數據創建@v=1.0.0".encode('utf-8'))
 
@@ -68,14 +67,14 @@ class dataprocessing:
             else:
                 for index in range(len(self.Record)):
                     if title == self.titlebox[index]:
-                        if packaging.version.Version(version) <= self.versionbox[index]:
+                        if Version(version) <= Version(self.versionbox[index]):
 
                             self.SaveBox.append(self.Record[index].strip())
 
                             result_message = f"- 模組名稱: {re.sub(self.exclude,'',title)}\n- 當前版本: {self.versionbox[index]}\n- 無須更新"
                             self.result.append(result_message)
 
-                        elif packaging.version.Version(version) > self.versionbox[index]:
+                        elif Version(version) > Version(self.versionbox[index]):
 
                             self.SaveBox.append(NewData)
 
