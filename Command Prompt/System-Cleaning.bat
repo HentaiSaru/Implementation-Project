@@ -1,4 +1,4 @@
-:: - Versions 1.0.4 -
+:: - Versions 1.0.5 -
 :: 
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
@@ -19,27 +19,25 @@ mshta vbscript:createobject("shell.application").shellexecute("%~s0","goto :Admi
 cls
 title 系統清理優化
 
-@echo off
 @ ECHO.
 @ ECHO.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 系統緩存清理程序 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @ ECHO.
-@ ECHO                                                - Versions 1.0.4 -
+@ ECHO                                                - Versions 1.0.5 -
 @ ECHO.
-@ ECHO                                          清理中出現錯誤和畫面閃爍純屬正常現象                                 
+@ ECHO                                        此程式只會清除(緩存/暫存)檔案不會影響系統                                 
 @ ECHO.
-@ ECHO                                        清理完畢後可選擇重新啟動電腦(或是直接離開)
+@ ECHO                                      清理完畢後可選擇(重啟電腦/關機/直接離開程式等)
 @ ECHO.
 @ ECHO -----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                                按任意鍵開始清理系統
 @ ECHO -----------------------------------------------------------------------------------------------------------------------
-@ ECHO.
 @ ECHO.
 
 :: 等待任意鍵
 pause
 
 @echo 開始清理請稍.....
-timeout /t 03 >nul
+timeout /t 02 >nul
 
 :: ========== 網路重置 ==========
 :: 釋放IP位置
@@ -213,7 +211,7 @@ del "%ProgramData%\Microsoft\Windows Defender\Network Inspection System\Support\
 color A
 cls
 @echo Google Chrom清理(將會被關閉)
-timeout /t 03 >nul
+timeout /t 02 >nul
 
 :: 關閉
 wmic process where name="chrome.exe" delete
@@ -251,7 +249,7 @@ del /f /s /q "%userprofile%\AppData\Roaming\Code\Service Worker\CacheStorage\*.*
 :: ========== discord清理 ==========
 @echo discord清理(DC將會被關)
 
-timeout /t 03 >nul
+timeout /t 02 >nul
 
 :: 關閉
 wmic process where name="Discord.exe" delete
@@ -264,7 +262,7 @@ del /f /s /q "%APPDATA%\Discord\DawnCache\*.*"
 :: ========== Line清理 ==========
 @echo 清理Line緩存(Line將會被關閉)
 
-timeout /t 03 >nul
+timeout /t 02 >nul
 
 :: 關閉
 wmic process where name="Line.exe" delete
@@ -330,7 +328,7 @@ netsh advfirewall set allprofiles state on
 color D
 cls
 @echo 接下來需要安全移除系統內隱藏檔案 所以需要一段掃描時間
-timeout /t 03 >nul
+timeout /t 02 >nul
 
 :: 清理不再需要的系統組件和臨時文件
 Dism.exe /online /Cleanup-Image /StartComponentCleanup
@@ -356,25 +354,30 @@ color C
 CLS
 MODE con: COLS=40 LINES=15
 ECHO.
+ECHO    ✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬
 ECHO.
-ECHO    **********************************
+ECHO             【 操作選擇 】
 ECHO.
-ECHO        是否重新啟動(請按上方數字)
+ECHO      《1.電腦關機》   《2.電腦重啟》
 ECHO.
-ECHO               1. 重啟
-ECHO.
-ECHO               2. 直接離開
-ECHO.
-ECHO    **********************************
-ECHO.
+ECHO      《3.清理還原》   《4.離開程式》
+ECHO.            
+ECHO    ✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬✬
 ECHO.
 
-Choice /C 12 /N /M "選擇 (1、2) :"
+Choice /C 1234 /N /M "選擇 (數字) :"
 
-if %errorlevel% == 2 (
+if %errorlevel% == 1 (
+    shutdown /s /t 0
     exit
-) else if %errorlevel% == 1 (
+) else if %errorlevel% == 2 (
     shutdown /r /t 0
+    exit
+) else if %errorlevel% == 3 (
+    control sysdm.cpl,,4
+    exit
+) else if %errorlevel% == 4 (
+    exit
 )
 
 pause
