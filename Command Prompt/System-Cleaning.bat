@@ -1,4 +1,4 @@
-:: - Versions 1.0.3 -
+:: - Versions 1.0.4 -
 :: 
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
@@ -22,6 +22,8 @@ title 系統清理優化
 @echo off
 @ ECHO.
 @ ECHO.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 系統緩存清理程序 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@ ECHO.
+@ ECHO                                                - Versions 1.0.4 -
 @ ECHO.
 @ ECHO                                          清理中出現錯誤和畫面閃爍純屬正常現象                                 
 @ ECHO.
@@ -366,14 +368,13 @@ ECHO.
 ECHO    **********************************
 ECHO.
 ECHO.
-Choice /C 12 /N /M 選擇（1、2）：
-If ErrorLevel 1 If Not ErrorLevel 2 Goto Restart1
-If ErrorLevel 2 If Not ErrorLevel 3 Goto Restart2
 
-:Restart2
-exit
+Choice /C 12 /N /M "選擇 (1、2) :"
 
-:Restart1
-shutdown /r /t 0
+if %errorlevel% == 2 (
+    exit
+) else if %errorlevel% == 1 (
+    shutdown /r /t 0
+)
 
 pause
