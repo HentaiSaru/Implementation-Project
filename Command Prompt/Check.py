@@ -1,35 +1,56 @@
-import packaging.version as Ver
+from packaging.version import Version
+from tqdm import tqdm
+import subprocess
+import threading
 import requests
+import time
+import sys
 import os
 
 class Check_for_updates:
     def __init__(self):
+        Location = sys._MEIPASS if getattr(sys, 'frozen', False) else os.path.dirname(os.path.abspath(sys.argv[0]))
+        self.Location = os.path.join(Location,"System-Cleaning.bat")
+
         # 倉庫網址
         self.url = "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/System-Cleaning.bat"
+        self.text = None
         self.Web_Version = None
         self.Local_Version = None
 
     def Get_web(self):
         reques = requests.get(self.url)
-        text = reques.text.split('\n')
-        self.Web_Version = text[0].split(" ")[3]
+        self.text = reques.text.split('\n')
+        self.Web_Version = self.text[0].split(" ")[3]
 
     def Get_local(self):
-        # 確保找當前路徑下
-        os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-        with open("System-Cleaning.bat","r",encoding="utf-8") as f:
+        with open(self.Location ,"r",encoding="utf-8") as f:
             self.Local_Version = f.readline().split(" ")[3]
 
     def Update_Comparison(self):
 
-        if float(self.Web_Version) > float(self.Local_Version):
-            print("需更新")
+        if Version(self.Web_Version) > Version(self.Local_Version):
+            pbar = tqdm(total=len(self.text),ncols=80,desc="更新 ",bar_format="{l_bar}{bar}")
+            with open(self.Location,"w",encoding="utf-8") as f:
+                for text in self.text:
+                    f.write(text + "\n")
+                    pbar.update(1)
+                pbar.clear()
+            subprocess.call(self.Location, shell=True)
         else:
-            print("無需更新")
+            subprocess.call(self.Location, shell=True)
+
+def state():
+    time.sleep(0.5)
+    os._exit(0)
 
 if __name__ == "__main__":
+
     check = Check_for_updates()
     check.Get_web()
     check.Get_local()
     check.Update_Comparison()
+
+    threading.Thread(target=state).start()
+    input()
