@@ -106,72 +106,87 @@ class Verify:
     def __init__(self,enter,pages,head):
         self.search = r"https://nhentai\.net/.*"
         self.mangapage = r"https://nhentai\.net/g/\d+"
-        self.correctbox = []
+
         self.pages = pages
         self.head = head
-        
-        print("開始操作請稍後...\n")
+
+        self.search_processing = []
+        self.manga_processing = []
+        self.integration_request = []
+
+    
+    """ 等待修復 (累了先睡覺)
+
         if isinstance(enter,list):
-
-            print("成功匹配...\n")
-            # 將錯誤的網址格式排除
             for data in enter:
-                if re.match(self.mangapage,data):
-                    self.correctbox.append(data)
-                else:pass
-
-            # 將正確的網址導入請求
-            if len(self.correctbox) != 0:
-                self.run(self.correctbox)
-            else:pass
-
+               start = threading.Thread(target=self.TypeDetection,args=(data,))
+               start.start()
+               start.join()
         else:
-            # 匹配搜尋頁面
-            if re.match(self.search,enter):
-                print("成功匹配...\n")
+            start = threading.Thread(target=self.TypeDetection,args=(data,))
+            start.start()
+            start.join()
 
+        start = threading.Thread(target=self.MangaPage)
+        start.start()
+        start.join()
+        start = threading.Thread(target=self.SearchPage)
+        start.start()
+        start.join()
+        self.run(self.integration_request)
+
+    def TypeDetection(self,enter):
+        
+        if re.match(self.mangapage,enter):
+            self.manga_processing.append(enter)
+        elif re.match(self.search,enter):
+            self.search_processing.append(enter)
+        else:print(f"錯誤格式的連結{enter}")
+
+    def MangaPage(self):
+        if len(self.manga_processing) != 0:
+            for data in self.manga_processing:
+                self.integration_request.append(data)
+
+    def SearchPage(self):
+        if len(self.search_processing) != 0:
+            for enter in self.search_processing:
                 Auto = Automation(self.head)
                 browser = Auto.browser()
 
                 if enter.find("?page") != -1:url = f"{enter.split('?page=')[0]}?page=1"
-                else:url = f"{enter}?page=1"
                 
                 # 首次開啟
                 browser.get(url)
 
                 # 延遲載入
                 WebDriverWait(browser,30).until(EC.element_to_be_clickable((By.XPATH,"//div[@class='container index-container']")))
-
                 html = etree.fromstring(browser.page_source,etree.HTMLParser())
                 page = html.xpath("//a[@class='page']/text()")[-1]
 
                 if self.pages > int(page):self.pages = int(page)
 
                 for a in html.xpath("//a[@class='cover']"):
-                    self.correctbox.append(rf"https://nhentai.net{a.get('href')}")
+                    self.integration_request.append(rf"https://nhentai.net{a.get('href')}")
 
                 if self.pages > 1:
                     pbar = tqdm(total=self.pages,desc="正在處理批量網址")
-                    for page in range(2,self.pages+1): 
-                        browser.get(f"{url.split('?page=')[0]}?page={page}")
-                        WebDriverWait(browser,30).until(EC.element_to_be_clickable((By.XPATH,"//div[@class='container index-container']")))
-                        html = etree.fromstring(browser.page_source,etree.HTMLParser())
-
-                        for a in html.xpath("//a[@class='cover']"):
-                            self.correctbox.append(rf"https://nhentai.net{a.get('href')}")
-
-                        if page == self.pages:pbar.update(2)
-                        else:pbar.update(1)
-                    pbar.close()
-                
-                if len(self.correctbox) != 0:
-                    browser.quit()
-                    self.run(self.correctbox)
-            else:pass
+                for page in range(2,self.pages+1): 
+                    browser.get(f"{url.split('?page=')[0]}?page={page}")
+                    WebDriverWait(browser,30).until(EC.element_to_be_clickable((By.XPATH,"//div[@class='container index-container']")))
+                    html = etree.fromstring(browser.page_source,etree.HTMLParser())
+                    for a in html.xpath("//a[@class='cover']"):
+                        self.integration_request.append(rf"https://nhentai.net{a.get('href')}")
+                    if page == self.pages:pbar.update(2)
+                    else:pbar.update(1)
+                pbar.close()
+        else:pass
             
     # 開始請求
     def run(self,url):
-        for deal in url:download.Data_Request(deal)
+        print("開始操作請稍後...\n")
+        for deal in url:download.Data_Request(deal) """
+
 class ComicsHomePage:
     def __init__(self):
         self.head = True    # 判斷是否隱藏窗口
