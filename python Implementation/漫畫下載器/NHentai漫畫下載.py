@@ -310,7 +310,7 @@ if __name__ == "__main__":
     #? 客製化下載方法
 
     # url , 頁數 , 隱藏窗口 (url可輸入,單本漫畫/搜尋連結/Batch_Box的list)
-    # download.enter(Batch_Box)
+    # download.enter("")
 
 ###########################################################
 
