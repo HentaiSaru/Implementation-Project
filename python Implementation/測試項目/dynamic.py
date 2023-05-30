@@ -3,7 +3,7 @@ import requests
 link_list = [
     "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/測試項目/SourceCode_URL_Conversion.py",
     # "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/測試項目/backend.py",
-    "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/ExperimentalBrowser/TestBrowser.pyw",
+    "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/ExperimentalBrowser/TestBrowser.py",
 ]
 
 namespace = {}
