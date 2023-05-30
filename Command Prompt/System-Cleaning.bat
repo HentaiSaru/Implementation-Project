@@ -1,4 +1,4 @@
-:: - Versions 1.0.7 -
+:: - Versions 1.0.8 -
 :: 
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
@@ -22,7 +22,7 @@ title 系統清理優化
 @ ECHO.
 @ ECHO.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 系統緩存清理程序 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @ ECHO.
-@ ECHO                                             - Versions 1.0.7 2023/05/30 -
+@ ECHO                                             - Versions 1.0.8 2023/05/30 -
 @ ECHO.
 @ ECHO                                        此程式只會清除(緩存/暫存)檔案不會影響系統                                 
 @ ECHO.
@@ -176,6 +176,9 @@ rd /s /q %localappdata%\Microsoft\Windows\INetCache\*.log
 
 :: 額外特別項目清除
 del /q /s /f "%APPDATA%\IObit\IObit Uninstaller\UMlog\*.dbg"
+rd /s /q "C:\ProgramData\IObit\Driver Booster\Download"
+rd /s /q "%LocalAppData%\Surfshark\Updates"
+
 :: Dx緩存清除
 rd /s /q "%USERPROFILE%\AppData\Local\NVIDIA\DXCache"
 
@@ -267,7 +270,8 @@ timeout /t 02 >nul
 :: 關閉
 wmic process where name="Line.exe" delete
 
-del /f /s /q "%USERPROFILE%\AppData\Local\LINE\Cache\*.*"
+del /f /s /q "%LocalAppData%\LINE\Cache\*.*"
+rd /s /q  "%LocalAppData%\LINE\bin\old"
 
 :: ========== 優化操作 ==========
 color B
@@ -280,9 +284,6 @@ powercfg.exe /setactive 95533644-e700-4a79-a56c-a89e8cb109d9
 
 powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
 powercfg.exe /setactive e9a42b02-d5df-448d-aa00-03f14749eb61
-
-powercfg -duplicatescheme b832888c-fec4-44f6-9a93-35e49093b291
-powercfg.exe /setactive b832888c-fec4-44f6-9a93-35e49093b291
 
 :: 禁用休眠
 powercfg.exe /hibernate off
@@ -311,10 +312,8 @@ net stop "WMPNetworkSvc"
 :: 網路共享服務禁止啟用
 sc config "WMPNetworkSvc" start=disabled
 
-:: 關閉虛擬內存(分頁文件)
-:: reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v PagingFiles /t REG_MULTI_SZ /d "" /f
-
-:: 對於不好的電腦還是啟用
+:: 清理虛擬內存後 , 再次創建設置
+wmic pagefileset delete
 wmic pagefileset create name="C:\pagefile.sys"
 wmic pagefileset where name="C:\pagefile.sys" set InitialSize=8192, MaximumSize=16,384
 
