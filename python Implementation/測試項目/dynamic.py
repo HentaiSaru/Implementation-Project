@@ -2,7 +2,8 @@ import requests
 
 link_list = [
     "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/測試項目/SourceCode_URL_Conversion.py",
-    "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/測試項目/backend.py",
+    # "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/測試項目/backend.py",
+    "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/ExperimentalBrowser/TestBrowser.pyw",
 ]
 
 namespace = {}
@@ -15,11 +16,14 @@ def link_request(url,name):
 for link in link_list:
     link_request(link,namespace)
 
-og = namespace['ogcode']()
-cal = namespace['calculate']()
+# og = namespace['ogcode']()
+# print(og.convert(""))
 
-print(og.convert(""))
+TB = namespace['TestBrowser']()
+# print(TB.get_version())
+TB.Enable_browsing()
 
-cal.count(input("數字:"),input("運算符:"),input("數字:"))
-result = cal.get_result()
-print(result)
+# cal = namespace['calculate']()
+# cal.count(input("數字:"),input("運算符:"),input("數字:"))
+# result = cal.get_result()
+# print(result)
