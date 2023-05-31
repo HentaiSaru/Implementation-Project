@@ -1,9 +1,4 @@
 :: - Versions 1.0.0 -
-:: 
-:: [+] - 開關機操作
-:: [+] - 防火牆開關
-:: [+] - 自用工具組
-
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -35,10 +30,12 @@ cls
 @ ECHO    Windows防火牆開關 :    [4] 開啟防火牆    [5] 關閉防火牆    [30m@防火牆當前狀態 : [95m%display%[91m
 @ ECHO.
 @ ECHO    Surfshark服務操作 :    [6] 開啟服務 (Surfshark運行)    [7] 關閉服務 (Surfshark終止)
+@ ECHO.                                                                                        (此功能會將前面的優化設置重設)
+@ ECHO    Edge瀏覽器操作 :    [8] 啟用右上AI圖示    [9] 關閉右上AI圖示    [10] 一鍵設置優化    [11] 修復Edge受組織管理
 @ ECHO.
-@ ECHO    特殊功能 :    [8] 網路重置    [9] Google重置    [10] Adobe結束背景    [11] AnLink結束背景    [12] R:/ 重置    
+@ ECHO    特殊功能 :    [12] 網路重置    [13] Google重置    [14] Adobe結束背景    [15] AnLink結束背景    [16] R:/ 重置    
 @ ECHO.
-@ ECHO    特殊功能 :    [13] RAR授權    [14] Windows 啟用授權    [15] Office 啟用授權
+@ ECHO    特殊功能 :    [17] RAR授權    [18] Windows 啟用授權    [19] Office 啟用授權
 @ ECHO.
 @ ECHO [97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
@@ -94,27 +91,45 @@ if %choice% equ 0 (
     call :SD&goto menu
 
 ) else if %choice% equ 8 (
-    call :NR&goto menu
+    call :EdgeAIE&goto menu
 
 ) else if %choice% equ 9 (
-    call :GR&goto menu
+    call :EdgeAID&goto menu
 
 ) else if %choice% equ 10 (
-    call :ADE&goto menu
+
+    echo.
+    echo 開發中...
+    echo.
+
+    timeout /t 2 >nul
+    goto menu
 
 ) else if %choice% equ 11 (
-    call :ALE&goto menu
+    call :EdgeR&goto menu
 
 ) else if %choice% equ 12 (
-    call :Rdisk&goto menu
+    call :NR&goto menu
 
 ) else if %choice% equ 13 (
-    call :Authorization&goto menu
+    call :GR&goto menu
 
 ) else if %choice% equ 14 (
-    call :windows&goto menu
+    call :ADE&goto menu
 
 ) else if %choice% equ 15 (
+    call :ALE&goto menu
+
+) else if %choice% equ 16 (
+    call :Rdisk&goto menu
+
+) else if %choice% equ 17 (
+    call :Authorization&goto menu
+
+) else if %choice% equ 18 (
+    call :windows&goto menu
+
+) else if %choice% equ 19 (
     call :office&goto menu
 
 ) else if /I "%choice%"=="hw" (
@@ -287,6 +302,50 @@ net stop "Surfshark WireGuard" >nul
 net stop "Surfshark Service" >nul
 
 timeout /t 2 >nul
+
+exit /b
+
+:: ========================================================================================================================
+
+:: ~~~~~ 啟用edge AI圖示 ~~~~~
+:EdgeAIE
+
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "HubsSidebarEnabled" /t REG_DWORD /d 1 /f
+
+ECHO.
+ECHO 請自行重啟瀏覽器...
+ECHO.
+
+pause
+
+exit /b
+
+:: ~~~~~ 關閉edge AI圖示 ~~~~~
+:EdgeAID
+
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "HubsSidebarEnabled" /t REG_DWORD /d 0 /f
+
+ECHO.
+ECHO 請自行重啟瀏覽器...
+ECHO.
+
+pause
+
+exit /b
+
+:: ~~~~~ 修復edge 瀏覽器受管理 ~~~~~
+:EdgeR
+
+reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /f
+reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftEdge" /f
+reg delete "HKEY_CURRENT_USER\Software\Policies\Microsoft\Edge" /f
+reg delete "HKEY_CURRENT_USER\Software\Policies\Microsoft\MicrosoftEdge" /f
+
+ECHO.
+ECHO 請自行重啟瀏覽器...
+ECHO.
+
+pause
 
 exit /b
 
@@ -548,14 +607,15 @@ color 07
 @ ECHO.
 @ ECHO  - 使用說明:
 @ ECHO.
-@ ECHO 1. 需操作的程式 , 必須都安裝再預設的路徑上 , 才可成功運行
+@ ECHO 1. 請注意某些特別的設置(優化之類的) , 這是以本人的電腦製作的 , 不一定適用於所有人
 @ ECHO.
-@ ECHO 2. 主要是自用的工具 , 除非有需要不然不會更新
+@ ECHO 2. 需操作的程式 , 必須都安裝再預設的路徑上 , 才可成功運行
 @ ECHO.
-@ ECHO 3. Window 和 Office 的啟用工具 , 是下載網路資源的 , 並非本人所寫 (有時候下載比較慢)
-@ ECHO 3.1 同時因為是下載網路的當作者未更新 , 沒有效了我也沒辦法
+@ ECHO 3. 主要是自用的工具 , 除非有需要不然不會更新
 @ ECHO.
-@ ECHO 4. 此程式是以個人使用為主去寫的 , 無考慮不同平台差異
+@ ECHO 4. Window 和 Office 的啟用工具 , 是下載網路資源的 , 並非本人所寫 (有時候下載比較慢)
+@ ECHO.
+@ ECHO 5. 此程式是以個人使用為主去寫的 , 無考慮不同平台差異
 @ ECHO.
 @ ECHO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 pause
