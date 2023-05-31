@@ -36,9 +36,9 @@ cls
 @ ECHO.
 @ ECHO    Surfshark服務操作 :    [6] 開啟服務 (Surfshark運行)    [7] 關閉服務 (Surfshark終止)
 @ ECHO.
-@ ECHO    特殊功能 :    [8] 網路重置    [9] Google重置    [10] Adobe結束背景    [11] AnLink結束背景    [12] RAR授權
+@ ECHO    特殊功能 :    [8] 網路重置    [9] Google重置    [10] Adobe結束背景    [11] AnLink結束背景    [12] R:/ 重置    
 @ ECHO.
-@ ECHO    特殊功能 :    [13] Windows 啟用    [14] Office 啟用
+@ ECHO    特殊功能 :    [13] RAR授權    [14] Windows 啟用授權    [15] Office 啟用授權
 @ ECHO.
 @ ECHO [97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
@@ -106,21 +106,21 @@ if %choice% equ 0 (
     call :ALE&goto menu
 
 ) else if %choice% equ 12 (
-    call :Authorization&goto menu
+    call :Rdisk&goto menu
 
 ) else if %choice% equ 13 (
-    call :windows&goto menu
+    call :Authorization&goto menu
 
 ) else if %choice% equ 14 (
+    call :windows&goto menu
+
+) else if %choice% equ 15 (
     call :office&goto menu
 
 ) else if /I "%choice%"=="hw" (
     call :Hwid&goto menu
 
-) else if /I "%choice%"=="sr" (
-    call :SystemRepair&goto menu
-
-) else if /I "%choice%"=="wf" (
+)  else if /I "%choice%"=="wf" (
     netsh wlan show profiles
     pause
     goto menu
@@ -135,7 +135,10 @@ if %choice% equ 0 (
     pause
     goto menu
 
-) else if /I "%choice%"=="sv" (
+) else if /I "%choice%"=="sr" (
+    call :SystemRepair&goto menu
+
+)  else if /I "%choice%"=="sv" (
     net start
     pause
     goto menu
@@ -371,6 +374,19 @@ if %errorlevel% equ 0 (
 )
 
 timeout /t 2 >nul
+
+exit /b
+
+:: ~~~~~ R盤重置 ~~~~~
+:Rdisk
+
+ECHO.
+ECHO 開始重置...
+ECHO.
+
+RD /s /q R:\
+
+timeout /t 1 >nul
 
 exit /b
 
