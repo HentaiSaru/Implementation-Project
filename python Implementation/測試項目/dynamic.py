@@ -16,12 +16,12 @@ def link_request(url,name):
 for link in link_list:
     link_request(link,namespace)
 
-# og = namespace['ogcode']()
-# print(og.convert(""))
+og = namespace['ogcode']()
+print(og.convert(""))
 
-TB = namespace['TestBrowser']()
+# TB = namespace['TestBrowser']()
 # print(TB.get_version())
-TB.Enable_browsing()
+# TB.Enable_browsing()
 
 # cal = namespace['calculate']()
 # cal.count(input("數字:"),input("運算符:"),input("數字:"))
