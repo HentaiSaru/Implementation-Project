@@ -1,4 +1,4 @@
-:: - Versions 1.0.2 -
+:: - Versions 1.0.3 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -21,7 +21,7 @@ cls
 
 @ ECHO [1m
 @ ECHO [94m======================================================================================================================
-@ ECHO                                       - 工具組 Versions 1.0.2 2023/06/01 -
+@ ECHO                                       - 工具組 Versions 1.0.3 2023/06/01 -
 @ ECHO ======================================================================================================================[91m
 @ ECHO    Windows系統開關機 :    [1] 睡眠    [2] 重啟    [3] 關機
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
@@ -29,13 +29,15 @@ cls
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
 @ ECHO    Surfshark服務操作 :    [6] 開啟服務 (Surfshark運行)    [7] 關閉服務 (Surfshark終止)
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    Edge瀏覽器操作 :            
+@ ECHO    瀏覽器操作 :            
 @ ECHO.
-@ ECHO    [8] 啟用右上AI圖示    [9] 關閉右上AI圖示    [10] 一鍵設置優化    [11] 修復Edge受組織管理    [12] 變更緩存位置
+@ ECHO    [8] Edge 啟用右上AI圖示    [9] Edge 關閉右上AI圖示    [10] Edge 一鍵設置優化    [11] Edge 修復受組織管理
+@ ECHO.
+@ ECHO    [12] Edge 變更緩存位置     [13] Google 變更緩存位置
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    重置功能 :    [13] 網路重置    [14] Google重置    [15] Adobe結束背景    [16] AnLink結束背景    [17] R:/ 重置    
+@ ECHO    重置功能 :    [14] 網路重置    [15] Google重置    [16] Adobe結束背景    [17] AnLink結束背景    [18] R:/ 重置    
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    授權功能 :    [18] RAR授權    [19] Windows 啟用授權    [20] Office 啟用授權
+@ ECHO    授權功能 :    [19] RAR授權    [20] Windows 啟用授權    [21] Office 啟用授權
 @ ECHO [97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
 @ ECHO ----------------------------------------------------------------------------------------------------------------------[91m
@@ -110,27 +112,30 @@ if %choice% equ 0 (
     call :EdgeCC&goto menu
 
 ) else if %choice% equ 13 (
-    call :NR&goto menu
+    call :GoogleCC&goto menu
 
 ) else if %choice% equ 14 (
-    call :GR&goto menu
+    call :NR&goto menu
 
 ) else if %choice% equ 15 (
-    call :ADE&goto menu
+    call :GR&goto menu
 
 ) else if %choice% equ 16 (
-    call :ALE&goto menu
+    call :ADE&goto menu
 
 ) else if %choice% equ 17 (
-    call :Rdisk&goto menu
+    call :ALE&goto menu
 
 ) else if %choice% equ 18 (
-    call :Authorization&goto menu
+    call :Rdisk&goto menu
 
 ) else if %choice% equ 19 (
-    call :windows&goto menu
+    call :Authorization&goto menu
 
 ) else if %choice% equ 20 (
+    call :windows&goto menu
+
+) else if %choice% equ 21 (
     call :office&goto menu
 
 ) else if /I "%choice%"=="ct" (
@@ -334,6 +339,20 @@ pause
 
 exit /b
 
+:: ~~~~~ edge 一鍵功能優化 ~~~~~
+:EdgeOp
+
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "DiskCacheSize" /t REG_SZ /d "5000000000" /f
+
+ECHO.
+ECHO 優化完成
+ECHO.
+ECHO 請自行重啟瀏覽器...
+ECHO.
+
+pause
+exit /b
+
 :: ~~~~~ 修復edge 瀏覽器受管理 ~~~~~
 :EdgeR
 
@@ -350,7 +369,7 @@ pause
 
 exit /b
 
-:: ~~~~~ 變更緩存位置 ~~~~~
+:: ~~~~~ edge 變更緩存位置 ~~~~~
 :EdgeCC
 setlocal
 
@@ -373,9 +392,42 @@ del "%vbsScript%"
 if defined folderPath (
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "DiskCacheDir" /t REG_SZ /d "%folderPath%EdgeCache" /f
     echo.
-    echo 註冊表修改成功！緩存目錄已設置為："%folderPath%EdgeCache"
+    echo 修改成功！緩存目錄已設置為："%folderPath%EdgeCache"
 ) else (
-    echo 未選擇任何路徑，註冊表修改取消!。
+    echo 未選擇任何路徑，修改取消。
+)
+
+endlocal
+timeout /t 2 >nul
+exit /b
+
+:: ~~~~~ google 變更緩存位置 ~~~~~
+:GoogleCC
+setlocal
+
+set "folderPath="
+set "vbsScript=%temp%\folderSelection.vbs"
+
+ECHO.
+ECHO 這將會改變Google的緩存位置
+ECHO.
+ECHO 請選擇要設置的路徑位置...
+ECHO.
+timeout /t 1 >nul
+
+:: 選擇窗口(VBScript)
+>"%vbsScript%" echo set shellApp = CreateObject("Shell.Application") : set folder = shellApp.BrowseForFolder(0, "Select path", 0, 64) : if not folder is nothing then WScript.Echo folder.Self.Path
+
+for /f "delims=" %%I in ('cscript //nologo "%vbsScript%"') do set "folderPath=%%I"
+del "%vbsScript%"
+
+if defined folderPath (
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheDir" /t REG_SZ /d "%folderPath%GoogleCache" /f
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheSize" /t REG_SZ /d "5000000000" /f
+    echo.
+    echo 修改成功！緩存目錄已設置為："%folderPath%GoogleCache"
+) else (
+    echo 未選擇任何路徑，修改取消。
 )
 
 endlocal
