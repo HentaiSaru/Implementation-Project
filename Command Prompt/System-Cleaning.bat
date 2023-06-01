@@ -1,4 +1,4 @@
-:: - Versions 1.0.8 -
+:: - Versions 1.0.9 -
 :: 
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
@@ -22,7 +22,7 @@ title 系統清理優化
 @ ECHO.
 @ ECHO.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 系統緩存清理程序 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @ ECHO.
-@ ECHO                                             - Versions 1.0.8 2023/05/30 -
+@ ECHO                                             - Versions 1.0.9 2023/06/01 -
 @ ECHO.
 @ ECHO                                        此程式只會清除(緩存/暫存)檔案不會影響系統                                 
 @ ECHO.
@@ -209,7 +209,6 @@ del "%ProgramData%\Microsoft\Windows Defender\Scans\History\Results\Resource" /F
 del "%ProgramData%\Microsoft\Windows Defender\Scans\History\ReportLatency\Latency" /F /Q /S
 del "%ProgramData%\Microsoft\Windows Defender\Network Inspection System\Support\*.log" /F /Q /S
 
-
 :: ========== Google清理 ==========
 color A
 cls
@@ -226,28 +225,43 @@ rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\Cache"
 del /f /s /q "%LocalAppData%\Google\Chrome\User Data\Default\*tmp"
 del /f /s /q "%LocalAppData%\Google\Chrome\User Data\Default\History*"
 
-rd /s /q "%USERPROFILE%\AppData\Local\Google\Chrome\User Data\Default\Cache"
-rd /s /q "%USERPROFILE%\AppData\Local\Google\Chrome\User Data\Default\IndexedDB"
-rd /s /q "%USERPROFILE%\AppData\Local\Google\Chrome\User Data\Default\Service Worker"
+rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\Cache"
+rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\IndexedDB"
+rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\Service Worker"
 
 del /q /s /f "%ChromeCache%\*.*"
 del /q /s /f "%ChromeDataDir%\*Cookies*.*"
 
+:: ========== Edge清理 ==========
+@echo edge清理(將會被關閉) 因為清除所有緩存 , 第一次重開會比較卡
+timeout /t 2 >nul
+
+wmic process where name="msedge.exe" delete
+
+for /d %%E in ("%LocalAppData%\Microsoft\Edge\User Data\Profile*") do (
+    rd /s /q "%%E\Cache"
+    rd /s /q "%%E\GPUCache"
+    rd /s /q "%%E\IndexedDB"
+    rd /s /q "%%E\Code Cache"
+    rd /s /q "%%E\Service Worker"
+)
+
 :: ========== VScode清理 ==========
 @echo VScode清理
 
-del /f /s /q "%userprofile%\AppData\Roaming\Code\logs\*.*"
-del /f /s /q "%userprofile%\AppData\Roaming\Code\Cache\*.*"
-del /f /s /q "%userprofile%\AppData\Roaming\Code\Crashpad\*.*"
-del /f /s /q "%userprofile%\AppData\Roaming\Code\Code Cache\*.*"
-del /f /s /q "%userprofile%\AppData\Roaming\Code\CachedData\*.*"
-del /f /s /q "%userprofile%\AppData\Roaming\Code\User\History\*.*"
-del /f /s /q "%userprofile%\AppData\Roaming\Code\CachedExtensions\*.*"
-del /f /s /q "%userprofile%\AppData\Roaming\Code\CachedExtensionVSIXs\*.*"
-del /f /s /q "%userprofile%\AppData\Roaming\Code\User\workspaceStorage\*.*"
-del /f /s /q "%userprofile%\AppData\Local\Microsoft\vscode-cpptools\ipch\*.*"
-del /f /s /q "%userprofile%\AppData\Roaming\Code\Service Worker\ScriptCache\*.*"
-del /f /s /q "%userprofile%\AppData\Roaming\Code\Service Worker\CacheStorage\*.*"
+rd /s /q "%appdata%\Code\logs"
+rd /s /q "%appdata%\Code\Cache"
+rd /s /q "%appdata%\Code\Crashpad"
+rd /s /q "%appdata%\Code\Code Cache"
+rd /s /q "%appdata%\Code\CachedData"
+rd /s /q "%appdata%\Code\User\History"
+rd /s /q "%appdata%\Code\CachedExtensions"
+rd /s /q "%appdata%\Code\CachedExtensionVSIXs"
+rd /s /q "%appdata%\Code\User\workspaceStorage"
+rd /s /q "%LocalAppData%\Microsoft\vscode-cpptools"
+rd /s /q "%appdata%\Code\Service Worker\ScriptCache"
+rd /s /q "%appdata%\Code\Service Worker\CacheStorage"
+rd /s /q "%appdata%\Code\User\globalStorage\redhat.java"
 
 :: ========== discord清理 ==========
 @echo discord清理(DC將會被關)
