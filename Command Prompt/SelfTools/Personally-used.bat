@@ -31,13 +31,13 @@ cls
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
 @ ECHO    瀏覽器操作 :            
 @ ECHO.
-@ ECHO    [8] Edge 啟用右上AI圖示    [9] Edge 關閉右上AI圖示    [10] Edge 一鍵設置優化    [11] Edge 修復受組織管理
+@ ECHO    [8] Edge 啟用右上AI圖示    [9] Edge 關閉右上AI圖示    [10] Edge 一鍵設置優化    [11] Edge 修復受組織管理 (重置功能)
 @ ECHO.
-@ ECHO    [12] Edge 變更緩存位置     [13] Google 變更緩存位置
+@ ECHO    [12] Edge 變更緩存位置     [13] Google 變更緩存位置    [14] Google 修復受機構管理 (重置功能)
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    重置功能 :    [14] 網路重置    [15] Google重置    [16] Adobe結束背景    [17] AnLink結束背景    [18] R:/ 重置    
+@ ECHO    重置功能 :    [15] 網路重置    [16] Google重置    [17] Adobe結束背景    [18] AnLink結束背景    [19] R:/ 重置    
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    授權功能 :    [19] RAR授權    [20] Windows 啟用授權    [21] Office 啟用授權
+@ ECHO    授權功能 :    [20] RAR授權    [21] Windows 啟用授權    [22] Office 啟用授權
 @ ECHO [97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
 @ ECHO ----------------------------------------------------------------------------------------------------------------------[91m
@@ -115,27 +115,30 @@ if %choice% equ 0 (
     call :GoogleCC&goto menu
 
 ) else if %choice% equ 14 (
-    call :NR&goto menu
+    call :GoogleR&goto menu
 
 ) else if %choice% equ 15 (
-    call :GR&goto menu
+    call :NR&goto menu
 
 ) else if %choice% equ 16 (
-    call :ADE&goto menu
+    call :GR&goto menu
 
 ) else if %choice% equ 17 (
-    call :ALE&goto menu
+    call :ADE&goto menu
 
 ) else if %choice% equ 18 (
-    call :Rdisk&goto menu
+    call :ALE&goto menu
 
 ) else if %choice% equ 19 (
-    call :Authorization&goto menu
+    call :Rdisk&goto menu
 
 ) else if %choice% equ 20 (
-    call :windows&goto menu
+    call :Authorization&goto menu
 
 ) else if %choice% equ 21 (
+    call :windows&goto menu
+
+) else if %choice% equ 22 (
     call :office&goto menu
 
 ) else if /I "%choice%"=="ct" (
@@ -353,7 +356,7 @@ ECHO.
 pause
 exit /b
 
-:: ~~~~~ 修復edge 瀏覽器受管理 ~~~~~
+:: ~~~~~ 修復 edge 瀏覽器受管理 ~~~~~
 :EdgeR
 
 reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /f
@@ -432,6 +435,19 @@ if defined folderPath (
 
 endlocal
 timeout /t 2 >nul
+exit /b
+
+:: ~~~~~ 修復 Google 瀏覽器受管理 ~~~~~
+:GoogleR
+
+reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /f
+
+ECHO.
+ECHO 請自行重啟瀏覽器...
+ECHO.
+
+pause
+
 exit /b
 
 :: ========================================================================================================================
