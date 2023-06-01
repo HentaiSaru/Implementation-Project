@@ -1,4 +1,4 @@
-:: - Versions 1.0.1 -
+:: - Versions 1.0.2 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -21,25 +21,24 @@ cls
 
 @ ECHO [1m
 @ ECHO [94m======================================================================================================================
-@ ECHO                                       - 工具組 Versions 1.0.1 2023/06/01 -
+@ ECHO                                       - 工具組 Versions 1.0.2 2023/06/01 -
 @ ECHO ======================================================================================================================[91m
-@ ECHO.
 @ ECHO    Windows系統開關機 :    [1] 睡眠    [2] 重啟    [3] 關機
-@ ECHO.
+@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
 @ ECHO    Windows防火牆開關 :    [4] 開啟防火牆    [5] 關閉防火牆    [30m@防火牆當前狀態 : [95m[%display%][91m
-@ ECHO.
+@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
 @ ECHO    Surfshark服務操作 :    [6] 開啟服務 (Surfshark運行)    [7] 關閉服務 (Surfshark終止)
-@ ECHO.                                                                                        (此功能會將前面的優化設置重設)
-@ ECHO    Edge瀏覽器操作 :    [8] 啟用右上AI圖示    [9] 關閉右上AI圖示    [10] 一鍵設置優化    [11] 修復Edge受組織管理
+@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
+@ ECHO    Edge瀏覽器操作 :            
 @ ECHO.
-@ ECHO    重置功能 :    [12] 網路重置    [13] Google重置    [14] Adobe結束背景    [15] AnLink結束背景    [16] R:/ 重置    
-@ ECHO.
-@ ECHO    授權功能 :    [17] RAR授權    [18] Windows 啟用授權    [19] Office 啟用授權
-@ ECHO.
+@ ECHO    [8] 啟用右上AI圖示    [9] 關閉右上AI圖示    [10] 一鍵設置優化    [11] 修復Edge受組織管理    [12] 變更緩存位置
+@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
+@ ECHO    重置功能 :    [13] 網路重置    [14] Google重置    [15] Adobe結束背景    [16] AnLink結束背景    [17] R:/ 重置    
+@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
+@ ECHO    授權功能 :    [18] RAR授權    [19] Windows 啟用授權    [20] Office 啟用授權
 @ ECHO [97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
 @ ECHO ----------------------------------------------------------------------------------------------------------------------[91m
-@ ECHO.
 @ ECHO    [CT] 控制台    [GP] 本機群組原則    [RD] 登入編輯程式    [UG] 使用者群組    [DX] DX診斷工具    [MF] 系統開機設置
 @ ECHO.
 @ ECHO    [WS] 電腦啟用狀態    [SI] 查詢系統資訊    [MSI] 查看完整系統資訊    [NV] 查詢顯卡驅動版本    [HW] 查詢電腦機器碼
@@ -108,27 +107,30 @@ if %choice% equ 0 (
     call :EdgeR&goto menu
 
 ) else if %choice% equ 12 (
-    call :NR&goto menu
+    call :EdgeCC&goto menu
 
 ) else if %choice% equ 13 (
-    call :GR&goto menu
+    call :NR&goto menu
 
 ) else if %choice% equ 14 (
-    call :ADE&goto menu
+    call :GR&goto menu
 
 ) else if %choice% equ 15 (
-    call :ALE&goto menu
+    call :ADE&goto menu
 
 ) else if %choice% equ 16 (
-    call :Rdisk&goto menu
+    call :ALE&goto menu
 
 ) else if %choice% equ 17 (
-    call :Authorization&goto menu
+    call :Rdisk&goto menu
 
 ) else if %choice% equ 18 (
-    call :windows&goto menu
+    call :Authorization&goto menu
 
 ) else if %choice% equ 19 (
+    call :windows&goto menu
+
+) else if %choice% equ 20 (
     call :office&goto menu
 
 ) else if /I "%choice%"=="ct" (
@@ -346,6 +348,38 @@ ECHO.
 
 pause
 
+exit /b
+
+:: ~~~~~ 變更緩存位置 ~~~~~
+:EdgeCC
+setlocal
+
+set "folderPath="
+set "vbsScript=%temp%\folderSelection.vbs"
+
+ECHO.
+ECHO 這將會改變Edge的緩存位置
+ECHO.
+ECHO 請選擇要設置的路徑位置...
+ECHO.
+timeout /t 1 >nul
+
+:: 選擇窗口(VBScript)
+>"%vbsScript%" echo set shellApp = CreateObject("Shell.Application") : set folder = shellApp.BrowseForFolder(0, "Select path", 0, 64) : if not folder is nothing then WScript.Echo folder.Self.Path
+
+for /f "delims=" %%I in ('cscript //nologo "%vbsScript%"') do set "folderPath=%%I"
+del "%vbsScript%"
+
+if defined folderPath (
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "DiskCacheDir" /t REG_SZ /d "%folderPath%EdgeCache" /f
+    echo.
+    echo 註冊表修改成功！緩存目錄已設置為："%folderPath%EdgeCache"
+) else (
+    echo 未選擇任何路徑，註冊表修改取消!。
+)
+
+endlocal
+timeout /t 2 >nul
 exit /b
 
 :: ========================================================================================================================
