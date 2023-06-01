@@ -58,7 +58,7 @@ class Read_web_page:
                 subprocess.call(self.Location, shell=True)
                 
             else:
-                messagebox.showerror("連線失敗","請確認網路連線\n嘗試無驗證運行",parent=None)
+                messagebox.showerror("連線失敗","請確認網路連線\n嘗試無更新驗證運行",parent=None)
 
                 if os.path.exists(self.Location):
                     subprocess.call(self.Location, shell=True)
