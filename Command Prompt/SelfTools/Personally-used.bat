@@ -1,4 +1,4 @@
-:: - Versions 1.0.0 -
+:: - Versions 1.0.1 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -6,51 +6,50 @@ ver|find "5.">nul&&goto :Admin
 mshta vbscript:createobject("shell.application").shellexecute("%~s0","goto :Admin","","runas",1)(window.close)&goto :eof
 :Admin
 
-
 :menu
 color BC
 
 :: 檢查防火牆狀態
 for /f "tokens=2 delims=: " %%i in ('netsh advfirewall show allprofiles state ^| find "State"') do set "firewall_status=%%i"
 if "%firewall_status%"=="ON" (
-    set "display=啟用中"
+    set "display=啟用"
 ) else (
-    set "display=禁用中"
+    set "display=禁用"
 )
 
 cls
 
 @ ECHO [1m
 @ ECHO [94m======================================================================================================================
-@ ECHO                                         - (昌) 自用工具組 Versions 1.0.0 -
+@ ECHO                                       - 工具組 Versions 1.0.1 2023/06/01 -
 @ ECHO ======================================================================================================================[91m
 @ ECHO.
 @ ECHO    Windows系統開關機 :    [1] 睡眠    [2] 重啟    [3] 關機
 @ ECHO.
-@ ECHO    Windows防火牆開關 :    [4] 開啟防火牆    [5] 關閉防火牆    [30m@防火牆當前狀態 : [95m%display%[91m
+@ ECHO    Windows防火牆開關 :    [4] 開啟防火牆    [5] 關閉防火牆    [30m@防火牆當前狀態 : [95m[%display%][91m
 @ ECHO.
 @ ECHO    Surfshark服務操作 :    [6] 開啟服務 (Surfshark運行)    [7] 關閉服務 (Surfshark終止)
 @ ECHO.                                                                                        (此功能會將前面的優化設置重設)
 @ ECHO    Edge瀏覽器操作 :    [8] 啟用右上AI圖示    [9] 關閉右上AI圖示    [10] 一鍵設置優化    [11] 修復Edge受組織管理
 @ ECHO.
-@ ECHO    特殊功能 :    [12] 網路重置    [13] Google重置    [14] Adobe結束背景    [15] AnLink結束背景    [16] R:/ 重置    
+@ ECHO    重置功能 :    [12] 網路重置    [13] Google重置    [14] Adobe結束背景    [15] AnLink結束背景    [16] R:/ 重置    
 @ ECHO.
-@ ECHO    特殊功能 :    [17] RAR授權    [18] Windows 啟用授權    [19] Office 啟用授權
+@ ECHO    授權功能 :    [17] RAR授權    [18] Windows 啟用授權    [19] Office 啟用授權
 @ ECHO.
 @ ECHO [97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
 @ ECHO ----------------------------------------------------------------------------------------------------------------------[91m
 @ ECHO.
-@ ECHO    [HW] 查詢電腦機器碼    [WF] 搜尋電腦內已連接過的wifi    [IP] 查看電腦IP位置    [RS] 查看遠端分享    [SR] 系統修復
+@ ECHO    [CT] 控制台    [GP] 本機群組原則    [RD] 登入編輯程式    [UG] 使用者群組    [DX] DX診斷工具    [MF] 系統開機設置
 @ ECHO.
-@ ECHO    [SV] 查看運行中的服務    [MC] MAC地址查詢    [SI] 查詢系統資訊    [NV] 查詢顯卡驅動版本    [DV] 修復驅動安裝問題
+@ ECHO    [WS] 電腦啟用狀態    [SI] 查詢系統資訊    [MSI] 查看完整系統資訊    [NV] 查詢顯卡驅動版本    [HW] 查詢電腦機器碼
 @ ECHO.
-@ ECHO    [MSI] 查看完整系統資訊    [MRT] 惡意軟體移除工具    [GP] 本機群組原則    [RD] 登入編輯程式    [DX] DX診斷工具
+@ ECHO    [IP] 查看電腦IP位置    [RS] 查看遠端分享    [MC] MAC地址查詢    [SV] 查看運行中的服務    [MRT] 惡意軟體移除工具    
 @ ECHO.
-@ ECHO    [CT] 控制台    [UG] 使用者群組    [MF] 系統開機設置    [WS] 電腦啟用狀態
+@ ECHO    [WF] 搜尋電腦內已連接過的wifi    [DV] 修復驅動安裝問題    [SR] 系統修復            
 @ ECHO.
 @ ECHO [94m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@ ECHO                                          [0] 離開程式     [H] 工具說明
+@ ECHO                                       [0] 離開程式             [H] 工具說明
 @ ECHO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[91m
 @ ECHO.
 
@@ -132,13 +131,51 @@ if %choice% equ 0 (
 ) else if %choice% equ 19 (
     call :office&goto menu
 
-) else if /I "%choice%"=="hw" (
-    call :Hwid&goto menu
+) else if /I "%choice%"=="ct" (
+    Control
+    goto menu
 
-)  else if /I "%choice%"=="wf" (
-    netsh wlan show profiles
+) else if /I "%choice%"=="gp" (
+    gpedit.msc
+    goto menu
+
+) else if /I "%choice%"=="rd" (
+    regedit
+    goto menu
+
+) else if /I "%choice%"=="ug" (
+    lusrmgr.msc
+    goto menu
+
+) else if /I "%choice%"=="dx" (
+    dxdiag
+    goto menu
+
+) else if /I "%choice%"=="mf" (
+    msconfig
+    goto menu
+
+) else if /I "%choice%"=="ws" (
+    slmgr.vbs -xpr
+    goto menu
+
+) else if /I "%choice%"=="si" (
+    ECHO 請稍後...
+    systeminfo
     pause
     goto menu
+
+) else if /I "%choice%"=="msi" (
+    MSInfo32
+    goto menu
+
+) else if /I "%choice%"=="nv" (
+    nvidia-smi
+    pause
+    goto menu
+
+) else if /I "%choice%"=="hw" (
+    call :Hwid&goto menu
 
 ) else if /I "%choice%"=="ip" (
     ipconfig /all
@@ -150,27 +187,22 @@ if %choice% equ 0 (
     pause
     goto menu
 
-) else if /I "%choice%"=="sr" (
-    call :SystemRepair&goto menu
-
-)  else if /I "%choice%"=="sv" (
-    net start
-    pause
-    goto menu
-
 ) else if /I "%choice%"=="mc" (
     getmac /fo table /v
     pause
     goto menu
 
-) else if /I "%choice%"=="si" (
-    ECHO 請稍後...
-    systeminfo
+) else if /I "%choice%"=="sv" (
+    net start
     pause
     goto menu
 
-) else if /I "%choice%"=="nv" (
-    nvidia-smi
+) else if /I "%choice%"=="mrt" (
+    mrt
+    goto menu
+
+) else if /I "%choice%"=="wf" (
+    netsh wlan show profiles
     pause
     goto menu
 
@@ -178,41 +210,8 @@ if %choice% equ 0 (
     msdt.exe -id DeviceDiagnostic
     goto menu
 
-) else if /I "%choice%"=="msi" (
-    MSInfo32
-    goto menu
-
-) else if /I "%choice%"=="mrt" (
-    mrt
-    goto menu
-
-) else if /I "%choice%"=="gp" (
-    gpedit.msc
-    goto menu
-
-) else if /I "%choice%"=="rd" (
-    regedit
-    goto menu
-
-) else if /I "%choice%"=="dx" (
-    dxdiag
-    goto menu
-
-) else if /I "%choice%"=="ct" (
-    Control
-    goto menu
-
-) else if /I "%choice%"=="ug" (
-    lusrmgr.msc
-    goto menu
-
-) else if /I "%choice%"=="mf" (
-    msconfig
-    goto menu
-
-) else if /I "%choice%"=="ws" (
-    slmgr.vbs -xpr
-    goto menu
+) else if /I "%choice%"=="sr" (
+    call :SystemRepair&goto menu
 
 ) else (
     echo 無效的選項
