@@ -1,3 +1,4 @@
+from requests.exceptions import SSLError
 from packaging.version import Version
 from tkinter import messagebox
 from tqdm import tqdm
@@ -43,36 +44,43 @@ class Read_web_page:
                 f.write(content + "\n")
 
     def Clean_run(self):
-        if self.check_internet_connection():
-            if os.path.exists(self.Location) != True:
-                self.Write_cache()
-            else:
-                self.Data_request()
+        try:
+            if self.check_internet_connection():
+                if os.path.exists(self.Location) != True:
+                    self.Write_cache()
+                else:
+                    self.Data_request()
 
-                Web_Version = self.content[0].split(" ")[3]
+                    Web_Version = self.content[0].split(" ")[3]
 
-                with open(self.Location ,"r",encoding="utf-8") as f:
-                    Local_Version = f.readline().split(" ")[3]
+                    with open(self.Location ,"r",encoding="utf-8") as f:
+                        Local_Version = f.readline().split(" ")[3]
 
-                if Version(Web_Version) > Version(Local_Version):
-                    pbar = tqdm(total=len(self.content),ncols=80,desc="更新 ",bar_format="{l_bar}{bar}")
+                    if Version(Web_Version) > Version(Local_Version):
+                        pbar = tqdm(total=len(self.content),ncols=80,desc="更新 ",bar_format="{l_bar}{bar}")
 
-                    with open(self.Location,"w",encoding="utf-8") as f:
-                        for text in self.content:
-                            f.write(text + "\n")
-                            pbar.update(1)
-                        pbar.clear()
+                        with open(self.Location,"w",encoding="utf-8") as f:
+                            for text in self.content:
+                                f.write(text + "\n")
+                                pbar.update(1)
+                            pbar.clear()
 
-            subprocess.call(self.Location, shell=True)
-
-        else:
-            messagebox.showerror("連線失敗","請確認網路連線\n嘗試無驗證運行",parent=None)
-
-            if os.path.exists(self.Location):
                 subprocess.call(self.Location, shell=True)
-            else:
-                messagebox.showerror("嘗試失敗","請重新連接網路後運行",parent=None)
 
+            else:
+                messagebox.showerror("連線失敗","請確認網路連線\n嘗試無驗證運行",parent=None)
+
+                if os.path.exists(self.Location):
+                    subprocess.call(self.Location, shell=True)
+                else:
+                    messagebox.showerror("嘗試失敗","請重新連接網路後運行",parent=None)
+        except IndexError:
+            messagebox.showerror("連線失敗","更新伺服器地址已更新\n請下載最新版本啟動器",parent=None)
+        except SSLError:
+            messagebox.showerror("連線失敗","錯誤的連線憑證",parent=None)
+        except Exception:
+            messagebox.showerror("異常狀況","發生了異常無法運行",parent=None)
+            
 if __name__ == "__main__":
    read = Read_web_page()
    read.Clean_run()
