@@ -1,5 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2023/06/01 00:00 -
+:: - LastEditTime 2023/06/03 00:44 -
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
 :: [+] - Google 緩存清理
@@ -42,7 +42,7 @@ timeout /t 02 >nul
 
 :: ========== 網路重置 ==========
 :: 釋放IP位置
-ipconfig /release
+ipconfig /release 
 :: 清空Dns緩存
 ipconfig /flushdns
 :: 重新請求IP位置
@@ -116,16 +116,16 @@ DEL /F /S /Q "C:\WINDOWS\temp\*.*"
 :: 刪除臨時文件
 DEL /F /S /Q /A:S "C:\WINDOWS\IIS Temporary Compressed Files\*.*"
 DEL %windir%\KB*.log /F /q
-echo Y | RD %windir%\$hf_mig$ /S
+RD %windir%\$hf_mig$ /S /Q
 :: 刪除舊版系統文件
 RD /S /Q C:\Windows.old
 :: 舊版刪除各瀏覽器緩存
-del /f /s /q "%LocalAppData%\Microsoft\Windows\WebCache\*.*"
-del /f /s /q "%LocalAppData%\Microsoft\Windows\INetCache\*.*"
-del /f /s /q "%AppData%\Opera Software\Opera Stable\Cache\*.*"
-del /f /s /q "%AppData%\Mozilla\Firefox\Profiles\*\cache2\*.*"
-del /f /s /q "%AppData%\Google\Chrome\User Data\Default\Cache\*.*"
-del /f /s /q "%LocalAppData%\Microsoft\Windows\Explorer\thumbcache*"
+del /f /s /q "%LocalAppData%\Microsoft\Windows\WebCache\*.*" >nul
+del /f /s /q "%LocalAppData%\Microsoft\Windows\INetCache\*.*" >nul
+del /f /s /q "%AppData%\Opera Software\Opera Stable\Cache\*.*" >nul
+del /f /s /q "%AppData%\Mozilla\Firefox\Profiles\*\cache2\*.*" >nul
+del /f /s /q "%AppData%\Google\Chrome\User Data\Default\Cache\*.*" >nul
+del /f /s /q "%LocalAppData%\Microsoft\Windows\Explorer\thumbcache*" >nul
 
 del /f /s /q "%Temp%"
 del /f /s /q "%windir%\*.bak"
