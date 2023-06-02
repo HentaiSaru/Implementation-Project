@@ -6,6 +6,7 @@ from tqdm import tqdm
 import subprocess
 import requests
 import socket
+import time
 import os
 
 """ Versions 1.0.1
@@ -81,6 +82,7 @@ class Read_web_page:
                             for text in self.content:
                                 f.write(text + "\n")
                                 pbar.update(1)
+                                time.sleep(0.001)
                             pbar.clear()
                 else:
                     self.Write_cache()
@@ -106,5 +108,6 @@ class Read_web_page:
             messagebox.showerror("異常狀況","發生了異常無法運行",parent=None)
 
 if __name__ == "__main__":
+    print("檢查更新...")
     read = Read_web_page()
     read.Enable_Tool()

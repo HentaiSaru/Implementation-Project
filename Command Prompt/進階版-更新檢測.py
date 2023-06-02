@@ -6,6 +6,7 @@ from tqdm import tqdm
 import subprocess
 import requests
 import socket
+import time
 import os
 
 """ Versions 1.0.3
@@ -81,16 +82,17 @@ class Read_web_page:
                             for text in self.content:
                                 f.write(text + "\n")
                                 pbar.update(1)
+                                time.sleep(0.001)
                             pbar.clear()
                 else:
                     self.Write_cache()
 
-                subprocess.call(self.Location, shell=True)
+                subprocess.call(self.Location)
             else:
                 messagebox.showerror("連線失敗","請確認網路連線\n嘗試無驗證運行",parent=None)
 
                 if os.path.exists(self.Location):
-                    subprocess.call(self.Location, shell=True)
+                    subprocess.call(self.Location)
                 else:
                     messagebox.showerror("嘗試失敗","請重新連接網路後運行",parent=None)
         except IndexError:
@@ -105,5 +107,6 @@ class Read_web_page:
             messagebox.showerror("異常狀況","發生了異常無法運行",parent=None)
             
 if __name__ == "__main__":
+   print("檢查更新...")
    read = Read_web_page()
    read.Clean_run()
