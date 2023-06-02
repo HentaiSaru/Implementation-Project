@@ -10,7 +10,7 @@ class Scrapbook:
         self.clear = None
         self.result = []
 
-    def __call__(self,delay:int=0.1 , clear:bool=False):
+    def __call__(self,delay:float=0.1 , clear:bool=False):
 
         self.delay = delay
         self.clear = clear
