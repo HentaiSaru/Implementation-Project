@@ -38,7 +38,7 @@ cls
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
 @ ECHO    重置功能 :    [15] 網路重置    [16] Google重置    [17] Adobe結束背景    [18] AnLink結束背景    [19] R:/ 重置    
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    授權功能 :    [20] RAR授權    [21] Windows 啟用授權    [22] Office 啟用授權
+@ ECHO    授權功能 :    [20] RAR授權    [21] Windows 啟用授權    [22] Office 啟用授權    [23] IDM授權
 @ ECHO [97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
 @ ECHO ----------------------------------------------------------------------------------------------------------------------[91m
@@ -135,6 +135,9 @@ if %choice% equ 0 (
 
 ) else if %choice% equ 22 (
     call :office&goto menu
+
+) else if %choice% equ 23 (
+    call :Idm&goto menu
 
 ) else if /I "%choice%"=="ct" (
     Control
@@ -657,6 +660,30 @@ ECHO 啟動程式...
 
 cd %Temp%
 start KMS_VL_ALL_AIO.cmd
+
+timeout /t 2 >nul
+
+exit /b
+
+:: ~~~~~ IDM授權 ~~~~~
+:Idm
+
+if not exist "%Temp%\IDM.cmd" (
+    ECHO.
+    ECHO 授權程式下載中請稍後...
+    ECHO.
+
+    certutil -urlcache -split -f https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/Idm/IDM.cmd IDM.cmd >nul
+    move IDM.cmd "%Temp%" >nul
+
+    ECHO 下載完成...
+)
+
+ECHO.
+ECHO 啟動程式...
+
+cd %Temp%
+start IDM.cmd
 
 timeout /t 2 >nul
 
