@@ -5,7 +5,15 @@ import subprocess
 import requests
 import socket
 import os
-    
+
+""" Versions 1.0.0
+
+- 檢測工具
+
+1. 直接運行就好了 (自動下載)
+2. 有更新會自動更新
+
+"""
 class Read_web_page:
     def __init__(self):
         Location = os.path.expanduser("~")
