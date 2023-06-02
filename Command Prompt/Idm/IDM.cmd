@@ -1,3 +1,4 @@
+:: 繁體中文版
 @setlocal DisableDelayedExpansion
 @echo off
 chcp 65001 >nul 2>&1
