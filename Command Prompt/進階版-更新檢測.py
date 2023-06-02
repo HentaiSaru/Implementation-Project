@@ -8,7 +8,7 @@ import requests
 import socket
 import os
 
-""" Versions 1.0.2
+""" Versions 1.0.3
 
 - 進階版檢測
 
@@ -21,6 +21,7 @@ class Read_web_page:
         Location = os.path.expanduser("~")
         self.Location = os.path.join(Location,"AppData\Local\\temporary.bat")
         
+        self.connection = False
         self.url = "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/System-Cleaning.bat"
         
         self.content = None
@@ -39,6 +40,8 @@ class Read_web_page:
 
     def Network_request(self):
         reques = requests.get(self.url)
+        if reques.status_code == 200:
+            self.connection = True
         self.content = reques.text.split('\n')
 
         date_processing = self.content[1].split(" ")
@@ -59,7 +62,6 @@ class Read_web_page:
         self.Local_LastEditTime = datetime.strptime(date_processing, "%Y/%m/%d %H:%M")
 
     def Write_cache(self):
-
         with open(self.Location ,"w",encoding="utf-8") as f:
             for content in self.content:
                 f.write(content + "\n")
@@ -69,9 +71,7 @@ class Read_web_page:
             if self.check_internet_connection():
                 self.Network_request()
 
-                if os.path.exists(self.Location) != True:
-                    self.Write_cache()
-                else:
+                if os.path.exists(self.Location):
                     self.Local_request()
 
                     if v(self.Web_Version) > v(self.Local_Version) or self.Web_LastEditTime > self.Local_LastEditTime:
@@ -82,6 +82,8 @@ class Read_web_page:
                                 f.write(text + "\n")
                                 pbar.update(1)
                             pbar.clear()
+                else:
+                    self.Write_cache()
 
                 subprocess.call(self.Location, shell=True)
             else:
@@ -92,7 +94,11 @@ class Read_web_page:
                 else:
                     messagebox.showerror("嘗試失敗","請重新連接網路後運行",parent=None)
         except IndexError:
-            messagebox.showerror("連線失敗","更新伺服器地址已更新\n請下載最新版本啟動器",parent=None)
+            if os.path.exists(self.Location) and self.connection:
+                os.remove(self.Location)
+                self.Clean_run()
+            else:
+                messagebox.showerror("連線失敗","請下載最新版本啟動器",parent=None)
         except SSLError:
             messagebox.showerror("連線失敗","錯誤的連線憑證",parent=None)
         except Exception:
