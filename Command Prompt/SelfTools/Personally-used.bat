@@ -607,7 +607,7 @@ ECHO 授權中請稍後...
 ECHO.
 
 if not exist "C:\Program Files\WinRAR\Rarreg.key" (
-    certutil -urlcache -split -f https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/Rar/Rarreg.key Rarreg.key >nul
+    certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Rar/Rarreg.key" Rarreg.key >nul
     move Rarreg.key "C:\Program Files\WinRAR" >nul
     ECHO 授權完成...
 ) else (
@@ -628,7 +628,7 @@ ECHO 下載中請稍後...
 ECHO.
 
 :: 確保最新版本
-certutil -urlcache -split -f https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO.cmd MAS_AIO.cmd >nul
+certutil -urlcache -split -f "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO.cmd" MAS_AIO.cmd >nul
 move MAS_AIO.cmd "%Temp%" >nul
 
 ECHO 下載完成...
@@ -651,7 +651,7 @@ ECHO.
 ECHO 下載中請稍後...
 ECHO.
 
-certutil -urlcache -split -f https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/master/KMS_VL_ALL_AIO.cmd KMS_VL_ALL_AIO.cmd >nul
+certutil -urlcache -split -f "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/master/KMS_VL_ALL_AIO.cmd" KMS_VL_ALL_AIO.cmd >nul
 move KMS_VL_ALL_AIO.cmd "%Temp%" >nul
 
 ECHO 下載完成...
@@ -673,7 +673,7 @@ if not exist "%Temp%\IDM.cmd" (
     ECHO 授權程式下載中請稍後...
     ECHO.
 
-    certutil -urlcache -split -f https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/Idm/IDM.cmd IDM.cmd >nul
+    certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Idm/IDM.cmd" IDM.cmd >nul
     move IDM.cmd "%Temp%" >nul
 
     ECHO 下載完成...

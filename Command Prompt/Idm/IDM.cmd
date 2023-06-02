@@ -1,8 +1,8 @@
 :: 繁體中文版
 @setlocal DisableDelayedExpansion
+
 @echo off
 chcp 65001 >nul 2>&1
-:: Add custom name in IDM license info, prefer to write it in English and/or numeric in below line after = sign,
 set name=
 
 ::========================================================================================================================================
