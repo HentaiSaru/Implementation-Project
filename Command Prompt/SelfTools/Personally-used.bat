@@ -1,4 +1,5 @@
 :: - Versions 1.0.4 -
+:: - LastEditTime 2023/06/02 00:00 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
