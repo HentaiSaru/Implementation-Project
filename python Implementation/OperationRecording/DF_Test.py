@@ -4,7 +4,7 @@ import win32con
 import time
 
 # 獲取目標窗口的句柄
-hwnd = win32gui.FindWindow(None, "本機")
+hwnd = win32gui.FindWindow(None, "遊俠牌自動連點器 v1.0 GUI")
 
 while True:
     time.sleep(1)
