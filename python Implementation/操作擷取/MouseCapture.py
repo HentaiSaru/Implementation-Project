@@ -15,10 +15,10 @@ class capture():
         if pressed:
             self.press_time = time.time()
             self.Button = str(button).split("Button.")[1]
-            print(f"按下了：{eval(self.Button)}")
+            print(f"按下了 : {eval(self.Button)}")
         else:
             self.letgo_time = time.time()
-            print(f"按放開了：{eval(self.Button)} , 持續時間 : {self.letgo_time-self.press_time}")
+            print(f"按放開了 : {eval(self.Button)} , 持續時間 : {self.letgo_time-self.press_time}")
 
     def move(self, x, y):
         print(f"X座標:{x} , Y座標:{y}")
