@@ -2,7 +2,6 @@ import requests
 
 link_list = [
     "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/測試項目/SourceCode_URL_Conversion.py",
-    # "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/測試項目/backend.py",
     "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/python%20Implementation/ExperimentalBrowser/TestBrowser.py",
 ]
 
@@ -16,11 +15,11 @@ def link_request(url,name):
 for link in link_list:
     link_request(link,namespace)
 
-og = namespace['ogcode']()
-print(og.convert(""))
+# og = namespace['ogcode']()
+# print(og.convert(""))
 
-# TB = namespace['TestBrowser']()
-# TB.Enable_browsing("https://e-hentai.org/")
+TB = namespace['TestBrowser']()
+TB.Enable_browsing("https://e-hentai.org/")
 
 # cal = namespace['calculate']()
 # cal.count(input("數字:"),input("運算符:"),input("數字:"))
