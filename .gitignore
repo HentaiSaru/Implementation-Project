@@ -1,5 +1,4 @@
 *.class
-*.pyc
 *.ini
 *.json
 *.csv
@@ -11,5 +10,6 @@
 影片教學.txt
 VideoDownloader.py
 
+__pycache__
 Temporary
 test
