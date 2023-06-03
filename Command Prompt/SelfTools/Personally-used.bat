@@ -1,5 +1,5 @@
 :: - Versions 1.0.5 -
-:: - LastEditTime 2023/06/02 18:24 -
+:: - LastEditTime 2023/06/04 01:30 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -292,8 +292,6 @@ net start "Surfshark WireGuard" >nul
 net start "Surfshark Service" >nul
 start C:\"Program Files (x86)"\Surfshark\Surfshark.exe >nul
 
-timeout /t 2 >nul
-
 exit /b
 
 :: ~~~~~ 關閉Surfshark ~~~~~
@@ -307,8 +305,6 @@ wmic process where name="Surfshark.exe" delete >nul
 sc config "Surfshark Service" start= demand >nul
 net stop "Surfshark WireGuard" >nul
 net stop "Surfshark Service" >nul
-
-timeout /t 2 >nul
 
 exit /b
 
