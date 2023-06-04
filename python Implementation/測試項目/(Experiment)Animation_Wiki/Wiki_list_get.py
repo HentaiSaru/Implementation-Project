@@ -1,6 +1,5 @@
-from Search_Settings import R_get
+from Search_Settings import ask_s
 from urllib.parse import unquote
-from lxml import etree
 
 class wiki_list:
     def __init__(self):
@@ -12,8 +11,7 @@ class wiki_list:
         return NewURL
 
     def Data_Request(self):
-        list_data = R_get.data(self.url)
-        tree = etree.fromstring(list_data.content, etree.HTMLParser())
+        tree = ask_s.get_tree(self.url)
         
         for data in tree.xpath("//div[@class='hlist']/ul/li/a"):
             self.year_list_information[data.text] = self.UrlPattern(data.get("href"))
@@ -22,4 +20,4 @@ class wiki_list:
         self.Data_Request()
         return self.year_list_information
 
-L_wiki = wiki_list()
+wiki_l = wiki_list()
