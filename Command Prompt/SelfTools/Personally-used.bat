@@ -1,5 +1,5 @@
 :: - Versions 1.0.6 -
-:: - LastEditTime 2023/06/04 06:18 -
+:: - LastEditTime 2023/06/04 18:07 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -431,8 +431,8 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "PasswordReveal
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "PasswordManagerEnabled" /t REG_DWORD /d 1 /f
 :: 啟用性能檢測
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "PerformanceDetectorEnabled" /t REG_DWORD /d 1 /f
-:: 啟用啟動提昇
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "StartupBoostEnabled" /t REG_DWORD /d 1 /f
+:: 啟動提昇 (啟用了話 , 會在關閉程式後 , 背景進程繼續運行)
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "StartupBoostEnabled" /t REG_DWORD /d 0 /f
 :: 啟用睡眠標籤
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "SleepingTabsEnabled" /t REG_DWORD /d 1 /f
 :: 禁止新分頁頁面上的 Microsoft 新聞內容
@@ -456,7 +456,7 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "LocalProviders
 :: 下載限制 (0) = 沒有特殊限制 , (1) = 封鎖危險下載內容 , (2) = 封鎖有潛在危險或垃圾下載項目 , (3) = 封鎖所有下載
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "DownloadRestrictions" /t REG_DWORD /d 0 /f
 :: 啟動時動作 (5) = 開啟新索引標籤 , (1) = 還原上次工作階段 , (4) = 開啟 URL 清單
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "RestoreOnStartup" /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "RestoreOnStartup" /t REG_DWORD /d 5 /f
 :: 檢查下載源安全性
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "SmartScreenForTrustedDownloadsEnabled" /t REG_DWORD /d 0 /f
 :: 是否可以接收 Microsoft 服務的自訂背景影像和文字、建議、通知及提示
@@ -904,17 +904,19 @@ exit /b
 
 color 07
 
-@ ECHO ------------------------------------
+@ ECHO ------------------------------------------
 @ ECHO.
 @ ECHO   Versions 1.0.6 更新:
 @ ECHO.
 @ ECHO    [+] 更新資訊 , 功能添加
 @ ECHO.
-@ ECHO    [+] 添加Edge一鍵優化 , 項目
+@ ECHO    [+] 修正Edge一鍵優化 , 關閉完全結束進程
 @ ECHO.
-@ ECHO    [-] 刪除Edge一鍵優化 , 失效項目
+@ ECHO    [+] 修正Edge一鍵優化 , 重啟重開新標籤
 @ ECHO.
-@ ECHO ------------------------------------
+@ ECHO    [-] 刪除Edge一鍵優化 , 無效項目
+@ ECHO.
+@ ECHO ------------------------------------------
 
 pause
 exit /b
