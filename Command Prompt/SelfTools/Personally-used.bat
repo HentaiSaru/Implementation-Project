@@ -1,5 +1,5 @@
-:: - Versions 1.0.6 -
-:: - LastEditTime 2023/06/04 18:07 -
+:: - Versions 1.0.7 -
+:: - LastEditTime 2023/06/04 20:38 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -22,7 +22,7 @@ cls
 
 @ ECHO [1m
 @ ECHO [94m======================================================================================================================
-@ ECHO                                       - 工具箱 Versions 1.0.6 2023/06/04 -
+@ ECHO                                       - 工具箱 Versions 1.0.7 2023/06/04 -
 @ ECHO ======================================================================================================================[91m
 @ ECHO    Windows系統開關機 :    [1] 睡眠    [2] 重啟    [3] 關機
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
@@ -32,23 +32,25 @@ cls
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
 @ ECHO    瀏覽器操作 :            
 @ ECHO.
-@ ECHO    [8] Edge 啟用右上AI圖示    [9] Edge 關閉右上AI圖示    [10] Edge 一鍵設置優化    [11] Edge 修復受組織管理 (重置功能)
+@ ECHO    [8] Edge 啟用右上AI圖示    [9] Edge 關閉右上AI圖示     [10] Edge 一鍵設置優化    [11] Edge 修復受組織管理 (重置功能)
 @ ECHO.
 @ ECHO    [12] Edge 變更緩存位置     [13] Google 變更緩存位置    [14] Google 修復受機構管理 (重置功能)
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    重置功能 :    [15] 網路重置    [16] Google重置    [17] Adobe結束背景    [18] AnLink結束背景    [19] R:/ 重置    
+@ ECHO    重置功能 :    [15] 網路重置    [16] Google重置    [17] Adobe結束背景      [18] AnLink結束背景    [19] R:/ 重置    
 @ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    授權功能 :    [20] RAR授權    [21] IDM授權    [22] Windows 啟用授權    [23] Office 啟用授權
+@ ECHO    授權功能 :    [20] RAR授權     [21] IDM授權      [22] Windows 啟用授權    [23] Office 啟用授權
+@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
+@ ECHO    特別功能 :    [24] 關閉UAC安全通知
 @ ECHO [97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
 @ ECHO ----------------------------------------------------------------------------------------------------------------------[91m
-@ ECHO    [CT] 控制台    [GP] 本機群組原則    [RD] 登入編輯程式    [UG] 使用者群組    [DX] DX診斷工具    [MF] 系統開機設置
+@ ECHO    [CT] 系統控制台    [GP] 本機群組原則    [RD] 登入編輯程式    [UG] 使用者群組    [DX] DX診斷工具    [MF] 系統開機設置
 @ ECHO.
-@ ECHO    [WS] 電腦啟用狀態    [SI] 查詢系統資訊    [MSI] 查看完整系統資訊    [NV] 查詢顯卡驅動版本    [HW] 查詢電腦機器碼
+@ ECHO    [WS] 電腦啟用狀態    [SI] 查看系統資訊    [MSI] 查看完整系統資訊    [NV] 查看顯卡驅動版本    [HW] 查看電腦機器碼
 @ ECHO.
 @ ECHO    [IP] 查看電腦IP位置    [RS] 查看遠端分享    [MC] MAC地址查詢    [SV] 查看運行中的服務    [MRT] 惡意軟體移除工具    
 @ ECHO.
-@ ECHO    [WF] 搜尋電腦內已連接過的wifi    [DV] 修復驅動安裝問題    [SR] 系統修復            
+@ ECHO    [WF] 顯示已連接過的wifi    [DV] 修復驅動安裝問題    [SR] 系統錯誤修復            
 @ ECHO.
 @ ECHO [94m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @ ECHO                                   [H] 工具說明    [0] 離開程式    [V] 更新資訊
@@ -142,7 +144,10 @@ if %choice% equ 0 (
 ) else if %choice% equ 23 (
     call :office&goto menu
 
-)  else if /I "%choice%"=="ct" (
+)  else if %choice% equ 24 (
+    call :UACd&goto menu
+
+) else if /I "%choice%"=="ct" (
     Control
     goto menu
 
@@ -573,7 +578,7 @@ del "%vbsScript%"
 
 if defined folderPath (
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheDir" /t REG_SZ /d "%folderPath%GoogleCache" /f
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheSize" /t REG_SZ /d "5000000000" /f
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheSize" /t REG_SZ /d "9000000000" /f
     echo.
     echo 修改成功！緩存目錄已設置為："%folderPath%GoogleCache"
 ) else (
@@ -792,6 +797,20 @@ exit /b
 
 :: ************************************************************************************************************************
 
+:: ~~~~~ 關閉UAC通知 ~~~~~
+:UACd
+
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "EnableLUA" /t REG_DWORD /d 0 /f
+
+ECHO.
+ECHO 電腦重啟後生效
+ECHO.
+
+timeout /t 2 >nul
+exit /b
+
+:: ************************************************************************************************************************
+
 :: ~~~~~ 查看機器碼 ~~~~~
 :Hwid
 
@@ -904,19 +923,15 @@ exit /b
 
 color 07
 
-@ ECHO ------------------------------------------
+@ ECHO ---------------------------
 @ ECHO.
-@ ECHO   Versions 1.0.6 更新:
+@ ECHO   Versions 1.0.7 更新:
 @ ECHO.
-@ ECHO    [+] 更新資訊 , 功能添加
+@ ECHO    [+] 特殊功能 , UAC關閉
 @ ECHO.
-@ ECHO    [+] 修正Edge一鍵優化 , 關閉完全結束進程
+@ ECHO    [+] 排版微調
 @ ECHO.
-@ ECHO    [+] 修正Edge一鍵優化 , 重啟重開新標籤
-@ ECHO.
-@ ECHO    [-] 刪除Edge一鍵優化 , 無效項目
-@ ECHO.
-@ ECHO ------------------------------------------
+@ ECHO ---------------------------
 
 pause
 exit /b
