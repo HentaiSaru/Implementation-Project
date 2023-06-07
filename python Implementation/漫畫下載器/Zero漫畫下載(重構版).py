@@ -353,4 +353,4 @@ if __name__ == "__main__":
     # 可使用自訂範圍 , 或是直接填入CB , 設置完成 , 直接再 Custom 尾數傳入 CB
     custom_range(1,10)
 
-    download.Custom("#",601,trial=True,special=True)
+    # download.Custom("#",601,trial=True,special=True)
