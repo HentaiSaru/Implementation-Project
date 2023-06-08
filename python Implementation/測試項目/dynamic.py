@@ -19,7 +19,7 @@ for link in link_list:
 # print(og.convert(""))
 
 TB = namespace['TestBrowser']()
-TB.Enable_browsing("https://e-hentai.org/")
+TB.Enable_browsing("")
 
 # cal = namespace['calculate']()
 # cal.count(input("數字:"),input("運算符:"),input("數字:"))
