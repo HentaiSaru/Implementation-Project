@@ -19,9 +19,5 @@ for link in link_list:
 # print(og.convert(""))
 
 TB = namespace['TestBrowser']()
-TB.Enable_browsing("")
-
-# cal = namespace['calculate']()
-# cal.count(input("數字:"),input("運算符:"),input("數字:"))
-# result = cal.get_result()
-# print(result)
+# TB.Enable_browsing("")
+print(TB.get_version())
