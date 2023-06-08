@@ -1,14 +1,24 @@
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-import undetected_chromedriver as uc
+import subprocess
+import importlib
 import threading
 import random
 import time
+
+check_lib = ["undetected_chromedriver"]
+def Library_installation_detection(lib):
+    try:
+        importlib.import_module(lib)
+    except:
+        subprocess.check_call(["pip", "install", lib])
+for check in check_lib:
+    Library_installation_detection(check)
+
+import undetected_chromedriver as uc
+
 class TestBrowser:
     def __init__(self):
         self.Settings = uc.ChromeOptions()
-        self.Version = "1.0.0"
+        self.Version = "1.0.1"
         self.driver = None
 
     def Setting_Options(self):
@@ -47,12 +57,11 @@ class TestBrowser:
         return self.Version
 
     def detection(self):
-        while True:
-            try:
-                time.sleep(10)
-                WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.XPATH, "//title")))
+        try:
+            while True:
+                if not self.driver.window_handles:
+                    self.driver.close()
+                    break
                 time.sleep(5)
-                WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.XPATH, "//body")))
-            except:
-                self.driver.quit()
-                break
+        except:
+            pass
