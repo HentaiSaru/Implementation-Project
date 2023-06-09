@@ -24,7 +24,8 @@ class Crawling:
         self.tree = etree.fromstring(Session.get(url,headers=self.header).content,etree.HTMLParser())
         self.title = self.tree.xpath("//span[@id='content_app']/text()")[0]
         self.version = self.tree.xpath("//td/text()")[0]
-        self.link = self.tree.xpath("//p[@class='free-download mirror-link']/a")[0].get("href")
+        #? 失效 - self.link = self.tree.xpath("//p[@class='free-download mirror-link']/a")[0].get("href")
+        self.link = url
         self.data = None
         self.Comp = None
         self.GetData()
@@ -78,7 +79,7 @@ class dataprocessing:
 
                             self.SaveBox.append(NewData)
 
-                            result_message = f"- 模組名稱: {re.sub(self.exclude,'',title)}\n- 更新版本: {packaging.version.Version(version)}\n- 更新連結: {link}"
+                            result_message = f"- 模組名稱: {re.sub(self.exclude,'',title)}\n- 更新版本: {Version(version)}\n- 更新連結: {link}"
                             self.result.append(result_message)
 
             with open("Temporary", "wb") as f:
