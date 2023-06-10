@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from tqdm import tqdm
 import tkinter as tk
+import matplotlib
 import threading
 import shutil
 import os
