@@ -345,19 +345,19 @@ if __name__ == "__main__":
     #? 客製化下載方法
 
     #* url(必要) , 頁數(非必要/搜尋頁面預設10) , 隱藏窗口(非必要/True,False/預設是True) (url[單本漫畫/搜尋連結/Batch_Box的list])
-    download.enter("#")
+    # download.enter("#")
 
 ###########################################################
 
     #? 自動擷取剪貼簿
 
-    # print("自動擷取下載(如要使用搜尋頁面,使用客製化方法下載)\n複製網址完畢後 , 按下 Alt+S 開始下載")
-    # capture = AutomaticCapture()
+    print("自動擷取下載(如要使用搜尋頁面,使用客製化方法下載)\n複製網址完畢後 , 按下 Alt+S 開始下載")
+    capture = AutomaticCapture()
 
     # 監聽剪貼版線程
-    # threading.Thread(target=capture.Read_clipboard).start()
+    threading.Thread(target=capture.Read_clipboard).start()
 
     # 監聽鍵盤觸發下載(設置為守護線程,當主線程結束,守護線程自動終止)
-    # command = threading.Thread(target=capture.Download_command)
-    # command.daemon = True
-    # command.start()
+    command = threading.Thread(target=capture.Download_command)
+    command.daemon = True
+    command.start()
