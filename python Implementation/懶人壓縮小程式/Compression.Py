@@ -1,9 +1,9 @@
-import os
+from tkinter import filedialog , messagebox
+import tkinter as tk
 import threading
 import time
-import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox
+import os
+
 """
 Versions 1.0
 [+] 簡易懶人壓縮軟體
