@@ -1,5 +1,5 @@
 :: - Versions 1.0.7 -
-:: - LastEditTime 2023/06/04 20:44 -
+:: - LastEditTime 2023/06/11 11:05 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -7,8 +7,13 @@ ver|find "5.">nul&&goto :Admin
 mshta vbscript:createobject("shell.application").shellexecute("%~s0","goto :Admin","","runas",1)(window.close)&goto :eof
 :Admin
 
+:: 菜單首頁
 :menu
 color BC
+
+:: 文字效果 : 1m(粗體) 3m(斜體) 23m(正體) 4m(底線) 53m(上划線) 22m(雙底線) 9m(刪除線) 7m(背景色與文字色反轉) 27m(復原背景色與文字色)
+:: 文字色 : 30m(灰黑色) 31m(紅色) 32m(綠色) 33m(黃色) 34m(藍色) 35m(紫色) 36m(青藍色) 37m(白色)
+:: 背景色 : 40m(黑底) 41m(紅底) 43m(黃底) 44m(藍底) 45m(紫底) 46m(青藍底) 49m(透明底)
 
 :: 檢查防火牆狀態
 for /f "tokens=2 delims=: " %%i in ('netsh advfirewall show allprofiles state ^| find "State"') do set "firewall_status=%%i"
@@ -24,26 +29,45 @@ cls
 @ ECHO [94m======================================================================================================================
 @ ECHO                                       - 工具箱 Versions 1.0.7 2023/06/04 -
 @ ECHO ======================================================================================================================[91m
-@ ECHO    Windows系統開關機 :    [1] 睡眠    [2] 重啟    [3] 關機
-@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    Windows防火牆開關 :    [4] 開啟防火牆    [5] 關閉防火牆    [30m@防火牆當前狀態 : [95m[%display%][91m
-@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    Surfshark服務操作 :    [6] 開啟服務 (Surfshark運行)    [7] 關閉服務 (Surfshark終止)
-@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    瀏覽器操作 :            
 @ ECHO.
-@ ECHO    [8] Edge 啟用右上AI圖示    [9] Edge 關閉右上AI圖示     [10] Edge 一鍵設置優化    [11] Edge 修復受組織管理 (重置功能)
+@ ECHO [3m[94m   Windows系統開關機 :[91m[23m
 @ ECHO.
-@ ECHO    [12] Edge 變更緩存位置     [13] Google 變更緩存位置    [14] Google 修復受機構管理 (重置功能)
-@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    重置功能 :    [15] 網路重置    [16] Google結束進程    [17] Adobe結束進程      [18] AnLink結束進程    [19] R:/ 重置    
-@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    授權功能 :    [20] RAR授權     [21] IDM授權      [22] Windows 啟用授權    [23] Office 啟用授權
-@ ECHO [92m-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -[91m
-@ ECHO    特別功能 :    [24] 關閉UAC安全通知
-@ ECHO [97m----------------------------------------------------------------------------------------------------------------------
+@ ECHO    [1] 睡眠    [2] 重啟    [3] 關機
+@ ECHO.
+@ ECHO [3m[94m   Windows防火牆開關 :[91m[23m
+@ ECHO.
+@ ECHO    [4] 開啟防火牆    [5] 關閉防火牆    [3m[7m 防火牆當前狀態 [95m[23m [%display%] [91m[27m
+@ ECHO.
+@ ECHO [3m[94m   Surfshark服務操作 :[91m[23m
+@ ECHO.
+@ ECHO    [6] 開啟服務 (Surfshark運行)    [7] 關閉服務 (Surfshark終止)
+@ ECHO.
+@ ECHO [3m[94m   瀏覽器操作 :[91m[23m
+@ ECHO.
+@ ECHO    [8] Edge 啟用右上AI圖示    [9] Edge 關閉右上AI圖示
+@ ECHO.
+@ ECHO    [10] Google 變更緩存位置    [11] Google 一鍵優化設置    [12] Google 修復受機構管理 (重置優化設置)
+@ ECHO.
+@ ECHO    [13] Edge 變更緩存位置    [14] Edge 一鍵優化設置    [15] Edge 修復受組織管理 (重置優化設置)
+@ ECHO.
+@ ECHO [3m[94m   重置功能 :[91m[23m
+@ ECHO.
+@ ECHO    [16] 網路重置    [17] R:/ 重置
+@ ECHO.
+@ ECHO    [18] Google 結束進程    [19] Edge 結束進程    [20] Adobe 結束進程      [21] AnLink 結束進程     
+@ ECHO.
+@ ECHO [3m[94m   授權功能 :[91m[23m
+@ ECHO.   
+@ ECHO    [22] RAR授權     [23] IDM授權    [24] Windows 啟用授權    [25] Office 啟用授權
+@ ECHO.
+@ ECHO [3m[94m   特別功能 :[91m[23m
+@ ECHO.
+@ ECHO    [26] 關閉UAC安全通知
+@ ECHO.
+@ ECHO [3m[97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
-@ ECHO ----------------------------------------------------------------------------------------------------------------------[91m
+@ ECHO ----------------------------------------------------------------------------------------------------------------------[91m[23m
+@ ECHO.
 @ ECHO    [CT] 系統控制台    [GP] 本機群組原則    [RD] 登入編輯程式    [UG] 使用者群組    [DX] DX診斷工具    [MF] 系統開機設置
 @ ECHO.
 @ ECHO    [WS] 電腦啟用狀態    [SI] 查看系統資訊    [MSI] 查看完整系統資訊    [NV] 查看顯卡驅動版本    [HW] 查看電腦機器碼
@@ -103,48 +127,54 @@ if %choice% equ 0 (
     call :EdgeAID&goto menu
 
 ) else if %choice% equ 10 (
-    call :EdgeOp&goto menu
-
-) else if %choice% equ 11 (
-    call :EdgeR&goto menu
-
-) else if %choice% equ 12 (
-    call :EdgeCC&goto menu
-
-) else if %choice% equ 13 (
     call :GoogleCC&goto menu
 
-) else if %choice% equ 14 (
+) else if %choice% equ 11 (
+    call :GoogleOp&goto menu
+
+) else if %choice% equ 12 (
     call :GoogleR&goto menu
 
+) else if %choice% equ 13 (
+    call :EdgeCC&goto menu
+
+) else if %choice% equ 14 (
+    call :EdgeOp&goto menu
+
 ) else if %choice% equ 15 (
-    call :NR&goto menu
+    call :EdgeR&goto menu
 
 ) else if %choice% equ 16 (
-    call :GR&goto menu
+    call :NR&goto menu
 
 ) else if %choice% equ 17 (
-    call :ADE&goto menu
-
-) else if %choice% equ 18 (
-    call :ALE&goto menu
-
-) else if %choice% equ 19 (
     call :Rdisk&goto menu
 
+) else if %choice% equ 18 (
+    call :GR&goto menu
+
+) else if %choice% equ 19 (
+    call :ER&goto menu
+
 ) else if %choice% equ 20 (
-    call :Authorization&goto menu
+    call :ADE&goto menu
 
 ) else if %choice% equ 21 (
-    call :Idm&goto menu
+    call :ALE&goto menu
 
 ) else if %choice% equ 22 (
-    call :windows&goto menu
+    call :Authorization&goto menu
 
 ) else if %choice% equ 23 (
+    call :Idm&goto menu
+
+) else if %choice% equ 24 (
+    call :windows&goto menu
+
+) else if %choice% equ 25 (
     call :office&goto menu
 
-)  else if %choice% equ 24 (
+)  else if %choice% equ 26 (
     call :UACd&goto menu
 
 ) else if /I "%choice%"=="ct" (
@@ -344,6 +374,97 @@ pause
 
 exit /b
 
+:: ~~~~~ google 變更緩存位置 ~~~~~
+:GoogleCC
+setlocal
+
+set "folderPath="
+set "vbsScript=%temp%\folderSelection.vbs"
+
+ECHO.
+ECHO 這將會改變Google的緩存位置
+ECHO.
+ECHO 請選擇要設置的路徑位置...
+ECHO.
+timeout /t 1 >nul
+
+:: 選擇窗口(VBScript)
+>"%vbsScript%" echo set shellApp = CreateObject("Shell.Application") : set folder = shellApp.BrowseForFolder(0, "Select path", 0, 64) : if not folder is nothing then WScript.Echo folder.Self.Path
+
+for /f "delims=" %%I in ('cscript //nologo "%vbsScript%"') do set "folderPath=%%I"
+del "%vbsScript%"
+
+if defined folderPath (
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheDir" /t REG_SZ /d "%folderPath%GoogleCache" /f
+    echo.
+    echo 修改成功！緩存目錄已設置為："%folderPath%GoogleCache"
+) else (
+    echo 未選擇任何路徑，修改取消。
+)
+
+endlocal
+timeout /t 2 >nul
+exit /b
+
+:: ~~~~~ google 一鍵功能優化 ~~~~~
+:GoogleOp
+
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheSize" /t REG_SZ /d "9000000000" /f
+
+ECHO.
+ECHO 優化完成
+ECHO.
+ECHO 請自行重啟瀏覽器...
+ECHO.
+
+pause
+exit /b
+
+:: ~~~~~ 修復 Google 瀏覽器受管理 ~~~~~
+:GoogleR
+
+reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /f
+
+ECHO.
+ECHO 請自行重啟瀏覽器...
+ECHO.
+
+pause
+
+exit /b
+
+:: ~~~~~ edge 變更緩存位置 ~~~~~
+:EdgeCC
+setlocal
+
+set "folderPath="
+set "vbsScript=%temp%\folderSelection.vbs"
+
+ECHO.
+ECHO 這將會改變Edge的緩存位置
+ECHO.
+ECHO 請選擇要設置的路徑位置...
+ECHO.
+timeout /t 1 >nul
+
+:: 選擇窗口(VBScript)
+>"%vbsScript%" echo set shellApp = CreateObject("Shell.Application") : set folder = shellApp.BrowseForFolder(0, "Select path", 0, 64) : if not folder is nothing then WScript.Echo folder.Self.Path
+
+for /f "delims=" %%I in ('cscript //nologo "%vbsScript%"') do set "folderPath=%%I"
+del "%vbsScript%"
+
+if defined folderPath (
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "DiskCacheDir" /t REG_SZ /d "%folderPath%EdgeCache" /f
+    echo.
+    echo 修改成功！緩存目錄已設置為："%folderPath%EdgeCache"
+) else (
+    echo 未選擇任何路徑，修改取消。
+)
+
+endlocal
+timeout /t 2 >nul
+exit /b
+
 :: ~~~~~ edge 一鍵功能優化 ~~~~~
 :EdgeOp
 
@@ -524,84 +645,6 @@ pause
 
 exit /b
 
-:: ~~~~~ edge 變更緩存位置 ~~~~~
-:EdgeCC
-setlocal
-
-set "folderPath="
-set "vbsScript=%temp%\folderSelection.vbs"
-
-ECHO.
-ECHO 這將會改變Edge的緩存位置
-ECHO.
-ECHO 請選擇要設置的路徑位置...
-ECHO.
-timeout /t 1 >nul
-
-:: 選擇窗口(VBScript)
->"%vbsScript%" echo set shellApp = CreateObject("Shell.Application") : set folder = shellApp.BrowseForFolder(0, "Select path", 0, 64) : if not folder is nothing then WScript.Echo folder.Self.Path
-
-for /f "delims=" %%I in ('cscript //nologo "%vbsScript%"') do set "folderPath=%%I"
-del "%vbsScript%"
-
-if defined folderPath (
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "DiskCacheDir" /t REG_SZ /d "%folderPath%EdgeCache" /f
-    echo.
-    echo 修改成功！緩存目錄已設置為："%folderPath%EdgeCache"
-) else (
-    echo 未選擇任何路徑，修改取消。
-)
-
-endlocal
-timeout /t 2 >nul
-exit /b
-
-:: ~~~~~ google 變更緩存位置 ~~~~~
-:GoogleCC
-setlocal
-
-set "folderPath="
-set "vbsScript=%temp%\folderSelection.vbs"
-
-ECHO.
-ECHO 這將會改變Google的緩存位置
-ECHO.
-ECHO 請選擇要設置的路徑位置...
-ECHO.
-timeout /t 1 >nul
-
-:: 選擇窗口(VBScript)
->"%vbsScript%" echo set shellApp = CreateObject("Shell.Application") : set folder = shellApp.BrowseForFolder(0, "Select path", 0, 64) : if not folder is nothing then WScript.Echo folder.Self.Path
-
-for /f "delims=" %%I in ('cscript //nologo "%vbsScript%"') do set "folderPath=%%I"
-del "%vbsScript%"
-
-if defined folderPath (
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheDir" /t REG_SZ /d "%folderPath%GoogleCache" /f
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheSize" /t REG_SZ /d "9000000000" /f
-    echo.
-    echo 修改成功！緩存目錄已設置為："%folderPath%GoogleCache"
-) else (
-    echo 未選擇任何路徑，修改取消。
-)
-
-endlocal
-timeout /t 2 >nul
-exit /b
-
-:: ~~~~~ 修復 Google 瀏覽器受管理 ~~~~~
-:GoogleR
-
-reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /f
-
-ECHO.
-ECHO 請自行重啟瀏覽器...
-ECHO.
-
-pause
-
-exit /b
-
 :: ========================================================================================================================
 
 :: ~~~~~ 網路重置 ~~~~~
@@ -619,20 +662,46 @@ netsh winsock reset >nul
 netsh advfirewall reset >nul
 ipconfig /renew >nul
 
-timeout /t 2 >nul
+timeout /t 1 >nul
 
 exit /b
 
-:: ~~~~~ 網路重置 ~~~~~
+:: ~~~~~ R盤重置 ~~~~~
+:Rdisk
+
+ECHO.
+ECHO 開始重置...
+ECHO.
+
+RD /s /q R:\
+
+timeout /t 1 >nul
+
+exit /b
+
+:: ~~~~~ Google重置 ~~~~~
 :GR
 
 ECHO.
-ECHO Google重置中...
+ECHO Google結束中...
 ECHO.
 
 wmic process where name="chrome.exe" delete >nul
 
-timeout /t 2 >nul
+timeout /t 1 >nul
+
+exit /b
+
+:: ~~~~~ Edge重置 ~~~~~
+:ER
+
+ECHO.
+ECHO Edge結束中...
+ECHO.
+
+wmic process where name="msedge.exe" delete >nul
+
+timeout /t 1 >nul
 
 exit /b
 
@@ -648,7 +717,7 @@ wmic process where name="CCLibrary.exe" delete >nul
 wmic process where name="node.exe" delete >nul
 wmic process where name="OfficeClickToRun.exe" delete >nul
 
-timeout /t 2 >nul
+timeout /t 1 >nul
 
 exit /b
 
@@ -684,19 +753,6 @@ if %errorlevel% equ 0 (
     wmic process where name="ApplicationFrameHost.exe" delete >nul
     goto loop
 )
-
-timeout /t 2 >nul
-
-exit /b
-
-:: ~~~~~ R盤重置 ~~~~~
-:Rdisk
-
-ECHO.
-ECHO 開始重置...
-ECHO.
-
-RD /s /q R:\
 
 timeout /t 1 >nul
 
@@ -923,15 +979,17 @@ exit /b
 
 color 07
 
-@ ECHO ---------------------------
+@ ECHO ------------------------------------
 @ ECHO.
 @ ECHO   Versions 1.0.7 更新:
 @ ECHO.
-@ ECHO    [+] 特殊功能 , UAC關閉
+@ ECHO    [+] 增加功能 , UAC關閉
 @ ECHO.
-@ ECHO    [+] 排版微調
+@ ECHO    [+] 增加功能 , Google一鍵優化
 @ ECHO.
-@ ECHO ---------------------------
+@ ECHO    [+] 排版調整
+@ ECHO.
+@ ECHO ------------------------------------
 
 pause
 exit /b
