@@ -43,5 +43,9 @@ class UpdateDetection:
 
 if __name__ == "__main__":
     check = UpdateDetection()
+
     # 獲取更新連結
     check.Get_UP()
+
+    # 獲取完整連結 (有BUG , 確定取得是完整下載連結 , 但實際上只下載更新補丁)
+    # check.Get_FP()
