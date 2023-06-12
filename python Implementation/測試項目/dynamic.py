@@ -19,5 +19,5 @@ for link in link_list:
 # print(og.convert(""))
 
 TB = namespace['TestBrowser']()
-# TB.Enable_browsing("")
-print(TB.get_version())
+TB.Enable_browsing()
+# print(TB.get_version())
