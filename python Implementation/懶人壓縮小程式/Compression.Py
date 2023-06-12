@@ -4,7 +4,7 @@ import threading
 import time
 import os
 
-""" Versions 1.0.1 (修改版)
+""" Versions 1.0.1 (修改測試版)
 
 [+] UPX壓縮
 [+] UPX還原
@@ -17,8 +17,10 @@ import os
 """
 
 root = tk.Tk()
-root.title("懶人壓縮器 v1.0.1")
-root.iconbitmap("./Compression.ico")
+root.title("懶人壓縮器 ( v1.0.1 修改測試版 )")
+
+Icon = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Compression.ico')
+root.iconbitmap(Icon)
 
 WindowWidth = 850
 WindowHeight = 700
@@ -110,6 +112,7 @@ class Compression:
             messagebox.showerror("設置錯誤", "未檢測到文件")
             gui.LeftText.insert("end", f"{self.UpxError}")
             gui.UPXCompression.config(fg=gui.Compressbuttonnormal,bg=gui.Compressbuttonbackgroundcolor)
+
     # UPX壓縮還原觸發
     def UPXRestore(self):
         try:
@@ -124,6 +127,7 @@ class Compression:
             messagebox.showerror("設置錯誤", "未檢測到文件")
             gui.LeftText.insert("end", f"{self.UpxError}")
             gui.UPXRestore.config(fg=gui.Compressbuttonnormal,bg=gui.Compressbuttonbackgroundcolor)
+
     # UPX壓縮運行
     def UPXRun(self,Text,Work):
         Finally = []
@@ -171,6 +175,7 @@ class Compression:
         except:
             messagebox.showerror("設置錯誤", "未檢測到文件")
             gui.RARCompression.config(fg=gui.Compressbuttonnormal,bg=gui.Compressbuttonbackgroundcolor)
+
     # RAR集成壓縮運行
     def RARFusion(self,Text):
         try:
@@ -186,6 +191,7 @@ class Compression:
             time.sleep(0.5)
             messagebox.showinfo("開始壓縮",f"請稍後...\n檔案將保存於 : {RARFormat}") # 輸出開始壓縮,並將檔案壓縮位置輸出
         except:pass
+
     # RAR個別壓縮運行
     def RARRespective(self,Text):
         try:
@@ -216,6 +222,7 @@ class Compression:
         except:
             messagebox.showerror("設置錯誤", "未檢測到文件")
             gui.ZipCompression.config(fg=gui.Compressbuttonnormal,bg=gui.Compressbuttonbackgroundcolor)  
+
     # ZIP集成壓縮
     def ZIPFusion(self,Text):
         try:
@@ -231,6 +238,7 @@ class Compression:
             time.sleep(0.5)
             messagebox.showinfo("開始壓縮",f"請稍後...\n檔案將保存於 : {ZIPFormat}")
         except:pass
+        
     # ZIP個別壓縮
     def ZIPRespective(self,Text):
         try:
