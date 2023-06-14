@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor , ProcessPoolExecutor
+from multiprocessing import process , Pool
 import undetected_chromedriver as uc
-import multiprocessing
 import pyperclip
 import threading
 import requests
@@ -50,31 +50,32 @@ def main():
     driver.close()
 
 
-class Test:
-    def __init__(self):
-        self.manager = multiprocessing.Manager()
-        self.Queue = self.manager.Queue()
-        self.CpuCore = multiprocessing.cpu_count()
-        self.comic_link_box = ["a", 'b', 'c', "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n"]
-
-    def ran1(self):
-        with ProcessPoolExecutor(max_workers=self.CpuCore, initializer=self.initialize_queue, initargs=(self.Queue,)) as executor:
-            for url in self.comic_link_box:
-                executor.submit(self.ran2, url)
-
-    @staticmethod
-    def initialize_queue(queue):
-        Test.Queue = queue
-
-    @staticmethod
-    def ran2(url):
-        t = Test()
-        t.Queue.put(url)
-        
-        # 从队列中获取数据
-        data = t.Queue.get()
-        print(data)
+def manga_page_data_processing(url):
+    print("當前處理:", url)
 
 if __name__ == '__main__':
-    t = Test()
-    t.ran1()
+    """ [Pool 線程池]
+        num_processes = 10
+        pool = Pool(processes=num_processes)
+
+        STime = time.time()
+
+        results = []
+        for url in range(10000):
+            result = pool.apply_async(manga_page_data_processing, args=(url,))
+            results.append(result)
+
+        pool.close()
+        pool.join()
+
+        ETime = time.time()
+        print(ETime-STime)
+    """
+
+    STime = time.time()
+
+    with ProcessPoolExecutor(max_workers=10) as executor:
+        for url in range(10000):
+            executor.submit(manga_page_data_processing,url)
+
+    print(time.time()-STime)
