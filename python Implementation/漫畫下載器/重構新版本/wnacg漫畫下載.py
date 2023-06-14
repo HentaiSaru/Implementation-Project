@@ -1,7 +1,7 @@
-from concurrent.futures import ThreadPoolExecutor , ProcessPoolExecutor
-from urllib.parse import unquote
+from concurrent.futures import *
+from multiprocessing import *
+from urllib.parse import *
 from lxml import etree
-import multiprocessing
 from tqdm import tqdm
 import pyperclip
 import threading
@@ -58,7 +58,7 @@ class Accurate:
         self.Tag_page_format = r'^https:\/\/www\.wnacg\.com\/albums.*'
 
         # 取得CPU核心數
-        self.CpuCore = multiprocessing.cpu_count()
+        self.CpuCore = cpu_count()
 
         self.headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"}
         self.session = requests.Session()
