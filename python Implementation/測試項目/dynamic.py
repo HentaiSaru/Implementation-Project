@@ -15,9 +15,9 @@ def link_request(url,name):
 for link in link_list:
     link_request(link,namespace)
 
-# og = namespace['ogcode']()
-# print(og.convert(""))
+og = namespace['ogcode']()
+print(og.convert(""))
 
-TB = namespace['TestBrowser']()
-TB.Enable_browsing()
+# TB = namespace['TestBrowser']()
+# TB.Enable_browsing()
 # print(TB.get_version())
