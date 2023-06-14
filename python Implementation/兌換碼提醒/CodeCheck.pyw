@@ -1,4 +1,5 @@
 from RedemptionCode import auto
+import multiprocessing
 import threading
 import time
 
@@ -14,4 +15,9 @@ def run():
         # 每兩小時檢測一次
         time.sleep(7200)
 
-threading.Thread(target=run).start()
+if __name__ == '__main__':
+    # 進程調用
+    multiprocessing.Process(target=run).start()
+    
+    # 線程調用
+    # threading.Thread(target=run).start()
