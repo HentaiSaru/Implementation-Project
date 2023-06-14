@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/06/14 15:52 -
+:: - LastEditTime 2023/06/14 15:57 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -993,13 +993,9 @@ color 07
 
 @ ECHO ------------------------------------
 @ ECHO.
-@ ECHO   Versions 1.0.7 更新:
+@ ECHO   Versions 1.0.8 更新:
 @ ECHO.
-@ ECHO    [+] 增加功能 , UAC關閉
-@ ECHO.
-@ ECHO    [+] 增加功能 , Google一鍵優化
-@ ECHO.
-@ ECHO    [+] 排版調整
+@ ECHO    [+] 增加功能 , .NET安裝
 @ ECHO.
 @ ECHO ------------------------------------
 
