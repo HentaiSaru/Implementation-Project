@@ -877,6 +877,37 @@ winget install Microsoft.DotNet.SDK.7
 timeout /t 2 >nul
 exit /b
 
+:: ~~~~~ 安裝 Visual C++ ~~~~~
+:: https://learn.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
+:: https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/
+:VSC
+
+ECHO.
+ECHO Visual C++ 下載中請稍後...
+ECHO.
+
+certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Idm/IDM.tar" Visual.tar >nul
+move Visual.tar "%Temp%" >nul
+
+ECHO 下載完成...
+ECHO.
+
+cd %Temp%
+tar -xf Visual.tar >nul
+
+ECHO 啟動程式安裝...
+
+start /wait vcredist2005_x64.exe /q
+start /wait vcredist2008_x64.exe /qb
+start /wait vcredist2010_x64.exe /passive /norestart
+start /wait vcredist2012_x64.exe /passive /norestart
+start /wait vcredist2013_x64.exe /passive /norestart
+start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
+
+timeout /t 2 >nul
+
+exit /b
+
 :: ************************************************************************************************************************
 
 :: ~~~~~ 查看機器碼 ~~~~~
