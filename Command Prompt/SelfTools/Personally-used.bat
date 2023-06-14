@@ -1,5 +1,5 @@
 :: - Versions 1.0.7 -
-:: - LastEditTime 2023/06/11 11:05 -
+:: - LastEditTime 2023/06/14 15:52 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -27,7 +27,7 @@ cls
 
 @ ECHO [1m
 @ ECHO [94m======================================================================================================================
-@ ECHO                                       - 工具箱 Versions 1.0.7 2023/06/04 -
+@ ECHO                                       - 工具箱 Versions 1.0.8 2023/06/14 -
 @ ECHO ======================================================================================================================[91m
 @ ECHO.
 @ ECHO [3m[94m   Windows系統開關機 :[91m[23m
@@ -62,7 +62,7 @@ cls
 @ ECHO.
 @ ECHO [3m[94m   特別功能 :[91m[23m
 @ ECHO.
-@ ECHO    [26] 關閉UAC安全通知
+@ ECHO    [26] 關閉UAC安全通知    [27] .NET安裝
 @ ECHO.
 @ ECHO [3m[97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
@@ -176,6 +176,9 @@ if %choice% equ 0 (
 
 )  else if %choice% equ 26 (
     call :UACd&goto menu
+
+) else if %choice% equ 27 (
+    call :NETInstall&goto menu
 
 ) else if /I "%choice%"=="ct" (
     Control
@@ -861,6 +864,15 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "Ena
 ECHO.
 ECHO 電腦重啟後生效
 ECHO.
+
+timeout /t 2 >nul
+exit /b
+
+:: ~~~~~ 安裝.NET ~~~~~
+:NETInstall
+
+winget install Microsoft.DotNet.SDK.6
+winget install Microsoft.DotNet.SDK.7
 
 timeout /t 2 >nul
 exit /b
