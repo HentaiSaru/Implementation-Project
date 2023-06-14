@@ -1,5 +1,8 @@
+# 主要使用 concurrent.futures 的進程池和線程池加速處理下載
 from concurrent.futures import *
+# multiprocessing 的 Pool 進程池創建只能在主模塊使用
 from multiprocessing import *
+# 網址中文字解析
 from urllib.parse import *
 from lxml import etree
 from tqdm import tqdm
@@ -7,28 +10,37 @@ import pyperclip
 import threading
 import requests
 import keyboard
-import asyncio
 import aiohttp
+import asyncio
 import time
 import os
 import re
 
-""" Versions 1.0.0 (重構測試版)
+""" Versions 1.0.1 (重構測試版)
 
 *   功能:
 ?       [+] 自動擷取網址
 ?       [+] 批量同步下載
+?       [+] 顯示處理數量
+?       [+] 顯示當前處理
+?       [+] 顯示處理時間
+?       [+] 下載位置選擇
 
 *   問題:
 ?       [*] 使用多進程操作下載 , 沒特別處理進度條顯示問題
-?       [*] 下載處理速度快慢 , 是根據使用者的CPU核心數
 ?       [*] 搜尋頁面或TAG頁面的大量下載 , 網址處理有一些Bug , 有些會沒下載到(可再自行單本下載)
 ?       [*] 網址處理較慢 , 為了準確獲取圖片連結 , 有好幾個請求步驟
+?       [*] 短時間大量下載很有可能會卡住 , 要嘛將延遲設置更高 , 要嘛就單本下載
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - 爬蟲適用網站 : https://www.wnacg.com/
     Todo - 使用說明 : 輸入該漫畫的網址 , 會自動擷取 , 接著按下快捷鍵下載 , 下載完成會自動結束 (沒有結束代表還沒完成/或是卡死了[短時間下載太多會卡住])
+    Todo - 代碼修改 :
+    *修改 1. 下載的檔案位置
+    *修改 2. 最大創建進程數(建議別太多會卡住 , 除非電腦CPU核心夠多)
+    *修改 3. 下載延遲數(預設:0.3秒) 這是對網站 , 和硬碟的保護 , 雖然不限速會很快
+    *修改 4. 進程創建的延遲數(預設:0.1秒) 也是對網站的保護 , 太快容易大量下載時卡住
 
     (支援: 
         ? 搜尋頁面 : https://www.wnacg.com/search/index.php?q=...
@@ -40,30 +52,60 @@ import re
     ! 硬碟的讀取速度 , 影響圖片下載速度
     
 """
+# 網站域名(有時候域名會變更)
+def DomainName():
+    return "https://www.wnacg.com"
 
 # 下載路徑設置
 dir = os.path.abspath("R:/")
 os.chdir(dir)
 
-# 網站域名
-def DomainName():
-    return "https://www.wnacg.com"
-
 # 精準處理下載
 class Accurate:
     def __init__(self):
+        """ ----------------------------
+        [- CPU核心數 (創建進程數量) -]
+        
+        越多並不會越快 , 但在大量下載時 , 相對更快
+        如只想用自身 CPU 的核心數 , 就把 + 2 刪除
+
+        """
+        self.CpuCore = cpu_count() + 2
+
+        """ ----------------------------
+        [- 保護延遲秒數 -]
+
+        這個延遲速度影響到下載速度
+        為了保護網站的伺服器 , 設置的延遲
+        同時也保護硬碟的寫入 , 設置低雖然快但是
+        但網站響應卡住 , 下載就跟著卡住了
+
+        """
+        self.ProtectionDelay = 0.3
+
+        """ ----------------------------
+        [- 進程創建延遲秒數 -]
+
+        這個延遲速度影響到併發的進程處理速度
+        同樣也是保護網站的伺服器 , 避免短時間大量請求
+        如果大量下載時卡住 , 將延遲調高
+
+        """
+        self.ProcessDelay = 0.1
+
+        ########################################
+
+        self.session = requests.Session()
+        self.headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"}
+
         # 用於驗證傳遞的網址格式
         self.Comic_Page_Format = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
         self.Search_Page_Format = r'https://www\.wnacg\.com/search/.*\?q=.+'
         self.Tag_page_format = r'^https:\/\/www\.wnacg\.com\/albums.*'
-
-        # 取得CPU核心數
-        self.CpuCore = cpu_count()
-
-        self.headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"}
-        self.session = requests.Session()
-
+        
+        # 分類為漫畫網址的保存
         self.SingleBox = []
+        # 分類為搜尋網址的保存
         self.BatchBox = []
 
     # 異步數據請求
@@ -92,8 +134,9 @@ class Accurate:
         if len(self.SingleBox) > 0:
             print("開始處理下載...")
             with ProcessPoolExecutor(max_workers=self.CpuCore) as executor:
-                for url in self.SingleBox:
-                    executor.submit(self.manga_page_data_processing,url)
+                for index , url in enumerate(self.SingleBox):
+                    executor.submit(self.manga_page_data_processing, url, index+1)
+                    time.sleep(self.ProcessDelay)
         
         # 搜尋頁面與Tag頁面
         if len(self.BatchBox) > 0:
@@ -145,17 +188,24 @@ class Accurate:
                     
                     page_count += 1
 
+        print("搜尋頁面開始處理...")
+
         asyncio.run(Get_all_page_data())
 
         print(f"獲取的漫畫數量 : {len(comic_link_box)}")
         print("開始處理下載...")
+
         with ProcessPoolExecutor(max_workers=self.CpuCore) as executor:
-            for url in comic_link_box:
-                executor.submit(self.manga_page_data_processing,url)
+            for index , url in enumerate(comic_link_box):
+                executor.submit(self.manga_page_data_processing, url, index+1)
+                time.sleep(self.ProcessDelay)
 
     # 漫畫頁面處理
-    def manga_page_data_processing(self,url):
+    def manga_page_data_processing(self,url,number):
+        print(f"第 {number} 本漫畫開始處理...")
+
         picture_link = []
+        StartTime = time.time()
 
         link = url.split("index-")
         New_url = f"{link[0]}index-page-1-{link[1]}"
@@ -205,6 +255,8 @@ class Accurate:
                     picture_link.append(f"https:{image_link}")
 
         asyncio.run(Get_picture_link())
+
+        print("第 %d 漫畫 - 處理花費時間 : %.3f" % (number , (time.time()-StartTime)))
         self.download_processing(download_path,picture_link,manga_name)
 
     # 下載處理
@@ -220,7 +272,7 @@ class Accurate:
 
                 pbar.update(1)
                 SaveNameFormat += 1
-                time.sleep(0.01)
+                time.sleep(self.ProtectionDelay)
         pbar.close()
 
     # 資料夾創建
@@ -234,6 +286,7 @@ class Accurate:
         with open(os.path.join(download_path,SaveName),"wb") as f:
             f.write(ImageData.content)
 
+# 自動擷取剪貼簿
 class AutomaticCapture:
     def __init__(self):
         self.initial = r"{}.*".format(DomainName())
