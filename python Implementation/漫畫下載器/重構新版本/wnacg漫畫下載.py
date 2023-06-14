@@ -148,7 +148,7 @@ class Accurate:
         comic_link_box = []
         url = unquote(link)
         
-        async def Get_all_page_data():
+        async def Request_Trigger():
             New_url = ""
             pages = 0
             page_count = 1
@@ -190,7 +190,7 @@ class Accurate:
 
         print("搜尋頁面開始處理...")
 
-        asyncio.run(Get_all_page_data())
+        asyncio.run(Request_Trigger())
 
         print(f"獲取的漫畫數量 : {len(comic_link_box)}")
         print("開始處理下載...")
@@ -233,7 +233,7 @@ class Accurate:
         self.create_folder(download_path)
 
         # 處理圖片的網址 (重構測試)
-        async def Get_picture_link():
+        async def Request_Trigger():
             async with aiohttp.ClientSession() as session:
                 work1 = []
                 work2 = []
@@ -254,7 +254,7 @@ class Accurate:
                     image_link = tree.xpath('//img[@id="picarea"]/@src')[0]
                     picture_link.append(f"https:{image_link}")
 
-        asyncio.run(Get_picture_link())
+        asyncio.run(Request_Trigger())
 
         print("第 %d 漫畫 - 處理花費時間 : %.3f" % (number , (time.time()-StartTime)))
         self.download_processing(download_path,picture_link,manga_name)
