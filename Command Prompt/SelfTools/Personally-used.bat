@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/06/14 15:57 -
+:: - LastEditTime 2023/06/14 16:52 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -62,7 +62,7 @@ cls
 @ ECHO.
 @ ECHO [3m[94m   特別功能 :[91m[23m
 @ ECHO.
-@ ECHO    [26] 關閉UAC安全通知    [27] .NET安裝
+@ ECHO    [26] 關閉UAC安全通知    [27] Visual C++ (x64)安裝    [28] .NET安裝
 @ ECHO.
 @ ECHO [3m[97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
@@ -178,6 +178,9 @@ if %choice% equ 0 (
     call :UACd&goto menu
 
 ) else if %choice% equ 27 (
+    call :VSC&goto menu
+
+) else if %choice% equ 28 (
     call :NETInstall&goto menu
 
 ) else if /I "%choice%"=="ct" (
@@ -882,18 +885,27 @@ exit /b
 :: https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/
 :VSC
 
-ECHO.
-ECHO Visual C++ 下載中請稍後...
-ECHO.
+if not exist "%Temp%\Visual.tar" (
 
-certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Idm/IDM.tar" Visual.tar >nul
-move Visual.tar "%Temp%" >nul
+    ECHO.
+    ECHO (檔案大有點久)
+    ECHO Visual C++ 下載中請稍後...
+    ECHO.
 
-ECHO 下載完成...
-ECHO.
+    certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar" Visual.tar >nul
+    move Visual.tar "%Temp%" >nul
 
-cd %Temp%
-tar -xf Visual.tar >nul
+    ECHO 下載完成...
+    ECHO.
+
+    cd %Temp%
+
+    ECHO 解壓中...
+    tar -xf Visual.tar >nul
+
+) else (
+    cd %Temp%
+)
 
 ECHO 啟動程式安裝...
 
@@ -904,7 +916,7 @@ start /wait vcredist2012_x64.exe /passive /norestart
 start /wait vcredist2013_x64.exe /passive /norestart
 start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
 
-timeout /t 2 >nul
+timeout /t 1 >nul
 
 exit /b
 
@@ -1027,6 +1039,8 @@ color 07
 @ ECHO   Versions 1.0.8 更新:
 @ ECHO.
 @ ECHO    [+] 增加功能 , .NET安裝
+@ ECHO.
+@ ECHO    [+] 增加功能 , Visual C++ 安裝
 @ ECHO.
 @ ECHO ------------------------------------
 
