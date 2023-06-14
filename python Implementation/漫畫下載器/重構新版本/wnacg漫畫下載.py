@@ -16,7 +16,7 @@ import time
 import os
 import re
 
-""" Versions 1.0.1 (重構測試版)
+""" Versions 1.0.2 (重構測試版)
 
 *   功能:
 ?       [+] 自動擷取網址
@@ -135,9 +135,12 @@ class Accurate:
         # 漫畫頁面
         if len(self.SingleBox) > 0:
 
+            # 如果只有一本下載就降低延遲
+            if len(self.SingleBox) == 1:
+                self.ProtectionDelay = 0.01
+
             print(f"獲取的漫畫數量 : {len(self.SingleBox)}")
-            print("開始處理下載...")
-            
+
             with ProcessPoolExecutor(max_workers=self.CpuCore) as executor:
                 for index , url in enumerate(self.SingleBox):
                     executor.submit(self.manga_page_data_processing, url, index+1)
@@ -198,7 +201,6 @@ class Accurate:
         asyncio.run(Request_Trigger())
 
         print(f"獲取的漫畫數量 : {len(comic_link_box)}")
-        print("開始處理下載...")
 
         with ProcessPoolExecutor(max_workers=self.CpuCore) as executor:
             for index , url in enumerate(comic_link_box):
@@ -227,6 +229,8 @@ class Accurate:
         # 當餘數大於0代表需要多一頁
         if remainder > 0:
             home_pages = int(home_pages + 1)
+        else:
+            home_pages = int(home_pages)
 
         Name = tree.xpath('//h2/text()')[0].strip()
         # 處理非法字元 , 獲得漫畫名
@@ -240,6 +244,7 @@ class Accurate:
         # 處理圖片的網址 (重構測試)
         async def Request_Trigger():
             async with aiohttp.ClientSession() as session:
+
                 work1 = []
                 work2 = []
 
