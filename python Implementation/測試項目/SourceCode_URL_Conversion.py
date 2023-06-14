@@ -1,3 +1,4 @@
+from urllib.parse import *
 import re
 class ogcode:
     def __init__(self):
@@ -8,6 +9,6 @@ class ogcode:
         if re.match(self.github,url):
             convert = url.replace("https://github.com/",self.domain)
             convert = re.sub(r"/blob", "", convert)
-            return convert
+            print(f'"{unquote(convert)}"')
         else:
-            return "錯誤的網址"
+            print("錯誤的網址")
