@@ -134,7 +134,10 @@ class Accurate:
 
         # 漫畫頁面
         if len(self.SingleBox) > 0:
+
+            print(f"獲取的漫畫數量 : {len(self.SingleBox)}")
             print("開始處理下載...")
+            
             with ProcessPoolExecutor(max_workers=self.CpuCore) as executor:
                 for index , url in enumerate(self.SingleBox):
                     executor.submit(self.manga_page_data_processing, url, index+1)
@@ -258,7 +261,7 @@ class Accurate:
 
         asyncio.run(Request_Trigger())
 
-        print("第 %d 漫畫 - 處理花費時間 : %.3f" % (number , (time.time()-StartTime)))
+        print("第 %d 本漫畫 - 處理花費時間 : %.3f" % (number , (time.time()-StartTime)))
         self.download_processing(download_path,picture_link,manga_name)
 
     # 下載處理

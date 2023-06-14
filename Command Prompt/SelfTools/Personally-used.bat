@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/06/14 16:52 -
+:: - LastEditTime 2023/06/15 06:08 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -888,8 +888,9 @@ exit /b
 if not exist "%Temp%\Visual.tar" (
 
     ECHO.
-    ECHO (檔案大有點久)
-    ECHO Visual C++ 下載中請稍後...
+    ECHO 檔案較大請稍後 - 安裝包日期 : 2023 年 5 月 
+    ECHO.
+    ECHO Visual C++ 下載中...
     ECHO.
 
     certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar" Visual.tar >nul
@@ -907,7 +908,8 @@ if not exist "%Temp%\Visual.tar" (
     cd %Temp%
 )
 
-ECHO 啟動程式安裝...
+ECHO.
+ECHO 開始安裝...
 
 start /wait vcredist2005_x64.exe /q
 start /wait vcredist2008_x64.exe /qb
