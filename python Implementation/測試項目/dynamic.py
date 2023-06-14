@@ -16,7 +16,7 @@ for link in link_list:
     link_request(link,namespace)
 
 og = namespace['ogcode']()
-print(og.convert(""))
+og.convert("")
 
 # TB = namespace['TestBrowser']()
 # TB.Enable_browsing()
