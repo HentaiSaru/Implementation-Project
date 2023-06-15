@@ -384,7 +384,7 @@ if __name__ == "__main__":
         * url - 填寫連結字串
         * 自動試錯 - 預設是 False (啟用後當有很多格式錯誤的,會跑比較久)
     """
-    zero.Automatic("http://www.zerobyw3.com/plugin.php?id=jameson_manhua&c=index&a=bofang&kuid=13296",True)
+    zero.Automatic("#",True)
 
 #################################################################################
 
