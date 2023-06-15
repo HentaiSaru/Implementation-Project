@@ -1,5 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2023/06/03 00:44 -
+:: - LastEditTime 2023/06/16 07:20 -
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
 :: [+] - Google 緩存清理
@@ -293,12 +293,9 @@ color B
 cls
 @echo 開始進行電腦優化
 
-:: 終極效能 (測試)
-powercfg -duplicatescheme 95533644-e700-4a79-a56c-a89e8cb109d9
-powercfg.exe /setactive 95533644-e700-4a79-a56c-a89e8cb109d9
-
-powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
-powercfg.exe /setactive e9a42b02-d5df-448d-aa00-03f14749eb61
+:: 終極效能 (不適用於所有人)
+:: powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
+:: powercfg.exe /setactive e9a42b02-d5df-448d-aa00-03f14749eb61
 
 :: 禁用休眠
 powercfg.exe /hibernate off
@@ -333,15 +330,15 @@ wmic pagefileset create name="C:\pagefile.sys"
 wmic pagefileset where name="C:\pagefile.sys" set InitialSize=8192, MaximumSize=16,384
 
 :: 關閉桌面管理器動畫
-reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\DWM" /v "DisallowAnimations" /d 1 /t REG_dword /f
+reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\DWM" /v "DisallowAnimations" /t REG_dword /d 1 /f
 :: Windows Explorer 動畫關閉
-reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "TurnOffSPIAnimations" /d 1 /t REG_dword /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "TurnOffSPIAnimations" /t REG_dword /d 1 /f
 :: 視窗最大最小化動畫關閉
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics" /v "MinAnimate" /d 0 /t REG_SZ /f
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics" /v "MinAnimate" /t REG_SZ /d 0 /f
 :: 關閉自動更新
-reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Update" /v "UpdateMode" /d "0" /t REG_DWORD /f
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Update" /v "UpdateMode" /t REG_DWORD /d 0 /f
 :: 啟用分離桌面
-reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v "DesktopProcess" /d "1" /t REG_DWORD /f
+reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v "DesktopProcess" /t REG_DWORD /d 1 /f
 
 :: 重啟防火牆
 Netsh advfirewall set currentprofile state on
