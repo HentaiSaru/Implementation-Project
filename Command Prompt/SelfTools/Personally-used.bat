@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/06/15 06:08 -
+:: - LastEditTime 2023/06/16 07:01 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -62,7 +62,7 @@ cls
 @ ECHO.
 @ ECHO [3m[94m   特別功能 :[91m[23m
 @ ECHO.
-@ ECHO    [26] 關閉UAC安全通知    [27] Visual C++ (x64)安裝    [28] .NET安裝
+@ ECHO    [26] 關閉UAC安全通知    [27] Visual C++ (x64)安裝    [28] .NET安裝    [29] Windows 一鍵優化設置
 @ ECHO.
 @ ECHO [3m[97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
@@ -182,6 +182,9 @@ if %choice% equ 0 (
 
 ) else if %choice% equ 28 (
     call :NETInstall&goto menu
+
+) else if %choice% equ 29 (
+    call :winop&goto menu
 
 ) else if /I "%choice%"=="ct" (
     Control
@@ -871,6 +874,53 @@ ECHO.
 timeout /t 2 >nul
 exit /b
 
+:: ~~~~~ windows系統優化 ~~~~~
+:winop
+
+ECHO.
+ECHO 開始優化設置
+ECHO.
+ECHO 有些功能不支援會跳出錯誤訊息
+ECHO.
+
+:: 關機時是否清除分頁文件
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "ClearPageFileAtShutdown" /t REG_DWORD /d 1 /f
+:: 是否禁用對執行文件（executable files）的分頁
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "DisablePagingExecutive" /t REG_DWORD /d 1 /f
+:: 否使用大型系統高速緩存
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "LargeSystemCache" /t REG_DWORD /d 1 /f
+:: 設置記憶體使用大小 1920x1080 / 6 | 2560x1440 / 12 | 3840x2160 / 24
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "SessionPoolSize" /t REG_DWORD /d 12 /f
+
+:: 設為1，那麼當您使用遊戲列(Win+G)來錄製全螢幕模式下的遊戲時，系統會自動將遊戲切換到全螢幕視窗化模式，以提高錄製的效能和品質
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_DXGIHonorFSEWindowsCompatible" /t REG_DWORD /d 1 /f
+:: 設定全螢幕模式下的遊戲錄製品質。可能的值有0、1或2，分別代表高、中或低品質
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_EFSEFeatureFlags" /t REG_DWORD /d 2 /f
+:: 設定全螢幕模式下的遊戲錄製行為。可能的值有0、1或2，分別代表停用、全螢幕視窗化或全螢幕專屬模式
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_FSEBehaviorMode" /t REG_DWORD /d 2 /f
+:: 螢幕錄製功能啟用
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_Enabled" /t REG_DWORD /d 2 /f
+:: 啟用全螢幕錄製行為
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_HonorUserFSEBehaviorMode" /t REG_DWORD /d 1 /f
+
+:: 動畫效果設置自訂
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 3 /f
+:: 設置動畫效果
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /t REG_BINARY /d "90 12 03 80" /f
+
+:: 記憶體相關設置
+powershell -command "Enable-MMAgent -ApplicationLaunchPrefetching"
+powershell -command "Enable-MMAgent -OperationAPI"
+powershell -command "Set-MMAgent -MaxOperationAPIFiles 2048"
+powershell -command "Enable-MMAgent -PageCombining"
+
+ECHO.
+ECHO 電腦重啟後生效
+ECHO.
+
+timeout /t 2 >nul
+exit /b
+
 :: ~~~~~ 安裝.NET ~~~~~
 :NETInstall
 
@@ -1043,6 +1093,8 @@ color 07
 @ ECHO    [+] 增加功能 , .NET安裝
 @ ECHO.
 @ ECHO    [+] 增加功能 , Visual C++ 安裝
+@ ECHO.
+@ ECHO    [+] 增加功能 , windows 優化功能
 @ ECHO.
 @ ECHO ------------------------------------
 
