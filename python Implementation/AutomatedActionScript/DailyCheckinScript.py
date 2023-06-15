@@ -371,7 +371,7 @@ class script:
                     break
 
             # 點選簽到位置
-            Genshinbutton = WebDriverWait(Genshindriver,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
+            Genshinbutton = WebDriverWait(Genshindriver,60).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
             Genshinbutton.click()
         except:pass
 
@@ -442,9 +442,8 @@ class script:
                     break
         except:pass
 
-        # 延遲待測試 , 根據網速不同有所差異
         checkinday = int(html.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
-        checkin = WebDriverWait(StarRail,7).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='components-pc-assets-__prize-list_---item---F852VZ']/span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
+        checkin = WebDriverWait(StarRail,60).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='components-pc-assets-__prize-list_---item---F852VZ']/span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
         
         checkin.click()
         #StarRail.execute_script("arguments[0].click();", checkin)
