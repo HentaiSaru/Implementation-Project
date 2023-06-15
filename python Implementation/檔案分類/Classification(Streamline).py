@@ -9,7 +9,7 @@ import os
 
 """ 精簡版檔案分類
 
-Versions 1.0.1
+Versions 1.0.2
 
 [+] 資料夾路徑選取
 [+] 設置分類副檔名
@@ -30,6 +30,10 @@ class DataRead:
         self.directory = None
         self.filename = None
         self.data = {}
+
+        self.file_type = set()
+
+        self.all_data = []
         self.filter_data = []
 
     def open_folder(self):
@@ -48,16 +52,40 @@ class DataRead:
         for root, dirs, files in os.walk(self.directory): # 路徑 , 資料夾 , 檔名
             self.data[root] = files
 
-    def filter_files(self,filter):
-        
+    def filter_files(self):
+
+        filetype = None
+
         for path , name in self.data.items():
-            
+
             if len(name) != 0:
                 
                 for _filter_ in name:
                     Complete = os.path.join(path,_filter_)
-                    if Complete.endswith(f".{filter}"): # 檔案分類
-                        self.filter_data.append(Complete.replace("\\","/"))
+                    try:
+                        filetype = _filter_.rsplit(".", 1 )[1].strip()
+                    except:
+                        pass
+
+                    try:
+                        self.file_type.add(filetype.lower())
+                        self.all_data.append(Complete.replace("\\","/"))
+                    except:
+                        print("沒有可分類檔案")
+                        return
+
+        listtype = list(self.file_type)
+        for index , Type in enumerate(listtype):
+            print(f"類型 [{index+1}] : {Type}")
+
+        Filter = int(input("\n輸入檔案類型 (數字) : "))
+        print(f"你選擇了 : {listtype[Filter-1]}\n")
+
+        for data in self.all_data:
+            if data.endswith(f".{listtype[Filter-1]}"):
+                self.filter_data.append(data)
+
+        output()
 
 class DataEmptyError(Exception):
     pass
@@ -107,6 +135,4 @@ if __name__ == "__main__":
     data = DataRead()
 
     data.open_folder()
-    data.filter_files(input("副檔名:"))
-
-    output()
+    data.filter_files()
