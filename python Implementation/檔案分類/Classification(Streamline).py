@@ -9,7 +9,7 @@ import os
 
 """ 精簡版檔案分類
 
-Versions 1.0.2
+Versions 1.0.3
 
 [+] 資料夾路徑選取
 [+] 設置分類副檔名
@@ -29,11 +29,14 @@ class DataRead:
     def __init__(self):
         self.directory = None
         self.filename = None
+
+        # 保存選擇資料夾後讀取的所有數據
         self.data = {}
-
+        # 保存所有檔案類型
         self.file_type = set()
-
+        # 保存所有檔案數據
         self.all_data = []
+        # 保存過濾後檔案數據
         self.filter_data = []
 
     def open_folder(self):
@@ -75,36 +78,48 @@ class DataRead:
                         return
 
         listtype = list(self.file_type)
-        for index , Type in enumerate(listtype):
-            print(f"類型 [{index+1}] : {Type}")
 
-        Filter = int(input("\n輸入檔案類型 (數字) : "))
-        print(f"你選擇了 : {listtype[Filter-1]}\n")
+        print("代號 [0] : ALL")
+        for index , Type in enumerate(listtype):
+            print(f"代號 [{index+1}] : {Type}")
+
+        Filter = int(input("\n選擇輸出檔案類型 (代號) : "))
+
+        if Filter == 0:
+            print(f"你選擇了 : 全部\n")
+        else:
+            print(f"你選擇了 : {listtype[Filter-1]}\n")
 
         for data in self.all_data:
-            if data.endswith(f".{listtype[Filter-1]}"):
+            if Filter == 0:
                 self.filter_data.append(data)
+            else:
+                if data.endswith(f".{listtype[Filter-1]}"):
+                    self.filter_data.append(data)
 
-        output()
+        if Filter == 0:
+            output("ALL")
+        else:
+            output(listtype[Filter-1])
 
 class DataEmptyError(Exception):
     pass
 
 class output:
-    def __init__(self):
+    def __init__(self,choose):
         self.working_status = []
 
         try:
             if len(data.filter_data) == 0:
                 raise DataEmptyError()
 
-            self.save_route = f"{data.directory}/{data.filename}-分類合併"
+            self.save_route = f"{data.directory}/{data.filename} ({choose})"
             os.mkdir(self.save_route)
             self.copy_deal_with()
         except DataEmptyError:
             print("該路徑下無指定類型文件")
         except:
-            self.save_route = f"{data.directory}/{data.filename}-分類合併"
+            self.save_route = f"{data.directory}/{data.filename} ({choose})"
             self.copy_deal_with()
 
     def copy_deal_with(self):
@@ -133,6 +148,5 @@ class output:
 
 if __name__ == "__main__":
     data = DataRead()
-
     data.open_folder()
     data.filter_files()
