@@ -1,3 +1,4 @@
+from AutomaticCapture import AutoCapture
 # 主要使用 concurrent.futures 的進程池和線程池加速處理下載
 from concurrent.futures import *
 # multiprocessing 的 Pool 進程池創建只能在主模塊使用
@@ -6,17 +7,14 @@ from multiprocessing import *
 from urllib.parse import *
 from lxml import etree
 from tqdm import tqdm
-import pyperclip
-import threading
 import requests
-import keyboard
 import aiohttp
 import asyncio
 import time
 import os
 import re
 
-""" Versions 1.0.2 (測試版)
+""" Versions 1.0.3 (測試版)
 
     Todo - wnacg 漫畫下載器 :
         * - 當前功能 :
@@ -28,6 +26,7 @@ import re
         ?   [+] 下載位置選擇
 
         * - 當前問題:
+        ?   [*] 有些需要登入才能觀看的漫畫頁面 , 就會請求不到圖片 (需自行填寫cookie , 才可正常請求)
         ?   [*] 使用多進程操作下載 , 沒特別處理進度條顯示問題
         ?   [*] 搜尋頁面或TAG頁面的大量下載 , 網址處理有一些Bug , 有些會沒下載到(可再自行單本下載)
         ?   [*] 網址處理較慢 , 為了準確獲取圖片連結 , 有好幾個請求步驟
@@ -100,6 +99,12 @@ class Accurate:
 
         self.session = requests.Session()
         self.headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"}
+        self.cookie = {
+            "MPIC_bnS5": "#",
+            "X_CACHE_KEY" : "#"
+        }
+
+        ########################################
 
         # 用於驗證傳遞的網址格式
         self.Comic_Page_Format = r'^https:\/\/www\.wnacg\.com\/photos.*\d+\.html$'
@@ -111,6 +116,7 @@ class Accurate:
         # 分類為搜尋網址的保存
         self.BatchBox = []
 
+    #Todo - 當有圖片請求不到下載不完整 , 在上方填寫 cookie , 並在請求的這邊打上 cookies=self.cookie
     # 異步數據請求
     async def async_get_data(self,session,url):
         async with session.get(url, headers=self.headers) as response:
@@ -241,7 +247,7 @@ class Accurate:
         download_path = os.path.join(dir,manga_name)
         # 創建資料夾
         self.create_folder(download_path)
-
+        
         # 處理圖片的網址 (重構測試)
         async def Request_Trigger():
             async with aiohttp.ClientSession() as session:
@@ -259,12 +265,15 @@ class Accurate:
                     for html in tree.xpath("//div[@class='pic_box tb']/a"):
                         work2.append(asyncio.create_task(self.async_get_data(session,f"{DomainName()}{html.get('href')}")))
                 results = await asyncio.gather(*work2)
-
+                
                 # 使用內頁連結,取得圖片連結
                 for tree in results:
-                    image_link = tree.xpath('//img[@id="picarea"]/@src')[0]
-                    picture_link.append(f"https:{image_link}")
-
+                    try:
+                        image_link = tree.xpath('//img[@id="picarea"]/@src')[0]
+                        picture_link.append(f"https:{image_link}")
+                    except:
+                        pass
+                       
         asyncio.run(Request_Trigger())
 
         print("第 %d 本漫畫 - 處理花費時間 : %.3f" % (number , (time.time()-StartTime)))
@@ -297,53 +306,14 @@ class Accurate:
         with open(os.path.join(download_path,SaveName),"wb") as f:
             f.write(ImageData.content)
 
-# 自動擷取剪貼簿
-class AutomaticCapture:
-    def __init__(self):
-        self.initial = r"{}.*".format(DomainName())
-        self.download_trigger = False
-        self.clipboard_cache = None
-        self.download_list = set()
-        self.detection = True
-
-    def Read_clipboard(self):
-        pyperclip.copy('')
-        while self.detection:
-            clipboard = pyperclip.paste()
-            time.sleep(0.1)
-
-            if self.download_trigger:
-                os.system("cls")
-
-            elif clipboard != self.clipboard_cache and re.match(self.initial,clipboard):
-                print(f"以擷取的網址:{clipboard}")
-                self.download_list.add(clipboard)
-                self.clipboard_cache = clipboard
-
-    def Download_command(self):
-        while self.detection:
-            if keyboard.is_pressed("alt+s"):
-                self.download_trigger = True
-                self.detection = False
-                while keyboard.is_pressed("alt+s"):
-                    pass
-
 if __name__ == "__main__":
     acc = Accurate()
-    capture = AutomaticCapture()
 
-    print("複製網址後自動擷取(Alt+S 開始下載):")
-    clipboard = threading.Thread(target=capture.Read_clipboard)
-    command = threading.Thread(target=capture.Download_command)
+    AutoCapture.settings(DomainName())
+    capture = AutoCapture.GetList()
 
-    clipboard.start()
-    command.start()
-
-    command.join()
-    clipboard.join()
-
-    if len(capture.download_list) > 0:
-        acc.classify_url_formats(list(capture.download_list))
+    if capture != None:
+        acc.classify_url_formats(capture)
     else:
         print("無擷取內容")
         os._exit(0)
