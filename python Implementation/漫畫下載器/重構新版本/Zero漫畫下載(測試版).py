@@ -45,6 +45,12 @@ import os
         ! 但該網域本身速度就很慢
         ! 下載速度的影響(硬碟讀寫速度/網路速度/網站響應速度)
 
+        * 下載進度
+
+        ! 測試版沒有下載進度顯示
+        ! 下載完成會顯示完成
+        ! 全部結束程式會自動終止
+
 """
 
 # 下載位置設置
@@ -66,7 +72,7 @@ class ZeroDownloader:
         Todo ----------------------------
         """
         self.ProcessDelay = 1
-        self.MaxProcesses = 5
+        self.MaxProcesses = cpu_count() # cpu 核心數
 
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
@@ -160,8 +166,11 @@ class ZeroDownloader:
         # 初始頁數
         pages = 1
         count = 0
-        
-        print(f"第 {number} 話下載中請稍後...")
+
+        if special:
+            print(f"第 {number} 特別話下載中請稍後...")
+        else:
+            print(f"第 {number} 話下載中請稍後...")
 
         with ThreadPoolExecutor(max_workers=500) as executor:
             # 為了可下載需Vip權限的 , 因此使用模糊請求
@@ -232,7 +241,7 @@ class ZeroDownloader:
                     special = False
 
                     # 判斷特別章節
-                    if number == self.cache:
+                    if number == self.cache or number.find("-") != -1:
                         folder_name = os.path.join(dir,f"{Manga_name} - 第{number}特別話")
                         special = True
                     else:
@@ -243,10 +252,10 @@ class ZeroDownloader:
                     self.cache = number
 
                     if special:
-                        print(f"開始下載 - 第{number}特別話")
+                        print(f"準備下載 - 第{number}特別話")
                     else:
-                        print(f"開始下載 - 第{number}話")
-
+                        print(f"準備下載 - 第{number}話")
+                    
                     executor.submit(self.accelerate, special, folder_name, number)
                     time.sleep(self.ProcessDelay)
 
@@ -308,9 +317,9 @@ class ZeroDownloader:
                     self.cache = number
 
                     if special:
-                        print(f"開始下載 - 第{number}特別話")
+                        print(f"準備下載 - 第{number}特別話")
                     else:
-                        print(f"開始下載 - 第{number}話")
+                        print(f"準備下載 - 第{number}話")
 
                     executor.submit(self.accelerate, special, folder_name, number)
                     time.sleep(self.ProcessDelay)
@@ -394,7 +403,7 @@ if __name__ == "__main__":
         ! 參數只有 url 是必填 , 其餘可填可不填(都自訂還是填一下)
 
         * 連結 url - 填寫連結字串
-        * 章節 chapter - 填寫要下載的漫畫,第幾話 , 可使用上方CB來大量填寫 , 也可使用custom_range , 設置範圍
+        * 章節 chapter - 填寫要下載的漫畫 , 第幾話(填寫數字或字串都可以) , 可使用上方CB來大量填寫 , 也可使用custom_range設置範圍
         * 尾數 mantissa - 填 3 = 001 , 2 = 01 ... , 這是根據該網站的命名去測試到正確的格式
         * 副檔名 FE - 就設置副檔名 , 以符合正確的連結格式 , 就可以請求成功
         * 自動試錯 trial - 如果很懶得填寫 , 章節 尾數 副檔名 , 去測試到正確的Url , 可以嘗試使用
