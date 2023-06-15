@@ -1,3 +1,4 @@
+from AutomaticCapture import AutoCapture
 from concurrent.futures import *
 from multiprocessing import *
 from lxml import etree
@@ -13,6 +14,7 @@ import os
 
         * - 當前功能 :
         ?   [+] 下載位置選擇
+        ?   [+] 自動擷取連結
         ?   [+] 完全自動下載
         ?   [+] 自訂參數下載
         ?   [+] 下載自動試錯
@@ -49,6 +51,7 @@ import os
 
         ! 測試版沒有下載進度顯示
         ! 下載完成會顯示完成
+        ! 程式停住就是在下載中不是卡住
         ! 全部結束程式會自動終止
 
 """
@@ -393,7 +396,11 @@ if __name__ == "__main__":
         * url - 填寫連結字串
         * 自動試錯 - 預設是 False (啟用後當有很多格式錯誤的,會跑比較久)
     """
-    zero.Automatic("#",True)
+    # 自動擷取URL(可選擇是否使用)
+    AutoCapture.settings(DomainName())
+    capture = AutoCapture.GetLink()
+
+    zero.Automatic(capture,True)
 
 #################################################################################
 
