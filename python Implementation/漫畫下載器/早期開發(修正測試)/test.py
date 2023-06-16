@@ -38,16 +38,15 @@ def settings():
     Settings.add_argument(f"--remote-debugging-port={random.randint(1024,65535)}")
     return Settings
 
-def browser():
-    return uc.Chrome(
-        options=settings(),
-    )
-
-def main():
-    driver = browser()
-    driver.get(url)
-    time.sleep(3)
-    driver.close()
+def request(url):
+    headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"}
+    cookie = {
+            "cf_chl_2": "6ce28d82ca2f29c",
+            "cf_clearance" : "KpqGFarMwg_sPl_TUksJQ9J8wNggSfKVJ5kY5bdZo9o-1686925432-0-160",
+            "csrftoken" : "UyCpwWwUd1uafBvakqShBAwCgFpNiObsVu2zJM5CA2StJEdwwxZtJ8wNp8HOQEaR"
+    }
+    req = requests.get(url,headers=headers,cookies=cookie)
+    print(req.text)
 
 
 def manga_page_data_processing(url):
@@ -71,11 +70,3 @@ if __name__ == '__main__':
         ETime = time.time()
         print(ETime-STime)
     """
-
-    STime = time.time()
-
-    with ProcessPoolExecutor(max_workers=10) as executor:
-        for url in range(10000):
-            executor.submit(manga_page_data_processing,url)
-
-    print(time.time()-STime)
