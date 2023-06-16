@@ -18,7 +18,7 @@ import re
 
     Todo - wnacg 漫畫下載器 :
         * - 當前功能 :
-        ?   [+] 自動擷取網址
+        ?   [+] 自動擷取網址 (需要 AutomaticCapture.py)
         ?   [+] 批量同步下載
         ?   [+] 顯示處理數量
         ?   [+] 顯示當前處理
@@ -282,18 +282,13 @@ class Accurate:
     # 下載處理
     def download_processing(self,download_path,download_link,manga_name):
         SaveNameFormat = 1
-        pbar = tqdm(total=len(download_link),desc=manga_name)
 
         with ThreadPoolExecutor(max_workers=500) as executor:
-            for link in download_link:
+            for link in tqdm(download_link, ncols=130, desc=manga_name, colour="#9AC5F4"):
                 SaveName = f"{SaveNameFormat:03d}.{link.split('/')[-1].split('.')[1]}"
-
                 executor.submit(self.download,download_path,link,SaveName)
-
-                pbar.update(1)
                 SaveNameFormat += 1
                 time.sleep(self.ProtectionDelay)
-        pbar.close()
 
     # 資料夾創建
     def create_folder(self,Name):
