@@ -69,6 +69,9 @@ pip install wget
 pip install pyperclip
 :: 可視化進度條
 pip install tqdm
+pip install progress
+pip install progressbar2
+pip install alive-progress
 ::------------------------::
 :: 數值分析
 pip install numpy
