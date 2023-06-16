@@ -27,7 +27,7 @@ import re
 
         * - 當前問題:
         ?   [*] 有些需要登入才能觀看的漫畫頁面 , 就會請求不到圖片 (需自行填寫cookie , 才可正常請求)
-        ?   [*] 使用多進程操作下載 , 沒特別處理進度條顯示問題
+        ?   [*] 使用多進程操作下載 , 沒特別處理進度條顯示問題 (進度條是請求下載處理的進度 , 不包含輸出圖片至硬碟)
         ?   [*] 搜尋頁面或TAG頁面的大量下載 , 網址處理有一些Bug , 有些會沒下載到(可再自行單本下載)
         ?   [*] 網址處理較慢 , 為了準確獲取圖片連結 , 有好幾個請求步驟
         ?   [*] 短時間大量下載很有可能會卡住 , 要嘛將延遲設置更高 , 要嘛就單本下載
@@ -279,27 +279,30 @@ class Accurate:
         print("第 %d 本漫畫 - 處理花費時間 : %.3f" % (number , (time.time()-StartTime)))
         self.download_processing(download_path,picture_link,manga_name)
 
-    # 下載處理
-    def download_processing(self,download_path,download_link,manga_name):
-        SaveNameFormat = 1
-
-        with ThreadPoolExecutor(max_workers=500) as executor:
-            for link in tqdm(download_link, ncols=130, desc=manga_name, colour="#9AC5F4"):
-                SaveName = f"{SaveNameFormat:03d}.{link.split('/')[-1].split('.')[1]}"
-                executor.submit(self.download,download_path,link,SaveName)
-                SaveNameFormat += 1
-                time.sleep(self.ProtectionDelay)
-
     # 資料夾創建
     def create_folder(self,Name):
         try:os.mkdir(Name)
         except:pass
 
+    # 下載處理
+    def download_processing(self,download_path,download_link,manga_name):
+        SaveNameFormat = 1
+
+        with ThreadPoolExecutor(max_workers=500) as executor:
+            for link in tqdm(download_link, desc=manga_name, colour="#9AC5F4"):
+                SaveName = f"{SaveNameFormat:03d}.{link.split('/')[-1].split('.')[1]}"
+
+                executor.submit(self.download,download_path,link,SaveName)
+
+                SaveNameFormat += 1
+                time.sleep(self.ProtectionDelay)
+
     # 圖片下載
     def download(self,download_path,download_link,SaveName):
         ImageData = requests.get(download_link,headers=self.headers)
+
         with open(os.path.join(download_path,SaveName),"wb") as f:
-            f.write(ImageData.content)
+                f.write(ImageData.content)
 
 if __name__ == "__main__":
     acc = Accurate()
