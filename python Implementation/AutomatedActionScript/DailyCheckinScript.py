@@ -314,7 +314,7 @@ class script:
 
         # 關閉彈出窗口,如果有的話
         try:
-            Genshinbutton = WebDriverWait(Genshindriver,2).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
+            Genshinbutton = WebDriverWait(Genshindriver,2).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content-test_---red-point---2jUBf9']")))
             Genshinbutton.click()
         except:pass
 
@@ -371,7 +371,7 @@ class script:
                     break
 
             # 點選簽到位置
-            Genshinbutton = WebDriverWait(Genshindriver,60).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
+            Genshinbutton = WebDriverWait(Genshindriver,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content-test_---red-point---2jUBf9']")))
             Genshinbutton.click()
         except:pass
 
