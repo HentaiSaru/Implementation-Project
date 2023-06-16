@@ -1,8 +1,8 @@
 from tkinter import filedialog
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
-from tqdm import tqdm
 import tkinter as tk
+import progressbar
 import threading
 import shutil
 import os
@@ -133,12 +133,17 @@ class output:
             self.working_status.append(Work)
             Work.start()
 
+        # 進度條創建
+        self.widgets = [
+            ' ', progressbar.Bar(marker='■', left='[', right=']'),
+            ' ', progressbar.Counter(), f'/{len(self.working_status)}',
+        ]
+        bar = progressbar.ProgressBar(widgets=self.widgets,max_value=len(self.working_status))
+
         # 等待真實操作全部完成
-        pbar = tqdm(total=len(self.working_status),desc="開始合併輸出")
-        for working in self.working_status:
-            pbar.update(1)
+        for index , working in enumerate(self.working_status):
+            bar.update(index)
             working.join()
-        pbar.close()
 
         # 直接開啟存檔位置
         os.startfile(self.save_route)
