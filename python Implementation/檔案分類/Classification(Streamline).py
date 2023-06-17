@@ -9,11 +9,12 @@ import os
 
 """ 精簡版檔案分類
 
-Versions 1.0.3
+Versions 1.0.4
 
 [+] 資料夾路徑選取
 [+] 設置分類副檔名
 [+] 多線程複製輸出
+[+] 重複選擇功能
 [+] 輸出進度顯示
 [+] 完成自動開啟
 
@@ -38,6 +39,8 @@ class DataRead:
         self.all_data = []
         # 保存過濾後檔案數據
         self.filter_data = []
+        # 將塞選的類型數據轉回list保存
+        self.listtype =[]
 
     def open_folder(self):
 
@@ -48,9 +51,9 @@ class DataRead:
         if folder_path:
             self.directory = folder_path
             self.filename = os.path.basename(folder_path)
-            self.read_file()
+            self.__read_file()
 
-    def read_file(self):
+    def __read_file(self):
 
         for root, dirs, files in os.walk(self.directory): # 路徑 , 資料夾 , 檔名
             self.data[root] = files
@@ -77,30 +80,32 @@ class DataRead:
                         print("沒有可分類檔案")
                         return
 
-        listtype = list(self.file_type)
+        self.listtype = list(self.file_type)
 
         print("代號 [0] : ALL")
-        for index , Type in enumerate(listtype):
+        for index , Type in enumerate(self.listtype):
             print(f"代號 [{index+1}] : {Type}")
 
+        self.RepeatedSelection()
+
+    def RepeatedSelection(self):  
         Filter = int(input("\n選擇輸出檔案類型 (代號) : "))
 
         if Filter == 0:
             print(f"你選擇了 : 全部\n")
         else:
-            print(f"你選擇了 : {listtype[Filter-1]}\n")
+            print(f"你選擇了 : {self.listtype[Filter-1]}\n")
 
         for data in self.all_data:
             if Filter == 0:
                 self.filter_data.append(data)
             else:
-                if data.endswith(f".{listtype[Filter-1]}"):
+                if data.endswith(f".{self.listtype[Filter-1]}"):
                     self.filter_data.append(data)
-
         if Filter == 0:
             output("ALL")
         else:
-            output(listtype[Filter-1])
+            output(self.listtype[Filter-1])
 
 class DataEmptyError(Exception):
     pass
@@ -115,40 +120,43 @@ class output:
 
             self.save_route = f"{data.directory}/{data.filename} ({choose})"
             os.mkdir(self.save_route)
-            self.copy_deal_with()
+            self.__copy_deal_with()
         except DataEmptyError:
             print("該路徑下無指定類型文件")
         except:
             self.save_route = f"{data.directory}/{data.filename} ({choose})"
-            self.copy_deal_with()
+            self.__copy_deal_with()
 
-    def copy_deal_with(self):
+    def __copy_deal_with(self): 
 
         for out in data.filter_data:
             convert = out.split("/")
             file_name = f"{convert[-2]}_{convert[-1]}"
             new_path = os.path.join(self.save_route,file_name)
             # 輸出工作
-            Work = threading.Thread(target=self.copy_output,args=(out,new_path))
+            Work = threading.Thread(target=self.__copy_output,args=(out,new_path))
             self.working_status.append(Work)
             Work.start()
 
-        # 進度條創建
+        # 進度條設置
         self.widgets = [
             ' ', progressbar.Bar(marker='■', left='[', right=']'),
             ' ', progressbar.Counter(), f'/{len(self.working_status)}',
         ]
-        bar = progressbar.ProgressBar(widgets=self.widgets,max_value=len(self.working_status))
 
-        # 等待真實操作全部完成
-        for index , working in enumerate(self.working_status):
-            bar.update(index)
-            working.join()
+        with progressbar.ProgressBar(widgets=self.widgets, max_value=len(self.working_status)) as bar:
+            for index , working in enumerate(self.working_status):
+                bar.update(index)
+                working.join()
 
         # 直接開啟存檔位置
         os.startfile(self.save_route)
 
-    def copy_output(self,out,path):
+        Selection = int(input("\n是否再次選擇 ? [1] YES / [0] NO : "))
+        if Selection == 1:
+            data.RepeatedSelection()
+
+    def __copy_output(self,out,path):
         shutil.copyfile(out,path)
 
 if __name__ == "__main__":
