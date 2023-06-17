@@ -1,3 +1,4 @@
+from Script.AutomaticCapture import AutoCapture
 from Script.GetCookiesAutomatically import Get
 from collections import OrderedDict
 from concurrent.futures import *
@@ -373,7 +374,14 @@ if __name__ == "__main__":
         'Tags': ['']
     }
     # 下載相關設置
-    nh.download_settings(TitleFormat=True,SearchQuantity=1,CookieSource=cookie_read()) # ,TryGetCookie=True
+    nh.download_settings(TitleFormat=True,SearchQuantity=1,CookieSource=cookie_read(),TryGetCookie=True)
+    # 自動擷取設置
+    AutoCapture.settings(DomainName())
+    capture = AutoCapture.GetList()
 
-    nh.google("")
-    # nh.edge("")
+    if capture != None:
+        nh.google(capture)
+        # nh.edge("")
+    else:
+        print("無擷取內容")
+        os._exit(0)
