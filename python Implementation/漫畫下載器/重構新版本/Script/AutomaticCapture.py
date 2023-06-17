@@ -7,7 +7,7 @@ import re
 
 class AutomaticCapture:
     def __init__(self):
-        self.UrlFormat = r'^(?:http|ftp)s?://www'
+        self.UrlFormat = r'^(?:http|ftp)s?://'
 
         self.initial_url_format = None
         self.intercept_delay = None
