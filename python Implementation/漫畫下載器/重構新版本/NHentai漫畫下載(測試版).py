@@ -13,8 +13,36 @@ import json
 import re
 import os
 
-# 下載路徑
-dir = os.path.abspath("R:/")
+""" Versions 1.0.2 (測試版)
+
+    Todo - NHentai 漫畫下載
+
+        * - 當前功能 :
+        ?   [+] 多進程處理
+        ?   [+] 多線程下載
+        ?   [+] 下載位置選擇
+        ?   [+] 自動擷取連結
+        ?   [+] 下載進度顯示
+        ?   [+] 各類數據顯示
+        ?   [+] 手動設置 Cookie
+        ?   [+] 多項下載功能設置
+        ?   [+] 自動嘗試獲取 Cookie
+        ?   [+] 讀取 json 的 Cookie
+
+        * - 測試功能 :
+        ?   [*] 請求穩定性
+        ?   [*] 數據處理例外
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Todo - 相關說明
+
+        * 使用相關
+        ! 基本上可設置的選項都寫在 download_settings()
+        ! cookie 相關有 set / read / get , 只有 set 需要手動更改代碼
+        ! 其餘的都在 download_settings() 可設置使用
+        ! 大致上設置都在 download_settings() , 設置說明也寫得清清楚楚
+"""
 
 # 網站域名
 def DomainName():
@@ -66,8 +94,10 @@ class NHentaidownloader:
         self.MaxProcess = None
         self.GetCookie = None
         self.Cookies = None
-        self.SetUse = False
         self.Pages = None
+        self.path = None
+        #Todo => 判斷是否自訂設置
+        self.SetUse = False
 
         #? 網址分類保存 (初始分類時用)
         self.comics_box = []
@@ -82,17 +112,6 @@ class NHentaidownloader:
         #Todo => 保存生成的下載連結
         # 下載連結
         self.download_link = {}
-
-    # 基本請求數據
-    def get_data(self,url):
-        request = self.session.get(url, headers=self.headers, cookies=self.Cookies)
-        return etree.fromstring(request.content , etree.HTMLParser())
-    
-    # 異步數據請求
-    async def async_get_data(self,session,url):
-        async with session.get(url, headers=self.headers, cookies=self.Cookies) as response:
-            content = await response.text()
-            return etree.fromstring(content , etree.HTMLParser())
     
     # 下載設置功能
     def download_settings(
@@ -100,6 +119,7 @@ class NHentaidownloader:
             SearchQuantity: int=5,
             TitleFormat: bool=False,
             TryGetCookie: bool=False,
+            DownloadPath: str=os.path.dirname(os.path.abspath(__file__)),
 
             DownloadDelay = 0.3,
             ProcessCreationDelay = 1,
@@ -119,6 +139,9 @@ class NHentaidownloader:
     >>> TryGetCookie - 自動嘗試取得 cookie (預設: False)
     *   當請求失敗 , 無法獲取數據時 , 會進行嘗試自動取得 cookie
     !   請注意該方法請求成功的 cookie , 必須使用 google() 方法請求
+    >>> DownloadPath - 漫畫下載的路徑 (預設: 當前路徑位置)
+    *   無特別設置 , 會以該程式的所在位置
+    *   作為下載目錄進行下載
     >>> DownloadDelay - 下載速度的延遲 (預設: 0.3s)
     *   主要是為了保護伺服器 , 和避免被禁止請求 , 在請求下載時進行延遲
     *   因為下載是多進程的 , 不設速度雖然會超快 , 但對伺服器不好
@@ -145,6 +168,7 @@ class NHentaidownloader:
     """
         # 判斷是否被調用設置了
         self.SetUse = True
+        self.path = DownloadPath
         self.Cookies = CookieSource
         self.Pages = SearchQuantity
         self.GetCookie = TryGetCookie
@@ -153,6 +177,17 @@ class NHentaidownloader:
         self.ProtectionDelay = DownloadDelay
         self.MaxProcess = MaxConcurrentDownload
         self.ProcessDelay = ProcessCreationDelay
+    
+    # 基本請求數據
+    def get_data(self,url):
+        request = self.session.get(url, headers=self.headers, cookies=self.Cookies)
+        return etree.fromstring(request.content , etree.HTMLParser())
+    
+    # 異步數據請求
+    async def async_get_data(self,session,url):
+        async with session.get(url, headers=self.headers, cookies=self.Cookies) as response:
+            content = await response.text()
+            return etree.fromstring(content , etree.HTMLParser())
     
     # google 請求
     def google(self,link):
@@ -254,7 +289,7 @@ class NHentaidownloader:
                 self.title = re.sub(self.illegal_filename, '', "".join(title.xpath(".//text()")).strip())
 
             # 保存位置
-            self.save_location = os.path.join(dir,self.title)
+            self.save_location = os.path.join(self.path, self.title)
             
             # 圖片的連結
             img = tree.xpath("//meta[@itemprop='image']")[0].get("content")
@@ -370,15 +405,24 @@ class NHentaidownloader:
 
 if __name__ == "__main__":
     nh = NHentaidownloader()
+    # 自動擷取設置
+    AutoCapture.settings(DomainName())
+
+    # 排除 Tag 設置
     TagExclude = {
         'Tags': ['']
     }
-    # 下載相關設置
-    nh.download_settings(TitleFormat=True,SearchQuantity=1,CookieSource=cookie_read(),TryGetCookie=True)
-    # 自動擷取設置
-    AutoCapture.settings(DomainName())
-    capture = AutoCapture.GetList()
 
+    # 下載相關設置
+    nh.download_settings(
+        TitleFormat=True,
+        SearchQuantity=1,
+        DownloadPath="R:/",
+        CookieSource=cookie_read(),
+        TryGetCookie=True
+    )
+
+    capture = AutoCapture.GetList()
     if capture != None:
         nh.google(capture)
         # nh.edge("")
