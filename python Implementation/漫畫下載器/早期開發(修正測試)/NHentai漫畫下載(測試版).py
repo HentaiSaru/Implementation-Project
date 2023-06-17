@@ -7,6 +7,7 @@ import requests
 import aiohttp
 import asyncio
 import time
+import json
 import re
 import os
 
@@ -18,12 +19,26 @@ def DomainName():
     return "https://nhentai.net/"
 
 #Todo [ 再此處輸入當前通過機器人驗證的 cookie (輸入錯誤會請求不到) ]
+# 代碼中手動設置 cookie
 def cookie_set():
     cookie = {
-        "cf_clearance" : "wJAPucjnQGcmlG6hYNDQLBNyhFOoeXnZxP5wmk34OEw-1686957402-0-160",
-        "csrftoken" : "RFUIyP21PFyLmRMf7tYAV1sCPhWG3CceBsRfs2fsmHDDqpSG7Sd2Coa1IfOhtM5V"
+        "cf_clearance" : "",
+        "csrftoken" : ""
     }
     return cookie
+
+# 讀取保存 cookie 的 json
+def cookie_read():
+    # 切換到當前文件夾絕對路徑
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    try:
+        with open("NHCookies.json" , "r") as file:
+            return json.loads(file.read())
+    except:
+        # 沒有就進行創建
+        cookie = {"csrftoken":"Please fill in the cookie","cf_clearance":"Please fill in the cookie"}
+        with open("NHCookies.json" , "w") as file:
+            file.write(json.dumps(cookie, indent=4, separators=(',',':')))
 
 # 下載請求方法
 class NHentaidownloader:
@@ -43,6 +58,7 @@ class NHentaidownloader:
         self.ProcessDelay = None
         self.TagFilterBox = None
         self.MaxProcess = None
+        self.Cookies = None
         self.SetUse = False
         self.Pages = None
 
@@ -62,12 +78,12 @@ class NHentaidownloader:
 
     # 基本請求數據
     def get_data(self,url):
-        request = self.session.get(url, headers=self.headers, cookies=cookie_set())
+        request = self.session.get(url, headers=self.headers, cookies=self.Cookies)
         return etree.fromstring(request.content , etree.HTMLParser())
     
     # 異步數據請求
     async def async_get_data(self,session,url):
-        async with session.get(url, headers=self.headers, cookies=cookie_set()) as response:
+        async with session.get(url, headers=self.headers, cookies=self.Cookies) as response:
             content = await response.text()
             return etree.fromstring(content , etree.HTMLParser())
     
@@ -76,43 +92,55 @@ class NHentaidownloader:
             self,
             TitleFormat: bool=False,
             SearchQuantity: int=5,
-            MaxConcurrentDownload: int=cpu_count(),
+
             DownloadDelay = 0.2,
             ProcessCreationDelay = 1,
+            MaxConcurrentDownload: int=cpu_count(),
+
             FilterTags: dict=None,
+            CookieSource: dict=cookie_set(),
     ):
+        """ 
+    >>> TitleFormat - 使用標題格式化 (預設: False)
+    *   會將輸出創建的漫畫名稱套上格式
+    *   預設就是用原本的名稱
+    >>> SearchQuantity - 搜尋頁面的請求頁數 (預設: 5 頁)
+    *   設置當你輸入搜尋介面 , 想要批量下載所有漫畫時
+    *   預設只會載入 5 頁的資訊 , 如果該搜尋頁面總共 10 頁 , 就會被忽略
+    *   當設置超過搜尋的最大頁數 , 就會以該搜尋的最大頁數為主
+    >>> DownloadDelay - 下載速度的延遲 (預設: 0.2s)
+    *   主要是為了保護伺服器 , 和避免被禁止請求 , 在請求下載時進行延遲
+    *   因為下載是多進程的 , 不設速度雖然會超快 , 但對伺服器不好
+    >>> ProcessCreationDelay - 創建進程的延遲 (預設: 1s)
+    *   在處理下載的部份是使用多進程處理的 , 這個是設置創建多進程時的延遲
+    *   目的也是為了保護伺服器 , 不要短期間接收大量的請求 , 而受到損害
+    >>> MaxConcurrentDownload - 最大同時創建的進程數 (預設: CPU核心數)
+    *   這是設置最大創建的進程數量 , 也就是同時可以併發處理下載數
+    *   預設是根據自身的 CPU 核心數 , 越多不見得越快
+    >>> FilterTags - 排除標籤字典 (預設: None)
+    !   {'Parodies': [''], 'Characters': ['', ''], 'Tags': [''], 'Artists': [''], 'Languages': ['', ''], 'Pages': ['']}
+    *   'Parodies' : 原創 / 二創作品
+    *   'Characters' : 人物角色
+    *   'Tags' : Tag 標籤
+    *   'Artists' : 繪師
+    *   'Languages' : 語言
+    *   'Pages' : 頁數
+    *    數據格式必須 為上方的 key 值 , 包含數據 list
+    *    填入的值當擁有該TAG的 , 就會被排除掉 , 不會被下載
+    >>> CookieSource - cookie 的設定來源 (預設: cookie_set() , 也就是在上方代碼設置)
+    *   這是設置請求時所用的 cookie 導入來源 , 預設是使用 cookie_set() 方法
+    *   就是由此代碼上方的設置填寫讀取 , 也可以改成 cookie_read() 方法
+    *   變成由 cookies.json 中讀取 cookie 使用
+    """
         # 判斷是否被調用設置了
         self.SetUse = True
-
-        # 搜尋頁面的請求頁數 (預設: 5)
+        self.Cookies = CookieSource
         self.Pages = SearchQuantity
-        # 排除標籤字典 (預設: None)
         self.TagFilterBox = FilterTags
-        # 使用標題格式化 (預設: False)
         self.TitleFormatting = TitleFormat
-        # 下載速度的延遲 (預設: 0.2s)
         self.ProtectionDelay = DownloadDelay
-        # 最大同時創建的進程數 (預設: CPU核心數)
         self.MaxProcess = MaxConcurrentDownload
-        # 創建進程的延遲 (預設: 1s)
         self.ProcessDelay = ProcessCreationDelay
-
-        """ 
-Todo     FilterTags 的格式設置
-
->>>     {'Parodies': [''], 'Characters': ['', ''], 'Tags': [''], 'Artists': [''], 'Languages': ['', ''], 'Pages': ['']}
-
-*       'Parodies' : 原創 / 二創作品
-*       'Characters' : 人物角色
-*       'Tags' : Tag 標籤
-*       'Artists' : 繪師
-*       'Languages' : 語言
-*       'Pages' : 頁數
-
->>>     數據格式必須 為上方的 key 值 , 包含數據 list
-        填入的值當擁有該TAG的 , 就會被排除掉 , 不會被下載
-
-        """
     
     # google 請求
     def google(self,link):
@@ -151,7 +179,7 @@ Todo     FilterTags 的格式設置
                     self.search_page_data(url)
 
             if len(self.comics_box) == 1:
-                self.comic_page_data(url, index)
+                self.comic_page_data(url, 1)
             elif len(self.comics_box) > 1:
                 with ProcessPoolExecutor(max_workers=self.MaxProcess) as executor:
                     for index , url in enumerate(self.comics_box):
@@ -309,8 +337,7 @@ if __name__ == "__main__":
         'Tags': ['']
     }
     # 下載相關設置
-    nh.download_settings(TitleFormat=True,SearchQuantity=1)
+    nh.download_settings(TitleFormat=True,SearchQuantity=1,CookieSource=cookie_read())
 
-
-    nh.google("")
+    nh.google("https://nhentai.net/g/445047/")
     # nh.edge("")
