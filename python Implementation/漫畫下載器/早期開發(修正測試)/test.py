@@ -41,7 +41,6 @@ def settings():
 def request(url):
     headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"}
     cookie = {
-            "cf_chl_2": "6ce28d82ca2f29c",
             "cf_clearance" : "KpqGFarMwg_sPl_TUksJQ9J8wNggSfKVJ5kY5bdZo9o-1686925432-0-160",
             "csrftoken" : "UyCpwWwUd1uafBvakqShBAwCgFpNiObsVu2zJM5CA2StJEdwwxZtJ8wNp8HOQEaR"
     }
