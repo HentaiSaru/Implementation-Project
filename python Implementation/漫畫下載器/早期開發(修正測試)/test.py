@@ -1,6 +1,10 @@
 from concurrent.futures import ThreadPoolExecutor , ProcessPoolExecutor
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 from multiprocessing import process , Pool
 import undetected_chromedriver as uc
+from lxml import etree
 import pyperclip
 import threading
 import requests
@@ -16,6 +20,7 @@ url = "https://www.google.com.tw/"
 
 def settings():
     Settings = uc.ChromeOptions()
+    Settings.add_argument("--headless")
     Settings.add_argument("--incognito")
     Settings.add_argument('--no-sandbox')
     Settings.add_argument('--log-level=3')
@@ -40,10 +45,7 @@ def settings():
 
 def request(url):
     headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"}
-    cookie = {
-            "cf_clearance" : "KpqGFarMwg_sPl_TUksJQ9J8wNggSfKVJ5kY5bdZo9o-1686925432-0-160",
-            "csrftoken" : "UyCpwWwUd1uafBvakqShBAwCgFpNiObsVu2zJM5CA2StJEdwwxZtJ8wNp8HOQEaR"
-    }
+    cookie = {}
     req = requests.get(url,headers=headers,cookies=cookie)
     print(req.text)
 
@@ -52,20 +54,4 @@ def manga_page_data_processing(url):
     print("當前處理:", url)
 
 if __name__ == '__main__':
-    """ [Pool 線程池]
-        num_processes = 10
-        pool = Pool(processes=num_processes)
-
-        STime = time.time()
-
-        results = []
-        for url in range(10000):
-            result = pool.apply_async(manga_page_data_processing, args=(url,))
-            results.append(result)
-
-        pool.close()
-        pool.join()
-
-        ETime = time.time()
-        print(ETime-STime)
-    """
+    pass
