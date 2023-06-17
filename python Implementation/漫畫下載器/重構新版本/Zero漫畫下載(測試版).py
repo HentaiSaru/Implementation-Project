@@ -1,4 +1,4 @@
-from AutomaticCapture import AutoCapture
+from Script.AutomaticCapture import AutoCapture
 from concurrent.futures import *
 from multiprocessing import *
 from lxml import etree
