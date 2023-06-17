@@ -1,4 +1,5 @@
 from AutomaticCapture import AutoCapture
+from collections import OrderedDict
 # 主要使用 concurrent.futures 的進程池和線程池加速處理下載
 from concurrent.futures import *
 # multiprocessing 的 Pool 進程池創建只能在主模塊使用
@@ -248,10 +249,9 @@ class Accurate:
         # 創建資料夾
         self.create_folder(download_path)
         
-        # 處理圖片的網址 (重構測試)
+        # 處理圖片的網址 (每次請求都會對重複的進行排除)
         async def Request_Trigger():
             async with aiohttp.ClientSession() as session:
-
                 work1 = []
                 work2 = []
 
@@ -275,9 +275,10 @@ class Accurate:
                         pass
                        
         asyncio.run(Request_Trigger())
+        picture_exclude = list(OrderedDict.fromkeys(picture_link))
 
         print("第 %d 本漫畫 - 處理花費時間 : %.3f" % (number , (time.time()-StartTime)))
-        self.download_processing(download_path,picture_link,manga_name)
+        self.download_processing(download_path,picture_exclude,manga_name)
 
     # 資料夾創建
     def create_folder(self,Name):
