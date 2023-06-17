@@ -1,4 +1,4 @@
-from AutomaticCapture import AutoCapture
+from Script.AutomaticCapture import AutoCapture
 from collections import OrderedDict
 # 主要使用 concurrent.futures 的進程池和線程池加速處理下載
 from concurrent.futures import *
