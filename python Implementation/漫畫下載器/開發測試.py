@@ -49,7 +49,6 @@ def request(url):
     req = requests.get(url,headers=headers,cookies=cookie)
     print(req.text)
 
-
 def manga_page_data_processing(url):
     print("當前處理:", url)
 
