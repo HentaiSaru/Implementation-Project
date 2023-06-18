@@ -30,9 +30,11 @@ import os
         ?   [+] 讀取 json 的 Cookie
 
         * - 測試功能 :
+        ?   [*] 試錯重載
+        ?   [*] 下載速度
         ?   [*] 請求穩定性
         ?   [*] 數據處理例外
-
+        ?   [*] 數量過大延遲請求
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - 相關說明
@@ -42,6 +44,7 @@ import os
         ! cookie 相關有 set / read / get , 只有 set 需要手動更改代碼
         ! 其餘的都在 download_settings() 可設置使用
         ! 大致上設置都在 download_settings() , 設置說明也寫得清清楚楚
+        ! 如果一直請求失敗 , 有可能是網站本身 , 或是網路問題
 """
 
 # 網站域名
@@ -89,6 +92,7 @@ class NHentaidownloader:
         #Todo => 下載設置項目
         self.TitleFormatting = None
         self.ProtectionDelay = None
+        self.ErrorReDownload = None
         self.ProcessDelay = None
         self.TagFilterBox = None
         self.MaxProcess = None
@@ -119,6 +123,7 @@ class NHentaidownloader:
             SearchQuantity: int=5,
             TitleFormat: bool=False,
             TryGetCookie: bool=False,
+            TryRedownload: bool=True,
             DownloadPath: str=os.path.dirname(os.path.abspath(__file__)),
 
             DownloadDelay = 0.3,
@@ -133,12 +138,16 @@ class NHentaidownloader:
     *   設置當你輸入搜尋介面 , 想要批量下載所有漫畫時
     *   預設只會載入 5 頁的資訊 , 如果該搜尋頁面總共 10 頁 , 就會被忽略
     *   當設置超過搜尋的最大頁數 , 就會以該搜尋的最大頁數為主
+    *   設置輸入 0 會變成自動使用 , 最大頁數去搜尋
     >>> TitleFormat - 使用標題格式化 (預設: False)
     *   會將輸出創建的漫畫名稱套上格式
     *   預設就是用原本的名稱
     >>> TryGetCookie - 自動嘗試取得 cookie (預設: False)
     *   當請求失敗 , 無法獲取數據時 , 會進行嘗試自動取得 cookie
     !   請注意該方法請求成功的 cookie , 必須使用 google() 方法請求
+    >>> TryRedownload - 嘗試重新下載 (預設: True)
+    *   當圖片格式錯誤時 , 嘗試重新變換格式
+    *   再次進行下載
     >>> DownloadPath - 漫畫下載的路徑 (預設: 當前路徑位置)
     *   無特別設置 , 會以該程式的所在位置
     *   作為下載目錄進行下載
@@ -177,6 +186,7 @@ class NHentaidownloader:
         self.ProtectionDelay = DownloadDelay
         self.MaxProcess = MaxConcurrentDownload
         self.ProcessDelay = ProcessCreationDelay
+        self.ErrorReDownload = TryRedownload
     
     # 基本請求數據
     def get_data(self,url):
@@ -328,10 +338,10 @@ class NHentaidownloader:
             StartTime = time.time()
 
             if link.find("?page=") != -1:
-                url = f"{link}?page=1"
-            else:
                 url = f"{link.split('?page=')[0]}?page=1"
-
+            else:
+                url = f"{link}?page=1"
+            
             # 獲取漫畫連結方法
             def get_comic_link(tree):
                 for data1 in tree.xpath("//div[@class='container index-container']"): 
@@ -342,25 +352,31 @@ class NHentaidownloader:
             tree = self.get_data(url)
             get_comic_link(tree)
 
-            for data1 in tree.xpath("//section[@class='pagination']"): 
-                lastpage = int(data1.xpath(".//a[@class='page']/text()")[-1])
+            # 獲取最後一頁
+            last = tree.xpath("//a[@class='last']")[0].get("href")
+            lastpage = int(last.split("?page=")[1])
 
-            # 當設置的頁數 > 實際頁數 , 設置頁數 = 實際頁數
-            if self.Pages > lastpage:
+            # 當設置的頁數 > 實際頁數 或 == 0 , 設置頁數 = 實際頁數
+            if self.Pages > lastpage or self.Pages == 0:
                 self.Pages = lastpage
 
+            # 異步的同時請求 , 當數量太多時 , 可能會造成數據沒請求到
             async def Trigger():
                 async with aiohttp.ClientSession() as session:
                     work = []
 
                     for page in range(2,self.Pages+1):
                         work.append(asyncio.create_task(self.async_get_data(session, f"{url.split('?page=')[0]}?page={page}")))
+                        # 測試功能 , 當頁數大於 10 頁 , 啟用延遲
+                        if self.Pages > 10:
+                            time.sleep(0.2)
                     results = await asyncio.gather(*work)
 
                     for tree in results:
                         get_comic_link(tree)
 
             asyncio.run(Trigger())
+
             # 雖然有點多餘 , 但還是避免重複
             link_exclude = list(OrderedDict.fromkeys(comic_link))
 
@@ -389,7 +405,14 @@ class NHentaidownloader:
 
         with ThreadPoolExecutor(max_workers=500) as executor:
             for SaveName , comic_link in tqdm(self.download_link.items() , desc=self.title, colour="#9575DE"):
-                executor.submit(self.download,os.path.join(self.save_location,SaveName),comic_link)
+
+                save = os.path.join(self.save_location,SaveName)
+                Data_status = executor.submit(self.download, save, comic_link).result()
+
+                if Data_status != 200:
+                    if self.ErrorReDownload:
+                        executor.submit(self.error_download_try_again, save, comic_link)
+
                 time.sleep(self.ProtectionDelay)
 
     # 資料夾創建
@@ -397,11 +420,30 @@ class NHentaidownloader:
         try:os.mkdir(Name)
         except:pass
 
-    # 下載方法
+    # 正常下載方法
     def download(self,download_path,download_link):
-        ImageData = self.session.get(download_link, headers=self.headers, cookies=cookie_set())
-        with open(download_path , "wb") as f:
-            f.write(ImageData.content)
+        ImageData = self.session.get(download_link, headers=self.headers, cookies=self.Cookies)
+
+        if ImageData.status_code == 200:
+            with open(download_path , "wb") as f:
+                f.write(ImageData.content)
+        return ImageData.status_code
+    
+    # 下載錯誤的 嘗試 重新下載
+    def error_download_try_again(self,path,link):
+        
+        domain = link.rsplit(".",1)[0]
+        shunt = ["i3","i5","i7"]
+        extension = ["jpg","png"]
+
+        for i in range(len(shunt)):
+            for j in range(len(extension)):
+                download_link = f"{domain.replace(link[8:10],shunt[i])}.{extension[j]}"
+                tryerror = self.session.get(download_link, headers=self.headers, cookies=self.Cookies)
+
+                if tryerror.status_code == 200:
+                    with open(path , "wb") as f:
+                        f.write(tryerror.content)
 
 if __name__ == "__main__":
     nh = NHentaidownloader()
@@ -416,7 +458,7 @@ if __name__ == "__main__":
     # 下載相關設置
     nh.download_settings(
         TitleFormat=True,
-        SearchQuantity=1,
+        SearchQuantity=25,
         DownloadPath="R:/",
         CookieSource=cookie_read(),
         TryGetCookie=True
@@ -425,7 +467,6 @@ if __name__ == "__main__":
     capture = AutoCapture.GetList()
     if capture != None:
         nh.google(capture)
-        # nh.edge("")
     else:
         print("無擷取內容")
         os._exit(0)
