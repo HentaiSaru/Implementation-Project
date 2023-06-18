@@ -70,7 +70,7 @@ class UrlGenerator:
             Format = self.RandomBox[self.CharFormat]
             threading.Thread(target=self.Forced_stop).start()
 
-            with ThreadPoolExecutor(max_workers=500) as executor:
+            with ThreadPoolExecutor(max_workers=100) as executor:
 
                 while len(self.SaveBox) < self.GeneratedNumber and self.build_status:
                     gen_char = ""
@@ -91,8 +91,12 @@ class UrlGenerator:
                     executor.submit(self.Reurlcc_checking , link)
                     time.sleep(0.01)
 
-            self.save_cvs()
+            save = threading.Thread(target=self.save_cvs)
+            save.start()
+            save.join()
             print("生成完畢...")
+
+            os._exit(0)
 
         except:
             print("請先使用 generate_settin() 進行設置後 , 再進行生成")
@@ -101,9 +105,9 @@ class UrlGenerator:
         try:
             tree = self.get_data(link)
             data = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")
-            title = data[1]
+            title = data[1].replace(","," ")
 
-            self.SaveBox.append(f"{title},{link}")
+            self.SaveBox.append(f"{title},{link.split('+')[0]}")
         except:
             pass
 
@@ -121,7 +125,7 @@ if __name__ == "__main__":
     url.generate_settin(
         domain = "https://reurl.cc/",
         charnumber = 6,
-        generatednumber = 100,
+        generatednumber = 500,
         charformat = 4,
         tail= "+",
         debug=False
