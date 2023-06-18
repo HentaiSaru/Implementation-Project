@@ -372,7 +372,7 @@ class ZeroDownloader:
             with open(save_name,"wb") as f:
                 f.write(Data_status.content)
 
-            return Data_status.status_code
+        return Data_status.status_code
 
 #################################################################################
 
