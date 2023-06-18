@@ -51,6 +51,7 @@ class AutomaticCapture:
                 self.detection = False
                 while keyboard.is_pressed("alt+s"):
                     pass
+            time.sleep(0.05)
 
     def settings(self, domainName:str, delay=0.05):
         try:
