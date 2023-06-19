@@ -9,7 +9,7 @@ import os
 
 """ 精簡版檔案分類
 
-Versions 1.0.4
+Versions 1.0.5
 
 [+] 資料夾路徑選取
 [+] 設置分類副檔名
@@ -33,14 +33,19 @@ class DataRead:
 
         # 保存選擇資料夾後讀取的所有數據
         self.data = {}
-        # 保存所有檔案類型
+        # 保存所有檔案類型 用於顯示選擇
         self.file_type = set()
+        # 保存所有檔案類型 用於計算數量
+        self.quantity = []
         # 保存所有檔案數據
         self.all_data = []
         # 保存過濾後檔案數據
         self.filter_data = []
         # 將塞選的類型數據轉回list保存
-        self.listtype =[]
+        self.listtype = []
+
+        # 最終顯示的表格
+        self.show_table = []
 
     def open_folder(self):
 
@@ -75,16 +80,23 @@ class DataRead:
 
                     try:
                         self.file_type.add(filetype.lower())
+                        self.quantity.append(filetype.lower())
                         self.all_data.append(Complete.replace("\\","/"))
                     except:
                         print("沒有可分類檔案")
                         return
 
         self.listtype = list(self.file_type)
+        show = ["[0]", "ALL", f"{len(self.all_data)}"]
+        self.show_table.append(show)
 
-        print("代號 [0] : ALL")
         for index , Type in enumerate(self.listtype):
-            print(f"代號 [{index+1}] : {Type}")
+            show = [f"[{index+1}]",Type,self.quantity.count(Type)]
+            self.show_table.append(show)
+
+        print("{:<6} {:<8} {}".format("代號", "檔案類型", "類型數量"))
+        for row in self.show_table:
+            print("{:<10} {:<11} {}".format(row[0], row[1], row[2]))
 
         self.RepeatedSelection()
 
