@@ -50,7 +50,7 @@ class UrlGenerator:
             charformat: int = 0,
             tail: str = None,
             secondverification: bool = False,
-            filterdomains: list = None,
+            filterdomains: list = [],
             debug: bool= False
         ):
             """
@@ -123,12 +123,13 @@ class UrlGenerator:
             print("請先使用 generate_settin() 進行設置後 , 再進行生成")
 
     def Reurlcc_checking(self,link):
+
         try:
             tree = self.get_data(link)
             url = tree.xpath("//span[@class='lead']/text()")[0]
             title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ").strip()
 
-            if self.FilterDomains != None:
+            if len(self.FilterDomains) > 0:
                 for domain in self.FilterDomains:
                     if url.find(domain) == -1:
                         raise Exception()
@@ -154,7 +155,7 @@ if __name__ == "__main__":
     url = UrlGenerator()
     url.generate_settin(
         domain = "https://reurl.cc/",
-        generatednumber = 300,
+        generatednumber = 500,
         charnumber = 6,
         charformat = 4,
         tail= "+",
