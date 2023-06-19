@@ -4,6 +4,7 @@ import threading
 import keyboard
 import requests
 import random
+import json
 import time
 import os
 
@@ -21,20 +22,15 @@ class UrlGenerator:
         self.Tail = None
         self.DeBug = None
 
-        self.SaveBox = []
+        self.SaveBox = {}
 
     def get_data(self,url):
         request = self.session.get(url, headers=self.headers)
         return etree.fromstring(request.content , etree.HTMLParser())
     
-    def save_cvs(self):
-        Lsave = len(self.SaveBox)
-        with open("可用URL.csv", "w" , encoding="utf-8") as f:
-            for index , data in enumerate(self.SaveBox):
-                if index == Lsave -1:
-                    f.write(data.strip())
-                else:
-                    f.write(data.strip() + "\n")
+    def save_json(self):
+        with open("可用網址.json" , "w" , encoding="UTF-8") as file:
+            file.write(json.dumps(self.SaveBox, indent=4, separators=(',',':')))
 
     def generate_settin(self, domain: str, charnumber: int, generatednumber: int, charformat: int = 0, tail: str = None, debug: bool= False):
             """
@@ -91,7 +87,7 @@ class UrlGenerator:
                     executor.submit(self.Reurlcc_checking , link)
                     time.sleep(0.01)
 
-            save = threading.Thread(target=self.save_cvs)
+            save = threading.Thread(target=self.save_json)
             save.start()
             save.join()
             print("生成完畢...")
@@ -105,9 +101,9 @@ class UrlGenerator:
         try:
             tree = self.get_data(link)
             data = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")
-            title = data[1].replace(","," ")
+            title = data[1].replace(","," ").strip()
 
-            self.SaveBox.append(f"{title},{link.split('+')[0]}")
+            self.SaveBox[link.split('+')[0]] = title
         except:
             pass
 
@@ -125,10 +121,9 @@ if __name__ == "__main__":
     url.generate_settin(
         domain = "https://reurl.cc/",
         charnumber = 6,
-        generatednumber = 500,
+        generatednumber = 200,
         charformat = 4,
         tail= "+",
-        debug=False
     )
     url.generator()
 
@@ -145,4 +140,16 @@ if __name__ == "__main__":
 正確 : https://rb.gy/zay86
 錯誤 : https://rb.gy/zay76
 
+"""
+
+"""
+Todo => reurl.cc 的設置參考
+! 基本上只需要改 generatednumber 的數字就好
+url.generate_settin(
+    domain = "https://reurl.cc/",
+    charnumber = 6,
+    generatednumber = 10,
+    charformat = 4,
+    tail= "+",
+)
 """
