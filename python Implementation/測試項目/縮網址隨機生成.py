@@ -154,7 +154,7 @@ if __name__ == "__main__":
     url = UrlGenerator()
     url.generate_settin(
         domain = "https://reurl.cc/",
-        generatednumber = 10,
+        generatednumber = 300,
         charnumber = 6,
         charformat = 4,
         tail= "+",
