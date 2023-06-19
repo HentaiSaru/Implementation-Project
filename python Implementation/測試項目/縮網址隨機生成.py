@@ -16,10 +16,13 @@ class UrlGenerator:
         self.session = requests.Session()
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
         self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
-        self.SupportDomain = ["reurl.cc"]
+        self.SupportDomain = ["reurl.cc","ppt.cc"]
         self.Workqueue = queue.Queue()
+        # 判斷類變數
         self.build_status = True
-
+        self.filter_trigger = False
+        self.support = None
+        # 設置類變數
         self.Tail = None
         self.DeBug = None
         self.DomainName = None
@@ -28,12 +31,16 @@ class UrlGenerator:
         self.FilterDomains = None
         self.GeneratedNumber = None
         self.SecondVerification = None
-
+        # 保存類變數
         self.SaveBox = {}
 
     def get_data(self,url):
         request = self.session.get(url, headers=self.headers)
         return etree.fromstring(request.content , etree.HTMLParser())
+    
+    def get_url(self,url):
+        request = self.session.get(url, headers=self.headers)
+        return request.url
     
     def get_status(self,url):
         request = self.session.get(url, headers=self.headers)
@@ -77,11 +84,16 @@ class UrlGenerator:
                 self.GeneratedNumber = generatednumber
                 self.SecondVerification = secondverification
 
-                if charformat >= 0 and charformat <= 4:
+                self.support = self.SupportDomain.index(urlparse(domain).netloc) # 域名解析與判斷
+
+                if charformat >= 0 and charformat <= 4: # 判斷生成格式設置 , 是否符合規範
                     self.CharFormat = charformat
                 else:
                     print("charformat 的範圍是 0 ~ 4")
                     raise Exception()
+                
+                if len(self.FilterDomains) > 0: # 判斷是否使用排除
+                    self.filter_trigger = True
 
                 if tail != None:
                     self.Tail = tail
@@ -135,17 +147,20 @@ class UrlGenerator:
         while self.build_status:
             if not self.Workqueue.empty():
                 link = self.Workqueue.get()
-                domain = urlparse(link).netloc # 域名解析
-
+                
                 try:
-                    support = self.SupportDomain.index(domain) # 域名判斷
-
-                    if support == 0:
+                    if self.support == 0:
                         tree = self.get_data(link)
                         url = unquote(tree.xpath("//span[@class='lead']/text()")[0])
                         title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ")
-
-                    if len(self.FilterDomains) > 0:
+                    elif self.support == 1:
+                        url = self.get_url(link)
+                        if url != link:
+                            title = unquote(url)
+                        else:
+                            raise Exception()
+                    
+                    if self.filter_trigger:
                         for domain in self.FilterDomains:
                             if url.find(domain) != -1:
                                 raise Exception()
@@ -155,6 +170,10 @@ class UrlGenerator:
                             raise Exception()
 
                     self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii').strip()
+
+                    # 個別輸出測試
+                    # self.save_json()
+                    # break
                 except:
                     pass
   
@@ -171,24 +190,39 @@ class UrlGenerator:
 
 if __name__ == "__main__":
     url = UrlGenerator()
+
+    # url.generate_settin(
+    #     domain = "https://reurl.cc/",
+    #     generatednumber = 10,
+    #     charnumber = 6,
+    #     charformat = 4,
+    #     tail= "+",
+    #     secondverification=True,
+    #     filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw"],
+    # )
+
     url.generate_settin(
-        domain = "https://reurl.cc/",
+        domain = "https://ppt.cc/",
         generatednumber = 10,
         charnumber = 6,
         charformat = 4,
-        tail= "+",
         secondverification=True,
         filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw"],
     )
+
     url.generator()
 
-""" 目前只做了 reurl.cc 的處理
+
+    """ 個別測試區 """
+    # threading.Thread(target=url.Secure_Data_Processing).start()
+    # time.sleep(1)
+    # url.Workqueue.put("")
+
+
+""" 待開發
 
 正確 : https://pse.is/52ucfr
 錯誤 : https://pse.is/51ucfr
-
-正確 : https://ppt.cc/fhgP4x
-錯誤 : https://ppt.cc/dhaP3x
 
 正確 : https://tinyurl.com/preview/mukr6h7p
 錯誤 : https://tinyurl.com/preview/mukr8h7p
@@ -196,17 +230,4 @@ if __name__ == "__main__":
 正確 : https://rb.gy/zay86
 錯誤 : https://rb.gy/zay76
 
-"""
-
-"""
-Todo => reurl.cc 的設置參考
-! 基本上只需要改 generatednumber 的數字就好
-url.generate_settin(
-    domain = "https://reurl.cc/",
-    generatednumber = 10,
-    charnumber = 6,
-    charformat = 4,
-    tail= "+",
-    secondverification=True,
-)
 """
