@@ -30,7 +30,7 @@ class UrlGenerator:
     
     def save_json(self):
         with open("可用網址.json" , "w" , encoding="UTF-8") as file:
-            file.write(json.dumps(self.SaveBox, indent=4, separators=(',',':')))
+            file.write(json.dumps(self.SaveBox, indent=4, separators=(',',':')), ensure_ascii=False)
 
     def generate_settin(self, domain: str, charnumber: int, generatednumber: int, charformat: int = 0, tail: str = None, debug: bool= False):
             """
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     url.generate_settin(
         domain = "https://reurl.cc/",
         charnumber = 6,
-        generatednumber = 200,
+        generatednumber = 100,
         charformat = 4,
         tail= "+",
     )
