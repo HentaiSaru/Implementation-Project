@@ -1,10 +1,12 @@
-from concurrent.futures import *
 from unicodedata import normalize
+from concurrent.futures import *
+from urllib.parse import *
 from lxml import etree
 import threading
 import keyboard
 import requests
 import random
+import queue
 import json
 import time
 import os
@@ -14,6 +16,8 @@ class UrlGenerator:
         self.session = requests.Session()
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
         self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
+        self.SupportDomain = ["reurl.cc"]
+        self.Workqueue = queue.Queue()
         self.build_status = True
 
         self.Tail = None
@@ -89,7 +93,14 @@ class UrlGenerator:
     def generator(self):
         try:
             Format = self.RandomBox[self.CharFormat]
-            threading.Thread(target=self.Forced_stop).start()
+            stop = threading.Thread(target=self.Forced_stop)
+            stop.daemon = True
+            stop.start()
+
+            work = threading.Thread(target=self.Secure_Data_Processing)
+            work.start()
+
+            save = threading.Thread(target=self.save_json)
 
             with ThreadPoolExecutor(max_workers=300) as executor:
 
@@ -108,39 +119,46 @@ class UrlGenerator:
                     link = f"{self.DomainName}{gen_char}{self.Tail}"
                     if self.DeBug:
                         print(link)
-
-                    executor.submit(self.Reurlcc_checking , link)
+                    
+                    executor.submit(self.Workqueue.put(link))
                     time.sleep(0.01)
 
-            save = threading.Thread(target=self.save_json)
+            work.join()
             save.start()
             save.join()
             print("生成完畢...")
 
-            os._exit(0)
-
         except:
             print("請先使用 generate_settin() 進行設置後 , 再進行生成")
 
-    def Reurlcc_checking(self,link):
+    def Secure_Data_Processing(self):
+        while self.build_status:
+            if not self.Workqueue.empty():
+                link = self.Workqueue.get()
+                domain = urlparse(link).netloc # 域名解析
 
-        try:
-            tree = self.get_data(link)
-            url = tree.xpath("//span[@class='lead']/text()")[0]
-            title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ")
+                try:
+                    support = self.SupportDomain.index(domain) # 域名判斷
 
-            if len(self.FilterDomains) > 0:
-                for domain in self.FilterDomains:
-                    if url.find(domain) != -1:
-                        raise Exception()
+                    if support == 0:
+                        tree = self.get_data(link)
+                        url = unquote(tree.xpath("//span[@class='lead']/text()")[0])
+                        title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ")
 
-            if self.SecondVerification:
-                if not self.get_status(url):
-                    raise Exception()
-            
-            self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii').strip()
-        except:
-            pass
+                    if len(self.FilterDomains) > 0:
+                        for domain in self.FilterDomains:
+                            if url.find(domain) != -1:
+                                raise Exception()
+                            
+                    if self.SecondVerification:
+                        if not self.get_status(url):
+                            raise Exception()
+
+                    self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii').strip()
+                except:
+                    pass
+  
+            time.sleep(0.03)
 
     def Forced_stop(self):
         print("在中途按下 ALT + S 可以強制停止程式 , 並輸出結果")
@@ -155,12 +173,12 @@ if __name__ == "__main__":
     url = UrlGenerator()
     url.generate_settin(
         domain = "https://reurl.cc/",
-        generatednumber = 500,
+        generatednumber = 10,
         charnumber = 6,
         charformat = 4,
         tail= "+",
         secondverification=True,
-        filterdomains=["google.com","youtube.com","facebook.com","line.me","taobao.com","shopee.tw"],
+        filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw"],
     )
     url.generator()
 
