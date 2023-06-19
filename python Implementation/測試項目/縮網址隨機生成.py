@@ -91,7 +91,7 @@ class UrlGenerator:
             Format = self.RandomBox[self.CharFormat]
             threading.Thread(target=self.Forced_stop).start()
 
-            with ThreadPoolExecutor(max_workers=100) as executor:
+            with ThreadPoolExecutor(max_workers=1000) as executor:
 
                 while len(self.SaveBox) < self.GeneratedNumber and self.build_status:
                     gen_char = ""
@@ -131,7 +131,7 @@ class UrlGenerator:
 
             if len(self.FilterDomains) > 0:
                 for domain in self.FilterDomains:
-                    if url.find(domain) == -1:
+                    if url.find(domain) != -1:
                         raise Exception()
 
             if self.SecondVerification:
