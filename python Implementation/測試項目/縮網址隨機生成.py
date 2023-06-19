@@ -1,4 +1,5 @@
 from concurrent.futures import *
+from unicodedata import normalize
 from lxml import etree
 import threading
 import keyboard
@@ -15,12 +16,14 @@ class UrlGenerator:
         self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
         self.build_status = True
 
-        self.DomainName = None
-        self.CharNumber = None
-        self.GeneratedNumber = None
-        self.CharFormat = None
         self.Tail = None
         self.DeBug = None
+        self.DomainName = None
+        self.CharNumber = None
+        self.CharFormat = None
+        self.FilterDomains = None
+        self.GeneratedNumber = None
+        self.SecondVerification = None
 
         self.SaveBox = {}
 
@@ -28,11 +31,28 @@ class UrlGenerator:
         request = self.session.get(url, headers=self.headers)
         return etree.fromstring(request.content , etree.HTMLParser())
     
+    def get_status(self,url):
+        request = self.session.get(url, headers=self.headers)
+        if request.status_code == 200:
+            return True
+        else:
+            return False
+    
     def save_json(self):
-        with open("可用網址.json" , "w" , encoding="UTF-8") as file:
-            file.write(json.dumps(self.SaveBox, indent=4, separators=(',',':')), ensure_ascii=False)
+        if len(self.SaveBox) > 0:
+            with open("可用網址.json" , "w" , encoding="utf-8") as file:
+                file.write(json.dumps(self.SaveBox, indent=4, separators=(',',':')))
 
-    def generate_settin(self, domain: str, charnumber: int, generatednumber: int, charformat: int = 0, tail: str = None, debug: bool= False):
+    def generate_settin(self, 
+            domain: str,
+            charnumber: int,
+            generatednumber: int,
+            charformat: int = 0,
+            tail: str = None,
+            secondverification: bool = False,
+            filterdomains: list = None,
+            debug: bool= False
+        ):
             """
             >>> 必傳參數
             * domain 就是網址域名
@@ -41,12 +61,17 @@ class UrlGenerator:
             >>> 選擇傳遞
             * charformat 填寫 0 ~ 4 (0英文(大), 1英文(小), 2(數字), 3英文(大+小), 4英文(大+小)+數字)
             * tail 要在生成網址最後加上得符號
+            * SecondVerification 啟用時會對生成的網址 , 進行二次驗證是否可以用 , 排除 404 (整體速度會減慢)
+            * FilterDomains 將要排除的網域名稱傳遞 , 就會將獲取的網址中 , 包含該網域的排除
+            * debug 會顯示生成的網址樣式
             """
             try:
+                self.DeBug = debug
                 self.DomainName = domain
                 self.CharNumber = charnumber
+                self.FilterDomains = filterdomains
                 self.GeneratedNumber = generatednumber
-                self.DeBug = debug
+                self.SecondVerification = secondverification
 
                 if charformat >= 0 and charformat <= 4:
                     self.CharFormat = charformat
@@ -100,10 +125,19 @@ class UrlGenerator:
     def Reurlcc_checking(self,link):
         try:
             tree = self.get_data(link)
-            data = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")
-            title = data[1].replace(","," ").strip()
+            url = tree.xpath("//span[@class='lead']/text()")[0]
+            title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ").strip()
 
-            self.SaveBox[link.split('+')[0]] = title
+            if self.FilterDomains != None:
+                for domain in self.FilterDomains:
+                    if url.find(domain) == -1:
+                        raise Exception()
+
+            if self.SecondVerification:
+                if not self.get_status(url):
+                    raise Exception()
+            
+            self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii')
         except:
             pass
 
@@ -120,14 +154,17 @@ if __name__ == "__main__":
     url = UrlGenerator()
     url.generate_settin(
         domain = "https://reurl.cc/",
+        generatednumber = 10,
         charnumber = 6,
-        generatednumber = 100,
         charformat = 4,
         tail= "+",
+        secondverification=True,
+        filterdomains=["youtube","facebook"],
     )
     url.generator()
 
-"""
+""" 目前只做了 reurl.cc 的處理
+
 正確 : https://pse.is/52ucfr
 錯誤 : https://pse.is/51ucfr
 
@@ -147,9 +184,10 @@ Todo => reurl.cc 的設置參考
 ! 基本上只需要改 generatednumber 的數字就好
 url.generate_settin(
     domain = "https://reurl.cc/",
-    charnumber = 6,
     generatednumber = 10,
+    charnumber = 6,
     charformat = 4,
     tail= "+",
+    secondverification=True,
 )
 """
