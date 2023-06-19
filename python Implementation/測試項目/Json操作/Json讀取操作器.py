@@ -52,12 +52,11 @@ class ReadJson:
                             os.system(f"start {key}")
                         else:
                             os.system(f"start {value}")
-
+                        time.sleep(0.2)
                     self.Calculate += 1
                 else:
                     self.Json_Operation_A[key] = value
 
-                time.sleep(0.5)
             if OutPut:
                 self.__output_remaining()
 
