@@ -1,8 +1,10 @@
 import json
+import time
 import os
 
 class ReadJson:
     def __init__(self):
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
         self.Json_name = None
         self.Json_data = None
 
@@ -34,12 +36,14 @@ class ReadJson:
             self.Stop_Line = StopLine
 
             self.__read_json()
+            amount = len(self.Json_data)
 
             for key , value in self.Json_data.items():
                 if self.Operation_Pass:
                     if self.Calculate > self.Stop_Line:
                         self.Calculate = 0
-                        n = input("按下任意鍵繼續測試 [輸入 0 結束] : ")
+                        amount -= self.Stop_Line
+                        n = input(f"按下任意鍵繼續測試 [剩餘:{amount}] [輸入 0 結束] : ")
 
                         if n == "0":
                             self.Operation_Pass = False
@@ -52,6 +56,8 @@ class ReadJson:
                     self.Calculate += 1
                 else:
                     self.Json_Operation_A[key] = value
+
+                time.sleep(0.1)
             if OutPut:
                 self.__output_remaining()
 
@@ -62,10 +68,11 @@ class ReadJson:
         if len(self.Json_Operation_A) > 0:
             with open(self.Json_name , "w") as file:
                 file.write(json.dumps(self.Json_Operation_A, indent=4, separators=(',',':')))
+            print("輸出完成...")
         else:
-            os.system(f"del /f /s /q {self.Json_name}")
+            os.system(f"del /f /s /q {self.Json_name} >nul 2>&1")
 
 
 if __name__ == "__main__":
     rj = ReadJson()
-    rj.open_url("範圍201-300.json",10,OutPut=True)
+    rj.open_url("可用網址.json",20,OutPut=True)
