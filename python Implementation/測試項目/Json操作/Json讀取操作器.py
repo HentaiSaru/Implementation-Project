@@ -57,7 +57,7 @@ class ReadJson:
                 else:
                     self.Json_Operation_A[key] = value
 
-                time.sleep(0.1)
+                time.sleep(0.5)
             if OutPut:
                 self.__output_remaining()
 

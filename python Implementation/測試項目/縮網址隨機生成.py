@@ -91,7 +91,7 @@ class UrlGenerator:
             Format = self.RandomBox[self.CharFormat]
             threading.Thread(target=self.Forced_stop).start()
 
-            with ThreadPoolExecutor(max_workers=1000) as executor:
+            with ThreadPoolExecutor(max_workers=300) as executor:
 
                 while len(self.SaveBox) < self.GeneratedNumber and self.build_status:
                     gen_char = ""
@@ -127,7 +127,7 @@ class UrlGenerator:
         try:
             tree = self.get_data(link)
             url = tree.xpath("//span[@class='lead']/text()")[0]
-            title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ").strip()
+            title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ")
 
             if len(self.FilterDomains) > 0:
                 for domain in self.FilterDomains:
@@ -138,7 +138,7 @@ class UrlGenerator:
                 if not self.get_status(url):
                     raise Exception()
             
-            self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii')
+            self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii').strip()
         except:
             pass
 
@@ -160,7 +160,7 @@ if __name__ == "__main__":
         charformat = 4,
         tail= "+",
         secondverification=True,
-        filterdomains=["youtube","facebook"],
+        filterdomains=["google.com","youtube.com","facebook.com","line.me","taobao.com","shopee.tw"],
     )
     url.generator()
 
