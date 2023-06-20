@@ -13,6 +13,7 @@ import os
 """
 可隨機生成網址的程式
 (基本上網址後為 6 個上下的 , 英 大+小 + 數字 , 都可以嘗試)
+再更多字元的機率就很低了 , 雖然還是有可能 , 但就是等吧
 
 目前支援類型
 reurl.cc
@@ -237,7 +238,7 @@ if __name__ == "__main__":
     )
 
     url.generator()
-    # url.Data_Processing("")
+    #url.Data_Processing("")
 
 
 """ 待開發
