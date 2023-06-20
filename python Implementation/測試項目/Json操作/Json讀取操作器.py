@@ -40,7 +40,7 @@ class ReadJson:
         
             for key , value in self.Json_data.items():
                 if self.Operation_Pass:
-                    if self.Calculate > self.Stop_Line:
+                    if self.Calculate == self.Stop_Line:
                         self.Calculate = 0
                         amount -= self.Stop_Line
                         n = input(f"按下Enter繼續測試 [剩餘:{amount}] [輸入 0 結束] : ")
