@@ -6,10 +6,31 @@ import threading
 import keyboard
 import requests
 import random
-import queue
 import json
 import time
 import os
+
+"""
+可隨機生成縮網址的程式
+
+目前支援類型
+reurl.cc
+ppt.cc
+
+功能
+
+[+] 自訂生成格式
+[+] 自訂生成數量
+[+] 選擇排除網域
+
+! 排除網域的功能 , 並不是 100 % 成功的
+原本採取 queue 去處理
+這能保證數據的處理
+但是速度會慢很多
+因此為了速度捨去了處理準確性
+(開啟二次驗證精準度會提高)
+
+"""
 
 class UrlGenerator:
     def __init__(self):
@@ -17,7 +38,6 @@ class UrlGenerator:
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
         self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
         self.SupportDomain = ["reurl.cc","ppt.cc"]
-        self.Workqueue = queue.Queue()
         # 判斷類變數
         self.build_status = True
         self.filter_trigger = False
@@ -32,22 +52,25 @@ class UrlGenerator:
         self.GeneratedNumber = None
         self.SecondVerification = None
         # 保存類變數
+        self.SuccessCount = 0
         self.SaveBox = {}
 
     def get_data(self,url):
         request = self.session.get(url, headers=self.headers)
         return etree.fromstring(request.content , etree.HTMLParser())
     
-    def get_url(self,url):
+    def get_conversion_data(self,url):
         request = self.session.get(url, headers=self.headers)
-        return request.url
-    
-    def get_status(self,url):
-        request = self.session.get(url, headers=self.headers)
+        tree = etree.fromstring(request.content , etree.HTMLParser())
         if request.status_code == 200:
-            return True
+            try:
+                title = tree.xpath("//title/text()")[0]
+            except:
+                title = "無取得標題"
+
+            return request.url , title
         else:
-            return False
+            return False , False
     
     def save_json(self):
         if len(self.SaveBox) > 0:
@@ -105,17 +128,14 @@ class UrlGenerator:
     def generator(self):
         try:
             Format = self.RandomBox[self.CharFormat]
+
             stop = threading.Thread(target=self.Forced_stop)
             stop.daemon = True
             stop.start()
 
-            work = threading.Thread(target=self.Secure_Data_Processing)
-            work.start()
-
             save = threading.Thread(target=self.save_json)
 
             with ThreadPoolExecutor(max_workers=300) as executor:
-
                 while len(self.SaveBox) < self.GeneratedNumber and self.build_status:
                     gen_char = ""
 
@@ -132,10 +152,9 @@ class UrlGenerator:
                     if self.DeBug:
                         print(link)
                     
-                    executor.submit(self.Workqueue.put(link))
+                    executor.submit(self.Data_Processing, link)
                     time.sleep(0.01)
 
-            work.join()
             save.start()
             save.join()
             print("生成完畢...")
@@ -143,41 +162,34 @@ class UrlGenerator:
         except:
             print("請先使用 generate_settin() 進行設置後 , 再進行生成")
 
-    def Secure_Data_Processing(self):
-        while self.build_status:
-            if not self.Workqueue.empty():
-                link = self.Workqueue.get()
-                
-                try:
-                    if self.support == 0:
-                        tree = self.get_data(link)
-                        url = unquote(tree.xpath("//span[@class='lead']/text()")[0])
-                        title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ")
-                    elif self.support == 1:
-                        url = self.get_url(link)
-                        if url != link:
-                            title = unquote(url)
-                        else:
-                            raise Exception()
-                    
-                    if self.filter_trigger:
-                        for domain in self.FilterDomains:
-                            if url.find(domain) != -1:
-                                raise Exception()
-                            
-                    if self.SecondVerification:
-                        if not self.get_status(url):
-                            raise Exception()
-
-                    self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii').strip()
-
-                    # 個別輸出測試
-                    # self.save_json()
-                    # break
-                except:
-                    pass
-  
-            time.sleep(0.03)
+    def Data_Processing(self,link):
+        try:
+            if self.support == 0:
+                tree = self.get_data(link)
+                url = unquote(tree.xpath("//span[@class='lead']/text()")[0])
+                title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ")
+            elif self.support == 1:
+                url = unquote(self.get_url(link))
+                if url.find(self.SupportDomain[1]) != -1:
+                    raise Exception()
+                else:
+                    title = url
+            
+            if self.SecondVerification:
+                url , title = self.get_conversion_data(url)
+                if not url:
+                    raise Exception()
+            
+            if self.filter_trigger:
+                for domain in self.FilterDomains:
+                    if url.find(domain) != -1:
+                        raise Exception()
+            
+            self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii').strip()
+            self.SuccessCount += 1
+            print(f"成功生成總數 : {self.SuccessCount}")
+        except:
+            pass
 
     def Forced_stop(self):
         print("在中途按下 ALT + S 可以強制停止程式 , 並輸出結果")
@@ -186,38 +198,31 @@ class UrlGenerator:
                 self.build_status = False
                 while keyboard.is_pressed("alt+s"):
                     pass
-            time.sleep(0.05)
+            time.sleep(0.03)
 
 if __name__ == "__main__":
     url = UrlGenerator()
 
+    url.generate_settin(
+        domain = "https://reurl.cc/",
+        generatednumber = 100,
+        charnumber = 6,
+        charformat = 4,
+        tail= "+",
+        secondverification=True,
+        filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org"],
+    )
+
     # url.generate_settin(
-    #     domain = "https://reurl.cc/",
+    #     domain = "https://ppt.cc/",
     #     generatednumber = 10,
     #     charnumber = 6,
-    #     charformat = 4,
-    #     tail= "+",
+    #     charformat = 3,
     #     secondverification=True,
     #     filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw"],
     # )
 
-    url.generate_settin(
-        domain = "https://ppt.cc/",
-        generatednumber = 10,
-        charnumber = 6,
-        charformat = 4,
-        secondverification=True,
-        filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw"],
-    )
-
     url.generator()
-
-
-    """ 個別測試區 """
-    # threading.Thread(target=url.Secure_Data_Processing).start()
-    # time.sleep(1)
-    # url.Workqueue.put("")
-
 
 """ 待開發
 
