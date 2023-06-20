@@ -15,23 +15,24 @@ import os
 (基本上網址後為 6 個上下的 , 英 大+小 + 數字 , 都可以嘗試)
 再更多字元的機率就很低了 , 雖然還是有可能 , 但就是等吧
 
-目前支援類型
-reurl.cc
-ppt.cc
-files.catbox.moe
-
 功能
 
 [+] 自訂生成格式
 [+] 自訂生成數量
 [+] 選擇排除網域
 
+(有特別處理驗證可用性)
+! 支援網域 (其他的也是可以 , 只是可用性就不能保證)
+reurl.cc
+ppt.cc
+files.catbox.moe
+
 ! 排除網域的功能 , 並不是 100 % 成功的
 原本採取 queue 去處理
 這能保證數據的處理
 但是速度會慢很多
 因此為了速度捨去了處理準確性
-(開啟二次驗證精準度會提高)
+(開啟二次驗證精準度會提高,但處理速度會變慢)
 
 """
 
@@ -60,7 +61,7 @@ class UrlGenerator:
 
     def get_data(self,url):
         request = self.session.get(url, headers=self.headers)
-        return etree.fromstring(request.content , etree.HTMLParser())
+        return etree.fromstring(request.content , etree.HTMLParser()) , request.url
     
     def get_conversion_data(self,url):
         request = self.session.head(url, headers=self.headers)
@@ -166,26 +167,32 @@ class UrlGenerator:
 
     def Data_Processing(self,link):
         try:
+            # 第一重驗證 (開發支援)
             if self.support == 0:
-                tree = self.get_data(link)
+                tree , C_url = self.get_data(link)
                 url = unquote(tree.xpath("//span[@class='lead']/text()")[0])
                 title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ")
             elif self.support == 1:
-                url = unquote(self.get_url(link))
-                if url.find(self.SupportDomain[1]) != -1:
+                tree , C_url = self.get_data(link)
+                C_url = unquote(C_url)
+                # 簡單驗證一下
+                if C_url.find(self.SupportDomain[1]) != -1:
                     raise Exception()
                 else:
-                    title = url
+                    url = C_url
+                    title = tree.xpath("//title/text()")[0]
+
             elif self.support == 2:
                 url = link
                 title = "此網域為了速度無標題"
             
+            # 第二重驗證 (將請求回來的的 Url , 請求狀態碼驗證)
             if self.SecondVerification:
                 url , status = self.get_conversion_data(url)
-                # 測試雙重驗證確保精準度
                 if url == False or status != 200:
                     raise Exception()
             
+            # 域名排除
             if self.filter_trigger:
                 for domain in self.FilterDomains:
                     if url.find(domain) != -1:
@@ -194,7 +201,7 @@ class UrlGenerator:
             self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii').strip()
             self.SuccessCount += 1
             print(f"成功生成總數 : {self.SuccessCount}")
-        except:
+        except Exception as e:
             pass
 
     def Forced_stop(self):
@@ -219,26 +226,25 @@ if __name__ == "__main__":
     #     filterdomains=["google.com","bing.com","youtube.com","facebook.com","microsoft.com","line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org"],
     # )
 
-    # url.generate_settin(
-    #     domain = "https://ppt.cc/",
-    #     generatednumber = 500,
-    #     charnumber = 6,
-    #     charformat = 3,
-    #     secondverification=True,
-    #     filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw"],
-    # )
-
     url.generate_settin(
-        domain = "https://files.catbox.moe/",
-        generatednumber = 300,
+        domain = "https://ppt.cc/",
+        generatednumber = 500,
         charnumber = 6,
         charformat = 4,
-        tail= ".mp4",
         secondverification=True,
+        filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw"],
     )
 
+    # url.generate_settin(
+        # domain = "https://files.catbox.moe/",
+        # generatednumber = 500,
+        # charnumber = 6,
+        # charformat = 4,
+        # tail= ".mp4",
+        # secondverification=True,
+    # )
+
     url.generator()
-    #url.Data_Processing("")
 
 
 """ 待開發
