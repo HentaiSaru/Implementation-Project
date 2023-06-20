@@ -11,11 +11,13 @@ import time
 import os
 
 """
-可隨機生成縮網址的程式
+可隨機生成網址的程式
+(基本上網址後為 6 個上下的 , 英 大+小 + 數字 , 都可以嘗試)
 
 目前支援類型
 reurl.cc
 ppt.cc
+files.catbox.moe
 
 功能
 
@@ -37,7 +39,7 @@ class UrlGenerator:
         self.session = requests.Session()
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
         self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
-        self.SupportDomain = ["reurl.cc","ppt.cc"]
+        self.SupportDomain = ["reurl.cc","ppt.cc","files.catbox.moe"]
         # 判斷類變數
         self.build_status = True
         self.filter_trigger = False
@@ -60,16 +62,12 @@ class UrlGenerator:
         return etree.fromstring(request.content , etree.HTMLParser())
     
     def get_conversion_data(self,url):
-        request = self.session.get(url, headers=self.headers)
-        tree = etree.fromstring(request.content , etree.HTMLParser())
-        if request.status_code == 200:
-            try:
-                title = tree.xpath("//title/text()")[0]
-            except:
-                title = "無取得標題"
-            return request.url , title
+        request = self.session.head(url, headers=self.headers)
+        status = request.status_code
+        if status == 200:
+            return request.url , status
         else:
-            return False , request.status_code
+            return False , status
     
     def save_json(self):
         if len(self.SaveBox) > 0:
@@ -105,9 +103,7 @@ class UrlGenerator:
                 self.FilterDomains = filterdomains
                 self.GeneratedNumber = generatednumber
                 self.SecondVerification = secondverification
-
-                self.support = self.SupportDomain.index(urlparse(domain).netloc) # 域名解析與判斷
-
+                
                 if charformat >= 0 and charformat <= 4: # 判斷生成格式設置 , 是否符合規範
                     self.CharFormat = charformat
                 else:
@@ -121,6 +117,12 @@ class UrlGenerator:
                     self.Tail = tail
                 else:
                     self.Tail = ""
+
+                try:
+                    self.support = self.SupportDomain.index(urlparse(domain).netloc) # 域名解析與判斷
+                except:
+                    self.support = 9999
+
             except:
                 os._exit(0)
 
@@ -152,7 +154,7 @@ class UrlGenerator:
                         print(link)
                     
                     executor.submit(self.Data_Processing, link)
-                    time.sleep(0.008)
+                    time.sleep(0.006)
 
             save.start()
             save.join()
@@ -173,11 +175,14 @@ class UrlGenerator:
                     raise Exception()
                 else:
                     title = url
+            elif self.support == 2:
+                url = link
+                title = "此網域為了速度無標題"
             
             if self.SecondVerification:
-                url , title = self.get_conversion_data(url)
+                url , status = self.get_conversion_data(url)
                 # 測試雙重驗證確保精準度
-                if url == False or title != 200:
+                if url == False or status != 200:
                     raise Exception()
             
             if self.filter_trigger:
@@ -198,31 +203,42 @@ class UrlGenerator:
                 self.build_status = False
                 while keyboard.is_pressed("alt+s"):
                     pass
-            time.sleep(0.03)
+            time.sleep(0.01)
 
 if __name__ == "__main__":
     url = UrlGenerator()
 
-    url.generate_settin(
-        domain = "https://reurl.cc/",
-        generatednumber = 100,
-        charnumber = 6,
-        charformat = 4,
-        tail= "+",
-        secondverification=True,
-        filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org"],
-    )
+    # url.generate_settin(
+    #     domain = "https://reurl.cc/",
+    #     generatednumber = 500,
+    #     charnumber = 6,
+    #     charformat = 4,
+    #     tail= "+",
+    #     secondverification=True,
+    #     filterdomains=["google.com","bing.com","youtube.com","facebook.com","microsoft.com","line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org"],
+    # )
 
     # url.generate_settin(
     #     domain = "https://ppt.cc/",
-    #     generatednumber = 10,
+    #     generatednumber = 500,
     #     charnumber = 6,
     #     charformat = 3,
     #     secondverification=True,
     #     filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw"],
     # )
 
+    url.generate_settin(
+        domain = "https://files.catbox.moe/",
+        generatednumber = 300,
+        charnumber = 6,
+        charformat = 4,
+        tail= ".mp4",
+        secondverification=True,
+    )
+
     url.generator()
+    # url.Data_Processing("")
+
 
 """ 待開發
 
