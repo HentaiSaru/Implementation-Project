@@ -61,7 +61,7 @@ dir = os.path.abspath("R:/")
 
 # (該網站會每過一段時間會改域名 , 在此處更改即可繼續使用)
 def DomainName():
-    return "http://www.zerobyw3.com/"
+    return "http://www.zerobyw007.com/"
 
 class ZeroDownloader:
     def __init__(self):
