@@ -37,13 +37,13 @@ class ReadJson:
 
             self.__read_json()
             amount = len(self.Json_data)
-
+        
             for key , value in self.Json_data.items():
                 if self.Operation_Pass:
                     if self.Calculate > self.Stop_Line:
                         self.Calculate = 0
                         amount -= self.Stop_Line
-                        n = input(f"按下任意鍵繼續測試 [剩餘:{amount}] [輸入 0 結束] : ")
+                        n = input(f"按下Enter繼續測試 [剩餘:{amount}] [輸入 0 結束] : ")
 
                         if n == "0":
                             self.Operation_Pass = False
@@ -52,7 +52,7 @@ class ReadJson:
                             os.system(f"start {key}")
                         else:
                             os.system(f"start {value}")
-                        time.sleep(0.2)
+                        time.sleep(0.3)
                     self.Calculate += 1
                 else:
                     self.Json_Operation_A[key] = value
@@ -74,4 +74,4 @@ class ReadJson:
 
 if __name__ == "__main__":
     rj = ReadJson()
-    rj.open_url("可用網址.json",20,OutPut=True)
+    rj.open_url("可用網址2.json",20,OutPut=True)
