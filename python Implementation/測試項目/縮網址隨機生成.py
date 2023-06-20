@@ -67,10 +67,9 @@ class UrlGenerator:
                 title = tree.xpath("//title/text()")[0]
             except:
                 title = "無取得標題"
-
             return request.url , title
         else:
-            return False , False
+            return False , request.status_code
     
     def save_json(self):
         if len(self.SaveBox) > 0:
@@ -153,7 +152,7 @@ class UrlGenerator:
                         print(link)
                     
                     executor.submit(self.Data_Processing, link)
-                    time.sleep(0.01)
+                    time.sleep(0.008)
 
             save.start()
             save.join()
@@ -177,7 +176,8 @@ class UrlGenerator:
             
             if self.SecondVerification:
                 url , title = self.get_conversion_data(url)
-                if not url:
+                # 測試雙重驗證確保精準度
+                if url == False or title != 200:
                     raise Exception()
             
             if self.filter_trigger:
