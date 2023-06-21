@@ -74,4 +74,4 @@ class ReadJson:
 
 if __name__ == "__main__":
     rj = ReadJson()
-    rj.open_url("可用網址2.json",20,OutPut=True)
+    rj.open_url("可用網址.json",20,OutPut=True)
