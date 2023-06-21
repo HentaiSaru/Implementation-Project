@@ -240,7 +240,7 @@ class NHentaidownloader:
             elif len(self.comics_box) > 1:
                 with ProcessPoolExecutor(max_workers=self.MaxProcess) as executor:
                     for index , url in enumerate(self.comics_box):
-                        executor.submit(self.comic_page_data , url, index)
+                        executor.submit(self.comic_page_data , url, index+1)
                         time.sleep(self.ProcessDelay)
         except Exception as e:
             print(f"錯誤的輸入格式\n錯誤: {e}")
@@ -372,7 +372,7 @@ class NHentaidownloader:
                         # 測試功能 每讀取5頁,休息兩秒
                         if count == 5:
                             count = 0
-                            time.sleep(2)
+                            await asyncio.sleep(2)
                         else:
                             count+=1
 
@@ -409,7 +409,7 @@ class NHentaidownloader:
     def download_processing(self):
         self.create_folder(self.save_location)
 
-        with ThreadPoolExecutor(max_workers=500) as executor:
+        with ThreadPoolExecutor(max_workers=100) as executor:
             for SaveName , comic_link in tqdm(self.download_link.items() , desc=self.title, colour="#9575DE"):
 
                 save = os.path.join(self.save_location,SaveName)
@@ -419,7 +419,7 @@ class NHentaidownloader:
                     if self.ErrorReDownload:
                         executor.submit(self.error_download_try_again, save, comic_link)
 
-                time.sleep(self.ProtectionDelay)
+                time.sleep(self.ProtectionDelay)          
 
     # 資料夾創建
     def create_folder(self,Name):
