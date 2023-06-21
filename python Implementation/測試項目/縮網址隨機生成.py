@@ -138,7 +138,7 @@ class UrlGenerator:
 
             save = threading.Thread(target=self.save_json)
 
-            with ThreadPoolExecutor(max_workers=300) as executor:
+            with ThreadPoolExecutor(max_workers=400) as executor:
                 while len(self.SaveBox) < self.GeneratedNumber and self.build_status:
                     gen_char = ""
 
@@ -156,7 +156,7 @@ class UrlGenerator:
                         print(link)
                     
                     executor.submit(self.Data_Processing, link)
-                    time.sleep(0.006)
+                    time.sleep(0.008)
 
             save.start()
             save.join()
@@ -172,6 +172,7 @@ class UrlGenerator:
                 tree , C_url = self.get_data(link)
                 url = unquote(tree.xpath("//span[@class='lead']/text()")[0])
                 title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ")
+
             elif self.support == 1:
                 tree , C_url = self.get_data(link)
                 C_url = unquote(C_url)
@@ -184,7 +185,7 @@ class UrlGenerator:
 
             elif self.support == 2:
                 url = link
-                title = "此網域為了速度無標題"
+                title = ""
             
             # 第二重驗證 (將請求回來的的 Url , 請求狀態碼驗證)
             if self.SecondVerification:
@@ -216,28 +217,28 @@ class UrlGenerator:
 if __name__ == "__main__":
     url = UrlGenerator()
 
-    # url.generate_settin(
-    #     domain = "https://reurl.cc/",
-    #     generatednumber = 500,
-    #     charnumber = 6,
-    #     charformat = 4,
-    #     tail= "+",
-    #     secondverification=True,
-    #     filterdomains=["google.com","bing.com","youtube.com","facebook.com","microsoft.com","line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org"],
-    # )
-
     url.generate_settin(
-        domain = "https://ppt.cc/",
-        generatednumber = 500,
+        domain = "https://reurl.cc/",
+        generatednumber = 10,
         charnumber = 6,
         charformat = 4,
+        tail= "+",
         secondverification=True,
-        filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw"],
+        filterdomains=["google.com","bing.com","youtube.com","facebook.com","microsoft.com","line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org"],
     )
 
     # url.generate_settin(
+    #     domain = "https://ppt.cc/",
+    #     generatednumber = 10,
+    #     charnumber = 6,
+    #     charformat = 4,
+    #     secondverification=True,
+    #     filterdomains=["google.com","bing.com","youtube.com","facebook.com","line.me","sharepoint.com","taobao.com","shopee.tw"],
+    # )
+
+    # url.generate_settin(
         # domain = "https://files.catbox.moe/",
-        # generatednumber = 500,
+        # generatednumber = 10,
         # charnumber = 6,
         # charformat = 4,
         # tail= ".mp4",
@@ -245,6 +246,8 @@ if __name__ == "__main__":
     # )
 
     url.generator()
+    
+    # url.Data_Processing("")
 
 
 """ 待開發
