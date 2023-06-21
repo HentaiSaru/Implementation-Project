@@ -140,27 +140,30 @@ class ZeroDownloader:
         converter = opencc.OpenCC('s2twp.json')
 
         if re.match(self.UrlFormat,url):
-            tree = self.data_request(url)
-
-            # 漫畫名稱處理
-            name = re.match(self.NameFormat , tree.xpath("//h3[@class='uk-heading-line mt10 m10']/text()")[0])
-            self.Manga_name = converter.convert(name.group(1))
-
-            # 獲取漫畫話數 and 漫畫連結
-            for link in tree.xpath("//a[@class='uk-button uk-button-default']"):
-                self.Comics_number.append("".join(re.findall(self.Filter,link.xpath("./text()")[0])))
-                self.Comics_link.append(f"{DomainName()}/{link.get('href').split('./')[1]}")
-
-            # 請求第一話的第一頁
-            tree = self.data_request(self.Comics_link[0])
-
             try:
-                # 獲取初始格式
-                self.Comic_link_format = tree.xpath("//img[@id='img_0']")[0].get("src")
-                self.request_status = True
-                print("[請求成功] 耗時/%.3f秒" %((time.time() - StartTime)))
+                tree = self.data_request(url)
+                
+                # 漫畫名稱處理
+                name = re.match(self.NameFormat , tree.xpath("//h3[@class='uk-heading-line mt10 m10']/text()")[0])
+                self.Manga_name = converter.convert(name.group(1))
+
+                # 獲取漫畫話數 and 漫畫連結
+                for link in tree.xpath("//a[@class='uk-button uk-button-default']"):
+                    self.Comics_number.append("".join(re.findall(self.Filter,link.xpath("./text()")[0])))
+                    self.Comics_link.append(f"{DomainName()}/{link.get('href').split('./')[1]}")
+
+                # 請求第一話的第一頁
+                tree = self.data_request(self.Comics_link[0])
+
+                try:
+                    # 獲取初始格式
+                    self.Comic_link_format = tree.xpath("//img[@id='img_0']")[0].get("src")
+                    self.request_status = True
+                    print("[請求成功] 耗時/%.3f秒" %((time.time() - StartTime)))
+                except:
+                    print("第一話需要VIP的無法處理")
             except:
-                print("第一話需要VIP的無法處理")
+                print("域名錯誤 , 或是伺服器問題!")
 
         else:print("不符合的網址格式")
 
