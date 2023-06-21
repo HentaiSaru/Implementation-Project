@@ -362,14 +362,20 @@ class NHentaidownloader:
 
             # 異步的同時請求 , 當數量太多時 , 可能會造成數據沒請求到
             async def Trigger():
+                count = 0
                 async with aiohttp.ClientSession() as session:
                     work = []
 
                     for page in range(2,self.Pages+1):
                         work.append(asyncio.create_task(self.async_get_data(session, f"{url.split('?page=')[0]}?page={page}")))
-                        # 測試功能 , 當頁數大於 10 頁 , 啟用延遲
-                        if self.Pages > 10:
-                            time.sleep(0.2)
+
+                        # 測試功能 每讀取5頁,休息兩秒
+                        if count == 5:
+                            count = 0
+                            time.sleep(2)
+                        else:
+                            count+=1
+
                     results = await asyncio.gather(*work)
 
                     for tree in results:
