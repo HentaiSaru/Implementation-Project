@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/06/16 07:01 -
+:: - LastEditTime 2023/06/22 18:20 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -418,7 +418,50 @@ exit /b
 :: ~~~~~ google 一鍵功能優化 ~~~~~
 :GoogleOp
 
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheSize" /t REG_SZ /d "9000000000" /f
+:: 原則說明文件
+:: https://admx.help/?Category=Chrome&Language=zh-tw
+
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheSize" /t REG_SZ /d "2000000000" /f
+:: 安全瀏覽功能防護等級 0 關閉 1 預設 2強化防護
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "SafeBrowsingProtectionLevel" /t REG_DWORD /d 2 /f
+:: 將這項政策設為 Disabled，則表示除非使用者停用 PDF 外掛程式，否則系統一律會使用 PDF 外掛程式開啟 PDF 檔案
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "AlwaysOpenPdfExternally" /t REG_DWORD /d 0 /f
+:: 下載檔案安全限制 0 ~ 4 , 0 無特別限制
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DownloadRestrictions" /t REG_DWORD /d 0 /f
+:: 拼音檢查功能
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "SpellCheckServiceEnabled" /t REG_DWORD /d 0 /f
+:: 0 無論使用任何網路連線，皆預測網路動作
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "NetworkPredictionOptions" /t REG_DWORD /d 0 /f
+:: 首次啟動時從預設瀏覽器匯入已儲存的密碼
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ImportSavedPasswords" /t REG_DWORD /d 1 /f
+:: 首次啟動時從預設瀏覽器匯入搜尋引擎
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ImportSearchEngine" /t REG_DWORD /d 1 /f
+:: 首次啟動時從預設瀏覽器匯入搜尋書籤
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ImportBookmarks" /t REG_DWORD /d 1 /f
+:: 首次啟動時從預設瀏覽器匯入表單資料
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ImportAutofillFormData" /t REG_DWORD /d 1 /f
+:: 顯示完整網址
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ShowFullUrlsInAddressBar" /t REG_DWORD /d 1 /f
+:: Quic通訊
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "QuicAllowed" /t REG_DWORD /d 1 /f
+:: 允許音訊程式在 Windows 系統上以高於一般優先順序的次序執行
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "AudioProcessHighPriorityEnabled" /t REG_DWORD /d 1 /f
+:: 禁止顯示侵入式廣告
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "AdsSettingForIntrusiveAdsSites" /t REG_DWORD /d 2 /f
+:: 匿名收集數據功能
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "UrlKeyedAnonymizedDataCollectionEnabled" /t REG_DWORD /d 0 /f
+:: 啟用視窗遮蔽功能
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "WindowOcclusionEnabled" /t REG_DWORD /d 1 /f
+:: YouTube 嚴格篩選模式
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ForceYouTubeRestrict" /t REG_DWORD /d 0 /f
+:: 允許使用無頭
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "HeadlessMode" /t REG_DWORD /d 1 /f
+:: 加入進階保護計畫的使用者啟用額外防護功能
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "AdvancedProtectionAllowed" /t REG_DWORD /d 1 /f
+:: 設定單一 Chrome 例項可以使用的記憶體大小限制
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "TotalMemoryLimitMb REG_DWORD" /t REG_DWORD /d 1024 /f
+:: 顯示完整網址
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ShowFullUrlsInAddressBar" /t REG_DWORD /d 1 /f
 
 ECHO.
 ECHO 優化完成
@@ -483,7 +526,7 @@ exit /b
 :: https://learn.microsoft.com/zh-tw/DeployEdge/microsoft-edge-policies
 
 :: 設置快取大小
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "DiskCacheSize" /t REG_SZ /d "9000000000" /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "DiskCacheSize" /t REG_SZ /d "2000000000" /f
 :: 可讓螢幕助讀程式使用者取得網頁上未標記影像的描述
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "AccessibilityImageLabelsEnabled" /t REG_DWORD /d 1 /f
 :: 搜尋不到時 , 提供類似頁面
