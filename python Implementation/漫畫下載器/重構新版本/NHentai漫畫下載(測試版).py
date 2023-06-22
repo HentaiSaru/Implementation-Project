@@ -27,14 +27,12 @@ import os
         ?   [+] 手動設置 Cookie
         ?   [+] 多項下載功能設置
         ?   [+] 自動嘗試獲取 Cookie
-        ?   [+] 讀取 json 的 Cookie
 
         * - 測試功能 :
         ?   [*] 試錯重載
         ?   [*] 下載速度
         ?   [*] 請求穩定性
         ?   [*] 數據處理例外
-        ?   [*] 數量過大延遲請求
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - 相關說明
@@ -47,7 +45,7 @@ import os
         ! 如果一直請求失敗 , 有可能是網站本身 , 或是網路問題
 """
 
-# 網站域名
+#Todo [網站域名設置]
 def DomainName():
     return "https://nhentai.net/"
 
@@ -60,7 +58,7 @@ def cookie_set():
     }
     return cookie
 
-# 讀取保存 cookie 的 json
+#Todo [讀取保存 cookie 的 json]
 def cookie_read():
     # 切換到當前文件夾絕對路徑
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -73,11 +71,11 @@ def cookie_read():
         with open("./Cookie/NHCookies.json" , "w") as file:
             file.write(json.dumps(cookie, indent=4, separators=(',',':')))
 
-# 嘗試自動獲取Cookie , 並回傳結果
+#Todo [嘗試自動獲取Cookie , 並回傳結果]
 def cookie_get():
     return Get.Request_Cookie(DomainName() , f"{os.path.dirname(os.path.abspath(__file__))}\\Cookie\\NHCookies")
 
-# 下載請求方法
+#? [下載請求方法]
 class NHentaidownloader:
     def __init__(self):
         #Todo => 請求相關設置
@@ -368,13 +366,13 @@ class NHentaidownloader:
 
                     for page in range(2,self.Pages+1):
                         work.append(asyncio.create_task(self.async_get_data(session, f"{url.split('?page=')[0]}?page={page}")))
+                        count+=1
 
-                        # 測試功能 每讀取5頁,休息兩秒
-                        if count == 5:
+                        # 這邊必須設置延遲 , 不然大量讀取會有缺少的數據
+                        if count == 5 and self.Pages > 5:
+                            print(f"以處理 [{page-1}] 頁 休息1秒...")
+                            await asyncio.sleep(1)
                             count = 0
-                            await asyncio.sleep(2)
-                        else:
-                            count+=1
 
                     results = await asyncio.gather(*work)
 
@@ -413,13 +411,14 @@ class NHentaidownloader:
             for SaveName , comic_link in tqdm(self.download_link.items() , desc=self.title, colour="#9575DE"):
 
                 save = os.path.join(self.save_location,SaveName)
-                Data_status = executor.submit(self.download, save, comic_link).result()
+                executor.submit(self.download, save, comic_link)
 
-                if Data_status != 200:
-                    if self.ErrorReDownload:
-                        executor.submit(self.error_download_try_again, save, comic_link)
+                # Data_status = executor.submit(self.download, save, comic_link).result()
+                # if Data_status != 200:
+                    # if self.ErrorReDownload:
+                        # executor.submit(self.error_download_try_again, save, comic_link)
 
-                time.sleep(self.ProtectionDelay)          
+                time.sleep(self.ProtectionDelay)
 
     # 資料夾創建
     def create_folder(self,Name):
@@ -433,7 +432,9 @@ class NHentaidownloader:
         if ImageData.status_code == 200:
             with open(download_path , "wb") as f:
                 f.write(ImageData.content)
-        return ImageData.status_code
+        else:
+            if self.ErrorReDownload:
+                self.error_download_try_again(download_path,download_link)
     
     # 下載錯誤的 嘗試 重新下載
     def error_download_try_again(self,path,link):
@@ -464,7 +465,7 @@ if __name__ == "__main__":
     # 下載相關設置
     nh.download_settings(
         TitleFormat=True,
-        SearchQuantity=25,
+        SearchQuantity=50,
         DownloadPath="R:/",
         CookieSource=cookie_read(),
         TryGetCookie=True
