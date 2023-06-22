@@ -1,4 +1,4 @@
 import TestBrowser as tb
 
 TB = tb.TestBrowser()
-TB.Enable_browsing()
+TB.Enable_browsing("")
