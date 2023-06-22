@@ -9,6 +9,7 @@ from urllib.parse import *
 from lxml import etree
 from tqdm import tqdm
 import requests
+import aiofiles
 import aiohttp
 import asyncio
 import time
@@ -167,6 +168,7 @@ class Accurate:
         async def Request_Trigger():
             New_url = ""
             pages = 0
+            count = 0
             page_count = 1
             total_pages = 2
 
