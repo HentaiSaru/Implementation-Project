@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/06/22 18:20 -
+:: - LastEditTime 2023/06/23 23:58 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -459,9 +459,7 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "HeadlessMode" /
 :: 加入進階保護計畫的使用者啟用額外防護功能
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "AdvancedProtectionAllowed" /t REG_DWORD /d 1 /f
 :: 設定單一 Chrome 例項可以使用的記憶體大小限制
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "TotalMemoryLimitMb REG_DWORD" /t REG_DWORD /d 1024 /f
-:: 顯示完整網址
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ShowFullUrlsInAddressBar" /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "TotalMemoryLimitMb" /t REG_DWORD /d 1024 /f
 
 ECHO.
 ECHO 優化完成
