@@ -18,17 +18,11 @@ def DomainName():
 
 def CookiesRead():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    ReadCookie = {}
 
     with open("Cookies.json" , "r") as file:
         cookies = json.loads(file.read())
 
-    for cookie in cookies:
-        name = cookie['name']
-        value = cookie["value"]
-        ReadCookie[name] = value
-
-    return ReadCookie
+    return cookies
 
 class Animation:
     def __init__(self):
