@@ -57,13 +57,14 @@ class DataRead:
             self.directory = folder_path
             self.filename = os.path.basename(folder_path)
             self.__read_file()
+            self.__filter_files()
 
     def __read_file(self):
 
         for root, dirs, files in os.walk(self.directory): # 路徑 , 資料夾 , 檔名
             self.data[root] = files
 
-    def filter_files(self):
+    def __filter_files(self):
 
         filetype = None
 
@@ -174,4 +175,3 @@ class output:
 if __name__ == "__main__":
     data = DataRead()
     data.open_folder()
-    data.filter_files()
