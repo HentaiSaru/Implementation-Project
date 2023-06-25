@@ -24,7 +24,6 @@ import os
         ?   [+] 自動擷取連結
         ?   [+] 下載進度顯示
         ?   [+] 各類數據顯示
-        ?   [+] 手動設置 Cookie
         ?   [+] 多項下載功能設置
         ?   [+] 自動嘗試獲取 Cookie
 
@@ -38,19 +37,17 @@ import os
     Todo - 相關說明
 
         * 使用相關
-        ! 基本上可設置的選項都寫在 download_settings()
         ! cookie 相關有 set / read / get , 只有 set 需要手動更改代碼
-        ! 其餘的都在 download_settings() 可設置使用
-        ! 大致上設置都在 download_settings() , 設置說明也寫得清清楚楚
-        ! 如果一直請求失敗 , 有可能是網站本身 , 或是網路問題
+        ! filter 相關有 set / read / none , 並非強制設置 none 就是無設置
+        ! 大致上設置都在 download_settings() , 設置說明也於此處
+        ! 如果一直請求失敗 , 有可能是網站本身 , 或是網路連線問題
 """
 
 #Todo [網站域名設置]
 def DomainName():
     return "https://nhentai.net/"
 
-#Todo [ 再此處輸入當前通過機器人驗證的 cookie (輸入錯誤會請求不到) ]
-# 代碼中手動設置 cookie
+#Todo [ 再此處手動輸入當前通過機器人驗證的 cookie (輸入錯誤會請求不到) ]
 def cookie_set():
     cookie = {
         "cf_clearance" : "",
@@ -60,8 +57,6 @@ def cookie_set():
 
 #Todo [讀取保存 cookie 的 json]
 def cookie_read():
-    # 切換到當前文件夾絕對路徑
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     try:
         with open("./Cookie/NHCookies.json" , "r") as file:
             return json.loads(file.read())
@@ -75,9 +70,27 @@ def cookie_read():
 def cookie_get():
     return Get.Request_Cookie(DomainName() , f"{os.path.dirname(os.path.abspath(__file__))}\\Cookie\\NHCookies")
 
+#Todo [手動設置排除標籤 , 並可於 download_settings() 套用回傳結果 , 設置詳情於 download_settings() 說明]
+def filter_set():
+    TagExclude = {
+        'Tags': ['']
+    }
+    return TagExclude
+
+#Todo [讀取保存 Filter 的 json , 用於排除Tag類型字典 (不必要的Key可以刪除 , 加速排除處理)]
+def filter_read():
+    try:
+        with open("./Exclude/NHFilter.json" , "r") as file:
+            return json.loads(file.read())
+    except:
+        F = {"Parodies": ["Tag"], "Characters": ["Tag"], "Tags": ["Tag"], "Artists": ["Tag"], "Languages": ["Tag"]}
+        with open("./Exclude/NHFilter.json" , "w") as file:
+            file.write(json.dumps(F, indent=4, separators=(',',':')))
+
 #? [下載請求方法]
 class NHentaidownloader:
     def __init__(self):
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
         #Todo => 請求相關設置
         self.session = requests.Session()
         self.Google_Headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
@@ -159,7 +172,7 @@ class NHentaidownloader:
     *   這是設置最大創建的進程數量 , 也就是同時可以併發處理下載數
     *   預設是根據自身的 CPU 核心數 , 越多不見得越快
     >>> FilterTags - 排除標籤字典 (預設: None)
-    !   {'Parodies': [''], 'Characters': ['', ''], 'Tags': [''], 'Artists': [''], 'Languages': ['', ''], 'Pages': ['']}
+    !   {'Parodies': [''], 'Characters': [''], 'Tags': [''], 'Artists': [''], 'Languages': [''], 'Pages': ['']}
     *   'Parodies' : 原創 / 二創作品
     *   'Characters' : 人物角色
     *   'Tags' : Tag 標籤
@@ -168,9 +181,9 @@ class NHentaidownloader:
     *   'Pages' : 頁數
     *    數據格式必須 為上方的 key 值 , 包含數據 list
     *    填入的值當擁有該TAG的 , 就會被排除掉 , 不會被下載
-    >>> CookieSource - cookie 的設定來源 (預設: cookie_set() , 也就是在上方代碼設置)
-    *   這是設置請求時所用的 cookie 導入來源 , 預設是使用 cookie_set() 方法
-    *   就是由此代碼上方的設置填寫讀取 , 也可以改成 cookie_read() 方法
+    >>> CookieSource - cookie 的設定來源 (預設: cookie_set())
+    *   這是設置請求時所用的 cookie 導入來源
+    *   可以改成 cookie_read() 方法
     *   變成由 cookies.json 中讀取 cookie 使用
     """
         # 判斷是否被調用設置了
@@ -264,7 +277,7 @@ class NHentaidownloader:
                         lab = self.labelbox[key]
                         result = set(value) & set(lab)
                         if result:
-                            print(f"[標籤排除] {url}")
+                            print(f"[漫畫 {count} 標籤排除]")
                             return
                     except:
                         continue
@@ -457,20 +470,16 @@ if __name__ == "__main__":
     # 自動擷取設置
     AutoCapture.settings(DomainName())
 
-    # 排除 Tag 設置
-    TagExclude = {
-        'Tags': ['']
-    }
-
     # 下載相關設置
     nh.download_settings(
-        TitleFormat=True,
-        SearchQuantity=50,
         DownloadPath="R:/",
+        TitleFormat=True,
+        SearchQuantity=10,
+        TryGetCookie=True,
         CookieSource=cookie_read(),
-        TryGetCookie=True
+        FilterTags=filter_read(),
     )
-
+    
     capture = AutoCapture.GetList()
     if capture != None:
         nh.google(capture)
