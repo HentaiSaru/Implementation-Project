@@ -70,7 +70,6 @@ class ReadJson:
         except ValueError:
             print("Location 只有 0 和 1")
 
-
     def cookie_parsing(self, JsonName: str, ShowDict: bool=False, OutPut: bool=False):
         """
         讀取 Json 格式的 Cookie , 並分類出有用的部份
