@@ -16,8 +16,13 @@ class ReadJson:
         self.Calculate = 0
 
     def __read_json(self):
-        with open(self.Json_name , "r") as file:
-            self.Json_data = json.loads(file.read())
+        try:
+            with open(self.Json_name , "r") as file:
+                self.Json_data = json.loads(file.read())
+            return True
+        except:
+            print("找不到設置的 Json 文件")
+            return False
 
     def open_url(self, JsonName: str, StopLine: int, Location: int=0, OutPut: bool=False):
         """
@@ -35,30 +40,32 @@ class ReadJson:
             self.Json_name = JsonName
             self.Stop_Line = StopLine
 
-            self.__read_json()
-            amount = len(self.Json_data)
-        
-            for key , value in self.Json_data.items():
-                if self.Operation_Pass:
-                    if self.Calculate == self.Stop_Line:
-                        self.Calculate = 0
-                        amount -= self.Stop_Line
-                        n = input(f"按下Enter繼續測試 [剩餘:{amount}] [輸入 0 結束] : ")
+            state = self.__read_json()
 
-                        if n == "0":
-                            self.Operation_Pass = False
-                    else:
-                        if Location == 0:
-                            os.system(f"start {key}")
+            if state:
+                amount = len(self.Json_data)
+
+                for key , value in self.Json_data.items():
+                    if self.Operation_Pass:
+                        if self.Calculate == self.Stop_Line:
+                            self.Calculate = 0
+                            amount -= self.Stop_Line
+                            n = input(f"按下Enter繼續測試 [剩餘:{amount}] [輸入 0 結束] : ")
+
+                            if n == "0":
+                                self.Operation_Pass = False
                         else:
-                            os.system(f"start {value}")
-                        time.sleep(0.3)
-                    self.Calculate += 1
-                else:
-                    self.Json_Operation_A[key] = value
+                            if Location == 0:
+                                os.system(f"start {key}")
+                            else:
+                                os.system(f"start {value}")
+                            time.sleep(0.3)
+                        self.Calculate += 1
+                    else:
+                        self.Json_Operation_A[key] = value
 
-            if OutPut:
-                self.__output_remaining()
+                if OutPut:
+                    self.__output_remaining()
 
         except ValueError:
             print("Location 只有 0 和 1")
@@ -72,18 +79,20 @@ class ReadJson:
         * OutPut 將轉換成功的字典輸出
         """
         self.Json_name = JsonName
-        self.__read_json()
+        state = self.__read_json()
 
-        for cookie in self.Json_data:
-            name = cookie['name']
-            value = cookie["value"]
-            self.Json_Operation_A[name] = value
+        if state:
 
-        if ShowDict:
-            print(self.Json_Operation_A)
+            for cookie in self.Json_data:
+                name = cookie['name']
+                value = cookie["value"]
+                self.Json_Operation_A[name] = value
 
-        if OutPut:
-            self.__output_classification()
+            if ShowDict:
+                print(self.Json_Operation_A)
+
+            if OutPut:
+                self.__output_classification()
 
     def __output_remaining(self):
         if len(self.Json_Operation_A) > 0:
@@ -102,5 +111,5 @@ class ReadJson:
 
 if __name__ == "__main__":
     rj = ReadJson()
-    # rj.open_url("可用網址.json",20,OutPut=True)
-    rj.cookie_parsing("Cookies.json",OutPut=True)
+    rj.open_url("範圍201-300.json",20,OutPut=True)
+    # rj.cookie_parsing("Cookies.json",OutPut=True)
