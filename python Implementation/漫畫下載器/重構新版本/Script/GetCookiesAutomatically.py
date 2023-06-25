@@ -30,7 +30,7 @@ class AutomationRequest:
         os.system("pip install --upgrade wheel >nul 2>&1")
         print("重置完成...")
 
-    def Setting_Options(self):
+    def __Setting_Options(self):
         self.Settings.add_argument("--headless")
         self.Settings.add_argument("--incognito")
         self.Settings.add_argument('--no-sandbox')
@@ -62,13 +62,14 @@ class AutomationRequest:
     
     *   回傳 True / False 為請求成功狀態
     *   預設有 15 秒的超時時間 , 超過這時間沒有請求到 , 將會回傳 False
+    *   [請求成功後的 , 錯誤操作指令警告 , 待方法修復]
         """
         print("嘗試獲取Cookie...")
         try:
             if json.find(".json") != -1:
                 json = json.rsplit(".", 1)[0]
 
-            self.driver = uc.Chrome(options=self.Setting_Options(),version_main=114)
+            self.driver = uc.Chrome(options=self.__Setting_Options(),version_main=114)
             self.driver.get(url)
 
             while True:
@@ -78,14 +79,11 @@ class AutomationRequest:
                     value = cookies[index]["value"]
                     self.cookie[name] = value
 
-                # 測試
-                if len(self.cookie) > 1:
-
-                    self.OutputCookie(json)
-                    return True
                 
+                if len(self.cookie) > 1:
+                    self.__OutputCookie(json)
+                    return True
                 else:
-
                     self.timeout += 1
                     time.sleep(1)
 
@@ -95,7 +93,7 @@ class AutomationRequest:
         except:
             return False
 
-    def OutputCookie(self,name):
+    def __OutputCookie(self,name):
         with open(f"{name}.json" , "w") as file:
             file.write(json.dumps(self.cookie, indent=4, separators=(',',':')))
  
