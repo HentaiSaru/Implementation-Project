@@ -13,7 +13,7 @@ import json
 import re
 import os
 
-""" Versions 1.0.2 (測試版)
+""" Versions 1.0.3 (測試版)
 
     Todo - NHentai 漫畫下載
 
@@ -47,45 +47,81 @@ import os
 def DomainName():
     return "https://nhentai.net/"
 
-#Todo [ 再此處手動輸入當前通過機器人驗證的 cookie (輸入錯誤會請求不到) ]
-def cookie_set():
-    cookie = {
-        "cf_clearance" : "",
-        "csrftoken" : ""
-    }
-    return cookie
-
-#Todo [讀取保存 cookie 的 json]
-def cookie_read():
-    try:
-        with open("./Cookie/NHCookies.json" , "r") as file:
-            return json.loads(file.read())
-    except:
-        # 沒有就進行創建
-        cookie = {"csrftoken":"Please fill in the cookie","cf_clearance":"Please fill in the cookie"}
-        with open("./Cookie/NHCookies.json" , "w") as file:
-            file.write(json.dumps(cookie, indent=4, separators=(',',':')))
-
 #Todo [嘗試自動獲取Cookie , 並回傳結果]
 def cookie_get():
-    return Get.Request_Cookie(DomainName() , f"{os.path.dirname(os.path.abspath(__file__))}\\Cookie\\NHCookies")
+    return Get.AGCookie(DomainName() , f"{os.path.dirname(os.path.abspath(__file__))}\\Cookie\\NHCookies")
 
-#Todo [手動設置排除標籤 , 並可於 download_settings() 套用回傳結果 , 設置詳情於 download_settings() 說明]
-def filter_set():
-    TagExclude = {
-        'Tags': ['']
-    }
-    return TagExclude
+class Set:
+    """
+    Set 類別 (手動設置)
+    * [使用方式]
+    * 在需要使用該數據的部份呼叫 Set()
+    * 然後輸入 "cookie" 或 "filter" -> Set("cookie")
+    * 就可以取得設置的字典數據
+    """
+    def __init__(self):
+        #Todo [ 再此處手動輸入當前通過機器人驗證的 cookie (輸入錯誤會請求不到) ]
+        self.Cookies = {
+            "cf_clearance" : "",
+        }
+        #Todo [手動設置排除標籤 , 並可於 download_settings() 套用回傳結果 , 設置詳情於 download_settings() 說明]
+        self.TagExclude = {
+            "Tags": [""]
+        }
 
-#Todo [讀取保存 Filter 的 json , 用於排除Tag類型字典 (不必要的Key可以刪除 , 加速排除處理)]
-def filter_read():
-    try:
-        with open("./Exclude/NHFilter.json" , "r") as file:
-            return json.loads(file.read())
-    except:
-        F = {"Parodies": ["Tag"], "Characters": ["Tag"], "Tags": ["Tag"], "Artists": ["Tag"], "Languages": ["Tag"]}
-        with open("./Exclude/NHFilter.json" , "w") as file:
-            file.write(json.dumps(F, indent=4, separators=(',',':')))
+    def __call__(self, Type: str):
+        if Type.lower() == "cookie":
+            return self.Cookies
+        elif Type.lower() == "filter":
+            return self.TagExclude
+Set = Set()
+
+class Read:
+    """
+    Read 類別 (自動讀取Json)
+    * [使用方式]
+    * 在需要使用該數據的部份呼叫 Read()
+    * 然後輸入 "cookie" 或 "filter" -> Read("cookie")
+    * 就可以取得設置的字典數據
+    * 如沒有該數據 , 就會進行創建
+    """
+    def __init__(self):
+        self.Cookies_Path = "./Cookie/NHCookies.json"
+        self.Exclude_Path = "./Exclude/NHFilter.json"
+        self.Open_Path = None
+        self.Create_Format = {}
+        self.Create_Path = None
+
+    def Create(self, Type: str):
+        if Type.lower() == "cookie":
+            self.Create_Format = {
+                "cf_clearance":"Please fill in the cookie"
+            }
+        elif Type.lower() == "filter":
+            #Todo [用於排除Tag類型字典 (不必要的Key可以刪除 , 加速排除處理)]
+            self.Create_Format = {
+                "Parodies": ["Please enter Tag"],
+                "Characters": ["Please enter Tag"],
+                "Tags": ["Please enter Tag"],
+                "Artists": ["Please enter Tag"],
+                "Languages": ["Please enter Tag"]
+            }
+
+        with open(self.Open_Path , "w") as file:
+            file.write(json.dumps(self.Create_Format, indent=4, separators=(',',':')))
+
+    def __call__(self,Type: str):
+        if Type.lower() == "cookie":
+            self.Open_Path = self.Cookies_Path
+        elif Type.lower() == "filter":
+            self.Open_Path = self.Exclude_Path
+            
+        try:
+            with open(self.Open_Path , "r") as file:
+                return json.loads(file.read())
+        except:
+            self.Create(Type)
+Read = Read()
 
 #? [下載請求方法]
 class NHentaidownloader:
@@ -142,7 +178,7 @@ class NHentaidownloader:
             MaxConcurrentDownload: int=cpu_count(),
 
             FilterTags: dict=None,
-            CookieSource: dict=cookie_set(),
+            CookieSource: dict=Set("cookie"),
     ):
         """
     >>> SearchQuantity - 搜尋頁面的請求頁數 (預設: 5 頁)
@@ -233,6 +269,25 @@ class NHentaidownloader:
             # 載入下載設置
             if not self.SetUse:
                 self.download_settings()
+
+            # 驗證請求
+            try:
+                tree = self.get_data(DomainName())
+                verify = tree.xpath("//div[@class='container index-container']/h2/text()")[0].strip()
+                if verify != "New Uploads":
+                    raise Exception()
+            except:
+                if self.GetCookie:
+                    print(f"驗證錯誤請稍後...")
+                    if cookie_get():
+                        print("\n獲取成功!\n")
+                        self.Cookies = Read("cookie")
+                    else:
+                        print("\n獲取失敗!\n")
+                        return
+                else:
+                    print("請更換 Cookie , 或檢查使用的請求瀏覽器")
+                    return
 
             for url in category_box:
                 if re.match(self.manga,url):
@@ -326,17 +381,7 @@ class NHentaidownloader:
             print("[漫畫 %d 請求完成] %s => 請求耗時 %.3f 秒" % (count , url, (time.time() - StartTime)))
             self.download_processing()
         except Exception as e:
-            if self.GetCookie:
-                print(f"請求失敗 : {url}\n請稍後...")
-
-                if cookie_get():
-                    print("獲取成功!")
-                    self.Cookies = cookie_read()
-                    self.comic_page_data(url,count)
-                else:
-                    print("獲取失敗!")  
-            else:
-                print(f"請更換Cookie , 或檢查使用的瀏覽器\ndebug : {e}")
+            print(f"debug : {e}")
 
     # 搜尋頁數據處理
     def search_page_data(self,link):
@@ -404,17 +449,7 @@ class NHentaidownloader:
                     time.sleep(self.ProcessDelay)
 
         except Exception as e:
-            if self.GetCookie:
-                print(f"請求失敗 : {url}\n請稍後...")
-
-                if cookie_get():
-                    print("獲取成功!")
-                    self.Cookies = cookie_read()
-                    self.search_page_data(link)
-                else:
-                    print("獲取失敗!")
-            else:
-                print(f"請更換Cookie , 或檢查使用的瀏覽器\ndebug : {e}")
+            print(f"debug : {e}")
 
     # 下載處理
     def download_processing(self):
@@ -476,8 +511,8 @@ if __name__ == "__main__":
         TitleFormat=True,
         SearchQuantity=10,
         TryGetCookie=True,
-        CookieSource=cookie_read(),
-        FilterTags=filter_read(),
+        CookieSource=Read("cookie"),
+        FilterTags=Read("filter"),
     )
     
     capture = AutoCapture.GetList()
