@@ -4,12 +4,22 @@ import json
 import time
 import os
 
+class Chrome(uc.Chrome):
+    def __del__(self):
+        try:
+            self.service.process.kill()
+            self.quit()
+            self.close()
+        except:
+            pass
+
 class AutomationRequest:
     def __init__(self):
         self.cookie = {}
         self.driver = None
         self.timeout = 0
         self.Settings = uc.ChromeOptions()
+        self.hidden = None
 
     def browser_reset(self):
         """
@@ -31,7 +41,7 @@ class AutomationRequest:
         print("重置完成...")
 
     def __Setting_Options(self):
-        self.Settings.add_argument("--headless")
+        if self.hidden:self.Settings.add_argument("--headless")
         self.Settings.add_argument("--incognito")
         self.Settings.add_argument('--no-sandbox')
         self.Settings.add_argument('--log-level=3')
@@ -54,22 +64,26 @@ class AutomationRequest:
         self.Settings.add_argument(f"--remote-debugging-port={random.randint(1024,65535)}")
         return self.Settings
     
-    def Request_Cookie(self,url: str,json: str):
+    def AGCookie(self,url: str,json: str):
         """
-    >>> 請求參數
+    自動請求 Cookie
+    >>> 參數
+
     *   url  請求的連結
     *   json 請求成功後創建的 .json 名稱 (不需要打.json)
-    
+
+    >>> 說明
+
     *   回傳 True / False 為請求成功狀態
     *   預設有 15 秒的超時時間 , 超過這時間沒有請求到 , 將會回傳 False
-    *   [請求成功後的 , 錯誤操作指令警告 , 待方法修復]
         """
-        print("嘗試獲取Cookie...")
+        print("嘗試獲取 Cookie...")
+        self.hidden = True
         try:
             if json.find(".json") != -1:
                 json = json.rsplit(".", 1)[0]
 
-            self.driver = uc.Chrome(options=self.__Setting_Options(),version_main=114)
+            self.driver = Chrome(options=self.__Setting_Options(),version_main=114)
             self.driver.get(url)
 
             while True:
@@ -90,6 +104,53 @@ class AutomationRequest:
                     # 超時 15 秒退出
                     if self.timeout >= 15: 
                         raise Exception()
+        except:
+            return False
+
+    def MGCookie(self,url: str,json: str):
+        """
+    手動請求 Cookie
+    >>> 參數
+
+    *   url  請求的連結
+    *   json 請求成功後創建的 .json 名稱 (不需要打.json)
+
+    >>> 說明
+
+    *   呼叫後會啟用網頁窗口 , 等待登入後 , 鍵入 y 進行取得
+    *   該窗口網站並不會記錄登入狀態 , 所以每次呼叫都要重登
+    """
+        print("啟動窗口等待獲取 cookie ...")
+        self.hidden = False
+        try:
+            if json.find(".json") != -1:
+                json = json.rsplit(".", 1)[0]
+
+            self.driver = Chrome(options=self.__Setting_Options(),version_main=114)
+            self.driver.get(url)
+
+            while True:
+
+                confirm = input("請[登入帳號後]鍵入 (y) 進行獲取 : ")
+
+                if confirm == "y":
+                    cookies = self.driver.get_cookies()
+
+                    for index in range(len(cookies)):
+                        name = cookies[index]['name']
+                        value = cookies[index]["value"]
+                        self.cookie[name] = value
+
+                    if len(self.cookie) > 0:
+                        self.__OutputCookie(json)
+                    else:
+                        return False
+                    
+                    self.driver.close()
+                    break
+                else:
+                    print("請輸入正確的確認鍵\n")
+                    continue
         except:
             return False
 
