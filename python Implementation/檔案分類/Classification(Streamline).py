@@ -103,6 +103,7 @@ class DataRead:
 
     def RepeatedSelection(self):  
         Filter = int(input("\n選擇輸出檔案類型 (代號) : "))
+        self.filter_data.clear()
 
         if Filter == 0:
             print(f"你選擇了 : 全部\n")
