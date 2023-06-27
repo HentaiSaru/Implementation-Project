@@ -16,7 +16,7 @@ try:
         elif c == "-":print("%d - %d = %.2f\n"%(a,b,a-b))
         elif c == "*":print("%d * %d = %.2f\n"%(a,b,a*b))
         elif c == "/":print("%d / %d = %.2f\n"%(a,b,a/b))
-        elif c == "%":print("%d / %d 求餘數 = %.2f\n"%(a,b,a%b))
+        elif c == "%":print("%d % %d 求餘數 = %.2f\n"%(a,b,a%b))
         elif c == "//":print("%d // %d 忽略小數獲得整除數 = %.2f\n"%(a,b,a//b))
         box.clear()
         print("輸入需運算的 a值 運算符 b值 (無輸入值直接Enter結束)...")
