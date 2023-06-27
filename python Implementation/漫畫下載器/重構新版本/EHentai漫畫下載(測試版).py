@@ -13,6 +13,42 @@ import json
 import re
 import os
 
+""" Versions 1.0.0 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Todo - EHentai/ExHentai 漫畫下載
+
+        * 功能概述 :
+        ? 可下載 EHentai 和 ExHentai , 下載 Ex 需要設置 cookie
+        ? cookie 有代碼中設置 Set() 和 json 讀取 Read()
+        ? 目前只支援漫畫頁面的下載 , 搜尋頁面的不支援
+        ? 呼叫下載有兩種方式 , google() , edge() , 用於模擬不同瀏覽器請求
+
+        * 需求配置 :
+        ? Python 版本 3.11.3 - 64 位元
+        ? 需求模塊 去下載 Python包安裝.bat 運行
+        ? 還有 AutomaticCapture , GetCookiesAutomatically
+        ? 這兩個是在此目錄的 Script 資料夾中的如沒有 , 某些功能會失效
+        ? 最好 Cookie , Exclude , Script 這三個資料夾都要有
+
+        * 測試功能 :
+        ? total_pages 的計算公式
+        ? 此代碼首次嘗使用繼承類攥寫 , 測試維護性
+        
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Todo - 使用說明
+
+        * 基本可設置的功能都於 download_settings() 方法中設置
+
+        * set 和 read 類 使用說明 , 看該類的註解
+
+        * 請求的延遲別設置太短 , 有 IP 被 Ban 的可能性
+        * 但有時請求失敗 , 可能是伺服器 , 或是 Cookie 的問題
+
+        * 關於排除 Tag 的字典 , 設置時的 Key 值隨便打 , value 需包含在 list 內
+        * 只要該漫畫有相關標籤 , 就會被排除掉
+"""
+
 #Todo [手動獲取Cookie , 並回傳結果]
 def cookie_get():
     return Get.MGCookie("https://e-hentai.org/" , f"{os.path.dirname(os.path.abspath(__file__))}\\Cookie\\EHCookies")
