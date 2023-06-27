@@ -1,5 +1,6 @@
 from Script.AutomaticCapture import AutoCapture
 from Script.GetCookiesAutomatically import Get
+from collections import OrderedDict
 from concurrent.futures import *
 from multiprocessing import *
 from lxml import etree
@@ -111,6 +112,7 @@ class Validation(DataRequest):
     category = []
     save_box = []
 
+    # 驗證是否請求到網站數據
     def Request_Status(self, domain: str):
         url = None
         if domain == "E":
@@ -128,12 +130,14 @@ class Validation(DataRequest):
                 if cookie_get():
                     print("\n獲取成功!\n")
                     self.Cookies = Read("cookie")
+                    return True
                 else:
                     print("\n獲取失敗!\n")
                     return False
             else:
                 return False
 
+    # 網址的分類
     def URL_Classification(self, link):
         try:
             # 格式判斷
@@ -157,7 +161,10 @@ class Validation(DataRequest):
                     if request_type == "E":
                         request_type = "Ex"
 
-            if len(self.save_box) > 0:
+                else:
+                    print(f"不支援的網址格式 : {url}")
+
+            if len(self.save_box) > 0: # 驗證請求狀態
                 if self.Request_Status(request_type):
                     return self.save_box
                 else:
@@ -183,7 +190,6 @@ class EHentaidownloader(Validation):
         self.MaxProcess = None
         self.ProcessDelay = None
         self.TagFilterBox = None
-        self.TitleFormatting = None
         self.ProtectionDelay = None
         #Todo => 數據保存
         self.title = None
@@ -192,21 +198,59 @@ class EHentaidownloader(Validation):
 
     def download_settings(
         self,
-        TitleFormat: bool=False,
         GetCookie: bool=False,
         DownloadPath: str=os.path.dirname(os.path.abspath(__file__)),
-        DownloadDelay = 0.3,
-        ProcessCreationDelay = 1,
+        DownloadDelay =0.3,
+        ProcessCreationDelay =1,
         MaxConcurrentDownload: int=cpu_count(),
         FilterTags: dict=None,
         CookieSource: dict=Set("cookie"),
     ):
+        """
+        * 下載設置
+
+        >>> [ GetCookie (預設: False) ]
+
+        * 啟用後當請求失敗時 , 會開啟網頁登入窗口
+        * 登入後確認 , 可自動取得 cookie , 保存成 json
+
+        >>> [ DownloadPath (預設: 當前代碼路徑) ]
+
+        * 設置下載位置
+
+        >>> [ DownloadDelay (預設: 0.3) ]
+
+        * 設置下載圖片時的延遲
+        * 用於保護伺服器 , 和避免請求過快
+        * 短時間請求過快 , 會被 Ban IP
+
+        >>> [ ProcessCreationDelay (預設: 1) ]
+
+        * 開始處理下載數據時的 , 進程創建延遲
+        * 同樣也是保護伺服器 , 和避免被 Ban
+
+        >>> [ MaxConcurrentDownload (預設: 自身 cpu 核心數) ]
+
+        * 最大的併發處理數
+        * 進程創建總數
+
+        >>> [ FilterTags (預設: None) ]
+
+        * 輸入字典格式 {"key":["排除Tag","排除Tag","排除Tag"]}
+        * 手動設置 -> Set("filter")
+        * 讀取 Json -> Read("filter")
+
+        >>> [ CookieSource (預設: Set("cookie")) ]
+
+        * 設置 Cookie 的來源
+        * 預設是手動設置 , 於上方的 Set() 類中
+        * 讀取 Json , Read("cookie")
+        """
         self.SetUse = True
         self.path = DownloadPath
         self.GetCookie = GetCookie
         self.Cookies = CookieSource
         self.TagFilterBox = FilterTags
-        self.TitleFormatting = TitleFormat
         self.ProtectionDelay = DownloadDelay
         self.MaxProcess = MaxConcurrentDownload
         self.ProcessDelay = ProcessCreationDelay  
@@ -228,6 +272,7 @@ class EHentaidownloader(Validation):
 
         self.Process_Trigger(self.URL_Classification(link))
 
+    # 處理觸發器 (用於開啟線程)
     def Process_Trigger(self,box):
         if box != None:
             if len(box) == 1:
@@ -238,6 +283,7 @@ class EHentaidownloader(Validation):
                         executor.submit(self.Comic_Page_process , url, index+1)
                         time.sleep(self.ProcessDelay)
 
+    # 漫畫連結處理
     def Comic_Page_process(self, url, count):
         url = url.split("?p=")[0]
         # 保存主頁數據
@@ -245,29 +291,45 @@ class EHentaidownloader(Validation):
         def home_page(tree):
             for data in tree.xpath("//div[@id='gdt']/div/a"):
                 home_page_data.append(data.get("href"))
-        def picture_link(tree,page):
-            for data in tree.xpath("//img[@id='img']"):
-                SaveName = f"{(page+1):04d}"
-                self.picture_link_data[SaveName] = data.get("src")
 
-        print(f"[漫畫 {count} 請求] {url}")
+        # 保存圖片連結
+        link_box = []
+        def picture_link(tree):
+            for data in tree.xpath("//img[@id='img']"):
+                # 每本漫畫的取得元素不同
+                href = data.get("href")
+                sec = data.get("src")
+
+                if href != None:
+                    link_box.append(href)
+                elif sec != None:
+                    link_box.append(sec)
+
+        print(f"[漫畫 {count} 開始處理] => {url}")
         StartTime = time.time()
         tree = self.get_data(url)
         home_page(tree)
 
         # 取得漫畫標題 , 並排除非法字元
-        title = tree.xpath("//h1[@id='gj']/text()")[0]
+        try:
+            title = tree.xpath("//h1[@id='gj']/text()")[0] # 日文標題
+        except:
+            title = tree.xpath("//h1[@id='gn']/text()")[0] # 英文標題
+
         self.title = re.sub(self.illegal_filename, '', title).strip()
         
-        # 漫畫頁數 (測試 , 40為一頁)
+        # 漫畫頁數 (每 40 為一頁)
         Pages = int(tree.xpath("//td[@class='gdt2']/text()")[-2].split(" ")[0])
+
         home_pages = Pages / 40
         remainder_pages = Pages % 40
+
+        # 計算公式待測試
         if remainder_pages > 0:
-            total_pages = int(home_pages + 1)
+            total_pages = int(home_pages * 2)
         else:
             total_pages = int(home_pages)
-
+        
         # 當有設置排除標籤時 , 重複時會進行排除
         if self.TagFilterBox != None:
             # 取得漫畫標籤
@@ -291,8 +353,8 @@ class EHentaidownloader(Validation):
                     work.append(asyncio.create_task(self.async_get_data(f"{url}?p={page}", session)))
                     
                     count+=1
-                    if count == 5:
-                        print(f"以處理 [{page-1}] 頁 休息1秒...")
+                    if count == 7:
+                        print(f"以處理 [{page}] 頁 休息1秒...")
                         await asyncio.sleep(1)
                         count = 0
 
@@ -307,7 +369,7 @@ class EHentaidownloader(Validation):
                     work1.append(asyncio.create_task(self.async_get_data(link, session)))
 
                     count+=1
-                    if count == 50:
+                    if count == 100:
                         print(f"以處理 [{count}] 張 休息1秒...")
                         await asyncio.sleep(1)
                         count = 0
@@ -315,11 +377,20 @@ class EHentaidownloader(Validation):
                 results = await asyncio.gather(*work1)
 
                 # 保存至請求連結
-                for page , tree in enumerate(results):
-                    picture_link(tree, page)
+                for tree in results:
+                    picture_link(tree)
 
         asyncio.run(Trigger())
-        print("[漫畫 %d 請求完成] %s => 請求耗時 %.3f 秒" % (count , url, (time.time() - StartTime)))
+            
+        # 排除重複 , 並加上名稱 , 存入下載字典
+        link_exclude = list(OrderedDict.fromkeys(link_box))
+        for page , link in enumerate(link_exclude):
+            SaveName = f"{(page+1):04d}"
+            self.picture_link_data[SaveName] = link
+
+        print("[漫畫 %d 處理完成] %s => 處理耗時 %.3f 秒" % (count , url, (time.time() - StartTime)))
+
+        # 開始下載處理
         self.download_processing()
 
     def create_folder(self,Name):
