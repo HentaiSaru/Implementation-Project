@@ -22,8 +22,7 @@ else:
     hwnd = windows[index][0]
     print(f"選擇的窗口: {windows[index][1]} (窗口句炳={hwnd})")
 
-    
-    
+  
     # 開啟窗口最大化
     win32gui.ShowWindow(hwnd,win32con.SW_MAXIMIZE)
     
