@@ -7,12 +7,12 @@ mshta vbscript:createobject("shell.application").shellexecute("%~s0","goto :Admi
 cls
 
 @echo ------------------------------
-@echo pip principal update==========
+@echo pip principal update
 python.exe -m pip install --upgrade pip
 @echo ------------------------------
 
 @echo ------------------------------
-@echo pip installation package======
+@echo pip installation package
 @echo ------------------------------
 
 :: 打包EXE
