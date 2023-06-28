@@ -29,6 +29,8 @@ class PlayBack(Win32Key):
                 self.Mouse_Operation(Value)
             elif TypeAnalysis == "K":
                 self.Keyboard_Operation(Value)
+            elif TypeAnalysis == "W":
+                time.sleep(Value[0])
 
     # 滑鼠操作
     def Mouse_Operation(self, operate):
@@ -77,4 +79,4 @@ class PlayBack(Win32Key):
                 pass
 
 play = PlayBack()
-play.Script_Analysis()
+play.Script_Analysis("Script-2023-06-29-00-41-53")
