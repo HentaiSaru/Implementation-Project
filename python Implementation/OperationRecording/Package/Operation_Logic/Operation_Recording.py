@@ -20,6 +20,10 @@ class Record:
         self.timing = 0
         self.ST = 0
         self.ET = 0
+
+        self.PressKey = None
+        self.keyboardSteps = None
+
         self.Mlistener = None
         self.Klistener = None
         self.TimingStart = None
@@ -49,6 +53,11 @@ class Record:
                 self.or_list = [x, y, str(button).split("Button.")[1], (self.ET-self.ST)]
                 self.or_dict[f"{self.MouseMark}-{self.step}"] = self.or_list
 
+        def move(x, y):
+            self.step += 1
+            self.or_list = [x, y, None, 0]
+            self.or_dict[f"{self.MouseMark}-{self.step}"] = self.or_list
+
         # 滾動
         def scroll(x, y, none, step):
             self.step += 1
@@ -61,9 +70,9 @@ class Record:
             self.or_dict[f"{self.MouseMark}-{self.step}"] = self.or_list
 
         # 監聽
-        with mouse.Listener(on_click=click, on_scroll=scroll) as Mlistener:
+        with mouse.Listener(on_click=click, on_scroll=scroll, on_move=move) as Mlistener:
             self.Mlistener = Mlistener
-            time.sleep(0.01)
+            time.sleep(0.001)
             Mlistener.join()
 
     # 鍵盤錄製 (不支援組合鍵/快捷鍵)
@@ -74,25 +83,30 @@ class Record:
             self.step += 1
             self.or_dict[f"{self.waitMark}-{self.step}"] = [self.timing]
             self.timing = 0
+
             self.ST = time.time()
 
-        # 放開
-        def release(key):
-            self.ET = time.time()
-            self.step += 1
             New_key = re.sub(r"[<>'\"]", "", str(key))
             try:
                 New_key = New_key.split("Key.")[1]
             except:
                 pass
+            self.PressKey = New_key
 
-            self.or_list = [New_key , (self.ET-self.ST)]
-            self.or_dict[f"{self.KeyboardMark}-{self.step}"] = self.or_list
+            self.or_list = [self.PressKey , 0]
+            self.keyboardSteps = f"{self.KeyboardMark}-{self.step}"
+            self.or_dict[self.keyboardSteps] = self.or_list
+
+        # 放開
+        def release(key):
+            self.ET = time.time()
+            self.or_list = [self.PressKey , (self.ET-self.ST)]
+            self.or_dict[self.keyboardSteps] = self.or_list
 
         # 監聽
         with keyboard.Listener(on_press=press, on_release=release) as Klistener:
             self.Klistener = Klistener
-            time.sleep(0.01)
+            time.sleep(0.001)
             Klistener.join()
 
     # 開始錄製

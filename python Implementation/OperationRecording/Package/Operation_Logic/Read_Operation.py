@@ -30,7 +30,7 @@ class PlayBack(Win32Key):
             elif TypeAnalysis == "K":
                 self.Keyboard_Operation(Value)
             elif TypeAnalysis == "W":
-                time.sleep(Value[0])
+                time.sleep((Value[0]/2))
 
     # 滑鼠操作
     def Mouse_Operation(self, operate):
@@ -50,10 +50,20 @@ class PlayBack(Win32Key):
                 win32api.mouse_event(self.MouseKT_D[button], 0, 0, 120, 0)
             elif button == "-1":
                 win32api.mouse_event(self.MouseKT_D[button], 0, 0, -120, 0)
-        else:
-            win32api.mouse_event(self.MouseKT_D[button], 0, 0, 0, 0)
-            time.sleep(during)
-            win32api.mouse_event(self.MouseKT_U[button], 0, 0, 0, 0)
+        elif button != None:
+
+            if during > 1:
+                click_time = time.time()
+                while time.time() - click_time < during:
+                    time.sleep(0.05)
+                    win32api.mouse_event(self.MouseKT_D[button], 0, 0, 0, 0)
+                win32api.mouse_event(self.MouseKT_U[button], 0, 0, 0, 0)
+            else:
+                win32api.mouse_event(self.MouseKT_D[button], 0, 0, 0, 0)
+                time.sleep(during)
+                win32api.mouse_event(self.MouseKT_U[button], 0, 0, 0, 0)
+
+        time.sleep(0.001)
 
     # 鍵盤操作
     def Keyboard_Operation(self, operate):
@@ -65,18 +75,32 @@ class PlayBack(Win32Key):
 
         try:
             vk = win32api.VkKeyScan(keys)
-            win32api.keybd_event(vk, 0, 0, 0)
-            time.sleep(during)
-            win32api.keybd_event(vk, 0, win32con.KEYEVENTF_KEYUP, 0)
-        except:
 
-            try:
-                win32api.keybd_event(self.KeyboardKT[keys], 0, 0, 0)
+            if during > 1:
+                press_time = time.time()
+                while time.time() - press_time < during:
+                    win32api.keybd_event(vk, 0, 0, 0)
+                    time.sleep(0.04)
+                win32api.keybd_event(vk, 0, win32con.KEYEVENTF_KEYUP, 0)
+            else:
+                win32api.keybd_event(vk, 0, 0, 0)
                 time.sleep(during)
-                win32api.keybd_event(self.KeyboardKT[keys], 0, win32con.KEYEVENTF_KEYUP, 0)
+                win32api.keybd_event(vk, 0, win32con.KEYEVENTF_KEYUP, 0)
+        except:
+            try:
+                if during > 1:
+                    press_time = time.time()
+                    while time.time() - press_time < during:
+                        win32api.keybd_event(self.KeyboardKT[keys], 0, 0, 0)
+                        time.sleep(0.04)
+                    win32api.keybd_event(self.KeyboardKT[keys], 0, win32con.KEYEVENTF_KEYUP, 0)
+                else:
+                    win32api.keybd_event(self.KeyboardKT[keys], 0, 0, 0)
+                    time.sleep(during)
+                    win32api.keybd_event(self.KeyboardKT[keys], 0, win32con.KEYEVENTF_KEYUP, 0)
             except:
                 print(f"[{keys}] 未註冊的 鍵盤值...")
                 pass
 
 play = PlayBack()
-play.Script_Analysis("Script-2023-06-29-00-41-53")
+play.Script_Analysis("Script-2023-06-29-02-44-26")
