@@ -38,6 +38,7 @@ class Win32Key:
     }
 
     KeyboardKT = {
+        "tab" : win32con.VK_TAB,
         "enter" : win32con.VK_RETURN,
         "space" : win32con.VK_SPACE,
         "backspace" : win32con.VK_BACK,
