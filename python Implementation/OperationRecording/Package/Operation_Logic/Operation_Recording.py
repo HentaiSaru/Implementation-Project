@@ -1,13 +1,13 @@
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
 from pynput import keyboard , mouse
-from Record_Read import InputOutput
 from datetime import datetime
 import threading
 import time
+import sys
+import os
 import re
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from Record_Read import InputOutput
 
 # 操作紀錄
 class Record:
@@ -16,26 +16,28 @@ class Record:
         self.or_dict = {}
         self.or_list = []
 
-        self.step = 0
-        self.timing = 0
-        self.ST = 0
-        self.ET = 0
+        self.step = 0 # 操作步驟
+        self.timing = 0.01 # 沒操作的等待時間
+        self.record_steps = 0 # 滑鼠移動多少步紀錄
 
-        self.PressKey = None
-        self.keyboardSteps = None
+        self.ST = 0 # 按下時間
+        self.ET = 0 # 放開時間
 
-        self.Mlistener = None
-        self.Klistener = None
-        self.TimingStart = None
+        self.PressKey = None # 鍵盤按下鍵
+        self.keyboardSteps = None # 鍵盤操作步驟
 
-        self.waitMark = "W"
-        self.MouseMark = "M"
-        self.KeyboardMark = "K"
+        self.Mlistener = None # 滑鼠監聽
+        self.Klistener = None # 鍵盤監聽
+        self.TimingStart = None # 延時監聽
+
+        self.waitMark = "W" # 等待記號
+        self.MouseMark = "M" # 滑鼠記號
+        self.KeyboardMark = "K" # 鍵盤記號
 
     def __Timer(self):
         while self.TimingStart:
-            time.sleep(1)
-            self.timing += 1
+            time.sleep(0.1)
+            self.timing += 0.01
 
     # 滑鼠錄製
     def __Mouse_Record(self):
@@ -45,27 +47,32 @@ class Record:
             if pressed:
                 self.step += 1
                 self.or_dict[f"{self.waitMark}-{self.step}"] = [self.timing]
-                self.timing = 0
+                self.timing = 0.01
                 self.ST = time.time()
             else:
                 self.ET = time.time()
-                self.step += 1
                 self.or_list = [x, y, str(button).split("Button.")[1], (self.ET-self.ST)]
                 self.or_dict[f"{self.MouseMark}-{self.step}"] = self.or_list
 
         def move(x, y):
-            self.step += 1
-            self.or_list = [x, y, None, 0]
-            self.or_dict[f"{self.MouseMark}-{self.step}"] = self.or_list
+            self.record_steps += 1
+
+            if self.record_steps == 15:
+                self.step += 1
+                self.or_dict[f"{self.waitMark}-{self.step}"] = [self.timing]
+                self.timing = 0.01
+
+                self.or_list = [x, y, None, 0]
+                self.or_dict[f"{self.MouseMark}-{self.step}"] = self.or_list
+                self.record_steps = 0
 
         # 滾動
         def scroll(x, y, none, step):
             self.step += 1
             self.or_dict[f"{self.waitMark}-{self.step}"] = [self.timing]
-            self.timing = 0
+            self.timing = 0.01
 
             # 滾動的 step +1 是上滾輪 -1 是下滾輪
-            self.step += 1
             self.or_list = [x, y, step, 0]
             self.or_dict[f"{self.MouseMark}-{self.step}"] = self.or_list
 
@@ -82,7 +89,7 @@ class Record:
         def press(key):
             self.step += 1
             self.or_dict[f"{self.waitMark}-{self.step}"] = [self.timing]
-            self.timing = 0
+            self.timing = 0.01
 
             self.ST = time.time()
 
@@ -112,7 +119,7 @@ class Record:
     # 開始錄製
     def Start_Record(self):
         self.step = 0
-        self.timing = 0
+        self.timing = 0.01
         self.or_dict.clear()
         self.TimingStart = True
 
@@ -125,14 +132,17 @@ class Record:
 
     # 中止錄製
     def Stop_Record(self):
-        self.TimingStart = False
-        self.Mlistener.stop()
-        self.Klistener.stop()
+        try:
+            self.TimingStart = False
+            self.Mlistener.stop()
+            self.Klistener.stop()
 
-        print("結束錄製")
+            print("結束錄製")
 
-        # 結束會自動輸出
-        self.__OutPut_Record()
+            # 結束會自動輸出
+            self.__OutPut_Record()
+        except:
+            print("沒有進行中的錄製...")
 
     def __OutPut_Record(self):
         self.io.Save_Script(
