@@ -358,11 +358,12 @@ class EHentaidownloader(Validation):
         Pages = int(tree.xpath("//td[@class='gdt2']/text()")[-2].split(" ")[0])
 
         home_pages = Pages / 40
+        tolerance = Pages / 100
         remainder_pages = Pages % 40
 
-        # 計算公式待測試
+        # 計算公式測試
         if remainder_pages > 0:
-            total_pages = int(home_pages * 2)
+            total_pages = int((home_pages+tolerance)) * 2 + 1
         else:
             total_pages = int(home_pages)
         
