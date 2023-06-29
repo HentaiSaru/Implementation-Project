@@ -49,8 +49,16 @@ def request(url):
     req = requests.get(url,headers=headers,cookies=cookie)
     print(req.text)
 
-def manga_page_data_processing(url):
-    print("當前處理:", url)
+def calculate(page):
+    page_a = page / 20
+    page_b = page % 20
+    page_c = page / 100
+
+    if page_b > 0:
+        print(int(page_a + 1) + int(page_c))
+    else:
+        print(int(page_a) + int(page_c))
 
 if __name__ == '__main__':
-    pass
+   
+    calculate(28)
