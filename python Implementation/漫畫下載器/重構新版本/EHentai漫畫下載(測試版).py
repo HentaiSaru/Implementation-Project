@@ -13,7 +13,7 @@ import json
 import re
 import os
 
-""" Versions 1.0.0 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""" Versions 1.0.1 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - EHentai/ExHentai 漫畫下載
 
@@ -341,7 +341,7 @@ class EHentaidownloader(Validation):
                 elif sec != None:
                     link_box.append(sec)
 
-        print(f"[漫畫 {count} 開始處理] => {url}")
+        print(f"[漫畫 {count} 開始處理] => {url}" , flush=True)
         StartTime = time.time()
         tree = self.get_data(url)
         home_page(tree)
@@ -350,7 +350,11 @@ class EHentaidownloader(Validation):
         try:
             title = tree.xpath("//h1[@id='gj']/text()")[0] # 日文標題
         except:
-            title = tree.xpath("//h1[@id='gn']/text()")[0] # 英文標題
+            try:
+                title = tree.xpath("//h1[@id='gn']/text()")[0] # 英文標題
+            except:
+                print("\n[無法取得標題元素!]\n可能原因:\n\n[1]需要特別的Cookie\n[2]該頁面元素位置有例外")
+                return
 
         self.title = re.sub(self.illegal_filename, '', title).strip()
         
@@ -374,7 +378,7 @@ class EHentaidownloader(Validation):
             for value in self.TagFilterBox.values():
                 result = set(value) & set(labelbox)
                 if result:
-                    print(f"[漫畫 {count} 標籤排除]")
+                    print(f"[漫畫 {count} 標籤排除]" , flush=True)
                     return
         
         # 保存路徑
@@ -391,7 +395,7 @@ class EHentaidownloader(Validation):
                     
                     count+=1
                     if count == 7:
-                        print(f"以處理 [{page}] 頁 休息1秒...")
+                        print(f"\r以處理 [{page}] 頁", end="", flush=True)
                         await asyncio.sleep(1)
                         count = 0
 
@@ -401,13 +405,15 @@ class EHentaidownloader(Validation):
                 for tree in results:
                     home_page(tree)
 
+                Processed_pages = len(home_page_data)
                 # 請求內部圖片連結
                 for link in home_page_data:
                     work1.append(asyncio.create_task(self.async_get_data(link, session)))
 
                     count+=1
                     if count == 100:
-                        print(f"以處理 [{count}] 張 休息1秒...")
+                        Processed_pages -= count
+                        print(f"\r剩餘處理 [{Processed_pages}] 張", end="", flush=True)
                         await asyncio.sleep(1)
                         count = 0
 
@@ -425,7 +431,7 @@ class EHentaidownloader(Validation):
             SaveName = f"{(page+1):04d}"
             self.picture_link_data[SaveName] = link
 
-        print("[漫畫 %d 處理完成] %s => 處理耗時 %.3f 秒" % (count , url, (time.time() - StartTime)))
+        print("\r[漫畫 %d 處理完成] => 處理耗時 %.3f 秒" % (count , (time.time() - StartTime)) , flush=True)
 
         # 開始下載處理
         self.download_processing()
