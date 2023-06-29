@@ -1,17 +1,19 @@
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from Operation_Recording import Record
-from KeyValueTable import PynputKey
 from pynput import keyboard
 import threading
 import time
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from Operation_Recording import Record
+from KeyValueTable import PynputKey
+from Script_Run import PlayBack
 
 # 運行觸發
 class TriggerRun:
     def __init__(self):
         self.rec = Record()
+        self.play = PlayBack()
 
     def StartRecording(self):
         threading.Thread(target=self.rec.Start_Record).start()
@@ -20,13 +22,24 @@ class TriggerRun:
         self.rec.Stop_Record()
 
     def StartPlayback(self):
-        print("開始回放")
+        self.play.Script_play()
 
     def EndPlayback(self):
-        print("結束回放")
+        self.play.Script_Stop()
 
 # 快捷鍵監聽
 class KeyboardMonitor(PynputKey):
+    """
+    快捷鍵設置
+    * hotkey : 字典格式 , 需要設置兩個鍵位
+    * 格式 : {"SR":["",""],"ER":["",""],"SP":["",""],"EP":["",""]}
+    * SR = 開始錄製 , ER = 結束錄製 , SP 開始回放 , EP 結束回放
+
+    回放腳本設置
+    * script : 字串格式 , 一次設置一個腳本回放
+    * 格式 : 如果 Script 資料夾內有 , xxx.json 這是錄製的腳本
+    * 傳遞時只需要打 , xxx 名子即可 , 不需要打路徑
+    """
     def __init__(self):
         self.tr = TriggerRun()
         self.sr_hotkey = []
@@ -56,7 +69,7 @@ class KeyboardMonitor(PynputKey):
             time.sleep(0.001)
             listener.join()
 
-    def __call__(self, hotkey: dict):
+    def __call__(self, hotkey: dict, script: str=None):
         for Type , Key in hotkey.items():
             if Type == "SR":
                 self.sr_hotkey.extend([self.Keytable[Key[0]],self.Keytable[Key[1]]])
@@ -66,5 +79,10 @@ class KeyboardMonitor(PynputKey):
                 self.sp_hotkey.extend([self.Keytable[Key[0]],self.Keytable[Key[1]]])
             elif Type == "EP":
                 self.ep_hotkey.extend([self.Keytable[Key[0]],self.Keytable[Key[1]]])
+
+        if script != None:
+            self.tr.play.Script_Set(script)
+
+        print("等待觸發快捷鍵...\n")
 
         self.__start()
