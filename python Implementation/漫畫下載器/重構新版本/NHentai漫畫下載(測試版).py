@@ -295,7 +295,7 @@ class NHentaidownloader:
                 elif re.match(self.search,url):
                     self.search_box.append(url)
                 else:
-                    print(f"錯誤格式的連結{url}")
+                    print(f"錯誤格式的連結{url}", flush=True)
 
             if len(self.search_box) > 0:
                 for url in self.search_box:
@@ -314,7 +314,7 @@ class NHentaidownloader:
     # 漫畫頁數據處理
     def comic_page_data(self,url,count):
 
-        print(f"[漫畫 {count} 請求] {url}")
+        print(f"[漫畫 {count} 請求] {url}" , flush=True)
         StartTime = time.time()
         tree = self.get_data(url)
 
@@ -378,7 +378,7 @@ class NHentaidownloader:
                 comic_link = f"{domain_name}/{i}.{suffix}"
                 self.download_link[SaveName] = comic_link
             
-            print("[漫畫 %d 請求完成] %s => 請求耗時 %.3f 秒" % (count , url, (time.time() - StartTime)))
+            print("[漫畫 %d 請求完成] => 請求耗時 %.3f 秒" % (count , (time.time() - StartTime)), flush=True)
             self.download_processing()
         except Exception as e:
             print(f"debug : {e}")
@@ -386,7 +386,7 @@ class NHentaidownloader:
     # 搜尋頁數據處理
     def search_page_data(self,link):
 
-        print(f"[請求搜尋數據] {link}")
+        print(f"[請求搜尋數據] {link}", flush=True)
 
         try:
             comic_link = []
@@ -428,7 +428,7 @@ class NHentaidownloader:
 
                         # 這邊必須設置延遲 , 不然大量讀取會有缺少的數據
                         if count == 5 and self.Pages > 5:
-                            print(f"以處理 [{page-1}] 頁 休息1秒...")
+                            print(f"\r以處理 [{page-1}] 頁 休息1秒...", end="", flush=True)
                             await asyncio.sleep(1)
                             count = 0
 
@@ -442,7 +442,7 @@ class NHentaidownloader:
             # 雖然有點多餘 , 但還是避免重複
             link_exclude = list(OrderedDict.fromkeys(comic_link))
 
-            print("獲取的漫畫數量 : %d => 獲取耗時 %.3f 秒\n" %(len(link_exclude), (time.time() - StartTime)))
+            print("獲取的漫畫數量 : %d => 獲取耗時 %.3f 秒\n" %(len(link_exclude), (time.time() - StartTime)), flush=True)
             with ProcessPoolExecutor(max_workers=self.MaxProcess) as executor:
                 for index , url in enumerate(link_exclude):
                     executor.submit(self.comic_page_data , url, index)
