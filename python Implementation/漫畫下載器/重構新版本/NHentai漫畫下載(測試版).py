@@ -314,7 +314,7 @@ class NHentaidownloader:
     # 漫畫頁數據處理
     def comic_page_data(self,url,count):
 
-        print(f"[漫畫 {count} 請求] {url}" , flush=True)
+        print(f"[漫畫 {count} 請求] {url}", flush=True)
         StartTime = time.time()
         tree = self.get_data(url)
 
@@ -442,7 +442,7 @@ class NHentaidownloader:
             # 雖然有點多餘 , 但還是避免重複
             link_exclude = list(OrderedDict.fromkeys(comic_link))
 
-            print("獲取的漫畫數量 : %d => 獲取耗時 %.3f 秒\n" %(len(link_exclude), (time.time() - StartTime)), flush=True)
+            print("\r獲取的漫畫數量 : %d => 獲取耗時 %.3f 秒\n" %(len(link_exclude), (time.time() - StartTime)), flush=True)
             with ProcessPoolExecutor(max_workers=self.MaxProcess) as executor:
                 for index , url in enumerate(link_exclude):
                     executor.submit(self.comic_page_data , url, index)
