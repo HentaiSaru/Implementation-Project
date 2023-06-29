@@ -357,15 +357,15 @@ class EHentaidownloader(Validation):
         # 漫畫頁數 (每 40 為一頁)
         Pages = int(tree.xpath("//td[@class='gdt2']/text()")[-2].split(" ")[0])
 
-        home_pages = Pages / 40
+        home_pages = Pages / 20
         tolerance = Pages / 100
-        remainder_pages = Pages % 40
+        remainder_pages = Pages % 20
 
-        # 計算公式測試
+        # 計算公式後續測試
         if remainder_pages > 0:
-            total_pages = int((home_pages+tolerance)) * 2 + 1
+            total_pages = int(home_pages + 1) + int(tolerance)
         else:
-            total_pages = int(home_pages)
+            total_pages = int(home_pages) + int(tolerance)
         
         # 當有設置排除標籤時 , 重複時會進行排除
         if self.TagFilterBox != None:
