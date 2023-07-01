@@ -12,6 +12,7 @@ VideoDownloader.py
 
 __pycache__
 Temporary
+timestamp
 test
 
 !loginkey.json
