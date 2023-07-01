@@ -1,4 +1,3 @@
-import keyboard
 import pyautogui
 import win32api
 import win32con
@@ -17,53 +16,48 @@ def test(key):
     vk = win32api.VkKeyScan(key)
     return vk
 
-# path = "Script/Script-2023-06-29-12-09-49.json"
-# 
-# script_data = {}
-# with open(path , "r") as file:
-    # script_data = json.loads(file.read())
-# 
-# i = 0
-# for key , script in script_data.items():
-# 
-    # if key.split("-")[0] == "M":
-# 
-        # i += 1
-# 
-        # if i == 15:
-            # x = script[0]
-            # y = script[1]
-            # win32api.SetCursorPos((x, y))
-            # i = 0
-# 
-        # time.sleep(0.001)
 
-import threading
+# pip install keyboard
+import keyboard
+# pip install mouse
+import mouse
 
-pause_event = threading.Event()
+# https://github.com/boppreh/keyboard
 
-def trigger():
-    if pause_event.is_set(): # 第二次觸發將被暫停
-        pause_event.clear()
-    else: # 第一次觸發設置,繼續運行
-        pause_event.set()
+# 紀錄鍵盤 , 與回放操作
+recorded = keyboard.record(until='alt+f2')
+# print("紀錄")
+# time.sleep(5)
+# keyboard.play(recorded)
+for i in range(1,5+1):
+    print(f"\r回放 : {i}s" , end="" , flush=True)
+    time.sleep(1)
+keyboard.play(recorded)
+input("暫停")
 
-def loop():
-    trigger()
-    for i in range(1, 101):
-        print(i)
-        pause_event.wait()
-        time.sleep(0.5)
+mouse_events = []
+record_steps = 0
 
-thread = threading.Thread(target=loop)
-thread.start()
+mouse.hook(mouse_events.append)
 
-# 啟動
+keyboard.wait('esc')
 
+mouse.unhook(mouse_events.append)
 
-# 觸發暫停
-time.sleep(5)
-trigger()
+save = []
 
-time.sleep(2)
-trigger()
+for event in mouse_events:
+
+    if str(event).startswith("MoveEvent"):
+        record_steps += 1
+        if record_steps == 15:
+            save.append(event)
+            record_steps = 0
+    else:
+        save.append(event)
+
+#mouse.play(save)
+
+#keyboard.add_hotkey('alt+f2', print, args=('被觸發了',))
+# 紀錄鍵盤 , 與回放操作
+#keyboard.wait('esc')
