@@ -9,7 +9,7 @@ import os
 
 """ 精簡版檔案分類
 
-Versions 1.0.5
+Versions 1.0.6
 
 [+] 資料夾路徑選取
 [+] 設置分類副檔名
@@ -102,24 +102,31 @@ class DataRead:
         self.RepeatedSelection()
 
     def RepeatedSelection(self):  
-        Filter = int(input("\n選擇輸出檔案類型 (代號) : "))
         self.filter_data.clear()
 
-        if Filter == 0:
-            print(f"你選擇了 : 全部\n")
-        else:
-            print(f"你選擇了 : {self.listtype[Filter-1]}\n")
+        while True:
+            try:
+                Filter = int(input("\n選擇輸出檔案類型 (代號) : "))
+                if Filter == 0:
+                    print(f"你選擇了 : 全部\n")
+                else:
+                    print(f"你選擇了 : {self.listtype[Filter-1]}\n")
 
-        for data in self.all_data:
-            if Filter == 0:
-                self.filter_data.append(data)
-            else:
-                if data.endswith(f".{self.listtype[Filter-1]}"):
-                    self.filter_data.append(data)
-        if Filter == 0:
-            output("ALL")
-        else:
-            output(self.listtype[Filter-1])
+                for data in self.all_data:
+                    if Filter == 0:
+                        self.filter_data.append(data)
+                    else:
+                        if data.endswith(f".{self.listtype[Filter-1]}"):
+                            self.filter_data.append(data)
+
+                if Filter == 0:
+                    output("ALL")
+                    break
+                else:
+                    output(self.listtype[Filter-1])
+                    break
+            except:
+                print("無效的代號")
 
 class DataEmptyError(Exception):
     pass
@@ -166,9 +173,16 @@ class output:
         # 直接開啟存檔位置
         os.startfile(self.save_route)
 
-        Selection = int(input("\n是否再次選擇 ? [1] YES / [0] NO : "))
-        if Selection == 1:
-            data.RepeatedSelection()
+        while True:
+            Selection = int(input("\n是否再次選擇 ? [1] YES / [0] NO : "))
+            if Selection == 1:
+                data.RepeatedSelection()
+                break
+            elif Selection == 0:
+                print("結束程式...")
+                break
+            else:
+                print("無效的代號")
 
     def __copy_output(self,out,path):
         shutil.copyfile(out,path)
