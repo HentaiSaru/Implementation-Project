@@ -460,7 +460,7 @@ class EHentaidownloader(Validation):
 
 if __name__ == "__main__":
     eh = EHentaidownloader()
-    AutoCapture.settings("https://")
+    AutoCapture.settings("https://(exhentai|e-hentai)")
 
     eh.download_settings(
         GetCookie=True,
