@@ -60,5 +60,4 @@ def calculate(page):
         print(int(page_a) + int(page_c))
 
 if __name__ == '__main__':
-   
-    calculate(28)
+   pass
