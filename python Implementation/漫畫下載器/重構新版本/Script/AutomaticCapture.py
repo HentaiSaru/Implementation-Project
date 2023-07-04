@@ -17,6 +17,7 @@ class AutomaticCapture:
 
         self.download_trigger = False
         self.detection = True
+        self.count = 0
 
     def __trigger(self):
         print("複製網址後自動擷取(Alt+S 開始下載):")
@@ -38,7 +39,8 @@ class AutomaticCapture:
             if self.download_trigger:
                 pass
             elif clipboard != self.clipboard_cache and re.match(self.initial_url_format , clipboard):
-                print(f"擷取的網址 : {clipboard}")
+                self.count += 1
+                print(f"擷取網址 [{self.count}] : {clipboard}")
                 self.download_list.add(clipboard)
                 self.clipboard_cache = clipboard
 
