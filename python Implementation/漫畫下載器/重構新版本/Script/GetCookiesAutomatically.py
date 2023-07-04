@@ -21,6 +21,9 @@ class AutomationRequest:
         self.Settings = uc.ChromeOptions()
         self.hidden = None
 
+        self.show = "."
+        self.load = 0
+
     def browser_reset(self):
         """
     !   注意
@@ -63,7 +66,16 @@ class AutomationRequest:
         self.Settings.add_argument('--disable-blink-features=AutomationControlled')
         self.Settings.add_argument(f"--remote-debugging-port={random.randint(1024,65535)}")
         return self.Settings
-    
+
+    def __Loading_Display(self, time: int):
+        self.load += 1
+
+        if self.load > 3:
+            print(f"\r獲取中[{time}秒]   ", end="", flush=True)
+            self.load = 0
+        else:
+            print(f"\r獲取中[{time}秒]{self.show * self.load}", end="", flush=True)
+
     def AGCookie(self,url: str,json: str):
         """
     自動請求 Cookie
@@ -77,7 +89,7 @@ class AutomationRequest:
     *   回傳 True / False 為請求成功狀態
     *   預設有 15 秒的超時時間 , 超過這時間沒有請求到 , 將會回傳 False
         """
-        print("嘗試獲取 Cookie...")
+        print("嘗試獲取 Cookie ==>")
         self.hidden = True
         try:
             if json.find(".json") != -1:
@@ -92,7 +104,6 @@ class AutomationRequest:
                     name = cookies[index]['name']
                     value = cookies[index]["value"]
                     self.cookie[name] = value
-
                 
                 if len(self.cookie) > 1:
                     self.__OutputCookie(json)
@@ -104,6 +115,8 @@ class AutomationRequest:
                     # 超時 15 秒退出
                     if self.timeout >= 15: 
                         raise Exception()
+                    
+                self.__Loading_Display(self.timeout)
         except:
             return False
 
@@ -120,7 +133,7 @@ class AutomationRequest:
     *   呼叫後會啟用網頁窗口 , 等待登入後 , 鍵入 y 進行取得
     *   該窗口網站並不會記錄登入狀態 , 所以每次呼叫都要重登
     """
-        print("啟動窗口等待獲取 cookie ...")
+        print("啟動窗口等待獲取 cookie ==>")
         self.hidden = False
         try:
             if json.find(".json") != -1:
