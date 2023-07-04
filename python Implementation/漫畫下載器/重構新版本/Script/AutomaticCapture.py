@@ -91,4 +91,18 @@ class AutomaticCapture:
         else:
             print("請先使用 settings(domainName) 設置域名")
 
+    # 以生成器的方式回傳
+    def GetBuilder(self):
+        if self.initial_url_format != None:
+            self.__trigger()
+
+            if len(self.download_list) > 0:
+                os.system("cls")
+                for link in list(self.download_list):
+                    yield link
+            else:
+                return None
+        else:
+            print("請先使用 settings(domainName) 設置域名")
+
 AutoCapture = AutomaticCapture()
