@@ -1,27 +1,15 @@
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from tkinter import messagebox
-from selenium import webdriver
-from bs4 import BeautifulSoup
-from lxml import etree
-import threading
 import datetime
 import random
-import socket
-import pickle
-import json
-import time
 import pytz
 import sys
-import re
 import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from Dataio import DI
 
-class Parameters():
+class Parameters:
     def __init__(self):
         self.Settings = Options()
         self.generate_port = []
