@@ -10,6 +10,7 @@ class ReadJson:
 
         self.Json_Operation_A = {}
         self.Json_Operation_B = {}
+        self.Json_special = []
 
         self.Operation_Pass = True
         self.Stop_Line = None
@@ -65,7 +66,7 @@ class ReadJson:
                         self.Json_Operation_A[key] = value
 
                 if OutPut:
-                    self.__output_remaining()
+                    self.__output_delete(self.Json_Operation_A)
 
         except ValueError:
             print("Location 只有 0 和 1")
@@ -83,7 +84,7 @@ class ReadJson:
         if state:
 
             for cookie in self.Json_data:
-                name = cookie['name']
+                name = cookie["name"]
                 value = cookie["value"]
                 self.Json_Operation_A[name] = value
 
@@ -91,24 +92,49 @@ class ReadJson:
                 print(self.Json_Operation_A)
 
             if OutPut:
-                self.__output_classification()
+                self.__output(self.Json_Operation_A)
+                
+    def cookie_parsing_2(self, JsonName: str, ShowDict: bool=False, OutPut: bool=False):
+        """
+        讀取 Json 格式的 Cookie , 保留原數據格式解析方法
+        * JsonName 設置要開啟的 Json 檔全名 例 : Test.json
+        * ShowDict 解析後以字典打印
+        * OutPut 將轉換成功的字典輸出
+        """
+        self.Json_name = JsonName
+        state = self.__read_json()
+    
+        if state:
 
-    def __output_remaining(self):
-        if len(self.Json_Operation_A) > 0:
+            for cookie in self.Json_data:
+                special_dict = {}
+                special_dict["name"] = cookie["name"]
+                special_dict["value"] = cookie["value"]
+                self.Json_special.append(special_dict)
+
+            if ShowDict:
+                print(self.Json_special)
+
+            if OutPut:
+                self.__output(self.Json_special)
+
+    def __output(self, data):
+        if len(data) > 0:
             with open(self.Json_name , "w") as file:
-                file.write(json.dumps(self.Json_Operation_A, indent=4, separators=(',',':')))
+                file.write(json.dumps(data, indent=4, separators=(',',':')))
+            print("輸出完成...")
+
+    def __output_delete(self, data):
+        if len(data) > 0:
+            with open(self.Json_name , "w") as file:
+                file.write(json.dumps(data, indent=4, separators=(',',':')))
             print("輸出完成...")
         else:
             os.system(f"del /f /s /q {self.Json_name} >nul 2>&1")
             print(f"已刪除 {self.Json_name}")
 
-    def __output_classification(self):
-        if len(self.Json_Operation_A) > 0:
-            with open(self.Json_name , "w") as file:
-                file.write(json.dumps(self.Json_Operation_A, indent=4, separators=(',',':')))
-            print("輸出完成...")
-
 if __name__ == "__main__":
     rj = ReadJson()
-    rj.open_url("測試本本.json",20,OutPut=True)
+    # rj.open_url("測試本本.json",20,OutPut=True)
     # rj.cookie_parsing("Cookies.json",OutPut=True)
+    # rj.cookie_parsing_2("Cookies.json",OutPut=True)
