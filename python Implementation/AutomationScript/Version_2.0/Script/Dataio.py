@@ -27,6 +27,7 @@ class DataImport:
             return data_path
         else:
             self.create_folder(data_path)
+            return data_path
             
     def get_website_cookie(self, web: str):
         data_path = os.path.join(self.path, f"{web}_default\\Jkf_cookies.json")
@@ -34,6 +35,22 @@ class DataImport:
         if os.path.exists(data_path):
             return import_json(data_path)
         else:
+            return None
+        
+    def get_acc(self):
+        data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Account.json")
+        
+        if os.path.exists(data_path):
+            Account = import_json(data_path)
+            return Account
+        else:
+            Format = {
+                "Genshin_account": "",
+                "Genshin_password": "",
+                "StarRail_account": "",
+                "StarRail_password": ""
+            }
+            output_json(data_path, Format)
             return None
         
     def create_folder(self, name):
