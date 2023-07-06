@@ -1,5 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2023/07/04 22:36 -
+:: - LastEditTime 2023/07/06 16:08 -
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
 :: [+] - Google 緩存清理
@@ -151,6 +151,7 @@ del /f /s /q "%userprofile%\Local Settings\Temporary Internet Files\*.*"
 del /f /s /q "%AllUsersProfile%\「開始」功能表\程式集\Windows Messenger.lnk"
 
 RD /s /q %localappdata%\Temp
+RD /s /q "C:\Windows\SystemTemp"
 RD /s /q %userprofile%\RecycleBin
 RD /s /q C:\Windows\ServiceProfiles\NetworkService\AppData\Local\Microsoft\Windows\DeliveryOptimization
 
