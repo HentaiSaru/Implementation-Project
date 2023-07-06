@@ -79,7 +79,7 @@ class AutomaticCheckin:
         blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
         for _ in range(3): # 新版測試
             blackbutton.click()
-            time.sleep(0.1)
+            blackdriver.refresh()
             
         blackdriver.quit()
     
