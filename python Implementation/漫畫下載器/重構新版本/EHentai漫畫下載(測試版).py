@@ -466,7 +466,6 @@ if __name__ == "__main__":
         GetCookie=True,
         DownloadPath="R:/",
         CookieSource = Read("cookie"),
-        DownloadDelay = 0.1
     )
 
     capture = AutoCapture.GetList()
