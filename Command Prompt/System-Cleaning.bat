@@ -1,5 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2023/07/06 16:08 -
+:: - LastEditTime 2023/07/07 03:23 -
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
 :: [+] - Google 緩存清理
@@ -375,6 +375,7 @@ cls
 sfc /scannow
 
 :: 最後詢問是否重啟
+:ExitMenu
 color C
 CLS
 MODE con: COLS=40 LINES=15
@@ -400,9 +401,7 @@ if %errorlevel% == 1 (
     exit
 ) else if %errorlevel% == 3 (
     control sysdm.cpl,,4
-    exit
+    goto ExitMenu
 ) else if %errorlevel% == 4 (
     exit
 )
-
-pause
