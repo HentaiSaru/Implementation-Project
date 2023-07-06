@@ -3,6 +3,7 @@ import importlib
 import threading
 import random
 import time
+import os
 
 check_lib = ["undetected_chromedriver"]
 def Library_installation_detection(lib):
@@ -15,10 +16,17 @@ for check in check_lib:
 
 import undetected_chromedriver as uc
 
+class Chrome(uc.Chrome):
+    def __del__(self):
+        try:
+            self.service.process.kill()
+        except:
+            pass
+
 class TestBrowser:
     def __init__(self):
         self.Settings = uc.ChromeOptions()
-        self.Version = "1.0.1"
+        self.Version = "1.0.2"
         self.driver = None
 
     def Setting_Options(self):
@@ -45,7 +53,7 @@ class TestBrowser:
         return self.Settings
 
     def Enable_browsing(self,url:str ="https://www.google.com.tw/"):
-        self.driver = uc.Chrome(options=self.Setting_Options())
+        self.driver = Chrome(options=self.Setting_Options())
         self.driver.delete_all_cookies()
         self.driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
