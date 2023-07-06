@@ -12,6 +12,7 @@ import re
 class AutomaticCheckin:
     def __init__(self):   
         self.exist = False
+        self.offdelay = 3
     
     def login_Confirm(self, link: str, webname: str, timeout: int, element: str, newdriver: bool = True, trylogin: bool = True):
         """
@@ -63,6 +64,7 @@ class AutomaticCheckin:
         Wuyongbutton = WebDriverWait(Wuyongdriver,3).until(EC.element_to_be_clickable((By.XPATH, "//i[@class='b2font b2-gift-2-line ']")))
         Wuyongbutton.click()
         
+        time.sleep(self.offdelay)
         Wuyongdriver.quit()
     
     def Black_Checkin(self):
@@ -76,11 +78,12 @@ class AutomaticCheckin:
         time.sleep(paramet.WaitingTime() + 0.7)
         blackdriver.refresh()
         
-        blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
         for _ in range(3): # 新版測試
+            blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
             blackbutton.click()
             blackdriver.refresh()
-            
+        
+        time.sleep(self.offdelay)
         blackdriver.quit()
     
     def Zero_Checkin(self):
@@ -115,7 +118,7 @@ class AutomaticCheckin:
         
         # 關閉彈出窗口,如果有的話
         try:
-            Genshinbutton = WebDriverWait(Genshin,2).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content-test_---red-point---2jUBf9']")))
+            Genshinbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content-test_---red-point---2jUBf9']")))
             Genshinbutton.click()
         except:pass
         
@@ -139,6 +142,7 @@ class AutomaticCheckin:
                 Genshin.refresh()
             except:pass
             
+            time.sleep(2)
             tree = etree.fromstring(Genshin.page_source, etree.HTMLParser())
             login = tree.xpath("//img[@class='mhy-hoyolab-account-block__avatar-icon']")[0].get("src")
             
@@ -193,7 +197,7 @@ class AutomaticCheckin:
         
         # 點選簽到位置 (已經簽到的就會找不到, 因此當沒找到時, 要讓他跳過)     
         try:
-            Genshinbutton = WebDriverWait(Genshin,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
+            Genshinbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
             for _ in range(3): # 測試
                 Genshinbutton.click()
                 time.sleep(0.1)
@@ -201,6 +205,7 @@ class AutomaticCheckin:
             pass
 
         # DO.pkl_cookie(cookies , "Genshin")
+        time.sleep(self.offdelay)
         Genshin.quit()
     
     def StarRail_Checkin(self):
@@ -212,7 +217,7 @@ class AutomaticCheckin:
         )
         
         try: # 關閉彈出窗口
-            StarRailClos = WebDriverWait(StarRail,4).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='components-pc-assets-__dialog_---dialog-close---3G9gO2']")))
+            StarRailClos = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='components-pc-assets-__dialog_---dialog-close---3G9gO2']")))
             StarRailClos.click()
         except:pass
         
@@ -229,6 +234,7 @@ class AutomaticCheckin:
             except:pass
         
             # 第二次再檢測如果未登入 , 再使用登入操作
+            time.sleep(2)
             tree = etree.fromstring(StarRail.page_source, etree.HTMLParser())
             login = tree.xpath("//img[@class='mhy-hoyolab-account-block__avatar-icon']")[0].get("src")
             if re.match(r"data:image/png;base64,.*", login):
@@ -289,6 +295,7 @@ class AutomaticCheckin:
         checkin = WebDriverWait(StarRail,30).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='components-pc-assets-__prize-list_---item---F852VZ']/span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
         checkin.click()
         
+        time.sleep(self.offdelay)
         StarRail.quit()
     
 if __name__ == "__main__":
