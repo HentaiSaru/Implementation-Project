@@ -31,7 +31,7 @@ import os
         ? 最好 Cookie , Exclude , Script 這三個資料夾都要有
 
         * 測試功能 :
-        ? total_pages 的計算公式
+        ? total_pages 的計算公式 (當超過 1K 張圖以上 , 就有機率少圖)
         ? 此代碼首次嘗使用繼承類攥寫 , 測試維護性
         
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -360,17 +360,17 @@ class EHentaidownloader(Validation):
         
         # 漫畫頁數 (每 40 為一頁)
         Pages = int(tree.xpath("//td[@class='gdt2']/text()")[-2].split(" ")[0])
-
+        
+        # 計算公式 後續測試修正
         home_pages = Pages / 20
         tolerance = Pages / 100
         remainder_pages = Pages % 20
 
-        # 計算公式後續測試
         if remainder_pages > 0:
-            total_pages = int(home_pages + 1) + int(tolerance)
+            total_pages = int((home_pages + tolerance) * 2 + 1)
         else:
-            total_pages = int(home_pages) + int(tolerance)
-        
+            total_pages = int((home_pages + tolerance) * 2) 
+
         # 當有設置排除標籤時 , 重複時會進行排除
         if self.TagFilterBox != None:
             # 取得漫畫標籤
@@ -380,7 +380,7 @@ class EHentaidownloader(Validation):
                 if result:
                     print(f"[漫畫 {count} 標籤排除]" , flush=True)
                     return
-        
+                
         # 保存路徑
         self.save_location = os.path.join(self.path, self.title)
 
@@ -394,7 +394,7 @@ class EHentaidownloader(Validation):
                     work.append(asyncio.create_task(self.async_get_data(f"{url}?p={page}", session)))
                     
                     count+=1
-                    if count == 7:
+                    if count == 8:
                         print(f"\r以處理 [{page}] 頁", end="", flush=True)
                         await asyncio.sleep(1)
                         count = 0
@@ -411,7 +411,7 @@ class EHentaidownloader(Validation):
                     work1.append(asyncio.create_task(self.async_get_data(link, session)))
 
                     count+=1
-                    if count == 100:
+                    if count == 150:
                         Processed_pages -= count
                         print(f"\r剩餘處理 [{Processed_pages}] 張", end="", flush=True)
                         await asyncio.sleep(1)
@@ -466,6 +466,7 @@ if __name__ == "__main__":
         GetCookie=True,
         DownloadPath="R:/",
         CookieSource = Read("cookie"),
+        DownloadDelay = 0.1
     )
 
     capture = AutoCapture.GetList()
