@@ -49,15 +49,17 @@ def request(url):
     req = requests.get(url,headers=headers,cookies=cookie)
     print(req.text)
 
-def calculate(page):
-    page_a = page / 20
-    page_b = page % 20
-    page_c = page / 100
-
-    if page_b > 0:
-        print(int(page_a + 1) + int(page_c))
+def calculate(Pages):
+    home_pages = Pages / 20
+    tolerance = Pages / 100
+    remainder_pages = Pages % 20
+     
+    if remainder_pages > 0:
+        total_pages = int((home_pages + tolerance) * 2 + 1)
     else:
-        print(int(page_a) + int(page_c))
-
+        total_pages = int((home_pages + tolerance) * 2) 
+        
+    print(total_pages)
+        
 if __name__ == '__main__':
-   pass
+    calculate(1623)
