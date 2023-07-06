@@ -8,7 +8,7 @@ import time
 import re
 import os
 
-""" Versions 1.0.4 (測試版)
+""" Versions 1.0.5 (測試版)
 
     Todo - Zero 漫畫下載器
 
@@ -86,7 +86,7 @@ class ZeroDownloader:
         Todo ----------------------------
         """
         self.UrlFormat = fr"{DomainName()}plugin\.php\?id=(.*)"
-        self.Filter = re.compile(r'[\d-]+')
+        self.Filter = r'[^\d.]'
         self.NameFormat = r"^(.*?)【"
 
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
@@ -149,7 +149,7 @@ class ZeroDownloader:
 
                 # 獲取漫畫話數 and 漫畫連結
                 for link in tree.xpath("//a[@class='uk-button uk-button-default']"):
-                    self.Comics_number.append("".join(re.findall(self.Filter,link.xpath("./text()")[0])))
+                    self.Comics_number.append(re.sub(self.Filter, "", link.xpath("./text()")[0]))
                     self.Comics_link.append(f"{DomainName()}/{link.get('href').split('./')[1]}")
 
                 # 請求第一話的第一頁
@@ -174,9 +174,9 @@ class ZeroDownloader:
         count = 0
 
         if special:
-            print(f"第 {number} 特別話下載中請稍後...")
+            print(f"第 {number} 特別話下載中請稍後...", flush=True)
         else:
-            print(f"第 {number} 話下載中請稍後...")
+            print(f"第 {number} 話下載中請稍後...", flush=True)
 
         with ThreadPoolExecutor(max_workers=500) as executor:
             # 為了可下載需Vip權限的 , 因此使用模糊請求
@@ -202,7 +202,7 @@ class ZeroDownloader:
                 # 保存位置格式
                 Save = os.path.join(folder_name,f"{page}.{self.FileExtension}")
                 
-                # 呼叫下載 , 並接收回傳
+                # 呼叫下載 , 並接收回傳 (雖然使用 result() 會降低效率 , 但因為不知道總頁數 , 不使用這樣就不好判斷結束)
                 Data_status = executor.submit(self.download,folder_name,Save,ComicLink).result()
 
                 if Data_status != 200:
@@ -218,7 +218,7 @@ class ZeroDownloader:
 
                 count += 1
 
-            print(f"第 {number} 話下載完成 [共 {count} 頁]")
+            print(f"第 {number} 話下載完成 [共 {count} 頁]", flush=True)
 
     # 自動下載方法
     def Automatic(self, url:str, trial=False):
@@ -258,9 +258,9 @@ class ZeroDownloader:
                     self.cache = number
 
                     if special:
-                        print(f"準備下載 - 第{number}特別話")
+                        print(f"準備下載 - 第{number}特別話", flush=True)
                     else:
-                        print(f"準備下載 - 第{number}話")
+                        print(f"準備下載 - 第{number}話", flush=True)
                     
                     executor.submit(self.accelerate, special, folder_name, number)
                     time.sleep(self.ProcessDelay)
@@ -323,9 +323,9 @@ class ZeroDownloader:
                     self.cache = number
 
                     if special:
-                        print(f"準備下載 - 第{number}特別話")
+                        print(f"準備下載 - 第{number}特別話", flush=True)
                     else:
-                        print(f"準備下載 - 第{number}話")
+                        print(f"準備下載 - 第{number}話", flush=True)
 
                     executor.submit(self.accelerate, special, folder_name, number)
                     time.sleep(self.ProcessDelay)
@@ -358,6 +358,7 @@ class ZeroDownloader:
                 Data_status = requests.get(test_link,headers=self.headers)
 
                 if Data_status.status_code == 200:
+                    # 成功的改變預設的 , 尾數/擴展名
                     self.Mantissa = mantissa_combination[i]
                     self.FileExtension = file_extension_combination[j]
                     return test_link
@@ -403,7 +404,7 @@ if __name__ == "__main__":
     AutoCapture.settings(DomainName())
     capture = AutoCapture.GetLink()
 
-    zero.Automatic(capture,True)
+    zero.Automatic(capture , True)
 
 #################################################################################
 
@@ -423,4 +424,4 @@ if __name__ == "__main__":
     # 可使用自訂範圍 , 或是直接填入CB , 設置完成 , 直接再 Custom 尾數傳入 CB
     # custom_range(1,2)
 
-    # zero.Custom("#",chapter=1,trial=True)
+    # zero.Custom("#" , chapter=1 , trial=True)
