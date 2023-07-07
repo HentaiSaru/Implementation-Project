@@ -118,12 +118,12 @@ class AutomaticCheckin:
         
         # 關閉彈出窗口,如果有的話
         try:
-            Genshinbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content-test_---red-point---2jUBf9']")))
+            Genshinbutton = WebDriverWait(Genshin,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
             Genshinbutton.click()
         except:pass
         
         try: # 某確認框
-            Genshinbutton = WebDriverWait(Genshin,2).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='mihoyo-cookie-tips__button mihoyo-cookie-tips__button--hk4e']")))
+            Genshinbutton = WebDriverWait(Genshin,5).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='mihoyo-cookie-tips__button mihoyo-cookie-tips__button--hk4e']")))
             Genshinbutton.click()
         except:pass
         
