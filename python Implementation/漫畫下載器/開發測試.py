@@ -47,6 +47,7 @@ def request(url):
     headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"}
     cookie = {}
     req = requests.get(url,headers=headers,cookies=cookie)
+    print(req.status_code)
     print(req.text)
 
 def calculate(Pages):
