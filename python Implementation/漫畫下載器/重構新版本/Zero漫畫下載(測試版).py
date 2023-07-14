@@ -8,7 +8,7 @@ import time
 import re
 import os
 
-""" Versions 1.0.5 (測試版)
+""" Versions 1.0.6 (測試版)
 
     Todo - Zero 漫畫下載器
 
@@ -24,8 +24,7 @@ import os
         ?   [+] 下載完成數據顯示
 
         * - 測試功能 :
-        ?   [*] 多進程下載處理
-        ?   [*] 多線程加速下載
+        ?   [*] 漫畫數據處理 [處理第一話就是VIP的漫畫]
 
         * - 刪除功能 :
         ?   [-] 下載中進度顯示
@@ -39,20 +38,19 @@ import os
         ! 可免費下載Vip觀看漫畫的版本 , 因此在漫畫網址處理的部份 , 都是模糊處理的
         ! 也就是不是去精準獲取所有的連結 , 故此有時候會出現下載失敗 , 但是網頁是有辦法看到的狀況
         ! 這就是網址請求錯誤而已 , 使用自訂下載 , 來處理這部份問題
-        ! 但如果Vip章節 , 他的請求網址 , 與第一話不同 , 和第一話就需要Vip權限 , 這兩種的是直接下載不了
 
         * 下載速度
 
         ! 測試版的下載速度較快
         ! 但該網域本身速度就很慢
-        ! 下載速度的影響(硬碟讀寫速度/網路速度/網站響應速度)
+        ! 下載速度的影響(硬碟讀寫速度/網路速度/網站響應速度/返回驗證處理)
 
         * 下載進度
 
         ! 測試版沒有下載進度顯示
         ! 下載完成會顯示完成
         ! 程式停住就是在下載中不是卡住
-        ! 全部結束程式會自動終止
+        ! 全部下載完成程式會自動終止
 
 """
 
@@ -151,19 +149,22 @@ class ZeroDownloader:
                 for link in tree.xpath("//a[@class='uk-button uk-button-default']"):
                     self.Comics_number.append(re.sub(self.Filter, "", link.xpath("./text()")[0]))
                     self.Comics_link.append(f"{DomainName()}/{link.get('href').split('./')[1]}")
-
-                # 請求第一話的第一頁
-                tree = self.data_request(self.Comics_link[0])
-
-                try:
-                    # 獲取初始格式
-                    self.Comic_link_format = tree.xpath("//img[@id='img_0']")[0].get("src")
-                    self.request_status = True
-                    print("[請求成功] 耗時/%.3f秒" %((time.time() - StartTime)))
-                except:
-                    print("第一話需要VIP的無法處理")
-            except:
-                print("域名錯誤 , 或是伺服器問題!")
+                    
+                self.Comic_link_format = tree.xpath("//div[@class='uk-width-medium']/img")[0].get('src')
+                self.request_status = True # 判斷是否完全請求到數據
+                
+                print("[請求成功] 耗時/%.3f秒" %((time.time() - StartTime)))
+                
+                # try: 舊處理方法 (測試成功後刪除)
+                    # tree = self.data_request(self.Comics_link[0])
+                    # self.Comic_link_format = tree.xpath("//img[@id='img_0']")[0].get("src")
+                    # self.request_status = True
+                    # print("[請求成功] 耗時/%.3f秒" %((time.time() - StartTime)))
+                # except:
+                    # print("第一話需要VIP的無法處理")
+                    
+            except Exception as e:
+                print(f"域名錯誤 , 或是伺服器問題! {e}")
 
         else:print("不符合的網址格式")
 
