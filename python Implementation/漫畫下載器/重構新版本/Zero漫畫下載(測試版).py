@@ -14,7 +14,7 @@ import os
 
         * - 當前功能 :
         ?   [+] 下載位置選擇
-        ?   [+] 自動擷取連結 (需要 AutomaticCapture.py)
+        ?   [+] 自動擷取連結
         ?   [+] 完全自動下載
         ?   [+] 自訂參數下載
         ?   [+] 下載自動試錯
@@ -346,7 +346,7 @@ class ZeroDownloader:
         # 尾數格式 , 並用set排除重複
         mantissa_combination = list(set([f"{page:01d}",f"{page:02d}",f"{page:03d}",f"{page:04d}"]))
         # 擴展格式
-        file_extension_combination = ["jpg","png"]
+        file_extension_combination = ["jpg","jpeg","png"]
 
         for i in range(len(mantissa_combination)):
             for j in range(len(file_extension_combination)):
@@ -400,10 +400,10 @@ if __name__ == "__main__":
         * url - 填寫連結字串
         * 自動試錯 - 預設是 False (啟用後當有很多格式錯誤的,會跑比較久)
     """
-    # 自動擷取URL(可選擇是否使用)
+    # 自動擷取URL
     AutoCapture.settings(DomainName())
+    
     capture = AutoCapture.GetLink()
-
     zero.Automatic(capture , True)
 
 #################################################################################
