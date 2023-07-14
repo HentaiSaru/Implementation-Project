@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/06/23 23:58 -
+:: - LastEditTime 2023/07/14 15:02 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -950,10 +950,8 @@ reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Vi
 reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /t REG_BINARY /d "90 12 03 80" /f
 
 :: 記憶體相關設置
-powershell -command "Enable-MMAgent -ApplicationLaunchPrefetching"
-powershell -command "Enable-MMAgent -OperationAPI"
+powershell -command "Enable-MMAgent -ApplicationPreLaunch"
 powershell -command "Set-MMAgent -MaxOperationAPIFiles 2048"
-powershell -command "Enable-MMAgent -PageCombining"
 
 ECHO.
 ECHO 電腦重啟後生效
