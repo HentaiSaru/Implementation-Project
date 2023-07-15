@@ -135,6 +135,6 @@ class ReadJson:
 
 if __name__ == "__main__":
     rj = ReadJson()
-    # rj.open_url("測試本本.json",20,OutPut=True)
+    rj.open_url("測試本本.json",20,OutPut=True)
     # rj.cookie_parsing("Cookies.json",OutPut=True)
     # rj.cookie_parsing_2("Cookies.json",OutPut=True)
