@@ -32,6 +32,9 @@ import os
         ?   [*] 下載速度
         ?   [*] 請求穩定性
         ?   [*] 數據處理例外
+        
+        * - 當前失效 :
+        ?   [-] 自動獲取 Cookies 的自動化 , 目前無法繞過機器人檢測獲取到數據 , TryGetCookie 維持預設就好
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - 相關說明
@@ -283,7 +286,8 @@ class NHentaidownloader:
                         print("\n獲取成功!\n")
                         self.Cookies = Read("cookie")
                     else:
-                        print("\n獲取失敗!\n")
+                        print("\n獲取失敗!\n請求失敗連結")
+                        print(category_box)
                         return
                 else:
                     print("請更換 Cookie , 或檢查使用的請求瀏覽器")
@@ -510,7 +514,7 @@ if __name__ == "__main__":
         DownloadPath="R:/",
         TitleFormat=True,
         SearchQuantity=10,
-        TryGetCookie=True,
+        #TryGetCookie=True,
         CookieSource=Read("cookie"),
         FilterTags=Read("filter"),
     )
