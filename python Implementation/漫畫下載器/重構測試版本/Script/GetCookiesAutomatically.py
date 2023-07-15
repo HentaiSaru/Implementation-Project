@@ -87,7 +87,7 @@ class AutomationRequest:
     >>> 說明
 
     *   回傳 True / False 為請求成功狀態
-    *   預設有 15 秒的超時時間 , 超過這時間沒有請求到 , 將會回傳 False
+    *   預設有 30 秒的超時時間 , 超過這時間沒有請求到 , 將會回傳 False
         """
         print("嘗試獲取 Cookie ==>")
         self.hidden = True
@@ -112,8 +112,8 @@ class AutomationRequest:
                     self.timeout += 1
                     time.sleep(1)
 
-                    # 超時 15 秒退出
-                    if self.timeout >= 15: 
+                    # 超時 30 秒退出
+                    if self.timeout > 30: 
                         raise Exception()
                     
                 self.__Loading_Display(self.timeout)
