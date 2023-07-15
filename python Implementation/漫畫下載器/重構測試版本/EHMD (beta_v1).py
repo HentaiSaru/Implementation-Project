@@ -369,7 +369,7 @@ class EHentaidownloader(Validation):
         if remainder_pages > 0:
             total_pages = int((home_pages + tolerance) * 2 + 1)
         else:
-            total_pages = int((home_pages + tolerance) * 2) 
+            total_pages = int((home_pages + tolerance) * 2)
 
         # 當有設置排除標籤時 , 重複時會進行排除
         if self.TagFilterBox != None:
