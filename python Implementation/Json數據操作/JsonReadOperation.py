@@ -120,13 +120,13 @@ class ReadJson:
 
     def __output(self, data):
         if len(data) > 0:
-            with open(self.Json_name , "w") as file:
+            with open(self.Json_name , "w" , encoding="utf-8") as file:
                 file.write(json.dumps(data, indent=4, separators=(',',':')))
             print("輸出完成...")
 
     def __output_delete(self, data):
         if len(data) > 0:
-            with open(self.Json_name , "w") as file:
+            with open(self.Json_name , "w" , encoding="utf-8") as file:
                 file.write(json.dumps(data, indent=4, separators=(',',':')))
             print("輸出完成...")
         else:
