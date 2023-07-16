@@ -207,19 +207,15 @@ class UrlGenerator:
 
     def Forced_stop(self):
         print("在中途按下 ALT + S 可以強制停止程式 , 並輸出結果")
-        while True:
-            if keyboard.is_pressed("alt+s"):
-                self.build_status = False
-                while keyboard.is_pressed("alt+s"):
-                    pass
-            time.sleep(0.005)
+        keyboard.wait("alt+s")
+        self.build_status = False
 
 if __name__ == "__main__":
     url = UrlGenerator()
 
     url.generate_settin(
         domain = "https://reurl.cc/",
-        generatednumber = 10,
+        generatednumber = 500,
         charnumber = 6,
         charformat = 4,
         tail= "+",
