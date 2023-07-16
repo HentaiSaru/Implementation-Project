@@ -47,13 +47,17 @@ class AutomaticCapture:
             time.sleep(self.intercept_delay)
 
     def __Download_command(self):
-        while self.detection:
-            if keyboard.is_pressed("alt+s"):
-                self.download_trigger = True
-                self.detection = False
-                while keyboard.is_pressed("alt+s"):
-                    pass
-            time.sleep(0.05)
+        keyboard.wait("alt+s")
+        self.download_trigger = True
+        self.detection = False
+        
+        # 舊方法可以限制擷取速度
+        # while self.detection:
+            # if keyboard.is_pressed("alt+s"):
+                # 舊方法
+                # while keyboard.is_pressed("alt+s"):
+                    # pass
+            # time.sleep(0.05)
 
     def settings(self, domainName:str, delay=0.05):
         try:
