@@ -18,7 +18,7 @@ class ReadJson:
 
     def __read_json(self):
         try:
-            with open(self.Json_name , "r") as file:
+            with open(self.Json_name , "r" , encoding="utf-8") as file:
                 self.Json_data = json.loads(file.read())
             return True
         except:
