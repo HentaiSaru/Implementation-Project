@@ -118,12 +118,12 @@ class AutomaticCheckin:
         
         # 關閉彈出窗口,如果有的話
         try:
-            Genshinbutton = WebDriverWait(Genshin,5).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
+            Genshinbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
             Genshinbutton.click()
         except:pass
         
         try: # 某確認框
-            Genshinbutton = WebDriverWait(Genshin,5).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='mihoyo-cookie-tips__button mihoyo-cookie-tips__button--hk4e']")))
+            Genshinbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='mihoyo-cookie-tips__button mihoyo-cookie-tips__button--hk4e']")))
             Genshinbutton.click()
         except:pass
         
@@ -305,9 +305,9 @@ if __name__ == "__main__":
     threading.Thread(target=AC.Black_Checkin).start()
     time.sleep(paramet.WaitingTime() + 5)
     threading.Thread(target=AC.Wuyong_Checkin).start()
-    time.sleep(1)
+    time.sleep(5)
     threading.Thread(target=AC.Zero_Checkin).start()
-    time.sleep(1)
+    time.sleep(5)
     threading.Thread(target=AC.Genshin_Checkin).start()
-    time.sleep(1)
+    time.sleep(5)
     threading.Thread(target=AC.StarRail_Checkin).start()
