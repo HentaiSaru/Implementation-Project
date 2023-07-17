@@ -117,6 +117,35 @@ class ReadJson:
 
             if OutPut:
                 self.__output(self.Json_special)
+                
+    def json_to_txt(self, JsonName: str, Location: int=0):
+        """
+        將 Json 檔 Key 或 Value 的值 , 變成 txt 文字輸出
+        * JsonName 設置要開啟的 Json 檔全名 例 : Test.json
+        * Location 設置轉換的值 [0 使用 Key , 1 使用 Value , 2 使用全部]
+        """
+        try:
+            if Location < 0 or Location > 2:
+                raise ValueError()
+            
+            self.Json_name = JsonName
+            state = self.__read_json()
+            
+            if state:
+                with open(self.Json_name.replace(".json",".txt"), "w", encoding="utf-8") as file:
+                    for index , (key , value) in enumerate(self.Json_data.items()):
+                        if Location == 0:
+                            file.write(key)
+                        elif Location == 1:
+                            file.write(value)
+                        elif Location == 2: 
+                            file.write(f"[{key}] : [{value}]")
+                        if index != len(self.Json_data) - 1: # 最後一行以前都換行
+                            file.write("\n")
+                print("輸出完成...")
+            
+        except ValueError:
+            print("Location 只有 0 和 1")
 
     def __output(self, data):
         if len(data) > 0:
@@ -135,6 +164,7 @@ class ReadJson:
 
 if __name__ == "__main__":
     rj = ReadJson()
-    rj.open_url("範圍201-300.json",20,OutPut=True)
+    # rj.open_url("範圍201-300.json",20,OutPut=True)
     # rj.cookie_parsing("Cookies.json",OutPut=True)
     # rj.cookie_parsing_2("Cookies.json",OutPut=True)
+    rj.json_to_txt("範圍201-300.json")
