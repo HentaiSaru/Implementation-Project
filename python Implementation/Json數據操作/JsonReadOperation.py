@@ -118,11 +118,12 @@ class ReadJson:
             if OutPut:
                 self.__output(self.Json_special)
                 
-    def json_to_txt(self, JsonName: str, Location: int=0):
+    def json_to_txt(self, JsonName: str, Location: int=0, Delete: bool=False):
         """
         將 Json 檔 Key 或 Value 的值 , 變成 txt 文字輸出
         * JsonName 設置要開啟的 Json 檔全名 例 : Test.json
         * Location 設置轉換的值 [0 使用 Key , 1 使用 Value , 2 使用全部]
+        * Delete 是否將原始的 Json 檔案刪除
         """
         try:
             if Location < 0 or Location > 2:
@@ -142,6 +143,9 @@ class ReadJson:
                             file.write(f"[{key}] : [{value}]")
                         if index != len(self.Json_data) - 1: # 最後一行以前都換行
                             file.write("\n")
+                if Delete:
+                    os.system(f"del /f /s /q {self.Json_name} >nul 2>&1")
+                    print(f"已刪除 {self.Json_name}")
                 print("輸出完成...")
             
         except ValueError:
@@ -164,7 +168,14 @@ class ReadJson:
 
 if __name__ == "__main__":
     rj = ReadJson()
+    # 開啟網頁連結
     # rj.open_url("範圍201-300.json",20,OutPut=True)
+    
+    # 解析 cookie (只保留數值)
     # rj.cookie_parsing("Cookies.json",OutPut=True)
+    
+    # 解析 cookie (保留 name 和 value 的 key 值)
     # rj.cookie_parsing_2("Cookies.json",OutPut=True)
-    rj.json_to_txt("範圍201-300.json")
+    
+    # 將 Json 文件內容轉成 txt
+    rj.json_to_txt("可用網址.json" , Delete=True)
