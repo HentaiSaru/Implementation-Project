@@ -1,5 +1,6 @@
 from unicodedata import normalize
 from concurrent.futures import *
+from multiprocessing import *
 from urllib.parse import *
 from lxml import etree
 import threading
@@ -58,6 +59,8 @@ class UrlGenerator:
         # 保存類變數
         self.SuccessCount = 0
         self.SaveBox = {}
+        # 宣告
+        self.save = threading.Thread(target=self.save_json)
 
     def get_data(self,url):
         request = self.session.get(url, headers=self.headers)
@@ -136,9 +139,7 @@ class UrlGenerator:
             stop.daemon = True
             stop.start()
 
-            save = threading.Thread(target=self.save_json)
-
-            with ThreadPoolExecutor(max_workers=350) as executor:
+            with ThreadPoolExecutor(max_workers=(cpu_count() * 30)) as executor:
                 while len(self.SaveBox) < self.GeneratedNumber and self.build_status:
                     gen_char = ""
 
@@ -152,20 +153,19 @@ class UrlGenerator:
                         gen_char += chr(random.randint(mat[0],mat[1]))
 
                     link = f"{self.DomainName}{gen_char}{self.Tail}"
-                    if self.DeBug:
-                        print(link)
                     
                     executor.submit(self.Data_Processing, link)
-                    time.sleep(0.008)
-
-            save.start()
-            save.join()
-            print("生成完畢...")
-
+                    time.sleep(0.001)
+            
+            self.save.start()
+            self.save.join()
         except:
             print("請先使用 generate_settin() 進行設置後 , 再進行生成")
 
     def Data_Processing(self,link):
+        if self.DeBug:
+            print(link , flush=True)
+            
         try:
             # 第一重驗證 (開發支援)
             if self.support == 0:
@@ -206,27 +206,34 @@ class UrlGenerator:
             pass
 
     def Forced_stop(self):
-        print("在中途按下 ALT + S 可以強制停止程式 , 並輸出結果")
-        keyboard.wait("alt+s")
+        print("在中途按下 Ctrl + E 可以強制停止程式 , 並輸出結果 =>")
+        keyboard.wait("ctrl+e")
+        
         self.build_status = False
+        self.save.start()
+        self.save.join()
+        
+        print("生成完畢...")
+        # 改成強制中止
+        os._exit(1)
 
 if __name__ == "__main__":
     url = UrlGenerator()
 
-    url.generate_settin(
-        domain = "https://reurl.cc/",
-        generatednumber = 500,
-        charnumber = 6,
-        charformat = 4,
-        tail= "+",
-        secondverification=True,
-        filterdomains=[
-            "google.com","bing.com","youtube.com","facebook.com","microsoft.com",
-            "line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org",
-            "udn.com","wikipedia.org","msn.com","shop2000.com","mirrormedia.mg",
-            "opdws.fjuh.fju.edu.tw"
-        ],
-    )
+    # url.generate_settin(
+        # domain = "https://reurl.cc/",
+        # generatednumber = 10,
+        # charnumber = 6,
+        # charformat = 4,
+        # tail= "+",
+        # secondverification=True,
+        # filterdomains=[
+            # "google.com","bing.com","youtube.com","facebook.com","microsoft.com",
+            # "line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org",
+            # "udn.com","wikipedia.org","msn.com","shop2000.com","mirrormedia.mg",
+            # "opdws.fjuh.fju.edu.tw"
+        # ],
+    # )
 
     # url.generate_settin(
     #     domain = "https://ppt.cc/",
@@ -240,14 +247,14 @@ if __name__ == "__main__":
     #     ],
     # )
 
-    # url.generate_settin(
-        # domain = "https://files.catbox.moe/",
-        # generatednumber = 10,
-        # charnumber = 6,
-        # charformat = 4,
-        # tail= ".mp4",
-        # secondverification=True,
-    # )
+    url.generate_settin(
+        domain = "https://files.catbox.moe/",
+        generatednumber = 300,
+        charnumber = 6,
+        charformat = 4,
+        tail= ".mp4",
+        secondverification=True,
+    )
 
     url.generator()
     
