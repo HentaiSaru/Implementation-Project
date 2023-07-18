@@ -45,22 +45,21 @@ def settings():
 
 def request(url):
     headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"}
-    cookie = {}
+    cookie = {
+    }
     req = requests.get(url,headers=headers,cookies=cookie)
-    print(req.status_code)
-    print(req.text)
+    return etree.fromstring(req.content , etree.HTMLParser())
 
 def calculate(Pages):
     home_pages = Pages / 20
-    tolerance = Pages / 100
     remainder_pages = Pages % 20
      
     if remainder_pages > 0:
-        total_pages = int((home_pages + tolerance) * 2 + 1)
+        total_pages = int(home_pages + 1)
     else:
-        total_pages = int((home_pages + tolerance) * 2) 
+        total_pages = int(home_pages) 
         
-    print(total_pages)
+    return total_pages
         
 if __name__ == '__main__':
-    calculate(1623)
+    pass
