@@ -13,7 +13,7 @@ import json
 import re
 import os
 
-""" Versions 1.0.1 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""" Versions 1.0.2 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - EHentai/ExHentai 漫畫下載
 
@@ -31,7 +31,7 @@ import os
         ? 最好 Cookie , Exclude , Script 這三個資料夾都要有
 
         * 測試功能 :
-        ? total_pages 的計算公式 (當超過 1K 張圖以上 , 就有機率少圖)
+        ? 異步處理的 臨界值 與 正確性 衡量
         ? 此代碼首次嘗使用繼承類攥寫 , 測試維護性
         
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -363,14 +363,13 @@ class EHentaidownloader(Validation):
         
         # 計算公式 後續測試修正
         home_pages = Pages / 20
-        tolerance = Pages / 100
         remainder_pages = Pages % 20
 
         if remainder_pages > 0:
-            total_pages = int((home_pages + tolerance) * 2 + 1)
+            total_pages = int(home_pages + 1)
         else:
-            total_pages = int((home_pages + tolerance) * 2)
-
+            total_pages = int(home_pages)
+            
         # 當有設置排除標籤時 , 重複時會進行排除
         if self.TagFilterBox != None:
             # 取得漫畫標籤
@@ -384,27 +383,27 @@ class EHentaidownloader(Validation):
         # 保存路徑
         self.save_location = os.path.join(self.path, self.title)
 
+        #! 核心數據處理邏輯
         async def Trigger():
             count = 0
             async with aiohttp.ClientSession() as session:
                 # 處理主頁數據
                 work = []
                 work1 = []
-                for page in range(1,total_pages+1):
+                for page in range(1, total_pages):
                     work.append(asyncio.create_task(self.async_get_data(f"{url}?p={page}", session)))
                     
                     count+=1
-                    if count == 8:
+                    if count == 7:
                         print(f"\r以處理 [{page}] 頁", end="", flush=True)
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(1) # 主要是保護網站 (就算不設置延遲也是能正常運作 , 頂多有時候少個幾張)
                         count = 0
 
                 results = await asyncio.gather(*work)
 
-                # 保存至主頁
                 for tree in results:
                     home_page(tree)
-
+                    
                 Processed_pages = len(home_page_data)
                 # 請求內部圖片連結
                 for link in home_page_data:
@@ -419,21 +418,24 @@ class EHentaidownloader(Validation):
 
                 results = await asyncio.gather(*work1)
 
-                # 保存至請求連結
                 for tree in results:
                     picture_link(tree)
 
         asyncio.run(Trigger())
             
-        # 排除重複 , 並加上名稱 , 存入下載字典
-        link_exclude = list(OrderedDict.fromkeys(link_box))
+        # 排除重複/並維持順序 (量大時 , 速度很慢)
+        # link_exclude = list(OrderedDict.fromkeys(link_box))
+        
+        # 只維持順序
+        link_exclude = sorted(link_box)
+        
         for page , link in enumerate(link_exclude):
             SaveName = f"{(page+1):04d}"
             self.picture_link_data[SaveName] = link
 
         print("\r[漫畫 %d 處理完成] => 處理耗時 %.3f 秒" % (count , (time.time() - StartTime)) , flush=True)
 
-        # 開始下載處理
+        #開始下載處理
         self.download_processing()
 
     def create_folder(self,Name):
