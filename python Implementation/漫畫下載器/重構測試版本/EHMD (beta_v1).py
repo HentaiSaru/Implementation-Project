@@ -329,7 +329,7 @@ class EHentaidownloader(Validation):
                 home_page_data.append(data.get("href"))
 
         # 保存圖片連結
-        link_box = []
+        link_box = OrderedDict()
         def picture_link(tree):
             for data in tree.xpath("//img[@id='img']"):
                 # 每本漫畫的取得元素不同
@@ -337,9 +337,9 @@ class EHentaidownloader(Validation):
                 sec = data.get("src")
 
                 if href != None:
-                    link_box.append(href)
+                    link_box[href] = None
                 elif sec != None:
-                    link_box.append(sec)
+                    link_box[sec] = None
 
         print(f"[漫畫 {count} 開始處理] => {url}" , flush=True)
         StartTime = time.time()
@@ -407,6 +407,7 @@ class EHentaidownloader(Validation):
                 Processed_pages = len(home_page_data)
                 # 請求內部圖片連結
                 for link in home_page_data:
+                    # 異步併發請求
                     work1.append(asyncio.create_task(self.async_get_data(link, session)))
 
                     count+=1
@@ -422,20 +423,14 @@ class EHentaidownloader(Validation):
                     picture_link(tree)
 
         asyncio.run(Trigger())
-            
-        # 排除重複/並維持順序 (量大時 , 速度很慢)
-        # link_exclude = list(OrderedDict.fromkeys(link_box))
         
-        # 只維持順序
-        link_exclude = sorted(link_box)
-        
-        for page , link in enumerate(link_exclude):
+        # 數據轉換回列表
+        link_list = list(link_box.keys())
+        for page , link in enumerate(link_list):
             SaveName = f"{(page+1):04d}"
             self.picture_link_data[SaveName] = link
 
         print("\r[漫畫 %d 處理完成] => 處理耗時 %.3f 秒" % (count , (time.time() - StartTime)) , flush=True)
-
-        #開始下載處理
         self.download_processing()
 
     def create_folder(self,Name):
@@ -465,7 +460,6 @@ if __name__ == "__main__":
     AutoCapture.settings("https://(exhentai|e-hentai)")
 
     eh.download_settings(
-        GetCookie=True,
         DownloadPath="R:/",
         CookieSource = Read("cookie"),
     )
