@@ -7,6 +7,7 @@ import threading
 import keyboard
 import requests
 import random
+import string
 import json
 import time
 import os
@@ -41,7 +42,8 @@ class UrlGenerator:
     def __init__(self):
         self.session = requests.Session()
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
-        self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
+        # 舊版隨機盒 self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
+        self.RandomBox = [[string.ascii_uppercase],[string.ascii_lowercase],[string.digits],[string.ascii_letters],[string.ascii_letters+string.digits]]
         self.SupportDomain = ["reurl.cc","ppt.cc","files.catbox.moe"]
         # 判斷類變數
         self.build_status = True
@@ -133,8 +135,7 @@ class UrlGenerator:
 
     def generator(self):
         try:
-            Format = self.RandomBox[self.CharFormat]
-
+            Format = self.RandomBox[self.CharFormat][0]
             stop = threading.Thread(target=self.Forced_stop)
             stop.daemon = True
             stop.start()
@@ -144,13 +145,7 @@ class UrlGenerator:
                     gen_char = ""
 
                     for _ in range(self.CharNumber):
-                        if self.CharFormat == 3:
-                            mat = Format[random.randint(0,1)]
-                        elif self.CharFormat == 4:
-                            mat = Format[random.randint(0,2)]
-                        else:
-                            mat = Format
-                        gen_char += chr(random.randint(mat[0],mat[1]))
+                        gen_char += random.choice(Format)
 
                     link = f"{self.DomainName}{gen_char}{self.Tail}"
                     
