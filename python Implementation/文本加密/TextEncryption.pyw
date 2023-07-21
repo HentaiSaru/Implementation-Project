@@ -6,11 +6,13 @@ import threading
 import binascii
 import hashlib
 import base64
+import random
+import string
 import zlib
 import os
 
 """
-Versions 1.1
+Versions 1.2
 
 [+] 顯示換色
 [+] 多重加密
@@ -26,7 +28,7 @@ Versions 1.1
 """
 
 root = tk.Tk()
-root.title("文本加密程式 v1.1")
+root.title("文本加密程式 v1.2")
 
 Icon = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'encrypted.ico')
 root.iconbitmap(Icon)
@@ -189,7 +191,6 @@ class FRAW:
 
 # 對輸入的Key進行轉換
 def MD5_Key(string):
-
     md5 = hashlib.md5()
     merge = ""
 
@@ -212,7 +213,6 @@ def MD5_Key(string):
 
 # IV的產生算法
 def MD5_IV(string):
-
     md5 = hashlib.md5()
     merge = ""
 
@@ -243,6 +243,8 @@ class EncryptionCalculus:
         self.BatchDictionary = {} # 批量字典
         self.ContentBox = [] # 獲取需加密數據保存盒
         self.Cipherbox = [] # 加密結果保存盒
+        # 加密用的混淆字串 (大小英文+數字+符號)
+        self.EncChars = string.ascii_letters + string.digits + string.punctuation
 
     def encryption(self):
         self.key = gui.passwoed # 取得輸入的key
@@ -263,16 +265,17 @@ class EncryptionCalculus:
 
             # 一行一行的獲取需加密數據
             for encryp in self.ContentBox:
-            
                 # 偏移初始為2
                 self.OffsetCount = 2
                 # 首先就對明文進行古典偏移 , 將明文的字元變成其他字
-                classical = self.Classical_Encryption(encryp).encode('utf-8')
+                #! 混淆後一起偏移
+                classical = self.Classical_Encryption(self.Confuse(encryp, 1)).encode('utf-8')
 
                 # 偏移量變化 , 初始偏移 + (key的長度 + 初始偏移)
                 self.OffsetCount += (len(self.key) + self.OffsetCount)
                 # 進行AES加密 , 將回傳結果進行偏移
-                Aes = self.Classical_Encryption(self.AES_Encryption(classical))
+                #! 偏移後再次混淆
+                Aes = self.Confuse(self.Classical_Encryption(self.AES_Encryption(classical)), 2)
 
                 # 偏移量變化 , (變化偏移量 + key的長度)
                 self.OffsetCount += len(self.key)
@@ -292,18 +295,15 @@ class EncryptionCalculus:
 
     # AES加密
     def AES_Encryption(self,code):
-
         # 使用被轉換過的 Key 和 Iv 進行加密
         cipher = AES.new(MD5_Key(self.key), AES.MODE_CBC, MD5_IV(self.key))
         plaintext = pad(code, AES.block_size)
         ciphertext = cipher.encrypt(plaintext)
-
         # 回傳16進制結果
         return ciphertext.hex()
 
     # 壓縮
     def Compression(self,code):
-
         com = zlib.compress(code.encode('utf-8'))
         # 將壓縮後的2進制表示結果 , 轉成字串類型 , 因為輸出保存不是寫出2進制 , 所以要轉成字串
         return base64.b64encode(com).decode('utf-8')
@@ -322,6 +322,17 @@ class EncryptionCalculus:
         for char in code:
             save += chr(ord(char) + (len(self.key) + self.OffsetCount))
         return save
+    
+    # 混淆字串添加
+    def Confuse(self, code, parity: int):
+        # parity (1是奇數 , 2是偶數)
+        obfuscation = ""
+        for data in code:
+            if parity == 1:
+                obfuscation += f"{random.choice(self.EncChars)}{data}"
+            elif parity == 2:
+                obfuscation += f"{data}{random.choice(self.EncChars)}"
+        return obfuscation
 
 # 解密演算法
 class DecryptionCalculus:
@@ -351,20 +362,23 @@ class DecryptionCalculus:
             # 基本上就是把加密算法 , 最終的密文 , 一步一步的推回去 , 獲取明文
             for decrypt in self.ContentBox:
             
-                byte_str = bytes.fromhex(self.Decompressed(decrypt).decode('utf-8'))
+                byte_str = bytes.fromhex(self.Decompressed(decrypt))
                 unicode_str = byte_str.decode('utf-8')
 
                 self.OffsetCount = 2
                 self.OffsetCount += (len(self.key) + self.OffsetCount)
                 self.OffsetCount += len(self.key)
                 InitialOffset = self.OffsetCount
+                # 還原AES密文
                 Aes_Recovery = self.Binary_Conversion(self.Classical_Decryption(unicode_str))
 
                 self.OffsetCount -= len(self.key)
-                string_restore = self.AES_Decryption(self.Classical_Decryption(Aes_Recovery)).decode('utf-8')
+                # 進行AES解密
+                string_restore = self.AES_Decryption(self.Classical_Decryption(self.Clarify(Aes_Recovery, 2))).decode('utf-8')
 
                 self.OffsetCount -= int(InitialOffset / 2)
-                final_restoration = self.Classical_Decryption(string_restore)
+                # 最終字串
+                final_restoration = self.Classical_Decryption(self.Clarify(string_restore, 1))
 
                 threading.Thread(target=gui.Content.insert,args=(tk.END, f"{final_restoration}\n")).start()
 
@@ -382,18 +396,15 @@ class DecryptionCalculus:
             messagebox.showerror("輸入錯誤","請輸入解密密碼",parent=None)
 
     def AES_Decryption(self,code):
-    
         cipher = AES.new(MD5_Key(self.key), AES.MODE_CBC, MD5_IV(self.key))
         ciphertext_bytes = bytes.fromhex(code)
         plaintext_bytes = cipher.decrypt(ciphertext_bytes)
         plaintext = unpad(plaintext_bytes, AES.block_size)
-
         return plaintext
 
     def Decompressed(self,code):
-
         com = base64.b64decode(code)
-        return zlib.decompress(com)
+        return zlib.decompress(com).decode('utf-8')
 
     def Binary_Conversion(self,code):
         binary_text = bin(int(code, 2) >> (len(self.key) + self.OffsetCount))[2:].zfill(len(code))
@@ -406,6 +417,12 @@ class DecryptionCalculus:
         for char in code:
             save += chr(ord(char) - (len(self.key) + self.OffsetCount))
         return save
+    
+    def Clarify(self, code, parity: int):
+        if parity == 1:
+            return code[1::2]
+        elif parity == 2:
+            return code[::2]
 
 # 此程式的GUI顯示
 class GUI:
@@ -572,7 +589,7 @@ class SaveOutput:
         choose = messagebox.askquestion("輸出成功", "以輸出完畢,是否要開啟輸出位置")
         if choose == "yes":
             folder_path = os.path.dirname(ChangeName)
-        os.startfile(folder_path)
+            os.startfile(folder_path)
 
     def Overwrite():
 
@@ -593,7 +610,7 @@ class SaveOutput:
         choose = messagebox.askquestion("輸出成功", "以輸出完畢,是否要開啟輸出位置")
         if choose == "yes":
             folder_path = os.path.dirname(ChangeName)
-        os.startfile(folder_path)
+            os.startfile(folder_path)
 
 if __name__ == "__main__":
     enc = EncryptionCalculus() # 加密算法
