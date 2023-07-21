@@ -43,7 +43,7 @@ class UrlGenerator:
         self.session = requests.Session()
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
         # 舊版隨機盒 self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
-        self.RandomBox = [[string.ascii_uppercase],[string.ascii_lowercase],[string.digits],[string.ascii_letters],[string.ascii_letters+string.digits]]
+        self.RandomBox = [string.ascii_uppercase, string.ascii_lowercase, string.digits, string.ascii_letters, string.ascii_letters+string.digits]
         self.SupportDomain = ["reurl.cc","ppt.cc","files.catbox.moe"]
         # 判斷類變數
         self.build_status = True
@@ -135,7 +135,7 @@ class UrlGenerator:
 
     def generator(self):
         try:
-            Format = self.RandomBox[self.CharFormat][0]
+            Format = self.RandomBox[self.CharFormat]
             stop = threading.Thread(target=self.Forced_stop)
             stop.daemon = True
             stop.start()
