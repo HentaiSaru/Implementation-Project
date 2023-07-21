@@ -1,0 +1,49 @@
+# UTF-8
+#
+# For more details about fixed file info 'ffi' see:
+# http://msdn.microsoft.com/en-us/library/ms646997.aspx
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    # 文件版本號 (必須有4個值)
+    filevers=(1, 0, 0 , 0),
+    prodvers=(1, 0, 0 , 0),
+    # Contains a bitmask that specifies the valid bits 'flags'r
+    mask=0x3f,
+    # Contains a bitmask that specifies the Boolean attributes of the file.
+    flags=0x0,
+    # The operating system for which this file was designed.
+    # 0x4 - NT and there is no need to change it.
+    OS=0x4,
+    # The general type of file.
+    # 0x1 - the file is an application.
+    fileType=0x1,
+    # The function of the file.
+    # 0x0 - the function is not defined for this fileType
+    subtype=0x0,
+    # Creation date and time stamp.
+    date=(0, 0)
+    ),
+  # 上面基本不用更改(改下面)
+  kids=[
+    StringFileInfo(
+      [
+      StringTable(
+        u'040904B0',
+	# 檔案說明
+        [StringStruct(u'FileDescription', u'文本加密程式'),
+        StringStruct(u'FileVersion', u'1, 0, 0, 0'),
+	# 內部名稱(不會顯示)
+        StringStruct(u'InternalName', u'隱藏'),
+	# 版權
+        StringStruct(u'LegalCopyright', u'Copyright (C) 2023 by昌鴻'),
+	# 原始檔案名
+        StringStruct(u'OriginalFilename', u'TextEncryption'),
+	# 產品名稱
+        StringStruct(u'ProductName', u'文本加密'),
+	# 產品版本號
+        StringStruct(u'ProductVersion', u'1.0.0')])
+      ]),
+    # 語言版本 (這是繁體中文的)
+    VarFileInfo([VarStruct(u'Translation', [1028, 1200])])
+  ]
+)
