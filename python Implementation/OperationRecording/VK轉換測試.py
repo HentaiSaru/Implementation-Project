@@ -1,6 +1,7 @@
 import pyautogui
 import win32api
 import win32con
+import threading
 import time
 import json
 
@@ -24,40 +25,46 @@ import mouse
 
 # https://github.com/boppreh/keyboard
 
-# 紀錄鍵盤 , 與回放操作
-recorded = keyboard.record(until='alt+f2')
-# print("紀錄")
-# time.sleep(5)
-# keyboard.play(recorded)
-for i in range(1,5+1):
-    print(f"\r回放 : {i}s" , end="" , flush=True)
-    time.sleep(1)
-keyboard.play(recorded)
-input("暫停")
+class test:
+    def __init__(self):
+        self.recorded = None
+        self.save = []
 
-mouse_events = []
-record_steps = 0
+    def mos(self):
+        # 紀錄鍵盤 , 與回放操作
+        self.recorded = keyboard.record(until='esc')
 
-mouse.hook(mouse_events.append)
+    def key(self):
+        """ 滑鼠錄製操作 """
+        mouse_events = []
+        record_steps = 0
 
+        mouse.hook(mouse_events.append)
+        mouse.unhook(mouse_events.append)
+
+        for event in mouse_events:
+
+            if str(event).startswith("MoveEvent"):
+                record_steps += 1
+                if record_steps == 15:
+                    self.save.append(event)
+                    record_steps = 0
+            else:
+                self.save.append(event)
+                
+    def ran(self):
+        time.sleep(2)
+        # 滑鼠播放
+        mouse.play(self.save)
+        # 鍵盤輸入
+        keyboard.play(self.recorded)
+        
+t = test()
+threading.Thread(target=t.mos).start()
+threading.Thread(target=t.key).start()
 keyboard.wait('esc')
+threading.Thread(target=t.ran).start()
 
-mouse.unhook(mouse_events.append)
-
-save = []
-
-for event in mouse_events:
-
-    if str(event).startswith("MoveEvent"):
-        record_steps += 1
-        if record_steps == 15:
-            save.append(event)
-            record_steps = 0
-    else:
-        save.append(event)
-
-#mouse.play(save)
-
-#keyboard.add_hotkey('alt+f2', print, args=('被觸發了',))
 # 紀錄鍵盤 , 與回放操作
+#keyboard.add_hotkey('alt+f2', print, args=('被觸發了',))
 #keyboard.wait('esc')
