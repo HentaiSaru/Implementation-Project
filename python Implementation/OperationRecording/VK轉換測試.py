@@ -17,6 +17,12 @@ def test(key):
     vk = win32api.VkKeyScan(key)
     return vk
 
+# 回放倒數計時
+def playback():
+    for i in range(3 , -1 , -1):
+        print(f"\r回放倒數 : {i} 秒" , end="" , flush=True)
+        time.sleep(1)
+    print(f"\r開始回放...{' '*20}")
 
 # pip install keyboard
 import keyboard
@@ -25,45 +31,53 @@ import mouse
 
 # https://github.com/boppreh/keyboard
 
-class test:
-    def __init__(self):
-        self.recorded = None
-        self.save = []
+""" 鍵盤錄製 / 回放 [數字鍵回放錯誤] """
+key_rec = keyboard.record("esc")
+playback() # 倒數
+keyboard.play(key_rec)
 
-    def mos(self):
+""" 錄製測試區域
+"""
+
+# class test:
+    # def __init__(self):
+        # self.recorded = None
+        # self.save = []
+# 
+    # def mos(self):
         # 紀錄鍵盤 , 與回放操作
-        self.recorded = keyboard.record(until='esc')
-
-    def key(self):
-        """ 滑鼠錄製操作 """
-        mouse_events = []
-        record_steps = 0
-
-        mouse.hook(mouse_events.append)
-        mouse.unhook(mouse_events.append)
-
-        for event in mouse_events:
-
-            if str(event).startswith("MoveEvent"):
-                record_steps += 1
-                if record_steps == 15:
-                    self.save.append(event)
-                    record_steps = 0
-            else:
-                self.save.append(event)
-                
-    def ran(self):
-        time.sleep(2)
+        # self.recorded = keyboard.record(until='esc')
+# 
+    # def key(self):
+        # """ 滑鼠錄製操作 """
+        # mouse_events = []
+        # record_steps = 0
+# 
+        # mouse.hook(mouse_events.append)
+        # mouse.unhook(mouse_events.append)
+# 
+        # for event in mouse_events:
+# 
+            # if str(event).startswith("MoveEvent"):
+                # record_steps += 1
+                # if record_steps == 15:
+                    # self.save.append(event)
+                    # record_steps = 0
+            # else:
+                # self.save.append(event)
+                # 
+    # def ran(self):
+        # time.sleep(2)
         # 滑鼠播放
-        mouse.play(self.save)
+        # mouse.play(self.save)
         # 鍵盤輸入
-        keyboard.play(self.recorded)
-        
-t = test()
-threading.Thread(target=t.mos).start()
-threading.Thread(target=t.key).start()
-keyboard.wait('esc')
-threading.Thread(target=t.ran).start()
+        # keyboard.play(self.recorded)
+        # 
+# t = test()
+# threading.Thread(target=t.mos).start()
+# threading.Thread(target=t.key).start()
+# keyboard.wait('esc')
+# threading.Thread(target=t.ran).start()
 
 # 紀錄鍵盤 , 與回放操作
 #keyboard.add_hotkey('alt+f2', print, args=('被觸發了',))
