@@ -1,6 +1,7 @@
 import pyperclip
 import threading
 import keyboard
+import queue
 import time
 import os
 import re
@@ -14,8 +15,9 @@ class AutomaticCapture:
 
         self.clipboard_cache = None
         self.download_list = set()
+        self.queue = queue.Queue()
 
-        self.download_trigger = False
+        self.generate_type = False
         self.detection = True
         self.count = 0
 
@@ -29,6 +31,11 @@ class AutomaticCapture:
 
         command.join()
         clipboard.join()
+        
+    def __generate_trigger(self):
+        print("自動監聽剪貼簿觸發下載(只能手動停止程式):")
+        self.generate_type = True
+        threading.Thread(target=self.__Read_clipboard).start()
 
     def __Read_clipboard(self):
         pyperclip.copy('')
@@ -36,28 +43,20 @@ class AutomaticCapture:
         while self.detection:
             clipboard = pyperclip.paste()
             
-            if self.download_trigger:
-                pass
-            elif clipboard != self.clipboard_cache and re.match(self.initial_url_format , clipboard):
+            if clipboard != self.clipboard_cache and re.match(self.initial_url_format , clipboard):
                 self.count += 1
                 print(f"擷取網址 [{self.count}] : {clipboard}")
                 self.download_list.add(clipboard)
                 self.clipboard_cache = clipboard
+                
+                if self.generate_type:
+                    self.queue.put(clipboard)
 
             time.sleep(self.intercept_delay)
 
     def __Download_command(self):
         keyboard.wait("alt+s")
-        self.download_trigger = True
         self.detection = False
-        
-        # 舊方法可以限制擷取速度
-        # while self.detection:
-            # if keyboard.is_pressed("alt+s"):
-                # 舊方法
-                # while keyboard.is_pressed("alt+s"):
-                    # pass
-            # time.sleep(0.05)
 
     def settings(self, domainName:str, delay=0.05):
         try:
@@ -108,5 +107,18 @@ class AutomaticCapture:
                 return None
         else:
             print("請先使用 settings(domainName) 設置域名")
+            
+    # 特別的擷取方法
+    def Unlimited(self):
+        """
+        這是一個無限擷取的函數 , 沒有快捷停止 , 只能手動中止程式
+        * 使用方法 :
+        * 使用一個迴圈接受此方法的回傳參數 , 並進行後續的處理
+        """
+        self.__generate_trigger()
+        while True:
+            if not self.queue.empty():
+                url = self.queue.get()
+                yield url
 
 AutoCapture = AutomaticCapture()
