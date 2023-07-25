@@ -12,7 +12,7 @@ import re
 class AutomaticCheckin:
     def __init__(self):   
         self.exist = False
-        self.offdelay = 3
+        self.offdelay = 5
     
     def login_Confirm(self, link: str, webname: str, timeout: int, element: str, newdriver: bool = True, trylogin: bool = True):
         """
@@ -42,7 +42,7 @@ class AutomaticCheckin:
                 else:
                     pass
             except:
-                input("自行登入完成後 => \n按下 (Enter) 確認 : ")
+                input(f"網站 : {webname} , 自行登入完成後 => \n按下 (Enter) 確認 : ")
                 DO.json_cookie(driver.get_cookies(), webname)
             
         # DO.pkl_cookie(driver.get_cookies(), webname)
