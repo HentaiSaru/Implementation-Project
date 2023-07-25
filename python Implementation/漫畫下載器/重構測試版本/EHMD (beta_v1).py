@@ -3,6 +3,7 @@ from Script.GetCookiesAutomatically import Get
 from collections import OrderedDict
 from concurrent.futures import *
 from multiprocessing import *
+import multiprocessing
 from lxml import etree
 from tqdm import tqdm
 import requests
@@ -13,7 +14,7 @@ import json
 import re
 import os
 
-""" Versions 1.0.2 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""" Versions 1.0.3 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - EHentai/ExHentai 漫畫下載
 
@@ -172,6 +173,9 @@ class Validation(DataRequest):
                     return False
             else:
                 return False
+            
+    def ReSet(self):
+        pass
 
     # 網址的分類
     def URL_Classification(self, link):
@@ -231,6 +235,7 @@ class EHentaidownloader(Validation):
         self.title = None
         self.save_location = None
         self.picture_link_data = {}
+        self.TV = 0
 
     def download_settings(
         self,
@@ -290,6 +295,22 @@ class EHentaidownloader(Validation):
         self.ProtectionDelay = DownloadDelay
         self.MaxProcess = MaxConcurrentDownload
         self.ProcessDelay = ProcessCreationDelay  
+
+    def TestChannel(self, link: str, browse: str="google"):
+        """
+        [link = 下載 Url , browse = 使用的瀏覽器]
+        * 測試通道 !!
+        * 不會驗證網址是否正確
+        * 不會驗證是否可請求成功
+        * 沒有限制創建進程數量 , 與創建速度
+        """
+        if self.TV == 0:
+            if browse.lower() == "google":
+                self.Headers = self.Google_Headers
+            elif browse.lower() == "edge":
+                self.Headers = self.Edge_Headers  
+        self.TV += 1
+        multiprocessing.Process(target=self.Comic_Page_process, args=(link, self.TV)).start()
 
     def google(self, link):
         self.Headers = self.Google_Headers
@@ -463,10 +484,16 @@ if __name__ == "__main__":
         DownloadPath="R:/",
         CookieSource = Read("cookie"),
     )
-
+    
+    """ 可由快捷停止的擷取方法 , 一次回傳一個列表 , 並停止擷取狀態
     capture = AutoCapture.GetList()
     if capture != None:
         eh.google(capture)
     else:
         print("無擷取內容")
         os._exit(0)
+    """
+    
+    # 無限擷取 , 擷取到一個網址立即下載[請使用測試通道] , 無法由快捷停止
+    for capture in AutoCapture.Unlimited():
+        eh.TestChannel(capture)
