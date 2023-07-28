@@ -1,3 +1,4 @@
+from playsound import playsound
 import pyperclip
 import threading
 import keyboard
@@ -8,6 +9,7 @@ import re
 
 class AutomaticCapture:
     def __init__(self):
+        self.sound = f"{os.path.dirname(os.path.abspath(__file__))}\\Effects\\notify.wav"
         self.UrlFormat = r'^(?:http|ftp)s?://'
 
         self.initial_url_format = None
@@ -18,8 +20,15 @@ class AutomaticCapture:
         self.queue = queue.Queue()
 
         self.generate_type = False
+        self.return_type = False
         self.detection = True
         self.count = 0
+        
+    def __verifica(self):
+        if self.initial_url_format != None:
+            return True
+        else:
+            print("請先使用 settings(domainName) 設置域名")
 
     def __trigger(self):
         print("複製網址後自動擷取(Alt+S 開始下載):")
@@ -31,6 +40,11 @@ class AutomaticCapture:
 
         command.join()
         clipboard.join()
+        
+    def __return_trigger(self):
+        print("複製網址後立即下載:")
+        self.return_type = True
+        threading.Thread(target=self.__Read_clipboard).start()
         
     def __generate_trigger(self):
         print("自動監聽剪貼簿觸發下載(只能手動停止程式):")
@@ -44,6 +58,7 @@ class AutomaticCapture:
             clipboard = pyperclip.paste()
             
             if clipboard != self.clipboard_cache and re.match(self.initial_url_format , clipboard):
+                playsound(self.sound) # 音效
                 self.count += 1
                 print(f"擷取網址 [{self.count}] : {clipboard}")
                 self.download_list.add(clipboard)
@@ -51,6 +66,9 @@ class AutomaticCapture:
                 
                 if self.generate_type:
                     self.queue.put(clipboard)
+                elif self.return_type:
+                    self.queue.put(clipboard)
+                    break
 
             time.sleep(self.intercept_delay)
 
@@ -70,7 +88,7 @@ class AutomaticCapture:
 
     # 以list回傳所有擷取的網址
     def GetList(self):
-        if self.initial_url_format != None:
+        if self.__verifica():
             self.__trigger()
 
             if len(self.download_list) > 0:
@@ -78,25 +96,19 @@ class AutomaticCapture:
                 return list(self.download_list)
             else:
                 return None
-        else:
-            print("請先使用 settings(domainName) 設置域名")
 
     # 只會回傳一條網址 , 擷取多條就只回傳第一條
     def GetLink(self):
-        if self.initial_url_format != None:
-            self.__trigger()
-
-            if len(self.download_list) > 0:
-                os.system("cls")
-                return list(self.download_list)[0]
-            else:
-                return None
-        else:
-            print("請先使用 settings(domainName) 設置域名")
+        if self.__verifica():
+            self.__return_trigger()
+            while True:
+                if not self.queue.empty():
+                    return self.queue.get()
+                time.sleep(0.1)
 
     # 以生成器的方式回傳
     def GetBuilder(self):
-        if self.initial_url_format != None:
+        if self.__verifica():
             self.__trigger()
 
             if len(self.download_list) > 0:
@@ -105,8 +117,6 @@ class AutomaticCapture:
                     yield link
             else:
                 return None
-        else:
-            print("請先使用 settings(domainName) 設置域名")
             
     # 特別的擷取方法
     def Unlimited(self):
@@ -115,10 +125,12 @@ class AutomaticCapture:
         * 使用方法 :
         * 使用一個迴圈接受此方法的回傳參數 , 並進行後續的處理
         """
-        self.__generate_trigger()
-        while True:
-            if not self.queue.empty():
-                url = self.queue.get()
-                yield url
+        if self.__verifica():
+            self.__generate_trigger()
+            while True:
+                if not self.queue.empty():
+                    url = self.queue.get()
+                    yield url
+                time.sleep(0.1)
 
 AutoCapture = AutomaticCapture()
