@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from multiprocessing import process , Pool
 import undetected_chromedriver as uc
 from lxml import etree
+import cloudscraper
 import pyperclip
 import threading
 import requests
@@ -44,10 +45,15 @@ def settings():
     return Settings
 
 def request(url):
-    headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"}
+    # 創建 CloudScraper 實例
+    scraper = cloudscraper.create_scraper()
+    headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
     cookie = {
+        "cf_clearance":"I6dW2x2oHQ1zryECsosRKKYdWbp3Suwb_WZCufEv3Dc-1690770450-0-160.0.0",
+        "csrftoken":"H4kPVeT8Eax1TQnGD5Kum16oaG2jG0u315RwUPZtl9BVA3u1p7A4dFb1ENfghDCK"
     }
-    req = requests.get(url,headers=headers,cookies=cookie)
+    # req = requests.get(url,headers=headers,cookies=cookie)
+    req = scraper.get(url, headers=headers, cookies=cookie)
     return etree.fromstring(req.content , etree.HTMLParser())
 
 def calculate(Pages):
@@ -62,4 +68,5 @@ def calculate(Pages):
     return total_pages
         
 if __name__ == '__main__':
-    pass
+    tree = request("")
+    print(tree.xpath("//div[@class='container index-container']/h2/text()")[0].strip())
