@@ -64,7 +64,7 @@ def DomainName():
 class ZeroDownloader:
     def __init__(self):
         self.session = requests.Session()
-        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36"}
+        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
             *  { 進程處理 }
