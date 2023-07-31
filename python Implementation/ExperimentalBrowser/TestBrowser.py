@@ -25,6 +25,7 @@ class Chrome(uc.Chrome):
 
 class TestBrowser:
     def __init__(self):
+        self.driver_path = f"{os.path.dirname(os.path.abspath(__file__))}\\drive\\chrome115.exe"
         self.Settings = uc.ChromeOptions()
         self.Version = "1.0.2"
         self.driver = None
@@ -53,7 +54,7 @@ class TestBrowser:
         return self.Settings
 
     def Enable_browsing(self,url:str ="https://www.google.com.tw/"):
-        self.driver = Chrome(options=self.Setting_Options())
+        self.driver = Chrome(options=self.Setting_Options(), version_main=115)
         self.driver.delete_all_cookies()
         self.driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
