@@ -52,7 +52,7 @@ def DomainName():
 
 #Todo [嘗試自動獲取Cookie , 並回傳結果]
 def cookie_get():
-    return Get.AGCookie(DomainName() , f"{os.path.dirname(os.path.abspath(__file__))}\\Cookie\\NHCookies")
+    return Get.MGCookie(DomainName() , f"{os.path.dirname(os.path.abspath(__file__))}\\Cookie\\NHCookies")
 
 class Set:
     """
@@ -132,8 +132,8 @@ class NHentaidownloader:
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
         #Todo => 請求相關設置
         self.session = requests.Session()
-        self.Google_Headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
-        self.Edge_Headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.43"}
+        self.Google_Headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
+        self.Edge_Headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188"}
         self.headers = None
         #Todo => 判斷格式和排除格式
         self.search = r"https://nhentai\.net/.*"
@@ -290,7 +290,7 @@ class NHentaidownloader:
                         print(category_box)
                         return
                 else:
-                    print("請更換 Cookie , 或檢查使用的請求瀏覽器")
+                    print("請檢查 Cookie , 或使用的 Headers")
                     return
 
             for url in category_box:
