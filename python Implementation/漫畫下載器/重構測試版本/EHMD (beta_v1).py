@@ -369,12 +369,12 @@ class EHentaidownloader(Validation):
 
         # 取得漫畫標題 , 並排除非法字元
         try:
-            title = tree.xpath("//h1[@id='gj']/text()")[0] # 日文標題
+            title = tree.xpath("//*[@id='gj']/text()")[0] # 日文標題
         except:
             try:
-                title = tree.xpath("//h1[@id='gn']/text()")[0] # 英文標題
+                title = tree.xpath("//*[@id='gn']/text()")[0] # 英文標題
             except:
-                print("\n[無法取得標題元素!]\n可能原因:\n\n[1]需要特別的Cookie\n[2]該頁面元素位置有例外")
+                print("\n[無法取得標題元素!]\n可能原因:\n\n[1]需要特別的Cookie\n[2]該頁面元素位置有例外\n[3]你的IP被Ban了")
                 return
 
         self.title = re.sub(self.illegal_filename, '', title).strip()
