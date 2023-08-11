@@ -28,11 +28,7 @@ import re
         ?   [+] 下載位置選擇
 
         * - 當前問題:
-        ?   [*] 有些需要登入才能觀看的漫畫頁面 , 就會請求不到圖片 (需自行填寫cookie , 才可正常請求)
-        ?   [*] 使用多進程操作下載 , 沒特別處理進度條顯示問題 (進度條是請求下載處理的進度 , 不包含輸出圖片至硬碟)
-        ?   [*] 搜尋頁面或TAG頁面的大量下載 , 網址處理有一些Bug , 有些會沒下載到(可再自行單本下載)
-        ?   [*] 網址處理較慢 , 為了準確獲取圖片連結 , 有好幾個請求步驟
-        ?   [*] 短時間大量下載很有可能會卡住 , 要嘛將延遲設置更高 , 要嘛就單本下載
+        ?   [*] 一切都很白癡 以前的我真的不知道在幹嘛 寫出這麼爛的邏輯 之後有空再重構
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -217,21 +213,20 @@ class Accurate:
                 executor.submit(self.manga_page_data_processing, url, index+1)
                 time.sleep(self.ProcessDelay)
 
-    # 漫畫頁面處理
-    def manga_page_data_processing(self,url,number):
+    # 漫畫頁面處理 (這邊的邏輯有夠智障)
+    def manga_page_data_processing(self, url, number):
         print(f"第 {number} 本漫畫開始處理...")
 
         picture_link = []
         StartTime = time.time()
 
-        link = url.split("index-")
-        New_url = f"{link[0]}index-page-1-{link[1]}"
-
-        tree = self.get_data(New_url)
+        # 以後有空再回來重構, 我這以前寫的智障邏輯
+        link = f"{url.split('index-')[0]}index-aid-{url.split('aid-')[1]}"
+        tree = self.get_data(link)
 
         # 漫畫總頁數
         total_pages = int(re.findall(r'\d+', tree.xpath('//label[contains(text(),"頁數：")]/text()')[0])[0])
-                
+        
         # 漫畫主頁頁數(12頁漫畫 = 主頁1頁)
         remainder = total_pages % 12
         home_pages = total_pages / 12
@@ -251,6 +246,9 @@ class Accurate:
         # 創建資料夾
         self.create_folder(download_path)
         
+        # 轉換連結
+        link = link.split("index-")
+
         # 處理圖片的網址 (每次請求都會對重複的進行排除)
         async def Request_Trigger():
             async with aiohttp.ClientSession() as session:
@@ -259,13 +257,13 @@ class Accurate:
 
                 # 獲取漫畫主頁,的所有分頁連結
                 for page in range(1,home_pages+1):
-                    work1.append(asyncio.create_task(self.async_get_data(session,f"{link[0]}index-page-{page}-{link[1]}")))
+                    work1.append(asyncio.create_task(self.async_get_data(session, f"{link[0]}index-page-{page}-{link[1]}")))
                 results = await asyncio.gather(*work1)
 
                 # 使用所有分頁連結,請求內頁連結
                 for tree in results:
                     for html in tree.xpath("//div[@class='pic_box tb']/a"):
-                        work2.append(asyncio.create_task(self.async_get_data(session,f"{DomainName()}{html.get('href')}")))
+                        work2.append(asyncio.create_task(self.async_get_data(session, f"{DomainName()}{html.get('href')}")))
                 results = await asyncio.gather(*work2)
                 
                 # 使用內頁連結,取得圖片連結
@@ -280,7 +278,7 @@ class Accurate:
         picture_exclude = list(OrderedDict.fromkeys(picture_link))
 
         print("第 %d 本漫畫 - 處理花費時間 : %.3f" % (number , (time.time()-StartTime)))
-        self.download_processing(download_path,picture_exclude,manga_name)
+        self.download_processing(download_path, picture_exclude, manga_name)
 
     # 資料夾創建
     def create_folder(self,Name):
@@ -309,7 +307,7 @@ class Accurate:
 
 if __name__ == "__main__":
     acc = Accurate()
-
+    
     AutoCapture.settings(DomainName())
     capture = AutoCapture.GetList()
 
