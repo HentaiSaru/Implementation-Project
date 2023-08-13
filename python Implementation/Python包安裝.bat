@@ -84,6 +84,8 @@ pip install scipy
 pip install matplotlib
 :: 機器學習與數據挖掘
 pip install scikit-learn
+:: html 代碼生成 模板
+pip install Jinja2
 :: AI庫 深度學習與神經網路
 :: pip install torch (Cpu版本)
 :: (GPU版) https://pytorch.org/get-started/locally/
