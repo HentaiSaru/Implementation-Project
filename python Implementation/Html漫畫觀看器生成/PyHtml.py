@@ -18,8 +18,8 @@ class ImageDataImport:
             create_path = os.path.dirname(folder_path)
             create_name = os.path.basename(folder_path)
             for file in os.listdir(folder_path):
-                file_path = os.path.join(folder_path, file).replace("\\","/")
-                data_box.append(file_path.replace(create_path, "."))
+                file_path = os.path.join(folder_path, file)
+                data_box.append(os.path.relpath(file_path, create_path).replace("\\","/"))
             return create_path, create_name, data_box
                 
 class TemplateGeneration:
