@@ -65,7 +65,8 @@ class Set:
     def __init__(self):
         #Todo [ 再此處手動輸入當前通過機器人驗證的 cookie (輸入錯誤會請求不到) ]
         self.Cookies = {
-            "cf_clearance" : "",
+            "cf_clearance" : "weBJnFZyrgD0.7qXbugpVkNd3BNFpDbbXp._S3x1jGs-1692092985-0-1-559088cc.f2d7bacf.291d72c-160.0.0",
+            "csrftoken" : "RBzerEjEjm6EOZpQZQfecsuV8RflsnCnLKMaX5iUMyGYxDk9xRrZJUEsO9Ed7qNU"
         }
         #Todo [手動設置排除標籤 , 並可於 download_settings() 套用回傳結果 , 設置詳情於 download_settings() 說明]
         self.TagExclude = {
@@ -514,9 +515,10 @@ if __name__ == "__main__":
         DownloadPath="R:/",
         TitleFormat=True,
         SearchQuantity=10,
+        CookieSource=Set("cookie"),
         #TryGetCookie=True,
-        CookieSource=Read("cookie"),
-        FilterTags=Read("filter"),
+        #CookieSource=Read("cookie"),
+        #FilterTags=Read("filter"),
     )
     
     capture = AutoCapture.GetList()
