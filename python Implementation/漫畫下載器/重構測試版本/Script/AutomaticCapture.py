@@ -58,7 +58,6 @@ class AutomaticCapture:
             clipboard = pyperclip.paste()
             
             if clipboard != self.clipboard_cache and re.match(self.initial_url_format , clipboard):
-                playsound(self.sound) # 音效
                 self.count += 1
                 print(f"擷取網址 [{self.count}] : {clipboard}")
                 self.download_list.add(clipboard)
@@ -69,6 +68,9 @@ class AutomaticCapture:
                 elif self.return_type:
                     self.queue.put(clipboard)
                     break
+                
+                try:playsound(self.sound)
+                except:pass
 
             time.sleep(self.intercept_delay)
 
