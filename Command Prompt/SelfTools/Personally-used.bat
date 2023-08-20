@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/08/21 01:34 -
+:: - LastEditTime 2023/08/21 03:48 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -951,12 +951,19 @@ reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_HonorUserFSEBehav
 
 :: 樣式效果美化/優化 -----
 
+:: 動畫效果最佳化
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 2 /f
 :: 動畫效果設置自訂
-reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 3 /f
-:: 設置動畫效果
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /t REG_BINARY /d "90 12 03 80" /f
-:: 字體平滑
+:: reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 3 /f
+:: 內部動畫顯示控制元素
+:: reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "EnableAnimatedWindows" /t REG_DWORD /d 1 /f
+:: 桌面的圖標標籤使用陰影
+:: reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ListviewShadow" /t REG_DWORD /d 1 /f
+
+:: 去除螢幕字形毛邊
 reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "FontSmoothing" /t REG_SZ /d 2 /f
+:: 設置字體平滑的程度 (3高平滑)
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "FontSmoothingSize" /t REG_DWORD /d 3 /f
 :: 使用平滑的動畫來滾動內容
 reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "SmoothScroll" /t REG_DWORD /d 3 /f
 :: 允許使用更豐富的顏色來顯示圖形
@@ -980,17 +987,24 @@ powershell -command "Enable-MMAgent -ApplicationPreLaunch"
 powershell -command "Set-MMAgent -MaxOperationAPIFiles 2048"
 
 ECHO.
-ECHO 電腦重啟後生效
+ECHO 後續自行設置效能的 (視覺效果設置來進行優化) ...
 ECHO.
 
-timeout /t 2 >nul
+timeout /t 3 >nul
+control sysdm.cpl,,3
+
+ECHO.
+ECHO 設置完成後重啟 或 登出帳戶 (載入效果)
+ECHO.
+
+pause
 exit /b
 
 ::~~~~~ windows 優化問題修復 ~~~~~
 :rewinop
 
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 0 /f
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /t REG_BINARY /d "00 00 00 00" /f
+reg delete "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /f
 
 ECHO.
 ECHO 電腦重啟後生效
