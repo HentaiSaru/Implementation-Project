@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/08/21 12:24 -
+:: - LastEditTime 2023/08/21 01:34 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -949,10 +949,31 @@ reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_Enabled" /t REG_D
 :: 啟用全螢幕錄製行為
 reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_HonorUserFSEBehaviorMode" /t REG_DWORD /d 1 /f
 
+:: 樣式效果美化/優化 -----
+
 :: 動畫效果設置自訂
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 3 /f
 :: 設置動畫效果
 reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /t REG_BINARY /d "90 12 03 80" /f
+:: 字體平滑
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "FontSmoothing" /t REG_SZ /d 2 /f
+:: 使用平滑的動畫來滾動內容
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "SmoothScroll" /t REG_DWORD /d 3 /f
+:: 允許使用更豐富的顏色來顯示圖形
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "ExtendedColors" /t REG_DWORD /d 256 /f
+
+:: 設置優化 -----
+
+:: 雙緩衝 圖形渲染到兩個緩衝區中，一個用於顯示，另一個用於繪製
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "Doublebuffer" /t REG_DWORD /d 1 /f
+:: 使用專用硬體來渲染圖形，從而提高性能
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "GraphicsAcceleration" /t REG_DWORD /d 1 /f
+:: 允許在移動滑鼠指針到窗口時看到窗口的標題欄和邊框
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "HotTracking" /t REG_DWORD /d 1 /f
+:: 自動結束未使用的程式
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "AutoEndTasks" /t REG_DWORD /d 1 /f
+:: 光標閃爍速度
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "CursorBlinkingRate" /t REG_DWORD /d 0 /f
 
 :: 記憶體相關設置
 powershell -command "Enable-MMAgent -ApplicationPreLaunch"
