@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/07/14 15:02 -
+:: - LastEditTime 2023/08/21 12:24 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -63,6 +63,8 @@ cls
 @ ECHO [3m[94m   特別功能 :[91m[23m
 @ ECHO.
 @ ECHO    [26] 關閉UAC安全通知    [27] Visual C++ (x64)安裝    [28] .NET安裝    [29] Windows 一鍵優化設置
+@ ECHO.
+@ ECHO    [30] Windows 優化錯誤恢復
 @ ECHO.
 @ ECHO [3m[97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
@@ -185,6 +187,9 @@ if %choice% equ 0 (
 
 ) else if %choice% equ 29 (
     call :winop&goto menu
+
+) else if %choice% equ 30 (
+    call :rewinop&goto menu
 
 ) else if /I "%choice%"=="ct" (
     Control
@@ -952,6 +957,19 @@ reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /t RE
 :: 記憶體相關設置
 powershell -command "Enable-MMAgent -ApplicationPreLaunch"
 powershell -command "Set-MMAgent -MaxOperationAPIFiles 2048"
+
+ECHO.
+ECHO 電腦重啟後生效
+ECHO.
+
+timeout /t 2 >nul
+exit /b
+
+::~~~~~ windows 優化問題修復 ~~~~~
+:rewinop
+
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 0 /f
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /t REG_BINARY /d "00 00 00 00" /f
 
 ECHO.
 ECHO 電腦重啟後生效
