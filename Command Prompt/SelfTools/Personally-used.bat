@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/08/21 03:48 -
+:: - LastEditTime 2023/08/22 16:51 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -616,6 +616,8 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "PerformanceDet
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "StartupBoostEnabled" /t REG_DWORD /d 0 /f
 :: 啟用睡眠標籤
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "SleepingTabsEnabled" /t REG_DWORD /d 1 /f
+:: 標籤睡眠時間
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Edge\Recommended" /v "SleepingTabsTimeout" /t REG_DWORD /d 30 /f
 :: 禁止新分頁頁面上的 Microsoft 新聞內容
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "NewTabPageContentEnabled" /t REG_DWORD /d 0 /f
 :: 新的索引標籤頁面隱藏預設熱門網站
@@ -629,7 +631,7 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "SearchSuggestE
 :: 視窗閉塞 偵測視窗是否被其他視窗覆蓋，而且將暫停工作繪製像素。
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "WindowOcclusionEnabled" /t REG_DWORD /d 1 /f
 :: 控制 DNS 預先擷取、TCP 和 SSL 預先連線和預先轉譯網頁 (0) = 預測任何網路連線上的網路動作 , (2) = 不要預測任何網路連線的網路動作
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "NetworkPredictionOptions" /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge\Recommended" /v "NetworkPredictionOptions" /t REG_DWORD /d 0 /f
 :: 將不相容的網站從 Internet Explorer 重新導向至 Microsoft Edge
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "RedirectSitesFromInternetExplorerRedirectMode" /t REG_DWORD /d 1 /f
 :: 允許來自裝置上建議提供者 (本地提供者) 的建議，例如 Microsoft Edge 的網址列和自動建議清單中的 [我的最愛] 和 [瀏覽歷程記錄]。
@@ -663,7 +665,7 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "PreventSmartSc
 :: 如果啟用此原則，則您組織中的使用者將無法忽略 Microsoft Defender SmartScreen 警告，且會讓使用者無法完成未驗證的下載。
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "PreventSmartScreenPromptOverrideForFiles" /t REG_DWORD /d 0 /f
 :: 允許 QUIC 通訊協定
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "QuicAllowed" /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Edge" /v "QuicAllowed" /t REG_DWORD /d 1 /f
 :: 顯示微軟獎勵
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "ShowMicrosoftRewards" /t REG_DWORD /d 0 /f
 :: 顯示使用edge作為默認pdf開啟
@@ -674,6 +676,16 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "ShowRecommenda
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "TaskManagerEndProcessEnabled" /t REG_DWORD /d 1 /f
 :: 限制 WebRTC 暴露本地 IP 位址
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "WebRtcLocalhostIpHandling" /t REG_SZ /d "default_public_interface_only" /f
+:: Microsoft Edge 關閉時清除快取圖片與檔案
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Edge\Recommended" /v "ClearCachedImagesAndFilesOnExit" /t REG_DWORD /d 1 /f
+:: 允許 Microsoft Edge 發出無資料連線至 Web 服務，以探查網路連線狀況
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Edge\Recommended" /v "ResolveNavigationErrorsUseWebService" /t REG_DWORD /d 1 /f
+:: DNS 攔截檢查的本機交換器
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Edge" /v "DNSInterceptionChecksEnabled" /t REG_DWORD /d 1 /f
+:: 允許凍結背景索引標籤
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Edge" /v "TabFreezingEnabled" /t REG_DWORD /d 1 /f
+:: 控制是否已啟用 Microsoft Edge 管理
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "EdgeManagementEnabled" /t REG_DWORD /d 0 /f
 
 ECHO.
 ECHO 優化完成
