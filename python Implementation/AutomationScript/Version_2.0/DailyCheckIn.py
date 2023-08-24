@@ -105,7 +105,7 @@ class AutomaticCheckin:
             "zero",
             8,
             "//div[@class='avt y']",
-            newdriver=False,
+            imset=False,
         )
     
     def Genshin_Checkin(self):
@@ -302,12 +302,12 @@ if __name__ == "__main__":
     AC = AutomaticCheckin()
     
     #################################################
-    # threading.Thread(target=AC.Black_Checkin).start()
-    # time.sleep(paramet.WaitingTime() + 5)
-    # threading.Thread(target=AC.Wuyong_Checkin).start()
-    # time.sleep(5)
-    # threading.Thread(target=AC.Zero_Checkin).start()
+    threading.Thread(target=AC.Black_Checkin).start()
+    time.sleep(paramet.WaitingTime() + 5)
+    threading.Thread(target=AC.Wuyong_Checkin).start()
+    time.sleep(5)
+    threading.Thread(target=AC.Zero_Checkin).start()
     # time.sleep(5)
     # threading.Thread(target=AC.Genshin_Checkin).start()
     # time.sleep(5)
-    threading.Thread(target=AC.StarRail_Checkin).start()
+    # threading.Thread(target=AC.StarRail_Checkin).start()
