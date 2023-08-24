@@ -8,17 +8,16 @@ class Chrome(uc.Chrome):
     def __del__(self):
         try:
             self.service.process.kill()
-            self.quit()
-            self.close()
         except:
             pass
 
 class AutomationRequest:
     def __init__(self):
-        self.cookie = {}
-        self.driver = None
-        self.timeout = 0
+        self.driver_path = rf"{os.path.dirname(os.path.abspath(__file__))}\driver\chromedriver.exe"
         self.Settings = uc.ChromeOptions()
+        self.driver = None
+        self.cookie = {}
+        self.timeout = 0
         self.hidden = None
 
         self.show = "."
@@ -76,6 +75,13 @@ class AutomationRequest:
         else:
             print(f"\r獲取中[{time}秒]{self.show * self.load}", end="", flush=True)
 
+    def __Get_Settings(self):
+        return Chrome(
+            version_main=116,
+            options=self.__Setting_Options(),
+            driver_executable_path=self.driver_path
+        )
+    
     def AGCookie(self,url: str,json: str):
         """
     自動請求 Cookie
@@ -95,7 +101,7 @@ class AutomationRequest:
             if json.find(".json") != -1:
                 json = json.rsplit(".", 1)[0]
 
-            self.driver = Chrome(options=self.__Setting_Options(),version_main=114)
+            self.driver = self.__Get_Settings()
             self.driver.get(url)
 
             while True:
@@ -104,7 +110,7 @@ class AutomationRequest:
                     name = cookies[index]['name']
                     value = cookies[index]["value"]
                     self.cookie[name] = value
-                
+                    
                 if len(self.cookie) > 1:
                     self.__OutputCookie(json)
                     return True
@@ -118,6 +124,7 @@ class AutomationRequest:
                     
                 self.__Loading_Display(self.timeout)
         except:
+            self.driver.close()
             return False
 
     def MGCookie(self,url: str,json: str):
@@ -139,7 +146,7 @@ class AutomationRequest:
             if json.find(".json") != -1:
                 json = json.rsplit(".", 1)[0]
 
-            self.driver = Chrome(options=self.__Setting_Options(),version_main=114)
+            self.driver = self.__Get_Settings()
             self.driver.get(url)
 
             while True:
