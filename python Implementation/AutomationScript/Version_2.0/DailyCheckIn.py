@@ -14,17 +14,17 @@ class AutomaticCheckin:
         self.exist = False
         self.offdelay = 5
     
-    def login_Confirm(self, link: str, webname: str, timeout: int, element: str, newdriver: bool = True, trylogin: bool = True):
+    def login_Confirm(self, link: str, webname: str, timeout: int, element: str, imset: bool = True, trylogin: bool = True):
         """
         * link = 開啟的網址
         * webname = 網頁名稱
         * timeout = 等待超時
         * element = 等待元素
-        * newdriver = 啟動新驅動進行檢測
+        * imset = 導入設置參數
         * trylogin = 嘗試使用 Cookie 登入
         """
         
-        if newdriver:
+        if imset:
             driver = webdriver.Chrome(options=paramet.AddSet(webname))
             driver.get(link)
             driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
