@@ -47,7 +47,7 @@ class AutomaticCheckin:
             
         # DO.pkl_cookie(driver.get_cookies(), webname)
         
-        if newdriver:
+        if imset:
             return driver
         else:
             time.sleep(timeout)
