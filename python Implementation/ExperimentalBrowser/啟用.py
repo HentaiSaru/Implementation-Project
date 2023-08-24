@@ -1,4 +1,3 @@
-import TestBrowser as tb
+from browser.Chromedriver2 import TUC2
 
-TB = tb.TestBrowser()
-TB.Enable_browsing()
+TUC2.Enable_browsing()
