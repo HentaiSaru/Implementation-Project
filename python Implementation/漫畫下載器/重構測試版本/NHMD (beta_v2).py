@@ -52,7 +52,7 @@ def DomainName():
 
 #Todo [嘗試自動獲取Cookie , 並回傳結果]
 def cookie_get():
-    return Get.MGCookie(DomainName() , f"{os.path.dirname(os.path.abspath(__file__))}\\Cookie\\NHCookies")
+    return Get.AGCookie(DomainName() , f"{os.path.dirname(os.path.abspath(__file__))}\\Cookie\\NHCookies")
 
 class Set:
     """
@@ -65,8 +65,8 @@ class Set:
     def __init__(self):
         #Todo [ 再此處手動輸入當前通過機器人驗證的 cookie (輸入錯誤會請求不到) ]
         self.Cookies = {
-            "cf_clearance" : "weBJnFZyrgD0.7qXbugpVkNd3BNFpDbbXp._S3x1jGs-1692092985-0-1-559088cc.f2d7bacf.291d72c-160.0.0",
-            "csrftoken" : "RBzerEjEjm6EOZpQZQfecsuV8RflsnCnLKMaX5iUMyGYxDk9xRrZJUEsO9Ed7qNU"
+            "cf_clearance" : "",
+            "csrftoken" : ""
         }
         #Todo [手動設置排除標籤 , 並可於 download_settings() 套用回傳結果 , 設置詳情於 download_settings() 說明]
         self.TagExclude = {
@@ -133,8 +133,8 @@ class NHentaidownloader:
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
         #Todo => 請求相關設置
         self.session = requests.Session()
-        self.Google_Headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
-        self.Edge_Headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188"}
+        self.Google_Headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"}
+        self.Edge_Headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.54"}
         self.headers = None
         #Todo => 判斷格式和排除格式
         self.search = r"https://nhentai\.net/.*"
@@ -386,7 +386,7 @@ class NHentaidownloader:
             print("[漫畫 %d 請求完成] => 請求耗時 %.3f 秒" % (count , (time.time() - StartTime)), flush=True)
             self.download_processing()
         except Exception as e:
-            print(f"debug : {e}")
+            print(f"DeBug : {e}")
 
     # 搜尋頁數據處理
     def search_page_data(self,link):
@@ -454,7 +454,7 @@ class NHentaidownloader:
                     time.sleep(self.ProcessDelay)
 
         except Exception as e:
-            print(f"debug : {e}")
+            print(f"DeBug : {e}")
 
     # 下載處理
     def download_processing(self):
@@ -515,12 +515,11 @@ if __name__ == "__main__":
         DownloadPath="R:/",
         TitleFormat=True,
         SearchQuantity=10,
-        CookieSource=Set("cookie"),
         #TryGetCookie=True,
-        #CookieSource=Read("cookie"),
-        #FilterTags=Read("filter"),
+        FilterTags=Read("filter"),
+        CookieSource=Read("cookie"),
     )
-    
+
     capture = AutoCapture.GetList()
     if capture != None:
         nh.google(capture)
