@@ -264,9 +264,9 @@ class NHentaidownloader:
     def URL_Classification(self,link):
         category_box = []
         try:
-            if isinstance(link,str):
+            if isinstance(link, str):
                 category_box.append(link)
-            elif isinstance(link,list):
+            elif isinstance(link, list):
                 category_box = link
             else:raise Exception()
 
@@ -295,9 +295,9 @@ class NHentaidownloader:
                     return
 
             for url in category_box:
-                if re.match(self.manga,url):
+                if re.match(self.manga, url):
                     self.comics_box.append(url)
-                elif re.match(self.search,url):
+                elif re.match(self.search, url):
                     self.search_box.append(url)
                 else:
                     print(f"錯誤格式的連結{url}", flush=True)
