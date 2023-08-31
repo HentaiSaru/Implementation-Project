@@ -69,7 +69,8 @@ class Parameters:
             return seconds_to_wait
     
     # 參數設置
-    def AddSet(self, value: str):
+    def AddSet(self, value: str, headless: bool = False):
+        if headless:self.Settings.add_argument("--headless")
         self.Settings.add_argument("--no-sandbox")
         self.Settings.add_argument('--log-level=3')
         self.Settings.add_argument('--start-maximized')
