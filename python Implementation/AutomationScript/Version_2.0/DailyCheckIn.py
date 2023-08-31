@@ -14,18 +14,19 @@ class AutomaticCheckin:
         self.exist = False
         self.offdelay = 5
     
-    def login_Confirm(self, link: str, webname: str, timeout: int, element: str, imset: bool = True, trylogin: bool = True):
+    def login_Confirm(self, link: str, webname: str, timeout: int, element: str, imset: bool = True, headless: bool = False, trylogin: bool = True):
         """
         * link = 開啟的網址
         * webname = 網頁名稱
         * timeout = 等待超時
         * element = 等待元素
         * imset = 導入設置參數
+        * headless = 使用無頭啟用
         * trylogin = 嘗試使用 Cookie 登入
         """
         
         if imset:
-            driver = webdriver.Chrome(options=paramet.AddSet(webname))
+            driver = webdriver.Chrome(options=paramet.AddSet(webname, headless))
             driver.get(link)
             driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
         else:
@@ -58,7 +59,7 @@ class AutomaticCheckin:
             "https://wuyong.fun/",
             "wuyong",
             5,
-            "//img[@class='avatar b2-radius']"
+            "//img[@class='avatar b2-radius']",
         )
         
         Wuyongbutton = WebDriverWait(Wuyongdriver,3).until(EC.element_to_be_clickable((By.XPATH, "//i[@class='b2font b2-gift-2-line ']")))
@@ -72,7 +73,7 @@ class AutomaticCheckin:
             "https://black.is-best.site/plugin.php?id=gsignin:index",
             "black",
             5,
-            "//div[@class='avt y']"
+            "//div[@class='avt y']",
         )
         
         time.sleep(paramet.WaitingTime() + 0.7)
@@ -106,6 +107,7 @@ class AutomaticCheckin:
             8,
             "//div[@class='avt y']",
             imset=False,
+            headless = True
         )
     
     def Genshin_Checkin(self):
@@ -169,20 +171,21 @@ class AutomaticCheckin:
                     pas = Acc["Genshin_password"]
 
                     # 輸入帳號
-                    accountbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='text']")))
+                    accountbutton = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='text']")))
                     accountbutton.click()
                     accountbutton.send_keys(acc)
 
                     # 輸入密碼
-                    passwordbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='password text']")))
+                    passwordbutton = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='password text']")))
                     passwordbutton.click()
                     passwordbutton.send_keys(pas)
 
                     # 送出
-                    loginbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='submit button selected']")))
+                    loginbutton = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='submit button selected']")))
                     loginbutton.click()
 
-                    input("登入完成後 => \n按下 (Enter) 確認 : ")
+
+                    input("原神登入完成後 => \n按下 (Enter) 確認 : ")
 
                     #! 再次切回原窗口 (測試)
                     handles = Genshin.window_handles
@@ -197,10 +200,10 @@ class AutomaticCheckin:
         
         # 點選簽到位置 (已經簽到的就會找不到, 因此當沒找到時, 要讓他跳過)     
         try:
-            Genshinbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content_---red-point---3lkHfJ']")))
+            Genshinbutton = WebDriverWait(Genshin, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content-test_---red-point---2jUBf9']")))
             for _ in range(3): # 測試
                 Genshinbutton.click()
-                time.sleep(0.1)
+                time.sleep(1)
         except:
             pass
 
@@ -217,7 +220,7 @@ class AutomaticCheckin:
         )
         
         try: # 關閉彈出窗口
-            StarRailClos = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='components-pc-assets-__dialog_---dialog-close---3G9gO2']")))
+            StarRailClos = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='components-pc-assets-__dialog_---dialog-close---3G9gO2']")))
             StarRailClos.click()
         except:pass
         
@@ -237,45 +240,46 @@ class AutomaticCheckin:
             time.sleep(2)
             tree = etree.fromstring(StarRail.page_source, etree.HTMLParser())
             login = tree.xpath("//img[@class='mhy-hoyolab-account-block__avatar-icon']")[0].get("src")
+            
             if re.match(r"data:image/png;base64,.*", login):
                 # 點選登入
-                loginclick = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='mhy-hoyolab-account-block__avatar-icon']")))
+                loginclick = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='mhy-hoyolab-account-block__avatar-icon']")))
                 loginclick.click()
 
                 # 使用FaceBook登入 , div[3] 是fb
-                loginbutton = WebDriverWait(StarRail,3).until(EC.element_to_be_clickable((By.XPATH, "//div[3][@class='account-sea-third-party-login-item']//img[@class='account-sea-login-icon']")))
+                loginbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//div[3][@class='account-sea-third-party-login-item']//img[@class='account-sea-login-icon']")))
                 loginbutton.click()
 
                 Acc = DI.get_acc()
                 acc = Acc["StarRail_account"]
                 pas = Acc["StarRail_password"]
 
-                # 等待載入切換操作窗口
-                time.sleep(1.5)
+                time.sleep(2)
+                # 切換操作窗口
                 handles = StarRail.window_handles
                 for handle in handles:
                     StarRail.switch_to.window(handle)
 
                 try: # 嘗試進行輸入帳號登入
-                    accountbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='email']")))
+                    accountbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='email']")))
                     accountbutton.click()
                     accountbutton.send_keys(acc)
 
-                    passwordbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='pass']")))
+                    passwordbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='pass']")))
                     passwordbutton.click()
                     passwordbutton.send_keys(pas)
 
-                    loginbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='login']")))
+                    loginbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='login']")))
                     loginbutton.click()
                 except:
-                    passwordbutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='pass']")))
+                    passwordbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='pass']")))
                     passwordbutton.click()
                     passwordbutton.send_keys(pas)
 
-                    continuebutton = WebDriverWait(StarRail,1).until(EC.element_to_be_clickable((By.XPATH,"//label[@class='uiButton uiButtonConfirm uiButtonLarge']")))
+                    continuebutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH,"//label[@class='uiButton uiButtonConfirm uiButtonLarge']")))
                     continuebutton.click()
 
-                while True:
+                while True: # 採用另一種方式切換
                     handles = StarRail.window_handles
                     for handle in handles:
                         StarRail.switch_to.window(handle)
@@ -286,14 +290,21 @@ class AutomaticCheckin:
                     break
                 
                 #! 等待 (測試)
-                WebDriverWait(StarRail,30).until(EC.element_to_be_clickable((By.XPATH,"//button[@class='components-pc-assets-__main-module_---resign-btn---39OqGX btn-disabled']")))
+                input("星鐵登入完成後 => \n按下 (Enter) 確認 : ")
                 DO.json_cookie(StarRail.get_cookies() , "StarRail")
         
-        # 取得當前簽到時間 + 1
-        checkinday = int(tree.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
-        # 尋找 + 1 後的天數 , 就是要簽到的時間
-        checkin = WebDriverWait(StarRail,30).until(EC.element_to_be_clickable((By.XPATH, f"//div[@class='components-pc-assets-__prize-list_---item---F852VZ']/span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
-        checkin.click()
+        while True:
+            try:
+                # 取得當前簽到時間 + 1
+                checkinday = int(tree.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
+                # 尋找 + 1 後的天數 , 就是要簽到的時間
+                checkin = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, f"//span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
+                
+                if checkin:
+                    checkin.click()
+                    break
+                time.sleep(0.5)
+            except:pass
         
         time.sleep(self.offdelay)
         StarRail.quit()
@@ -307,7 +318,7 @@ if __name__ == "__main__":
     threading.Thread(target=AC.Wuyong_Checkin).start()
     time.sleep(5)
     threading.Thread(target=AC.Zero_Checkin).start()
-    # time.sleep(5)
-    # threading.Thread(target=AC.Genshin_Checkin).start()
-    # time.sleep(5)
-    # threading.Thread(target=AC.StarRail_Checkin).start()
+    time.sleep(5)
+    threading.Thread(target=AC.Genshin_Checkin).start()
+    time.sleep(5)
+    threading.Thread(target=AC.StarRail_Checkin).start()
