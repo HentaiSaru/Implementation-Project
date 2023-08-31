@@ -69,8 +69,8 @@ class AutomaticCapture:
                     self.queue.put(clipboard)
                     break
                 
-                try:playsound(self.sound)
-                except:pass
+                # try:playsound(self.sound)
+                # except:pass
 
             time.sleep(self.intercept_delay)
 
