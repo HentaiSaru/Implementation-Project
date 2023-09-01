@@ -8,7 +8,7 @@ import time
 import re
 import os
 
-""" Versions 1.0.6 (測試版)
+""" Versions 1.0.7 (測試版)
 
     Todo - Zero 漫畫下載器
 
@@ -59,12 +59,12 @@ dir = os.path.abspath("R:/")
 
 # (該網站會每過一段時間會改域名 , 在此處更改即可繼續使用)
 def DomainName():
-    return "http://www.zerobyw007.com/"
+    return "http://www.zerobyw5090.com/"
 
 class ZeroDownloader:
     def __init__(self):
         self.session = requests.Session()
-        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
+        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"}
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
             *  { 進程處理 }
@@ -84,18 +84,18 @@ class ZeroDownloader:
         Todo ----------------------------
         """
         self.UrlFormat = fr"{DomainName()}plugin\.php\?id=(.*)"
-        self.Filter = r'[^\d.]'
+        self.Filter = r'[^\d.-]'
         self.NameFormat = r"^(.*?)【"
 
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
             *  { 狀態判斷 }
             ?  [ request_status ] 判斷是否請求成功
-            ?  [ trial ] 判斷是否使用自動試錯
+            ?  [ retry ] 判斷是否使用自動試錯
         Todo ----------------------------
         """
         self.request_status = False
-        self.trial = None
+        self.retry = None
 
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
@@ -127,11 +127,11 @@ class ZeroDownloader:
         self.Mantissa = None
         self.domain = None
 
-    def data_request(self,url):
+    def data_request(self, url):
         request = self.session.get(url,headers=self.headers)
         return etree.fromstring(request.content, etree.HTMLParser())
     
-    def data_processing(self,url):
+    def data_processing(self, url):
 
         print("請求漫畫數據...")
         StartTime = time.time()
@@ -155,21 +155,13 @@ class ZeroDownloader:
                 
                 print("[請求成功] 耗時/%.3f秒" %((time.time() - StartTime)))
                 
-                # try: 舊處理方法 (測試成功後刪除)
-                    # tree = self.data_request(self.Comics_link[0])
-                    # self.Comic_link_format = tree.xpath("//img[@id='img_0']")[0].get("src")
-                    # self.request_status = True
-                    # print("[請求成功] 耗時/%.3f秒" %((time.time() - StartTime)))
-                # except:
-                    # print("第一話需要VIP的無法處理")
-                    
             except Exception as e:
                 print(f"域名錯誤 , 或是伺服器問題! {e}")
 
         else:print("不符合的網址格式")
 
     # 加速下載方法
-    def accelerate(self,special,folder_name,number):
+    def accelerate(self, special, folder_name, number):
         # 初始頁數
         pages = 1
         count = 0
@@ -201,16 +193,16 @@ class ZeroDownloader:
                     ComicLink = f"{self.domain}{self.location}/{number}/{page}.{self.FileExtension}"
 
                 # 保存位置格式
-                Save = os.path.join(folder_name,f"{page}.{self.FileExtension}")
+                Save = rf"{folder_name}\{page}.{self.FileExtension}"
                 
                 # 呼叫下載 , 並接收回傳 (雖然使用 result() 會降低效率 , 但因為不知道總頁數 , 不使用這樣就不好判斷結束)
-                Data_status = executor.submit(self.download,folder_name,Save,ComicLink).result()
+                Data_status = executor.submit(self.download, folder_name, Save, ComicLink).result()
 
                 if Data_status != 200:
-                    if self.trial:
+                    if self.retry:
                         Try = self.Automatic_Trial_And_Error(ComicLink)
                         if Try != None:
-                            self.download(folder_name,Save,Try)
+                            self.download(folder_name, Save, Try)
                             count += 1
                         else:
                             break
@@ -222,40 +214,38 @@ class ZeroDownloader:
             print(f"第 {number} 話下載完成 [共 {count} 頁]", flush=True)
 
     # 自動下載方法
-    def Automatic(self, url:str, trial=False):
+    def Automatic(self, url:str, retry=False):
 
         # 請求數據
         self.data_processing(url)
-        self.trial = trial
+        self.retry = retry
 
         if self.request_status:
-            # 漫畫名稱
-            Manga_name = self.Manga_name
-            # 漫畫的話數
-            Comics_number = self.Comics_number
-            # 圖片請求域名格式變更
-            self.domain = DomainName().replace("www","tupa")
-            # 網址連結的位置
-            link = self.Comic_link_format.split("/")
-            self.location = f"{link[-4]}/{link[-3]}"
-            # 漫畫尾數 and 副檔名
-            self.Mantissa = link[-1].split(".")[0]
-            self.FileExtension = link[-1].split(".")[1]
+            Manga_name = self.Manga_name # 漫畫名稱
+            self.Ffolder(rf"{dir}{Manga_name}") # 創建漫畫資料夾
+            self.domain = DomainName().replace("www","tupa") # 圖片請求域名格式變更
+            
+            link = self.Comic_link_format.split("/") # 連結處理
+            self.location = f"{link[-4]}/{link[-3]}" # 網址連結的位置
+            
+            end = link[-1].split(".") # 網址尾部處理
+            self.Mantissa = end[0] # 連結尾數
+            self.FileExtension = end[1] # 連結擴展名
 
             with ProcessPoolExecutor(max_workers=self.MaxProcesses) as executor:
-                for number in Comics_number:
+                for number in self.Comics_number: # 漫畫話數
                     # 特別章節
                     special = False
 
                     # 判斷特別章節
-                    if number == self.cache or number.find("-") != -1:
-                        folder_name = os.path.join(dir,f"{Manga_name} - 第{number}特別話")
+                    if number == self.cache:
+                        folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}特別話"
                         special = True
                     else:
                         # 資料夾名稱
-                        folder_name = os.path.join(dir,f"{Manga_name} - 第{number}話")
+                        folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}話"
 
-                    # 只要有重複的數字 , 就是特別章節
+                    # 只要與前一個有重複的數字 , 就是特別章節
                     self.cache = number
 
                     if special:
@@ -267,7 +257,7 @@ class ZeroDownloader:
                     time.sleep(self.ProcessDelay)
 
     # 自訂下載方法
-    def Custom(self,url:str , chapter=None, mantissa=3, FE="png", trial=False, special=False):
+    def Custom(self,url:str, chapter=None, mantissa=3, FE="png", retry=False, special=False):
 
         # 尾數轉換字串
         def mantissa_conversion(mantissa):
@@ -282,7 +272,7 @@ class ZeroDownloader:
 
         # 數據請求
         self.data_processing(url)
-        self.trial = trial
+        self.retry = retry
 
         if self.request_status:
 
@@ -317,10 +307,10 @@ class ZeroDownloader:
                 for number in Comics_number:
 
                     if number == self.cache:
-                        folder_name = os.path.join(dir,f"{Manga_name} - 第{number}特別話")
+                        folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}特別話"
                         special = True
                     else:
-                        folder_name = os.path.join(dir,f"{Manga_name} - 第{number}話")
+                        folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}話"
                     self.cache = number
 
                     if special:
@@ -332,12 +322,12 @@ class ZeroDownloader:
                     time.sleep(self.ProcessDelay)
 
     # 資料夾創建
-    def Ffolder(self,FolderName):
+    def Ffolder(self, FolderName):
         try:os.mkdir(FolderName) 
         except:pass
 
     # 自動測試正確的格式
-    def Automatic_Trial_And_Error(self,url):
+    def Automatic_Trial_And_Error(self, url):
 
         # 將url從右側分割1次
         initial = url.rsplit("/",1)
@@ -365,7 +355,7 @@ class ZeroDownloader:
                     return test_link
 
     # 下載方法
-    def download(self,folder_name,save_name,link):
+    def download(self, folder_name, save_name, link):
         # 請求後將狀態傳遞
         Data_status = requests.get(link,headers=self.headers)
 
@@ -399,13 +389,13 @@ if __name__ == "__main__":
         ! 可使用自訂下載 , 來一個一個測試 , 直到找到正確得請求網址
 
         * url - 填寫連結字串
-        * 自動試錯 - 預設是 False (啟用後當有很多格式錯誤的,會跑比較久)
+        * 自動試錯 - 預設是 False (啟用後當有很多格式錯誤的, 會跑比較久)
     """
     # 自動擷取URL
     AutoCapture.settings(DomainName())
     
     capture = AutoCapture.GetLink()
-    zero.Automatic(capture , True)
+    zero.Automatic(capture, True)
 
 #################################################################################
 
@@ -418,11 +408,11 @@ if __name__ == "__main__":
         * 章節 chapter - 填寫要下載的漫畫 , 第幾話(填寫數字或字串都可以) , 可使用上方CB來大量填寫 , 也可使用custom_range設置範圍
         * 尾數 mantissa - 填 3 = 001 , 2 = 01 ... , 這是根據該網站的命名去測試到正確的格式
         * 副檔名 FE - 就設置副檔名 , 以符合正確的連結格式 , 就可以請求成功
-        * 自動試錯 trial - 如果很懶得填寫 , 章節 尾數 副檔名 , 去測試到正確的Url , 可以嘗試使用
+        * 自動試錯 retry - 如果很懶得填寫 , 章節 尾數 副檔名 , 去測試到正確的Url , 可以嘗試使用
         * 特別章節 special - 開啟後可以下載特別章節 (全彩中文/全彩生肉/無修正/...) 這類的特別章節
     """
 
     # 可使用自訂範圍 , 或是直接填入CB , 設置完成 , 直接再 Custom 尾數傳入 CB
     # custom_range(1,2)
 
-    # zero.Custom("#" , chapter=1 , trial=True)
+    # zero.Custom("#" , chapter=1 , retry=True)
