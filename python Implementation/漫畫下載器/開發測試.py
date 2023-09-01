@@ -65,4 +65,5 @@ def calculate(Pages):
     return total_pages
         
 if __name__ == '__main__':
-    print(request(""))
+    Filter = r'[^\d.-]'
+    #print(re.sub(Filter, "", "名稱"))
