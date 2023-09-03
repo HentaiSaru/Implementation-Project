@@ -9,12 +9,13 @@ from tqdm import tqdm
 import requests
 import aiohttp
 import asyncio
+import math
 import time
 import json
 import re
 import os
 
-""" Versions 1.0.3 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""" Versions 1.0.4 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - EHentai/ExHentai 漫畫下載
 
@@ -34,6 +35,12 @@ import os
         * 測試功能 :
         ? 異步處理的 臨界值 與 正確性 衡量
         ? 此代碼首次嘗使用繼承類攥寫 , 測試維護性
+        
+        * 異常問題 :
+        ? 代碼調整解決缺頁, 同時卻產生其他BUG
+        ? Bug在同樣的代碼下, 有時候會觸發, 有時候不會, 不知道原因
+        ? 卡住 BUG 在請求完頁數時, 卡住需等待一段時間後才會繼續
+        ? 數據處理錯誤 BUG, 在Xpath 不變的情況下, 有時候會突然找不到元素
         
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -127,19 +134,19 @@ Read = Read()
 #Todo [數據請求回傳]
 class DataRequest:
     Session = requests.Session()
-    Google_Headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
-    Edge_Headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188"}
+    Google_Headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"}
+    Edge_Headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.54"}
     Cookies = None
     Headers = None
 
     def get_data(self, url):
         request = self.Session.get(url, headers=self.Headers, cookies=self.Cookies, timeout=3)
-        return etree.fromstring(request.content , etree.HTMLParser())
+        return etree.HTML(request.text)
     
     async def async_get_data(self, url, session):
         async with session.get(url, headers=self.Headers, cookies=self.Cookies) as response:
             content = await response.text()
-            return etree.fromstring(content , etree.HTMLParser())
+            return etree.HTML(content)
 
 #Todo [連結驗證與分類]
 class Validation(DataRequest):
@@ -347,7 +354,9 @@ class EHentaidownloader(Validation):
         home_page_data = []
         def home_page(tree):
             for data in tree.xpath("//div[@id='gdt']/div/a"):
-                home_page_data.append(data.get("href"))
+                href = data.get("href")
+                if href != None:
+                    home_page_data.append(href)
 
         # 保存圖片連結
         link_box = OrderedDict()
@@ -365,8 +374,8 @@ class EHentaidownloader(Validation):
         print(f"[漫畫 {count} 開始處理] => {url}" , flush=True)
         StartTime = time.time()
         tree = self.get_data(url)
-        home_page(tree)
-
+        home_page(tree) # 獲取第一頁連結
+        
         # 取得漫畫標題 , 並排除非法字元
         try:
             title = tree.xpath("//*[@id='gj']/text()")[0] # 日文標題
@@ -378,19 +387,9 @@ class EHentaidownloader(Validation):
                 return
 
         self.title = re.sub(self.illegal_filename, '', title).strip()
+        # 漫畫頁數
+        total_pages = math.ceil(int(tree.xpath("//td[@class='gdt2']/text()")[-2].split(" ")[0]) / 20)
         
-        # 漫畫頁數 (每 40 為一頁)
-        Pages = int(tree.xpath("//td[@class='gdt2']/text()")[-2].split(" ")[0])
-        
-        # 計算公式 後續測試修正
-        home_pages = Pages / 20
-        remainder_pages = Pages % 20
-
-        if remainder_pages > 0:
-            total_pages = int(home_pages + 1)
-        else:
-            total_pages = int(home_pages)
-            
         # 當有設置排除標籤時 , 重複時會進行排除
         if self.TagFilterBox != None:
             # 取得漫畫標籤
@@ -415,9 +414,9 @@ class EHentaidownloader(Validation):
                     work.append(asyncio.create_task(self.async_get_data(f"{url}?p={page}", session)))
                     
                     count+=1
-                    if count == 7:
+                    if count == 5:
                         print(f"\r以處理 [{page}] 頁", end="", flush=True)
-                        await asyncio.sleep(1) # 主要是保護網站 (就算不設置延遲也是能正常運作 , 頂多有時候少個幾張)
+                        await asyncio.sleep(1) # 主要是保護網站
                         count = 0
 
                 results = await asyncio.gather(*work)
@@ -426,20 +425,25 @@ class EHentaidownloader(Validation):
                     home_page(tree)
                 
                 Processed_pages = len(home_page_data)
+                if (Processed_pages <= 0):
+                    os.system("cls")
+                    print("數據處理錯誤")
+                    os._exit(1)
+                    
                 # 請求內部圖片連結
                 for link in home_page_data:
                     # 異步併發請求
-                    work1.append(asyncio.create_task(self.async_get_data(link, session)))
-
+                    work1.append(self.async_get_data(link, session))
+                    
                     count+=1
-                    if count == 150:
+                    if count == 100:
                         Processed_pages -= count
                         print(f"\r剩餘處理 [{Processed_pages}] 張", end="", flush=True)
                         await asyncio.sleep(1)
                         count = 0
-
+                        
                 results = await asyncio.gather(*work1)
-
+                
                 for tree in results:
                     picture_link(tree)
 
@@ -469,7 +473,7 @@ class EHentaidownloader(Validation):
 
                 time.sleep(self.ProtectionDelay)
 
-    def download(self,download_path,download_link):
+    def download(self, download_path, download_link):
         ImageData = self.Session.get(download_link, headers=self.Headers, cookies=self.Cookies)
 
         if ImageData.status_code == 200:
@@ -481,7 +485,7 @@ if __name__ == "__main__":
     AutoCapture.settings("https://(exhentai|e-hentai)")
 
     eh.download_settings(
-        DownloadPath="R:/",
+        DownloadPath = "R:/",
         CookieSource = Read("cookie"),
     )
     
