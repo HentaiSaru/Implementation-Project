@@ -48,9 +48,13 @@ def request(url):
     # 創建 CloudScraper 實例
     scraper = cloudscraper.create_scraper()
     headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
-    cookie = {}
+    cookie = {
+        "igneous": "a471a8815",
+        "ipb_member_id": "7317440",
+        "ipb_pass_hash": "dbba714316273efe9198992d40a20172"
+    }
     req = scraper.get(url, headers=headers, cookies=cookie)
-    return req.text
+    #return req.text
     return etree.fromstring(req.content , etree.HTMLParser())
 
 def calculate(Pages):
@@ -65,5 +69,10 @@ def calculate(Pages):
     return total_pages
         
 if __name__ == '__main__':
-    Filter = r'[^\d.-]'
-    #print(re.sub(Filter, "", "名稱"))
+    tree = request("")
+    def home_page(tree):
+        for data in tree.xpath("//div[@id='gdt']/div/a"):
+            href = data.get("href")
+            print(href)
+                
+    home_page(tree)
