@@ -7,12 +7,12 @@ mshta vbscript:createobject("shell.application").shellexecute("%~s0","goto :Admi
 cls
 
 @echo ------------------------------
-@echo pip principal update
+@echo pip update
 python.exe -m pip install --upgrade pip
 @echo ------------------------------
 
 @echo ------------------------------
-@echo pip installation package
+@echo installation package
 @echo ------------------------------
 
 :: 打包EXE
@@ -147,7 +147,12 @@ pip install discord_webhook
 pip install --upgrade setuptools
 pip install --upgrade wheel
 
-:: 有某個包不知道是啥問題 , 會亂創建奇怪的檔案 , 這邊是將其刪除
-del /f /s /q "用"
-del /f /s /q "開"
+timeout /t 03 >nul
+
+del /f /s /q "用" >nul
+del /f /s /q "開" >nul
+
+@echo ------------------------------
+@echo installation is complete
+@echo ------------------------------
 pause
