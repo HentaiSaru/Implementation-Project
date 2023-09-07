@@ -54,7 +54,12 @@ class TestBrowser:
         return self.Settings
 
     def Enable_browsing(self,url:str ="https://www.google.com.tw/"):
-        self.driver = Chrome(options=self.Setting_Options(), driver_executable_path=self.driver_path, version_main=116)
+        self.driver = Chrome(
+            version_main=116,
+            advanced_elements=True,
+            options=self.Setting_Options(),
+            driver_executable_path=self.driver_path
+        )
         self.driver.delete_all_cookies()
         self.driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
