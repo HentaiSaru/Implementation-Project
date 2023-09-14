@@ -1,5 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2023/07/07 03:23 -
+:: - LastEditTime 2023/09/14 23:50 -
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
 :: [+] - Google 緩存清理
@@ -120,12 +120,12 @@ RD %windir%\$hf_mig$ /S /Q
 :: 刪除舊版系統文件
 RD /S /Q C:\Windows.old
 :: 舊版刪除各瀏覽器緩存
-del /f /s /q "%LocalAppData%\Microsoft\Windows\WebCache\*.*" >nul
-del /f /s /q "%LocalAppData%\Microsoft\Windows\INetCache\*.*" >nul
-del /f /s /q "%AppData%\Opera Software\Opera Stable\Cache\*.*" >nul
-del /f /s /q "%AppData%\Mozilla\Firefox\Profiles\*\cache2\*.*" >nul
-del /f /s /q "%AppData%\Google\Chrome\User Data\Default\Cache\*.*" >nul
-del /f /s /q "%LocalAppData%\Microsoft\Windows\Explorer\thumbcache*" >nul
+del /f /s /q "%LocalAppData%\Microsoft\Windows\WebCache\*.*"
+del /f /s /q "%LocalAppData%\Microsoft\Windows\INetCache\*.*"
+del /f /s /q "%AppData%\Opera Software\Opera Stable\Cache\*.*"
+del /f /s /q "%AppData%\Mozilla\Firefox\Profiles\*\cache2\*.*"
+del /f /s /q "%AppData%\Google\Chrome\User Data\Default\Cache\*.*"
+del /f /s /q "%LocalAppData%\Microsoft\Windows\Explorer\thumbcache*"
 
 del /f /s /q "%Temp%"
 del /f /s /q "%windir%\*.bak"
@@ -160,24 +160,24 @@ RD /s /q %userprofile%\Intel
 RD /s /q %userprofile%\source
 RD /s /q %systemdrive%\Program Files\Temp
 
-del /s /f /q %windir%\logs\*.log
-del /s /f /q %SYSTEMDRIVE%\AMD\*.*
-del /s /f /q %windir%\Panther\*.log
-del /s /f /q %SYSTEMDRIVE%\INTEL\*.*
-del /s /f /q %SYSTEMDRIVE%\NVIDIA\*.*
-del /s /f /q %SYSTEMDRIVE%\OneDriveTemp
-del /s /f /q %windir%\Logs\MoSetup\*.log
-del /s /f /q %windir%\Logs\CBS\CbsPersist*.log
-del /s /f /q %localappdata%\Microsoft\Windows\WebCache\*.log
+del /f /s /q %windir%\logs\*.log
+del /f /s /q %SYSTEMDRIVE%\AMD\*.*
+del /f /s /q %windir%\Panther\*.log
+del /f /s /q %SYSTEMDRIVE%\INTEL\*.*
+del /f /s /q %SYSTEMDRIVE%\NVIDIA\*.*
+del /f /s /q %SYSTEMDRIVE%\OneDriveTemp
+del /f /s /q %windir%\Logs\MoSetup\*.log
+del /f /s /q %windir%\Logs\CBS\CbsPersist*.log
+del /f /s /q %localappdata%\Microsoft\Windows\WebCache\*.log
 
-rd /s /f /q %LocalAppData%\pip\cache
+rd /f /s /q %LocalAppData%\pip\cache
 rd /s /q C:\Users\%username%\.cache
 rd /s /q C:\Users\%username%\.Origin
 rd /s /q C:\Users\%username%\.QtWebEngineProcess
 rd /s /q %localappdata%\Microsoft\Windows\INetCache\*.log
 
 :: 額外特別項目清除
-del /q /s /f "%APPDATA%\IObit\IObit Uninstaller\UMlog\*.dbg"
+del /f /q /s "%APPDATA%\IObit\IObit Uninstaller\UMlog\*.dbg"
 rd /s /q "C:\ProgramData\IObit\Driver Booster\Download"
 rd /s /q "%LocalAppData%\Surfshark\Updates"
 
@@ -194,7 +194,7 @@ net stop msiserver
 ren "C:\Windows\System32\catroot2 catroot2.old"
 ren "C:\Windows\SoftwareDistribution SoftwareDistribution.old"
 
-del /s /f /q "C:\Windows\SoftwareDistribution\*.*"
+del /f /s /q "C:\Windows\SoftwareDistribution\*.*"
 
 net start bits
 net start wuauserv
@@ -202,14 +202,14 @@ net start cryptSvc
 net start msiserver
 
 :: ========== 清除內建防火牆紀錄 ==========
-del "%ProgramData%\Microsoft\Windows Defender\Support" /F /Q /S
-del "%ProgramData%\Microsoft\Windows Defender\Scans\MetaStore" /F /Q /S
-del "%ProgramData%\Microsoft\Windows Defender\Scans\History\CacheManager" /F /Q /S
-del "%ProgramData%\Microsoft\Windows Defender\Scans\History\Service\*.log" /F /Q /S
-del "%ProgramData%\Microsoft\Windows Defender\Scans\History\Results\Quick" /F /Q /S
-del "%ProgramData%\Microsoft\Windows Defender\Scans\History\Results\Resource" /F /Q /S
-del "%ProgramData%\Microsoft\Windows Defender\Scans\History\ReportLatency\Latency" /F /Q /S
-del "%ProgramData%\Microsoft\Windows Defender\Network Inspection System\Support\*.log" /F /Q /S
+del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Support"
+del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\MetaStore"
+del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\CacheManager"
+del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\Service\*.log"
+del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\Results\Quick"
+del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\Results\Resource"
+del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\ReportLatency\Latency"
+del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Network Inspection System\Support\*.log"
 
 :: ========== Google清理 ==========
 color A
