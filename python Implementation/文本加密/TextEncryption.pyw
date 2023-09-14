@@ -450,11 +450,11 @@ class GUI:
         self.overwrite = tk.Button(self.top_frame , text="覆蓋輸出") # 覆蓋輸出按鈕
         self.new = tk.Button(self.top_frame , text="新建輸出")  # 新建輸出按鈕
         # 密碼輸入框
-        self.password = tk.Entry(self.top_frame, font=("Microsoft Positive Bold", 35), width=17 , justify='center' , borderwidth=1, highlightthickness=2 , bg=PasswordBox , fg=DisplayText)
+        self.password = tk.Entry(self.top_frame, font=("Microsoft Positive Bold", 35), width=15 , justify='center' , borderwidth=1, highlightthickness=2 , bg=PasswordBox , fg=DisplayText)
         # 滾動條
-        self.Scrollbar = tk.Scrollbar(self.scroll_bar_frame,cursor='hand2',relief="raised",width=23)
+        self.Scrollbar = tk.Scrollbar(self.scroll_bar_frame, cursor="hand2", relief="raised", width=23)
         # 顯示內容框
-        self.Content = tk.Text(self.text_frame , bg=ChooseBackground , fg=root['background'] , yscrollcommand=self.Scrollbar.set)
+        self.Content = tk.Text(self.text_frame, bg=ChooseBackground, fg=root['background'], yscrollcommand=self.Scrollbar.set)
 
     def file_selection(self):
 
@@ -481,7 +481,7 @@ class GUI:
     def text_color(self):
 
         self.text_box_color.config(font=("Arial Bold", 16), width=14, height=1, border=2 , relief='groove', fg=SelectText , bg=ChooseBackground , command=self.text_choose_color)
-        self.text_box_color.place(x=634,y=60)
+        self.text_box_color.place(x=634, y=60)
 
     def background_color(self):
 
@@ -490,8 +490,8 @@ class GUI:
 
     def password_input_box(self):
 
-        self.password.place(x=195,y=47)
-        self.password.insert(0,"密碼設置")
+        self.password.place(x=205, y=47)
+        self.password.insert(0, "密碼設置")
 
         def FocusInput(event):
             if self.password.get() == "密碼設置":
@@ -514,10 +514,10 @@ class GUI:
     # 內容展示框
     def encryption_display_box(self):
 
-        self.Content.config(font=("Arial", 24),bd=0)
+        self.Content.config(font=("Arial", 24), bd=0)
         self.Scrollbar.config(command=self.Content.yview)
 
-        self.Content.place(x=0,y=0)
+        self.Content.place(x=0, y=0)
         self.Scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.Scrollbar.place(relheight=1.0, relwidth=1.0)
 
