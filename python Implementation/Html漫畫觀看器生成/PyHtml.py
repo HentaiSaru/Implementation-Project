@@ -36,37 +36,35 @@ class TemplateGeneration:
         
     def Create_Template(self):
         template = """
-            <!DOCTYPE html>
-            <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title></title>
-                    <style>
-                        body {
-                            background: rgb(110, 110, 110);
-                            margin: 0;
-                            padding: 0;
-                        }
-                        .image-style {
-                            width: 100%;
-                            height: 100%;
-                            display: block;
-                            margin: 0 auto;
-                            max-width: 50%;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div id = "picture_box">
-                        {% for src in data %}
-                        <div>
-                            <img src="{{ src|safe }}" class="image-style">
-                        </div>
-                        {% endfor %}
-                    </div>
-                </body>
-            </html>
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>{{ title }}</title>
+                <style>
+                    body {
+                        background: {{ bg }};
+                        margin: 0;
+                        padding: 0;
+                    }
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        display: block;
+                        margin: 0 auto;
+                        max-width: 50%; 
+                    }
+                </style>
+            </head>
+            <body>
+                <div id = "picture_box">
+                    {% for src in data %}
+                    <img src="{{ src|safe }}">
+                    {% endfor %}
+                </div>
+            </body>
+        </html>
         """
         self.template = Template(template)
         
@@ -74,13 +72,23 @@ class TemplateGeneration:
         self.Get_data()
         
         if self.create_path != None:
+            # 創建模板
             self.Create_Template()
-            html = self.template.render(data = self.data_box)
+            
+            # 傳遞創建模板參數
+            html = self.template.render({
+                "title": self.create_name,
+                "bg": "rgb(110, 110, 110)",
+                "data": self.data_box,
+            })
+            
+            # 文件名稱
             name = os.path.join(self.create_path, f"{self.create_name}.html")
+            # 輸出文件
             with open(name, "w", encoding="utf-8") as f:
                 f.write(html)
                 
-            print("創建完成")
+            print("輸出完成")
             os.startfile(name)
 
 if __name__ == "__main__":
