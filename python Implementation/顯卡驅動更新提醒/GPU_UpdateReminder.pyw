@@ -16,7 +16,7 @@ Versions 1.0.1
 class Crawl:
     def __init__(self,GpuUrl):
         self.Session = requests.Session()
-        self.Header = {"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"}
+        self.Header = {"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 "}
         self.Url = GpuUrl
         self.Space = " " * 8
         self.GpuName = None
