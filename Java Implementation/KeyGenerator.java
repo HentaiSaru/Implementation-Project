@@ -21,7 +21,6 @@ public class KeyGenerator extends Thread implements StringOutput{
         System.out.print(KeyLength);
         try{
             InitialSetting._KeyLength = scanner.nextInt();
-            System.out.println("\n");   
         }catch(Exception e){System.out.println("輸入錯誤請輸入數字,程式已終止...");scanner.close();return;}
 
 
@@ -31,7 +30,6 @@ public class KeyGenerator extends Thread implements StringOutput{
         System.out.print(NumberOfKeysToGenerate);
         try{
             InitialSetting._NumberOfKeysToGenerate = scanner.nextInt();
-            System.out.println("\n");
         }catch(Exception e){System.out.println("輸入錯誤自動預設為1");scanner.next();System.out.println("\n");}
 
 
@@ -41,7 +39,6 @@ public class KeyGenerator extends Thread implements StringOutput{
         System.out.print(Formatting);
         try{
             InitialSetting.FormattingYesORNo = scanner.next();
-            System.out.println("\n");
         }catch(Exception e){System.out.println("輸入錯誤請輸(Y/N),程式已終止...");scanner.close();return;}
 
 
@@ -52,19 +49,15 @@ public class KeyGenerator extends Thread implements StringOutput{
             System.out.print(FormatJudgment);
             try{
                 InitialSetting._FormatJudgment = scanner.nextInt();
-                System.out.println("\n");
             }catch(Exception e){InitialSetting._FormatJudgment = 3;System.out.print("你輸入的不是數字,將預設值改成你全都要...\n");scanner.close();}
-        }key.ParameterPassing(InitialSetting._KeyLength,InitialSetting._NumberOfKeysToGenerate,InitialSetting._FormatJudgment);
+        }key.ParameterPassing(InitialSetting._KeyLength, InitialSetting._NumberOfKeysToGenerate, InitialSetting._FormatJudgment);
         //! 上方呼叫方法進行傳值
-
 
         /**
          **@密鑰呼叫生成 
          */
         try{
-            System.out.print("密鑰開始生成");
-            for(i=0;i<3;i++){sleep(500);System.out.print(".");}
-            System.out.println("\n");
+            System.out.println("密鑰開始生成...\n");
             key.start();
         }catch(Exception e){}
 
@@ -72,10 +65,10 @@ public class KeyGenerator extends Thread implements StringOutput{
 }
 interface StringOutput{
     String[] welcome = {"歡","迎","來","到","密","鑰","產","生","器"};
-    String KeyLength = "請輸入產生密鑰長度(數字)--> ";
-    String Formatting = "是否要設定生成格式,預設格式為小寫英文+數字(Y/N)--> ";
-    String FormatJudgment = "只增加大寫英文(1) 增加特殊符號和大寫英文(2)--> ";
-    String NumberOfKeysToGenerate = "輸入需要生成的密鑰數量--> ";
+    String KeyLength = "請輸入產生密鑰長度(數字)=> ";
+    String Formatting = "是否要設定生成格式,預設格式為小寫英文+數字(Y/N)=> ";
+    String FormatJudgment = "只增加大寫英文(1) 增加特殊符號和大寫英文(2)=> ";
+    String NumberOfKeysToGenerate = "輸入需要生成的密鑰數量=> ";
 }
 class InitialText implements StringOutput{
 
@@ -111,7 +104,7 @@ class key_generation extends Thread {
     char[] _KeyArea = {'!','-','?','_'};
 
     //! 長度 格式 數量 ...
-    int _KeyLength_,_NumberOfKeysToGenerate_,_FormatJudgment_;
+    int _KeyLength_, _NumberOfKeysToGenerate_, _FormatJudgment_;
 
     //! 第一次判斷用變數
     int ASCIIrange;
@@ -126,7 +119,7 @@ class key_generation extends Thread {
      * @param _NumberOfKeysToGenerate
      * @param _FormatJudgment
      */
-    public void ParameterPassing(int _KeyLength,int _NumberOfKeysToGenerate,int _FormatJudgment){
+    public void ParameterPassing(int _KeyLength, int _NumberOfKeysToGenerate, int _FormatJudgment){
         _KeyLength_ = _KeyLength;
         _NumberOfKeysToGenerate_ = _NumberOfKeysToGenerate;
         _FormatJudgment_ = _FormatJudgment;
@@ -214,10 +207,6 @@ class key_generation extends Thread {
             else if(PasswordStrengthCheck >= 25)KeyStrength ="非常弱";
             else KeyStrength ="垃圾";
             System.out.print("\n密碼強度為 : "+ KeyStrength);
-            
-            try{
-                sleep(500);
-            }catch(Exception a){}
 
             PasswordStrengthCheck=0;CheckNumbers=0;CheckLetters=0;CheckSymbol=0;CheckWord=0;
             KeyArea.clear();
