@@ -294,16 +294,16 @@ class GUI:
         self.RightText.insert("end", f"\n\t{self.Space*7}單檔壓縮主要適用於UPX壓縮\n\n\t{self.Space*9}UPX是針對EXE和Dll的壓縮\n\n\t{self.Space*15}壓縮前請自行備份\n\n\t{self.Space*15}壓縮後低機率損毀")
         # 底層UPX壓縮按鈕
         self.UPXCompression = tk.Button(self.UnderlyingFramework, text="UPX壓縮", command=com.UPXCompression)
-        self.UPXCompression.config(font=('Arial',15,'bold'),width=13,height=2,fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
+        self.UPXCompression.config(font=('Arial', 13, 'bold'), width=11, height=1, fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
         # 底層UPX壓縮還原按鈕
         self.UPXRestore = tk.Button(self.UnderlyingFramework, text="UPX還原", command=com.UPXRestore)
-        self.UPXRestore.config(font=('Arial',15,'bold'),width=13,height=2,fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
+        self.UPXRestore.config(font=('Arial', 13, 'bold'), width=11, height=1, fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
         # 底層PAR壓縮按鈕
         self.RARCompression = tk.Button(self.UnderlyingFramework, text="RAR壓縮", command=com.RARCopression)
-        self.RARCompression.config(font=('Arial',15,'bold'), width=13, height=2,fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
+        self.RARCompression.config(font=('Arial', 13, 'bold'), width=11, height=1, fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
         # 底層Zip壓縮按鈕
         self.ZipCompression = tk.Button(self.UnderlyingFramework, text="ZIP壓縮", command=com.ZIPCompression)
-        self.ZipCompression.config(font=("Arial",15,'bold'),width=13,height=2,fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
+        self.ZipCompression.config(font=("Arial", 13, 'bold'), width=11, height=1, fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
 
     def frame(self):
         self.OuterFrame.place(width=830, height=650, x=10, y=40)
@@ -316,12 +316,12 @@ class GUI:
     def Element(self):
         self.AloneData.place(x=470,y=10)
         self.IntegrateData.place(x=55,y=10)
-        self.LeftText.place(x=0,y=0)
-        self.RightText.place(x=0,y=0)
-        self.UPXCompression.place(x=0,y=10)
-        self.UPXRestore.place(x=180,y=10)
-        self.RARCompression.place(x=360,y=10)
-        self.ZipCompression.place(x=540,y=10)
+        self.LeftText.place(x=0, y=0)
+        self.RightText.place(x=0, y=0)
+        self.UPXCompression.place(x=0, y=5)
+        self.UPXRestore.place(x=0, y=45)
+        self.RARCompression.place(x=130, y=5)
+        self.ZipCompression.place(x=130, y=45)
 
 if __name__ == "__main__":
     com = Compression()
