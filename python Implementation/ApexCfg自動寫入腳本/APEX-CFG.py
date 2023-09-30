@@ -26,15 +26,15 @@ CFG = [
     # 平均0.48
     'm_acceleration "0"                                                                 ',  # 確保滑鼠加速關閉
 
-    'mouse_sensitivity "0.400000" 														',  # 腰射 edpi:
+    'mouse_sensitivity "0.800000" 														',  # 腰射 edpi:
     'mouse_use_per_scope_sensitivity_scalars "1"										',  # 是否開啟個別設置倍鏡 1(True) 2(False)
-    'mouse_zoomed_sensitivity_scalar_0 "0.520000" 										',  # x1倍鏡 edpi:739.5
-    'mouse_zoomed_sensitivity_scalar_1 "0.530000" 										',  # x2倍鏡 edpi:768.5
-    'mouse_zoomed_sensitivity_scalar_2 "0.560000" 										',  # x3倍鏡 edpi:797.5
-    'mouse_zoomed_sensitivity_scalar_3 "0.580000" 										',  # x4倍鏡 edpi:826.5
-    'mouse_zoomed_sensitivity_scalar_4 "0.860000"										',  # x6倍鏡
-    'mouse_zoomed_sensitivity_scalar_5 "0.860000"										',  # x8倍鏡
-    'mouse_zoomed_sensitivity_scalar_6 "0.860000"										',  # x10倍鏡
+    'mouse_zoomed_sensitivity_scalar_0 "0.620000" 										',  # x1倍鏡 edpi:739.5
+    'mouse_zoomed_sensitivity_scalar_1 "0.630000" 										',  # x2倍鏡 edpi:768.5
+    'mouse_zoomed_sensitivity_scalar_2 "0.660000" 										',  # x3倍鏡 edpi:797.5
+    'mouse_zoomed_sensitivity_scalar_3 "0.680000" 										',  # x4倍鏡 edpi:826.5
+    'mouse_zoomed_sensitivity_scalar_4 "0.960000"										',  # x6倍鏡
+    'mouse_zoomed_sensitivity_scalar_5 "0.960000"										',  # x8倍鏡
+    'mouse_zoomed_sensitivity_scalar_6 "0.960000"										',  # x10倍鏡
     'mouse_zoomed_sensitivity_scalar_7 "1.0"											',  # 不知道衝三小的
 
     
@@ -231,6 +231,7 @@ import tkinter as tk
 import threading
 import os
 
+"""
 os.system('color A')
 os.system('@echo off')
 os.system('cls')
@@ -251,6 +252,8 @@ os.system('@ ECHO --------------------------------------------------------------
 os.system('@ ECHO.')
 os.system('pause')
 os.system('cls')
+"""
+
 class Automatic:
     def __init__(self):
         self.set = None     # 保存設定設置
