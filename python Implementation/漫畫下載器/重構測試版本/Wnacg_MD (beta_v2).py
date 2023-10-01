@@ -164,7 +164,6 @@ class Accurate:
         async def Request_Trigger():
             New_url = ""
             pages = 0
-            count = 0
             page_count = 1
             total_pages = 2
 
