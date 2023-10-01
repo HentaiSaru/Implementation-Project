@@ -314,8 +314,8 @@ class GUI:
         self.UnderlyingFramework.place(width=790, height=90, x=20,y=550)
 
     def Element(self):
-        self.AloneData.place(x=470,y=10)
-        self.IntegrateData.place(x=55,y=10)
+        self.AloneData.place(x=470, y=10)
+        self.IntegrateData.place(x=55, y=10)
         self.LeftText.place(x=0, y=0)
         self.RightText.place(x=0, y=0)
         self.UPXCompression.place(x=0, y=5)
