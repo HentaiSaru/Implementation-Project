@@ -133,7 +133,7 @@ class ReadJson:
             state = self.__read_json()
             
             if state:
-                with open(self.Json_name.replace(".json",".txt"), "w", encoding="utf-8") as file:
+                with open(self.Json_name.replace(".json", ".txt"), "w", encoding="utf-8") as file:
                     for index , (key , value) in enumerate(self.Json_data.items()):
                         if Location == 0:
                             file.write(key)
