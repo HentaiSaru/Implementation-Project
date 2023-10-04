@@ -26,10 +26,12 @@ pip install pycryptodome
 pip install uncompyle6
 ::------------------------::
 :: 爬蟲
+pip install httpx
 pip install requests
+pip install grequests
 pip install Scrapy
-pip install beautifulsoup4
 pip install urllib3
+pip install beautifulsoup4
 ::------------------------::
 :: 異步請求
 pip install aiohttp
