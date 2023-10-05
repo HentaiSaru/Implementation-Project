@@ -12,6 +12,41 @@ import json
 import re
 import os
 
+""" Versions 1.0.0 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Todo - EHentai/ExHentai 漫畫下載
+
+        * 功能概述 :
+        ? 可下載 EHentai 和 ExHentai , 下載 Ex 需要設置 cookie
+        ? cookie 有代碼中設置 Set() 和 json 讀取 Read()
+        ? 目前只支援漫畫頁面的下載 , 搜尋頁面的不支援 , 後續會再添加
+
+        * 開發環境 :
+        ? Python 版本 3.11.4 - 64 位元
+        ? 模塊下載 Python包安裝.bat 運行
+        ? 依賴下載 Script 資料夾內所有腳本
+        
+        * 測試項目 :
+        ? 下載穩定性
+        ? 請求處理穩定性
+        
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Todo - 使用說明
+
+        * 可設置的功能都於 download_settings() 方法中設置
+
+        * set 和 read 類 使用說明 , 看該類的註解
+
+        * 請求的延遲別設置太短 , 有 IP 被 Ban 的可能性
+        * 但有時請求失敗 , 可能是伺服器 , 或是 Cookie 的問題
+
+        * 關於排除 Tag 的字典 , 設置時的 Key 值隨便打 , value 需包含在 list 內
+        * 只要該漫畫有相關標籤 , 就會被排除掉
+        
+        * 傳入網址於 download_request() or 測試通道 , 即可開始請求下載
+"""
+
 #Todo [手動獲取Cookie, 並保存Josn文件]
 def cookie_get():
     return Get.MGCookie("https://e-hentai.org/", rf"{os.getcwd()}\Cookie\EHCookies")
@@ -85,14 +120,14 @@ Read = Read()
 
 #Todo [數據請求回傳]
 class DataRequest:
-    Cookies = None
-    Headers = None
-    
+    # 這邊有些多此一舉, 但是可以讓調用代碼縮短
+    Reques = None
+
     def get(self, link, result="tree"):
-        return Reques.get(link, result, self.Headers, self.Cookies)
-    
+        return self.Reques.get(link, result)
+
     def async_get(self, link, session):
-        return Reques.async_get(link, session, self.Headers, self.Cookies)
+        return self.Reques.async_get(link, session)
 
 #Todo [下載連結驗證 分類]
 class Validation(DataRequest):
@@ -106,6 +141,7 @@ class Validation(DataRequest):
 
     # 驗證是否請求到網站數據
     def Request_Status(self):
+
         try:
             teee = self.get(self.Judgment_type)
             teee.xpath("//div[@class='searchtext']/p/text()")
@@ -219,12 +255,11 @@ class EHentaidownloader(Validation):
         self.SetUse = True # 當首次被呼叫時, 設置已使用
         self.path = DownloadPath
         self.GetCookie = GetCookie
-        self.Cookies = CookieSource
         self.TagFilterBox = FilterTags
         self.ProtectionDelay = DownloadDelay
         self.MaxProcess = MaxConcurrentDownload
         self.ProcessDelay = ProcessCreationDelay
-        self.Headers = Browser.lower().capitalize()
+        self.Reques = Reques(Browser.lower().capitalize(), CookieSource) # 初始化請求
 
     #? (正式通道) 下載請求
     def download_request(self, link):
@@ -401,6 +436,6 @@ if __name__ == "__main__":
     # else:
         # print("無擷取內容")
         # os._exit(0)
- 
+
     for capture in AutoCapture.Unlimited():
         eh.download_request_test(capture)
