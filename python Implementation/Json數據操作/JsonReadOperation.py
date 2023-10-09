@@ -93,7 +93,7 @@ class ReadJson:
 
             if OutPut:
                 self.__output(self.Json_Operation_A)
-                
+
     def cookie_parsing_2(self, JsonName: str, ShowDict: bool=False, OutPut: bool=False):
         """
         讀取 Json 格式的 Cookie , 保留原數據格式解析方法
@@ -103,7 +103,7 @@ class ReadJson:
         """
         self.Json_name = JsonName
         state = self.__read_json()
-    
+
         if state:
 
             for cookie in self.Json_data:
@@ -117,7 +117,7 @@ class ReadJson:
 
             if OutPut:
                 self.__output(self.Json_special)
-                
+
     def json_to_txt(self, JsonName: str, Location: int=0, Delete: bool=False):
         """
         將 Json 檔 Key 或 Value 的值 , 變成 txt 文字輸出
@@ -128,10 +128,10 @@ class ReadJson:
         try:
             if Location < 0 or Location > 2:
                 raise ValueError()
-            
+
             self.Json_name = JsonName
             state = self.__read_json()
-            
+
             if state:
                 with open(self.Json_name.replace(".json", ".txt"), "w", encoding="utf-8") as file:
                     for index , (key , value) in enumerate(self.Json_data.items()):
@@ -147,10 +147,10 @@ class ReadJson:
                     os.system(f"del /f /s /q {self.Json_name} >nul 2>&1")
                     print(f"已刪除 {self.Json_name}")
                 print("輸出完成...")
-            
+
         except ValueError:
             print("Location 範圍 0 ~ 2")
-            
+
     def json_str_split(self, JsonName: str, Location: int=0, Split: list=[], FilterMode: bool=False, Delete: bool=False):
         """
         [此方法是以含有指定類型的文字進行分割]
@@ -164,38 +164,38 @@ class ReadJson:
         try:
             if Location < 0 or Location > 1:
                 raise ValueError()
-            
+
             if not isinstance(Split, list):
                 raise TypeError()
-            
+
             self.Json_name = JsonName
             state = self.__read_json()
-            
+
             if state:
                 judge_str = None
                 for key , value in self.Json_data.items():
                     judge_bool = False
-                    
+
                     if Location == 0:
                         judge_str = key
                     else:
                         judge_str = value
-                    
+
                     for sp in Split:
                         if sp in judge_str:
                             judge_bool = True
-                            
+
                     if judge_bool:
                         self.Json_Operation_A[key] = value
                     else:
                         self.Json_Operation_B[key] = value
-                            
+
                 if FilterMode:
                     self.__split_output(f"[Filter]_{JsonName}", self.Json_Operation_B, Delete)
                 else:
                     self.__split_output(f"[ClassA]_{JsonName}", self.Json_Operation_B, Delete)
                     self.__split_output(f"[ClassB]_{JsonName}", self.Json_Operation_A, Delete)
-            
+
         except ValueError:
             print("Location 只有 0 和 1")
         except TypeError:
@@ -215,12 +215,12 @@ class ReadJson:
         else:
             os.system(f"del /f /s /q {self.Json_name} >nul 2>&1")
             print(f"已刪除 {self.Json_name}")
-            
+
     def __split_output(self, name, data, delete):
         with open(name , "w" , encoding="utf-8") as file:
             file.write(json.dumps(data, indent=4, separators=(',',':')))
         print(f"{name} => 輸出完成")
-        
+
         if delete:
             if os.path.exists(self.Json_name):
                 os.system(f"del /f /s /q {self.Json_name} >nul 2>&1")
@@ -229,16 +229,16 @@ class ReadJson:
 if __name__ == "__main__":
     rj = ReadJson()
     # 開啟網頁連結
-    rj.open_url("toone.json",10,OutPut=True)
-    
+    rj.open_url("範圍401-999.json", 10, OutPut=True)
+
     # 解析 cookie (只保留數值)
     # rj.cookie_parsing("Cookies.json",OutPut=True)
-    
+
     # 解析 cookie (保留 name 和 value 的 key 值)
     # rj.cookie_parsing_2("Cookies.json",OutPut=True)
-    
+
     # 將 Json 文件內容轉成 txt
     # rj.json_to_txt("可用網址.json" , Delete=True)
-    
+
     # 使用設置的分離文字 , 將原 Json 分離成 , 兩個 json
     # rj.json_str_split("#.json", 1, ["",""])
