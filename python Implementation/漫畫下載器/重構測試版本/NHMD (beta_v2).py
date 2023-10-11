@@ -133,8 +133,8 @@ class NHentaidownloader:
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
         #Todo => 請求相關設置
         self.session = requests.Session()
-        self.Google_Headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"}
-        self.Edge_Headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.54"}
+        self.Google_Headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"}
+        self.Edge_Headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.47"}
         self.headers = None
         #Todo => 判斷格式和排除格式
         self.search = r"https://nhentai\.net/.*"
@@ -465,12 +465,6 @@ class NHentaidownloader:
 
                 save = os.path.join(self.save_location,SaveName)
                 executor.submit(self.download, save, comic_link)
-
-                # Data_status = executor.submit(self.download, save, comic_link).result()
-                # if Data_status != 200:
-                    # if self.ErrorReDownload:
-                        # executor.submit(self.error_download_try_again, save, comic_link)
-
                 time.sleep(self.ProtectionDelay)
 
     # 資料夾創建
