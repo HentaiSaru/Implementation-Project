@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from lxml import etree
 import requests
+import httpx
 
 """
 Todo    適用於 Python 3.10+
@@ -23,7 +24,7 @@ class Reques(CarryHead):
         self.session = requests.Session()
         self.headers = self.Head[headers]
         self.cookies = cookies
-    
+
     # 解析要回傳的類型
     def __Parse(self, respon, type):
         match type:
@@ -38,12 +39,12 @@ class Reques(CarryHead):
             case "bf":
                 return BeautifulSoup(respon.text, "html.parser")
 
-    def get(self, url: str, result: str="text"):
+    def get(self, url: str, result: str="text") -> any:
         """
         *   基本 Get 請求
         >>> [ url ]
         要請求的連結
-        
+
         >>> [ result ]
         要獲取的結果類型
         ("text" / "content" / "status" / "tree" / "bf")
@@ -53,7 +54,25 @@ class Reques(CarryHead):
             result
         )
 
-    async def async_get(self, url: str, session):
+    async def http_get(self, url: str) -> object:
+        """
+        *   異步 Get 請求
+
+        >>> [ url ]
+        要請求的連結
+
+        >>> [ 使用方式 ]
+        import asyncio
+        async def main():
+            work = [http_get(url) for url in date]
+            results = await asyncio.gather(*work)
+        asyncio.run(main())
+        """
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=self.headers, cookies=self.cookies)
+            return etree.HTML(response.text)
+
+    async def async_get(self, url: str, session) -> object:
         """
         *   異步 Get 請求
 
@@ -63,7 +82,13 @@ class Reques(CarryHead):
         >>> [ session ]
         請求的 session 值
 
-        -> 目前只回傳 tree 的 Dom 文本
+        >>> [ 使用方式 ]
+        import aiohttp
+        async def main():
+            async with aiohttp.ClientSession() as session:
+                work = [async_get(url, session) for url in date]
+                results = await asyncio.gather(*work)
+        asyncio.run(main())
         """
         async with session.get(url, headers=self.headers, cookies=self.cookies) as response:
             content = await response.text()
