@@ -45,14 +45,16 @@ class ReadJson:
 
             if state:
                 amount = len(self.Json_data)
+                print(amount)
 
-                for key , value in self.Json_data.items():
+                for key, value in self.Json_data.items():
                     if self.Operation_Pass:
                         if self.Calculate == self.Stop_Line:
+
                             self.Calculate = 0
                             amount -= self.Stop_Line
-                            n = input(f"按下Enter繼續測試 [剩餘:{amount}] [輸入 0 結束] : ")
 
+                            n = input(f"按下Enter繼續測試 [剩餘:{amount}] [輸入 0 結束] : ")
                             if n == "0":
                                 self.Operation_Pass = False
                         else:
@@ -61,6 +63,7 @@ class ReadJson:
                             else:
                                 os.system(f"start {value}")
                             time.sleep(0.3)
+
                         self.Calculate += 1
                     else:
                         self.Json_Operation_A[key] = value
