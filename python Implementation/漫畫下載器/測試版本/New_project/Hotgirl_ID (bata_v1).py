@@ -1,3 +1,4 @@
+from Script import AutoCapture, Reques, Get
 """
 爬取網站: https://hotgirl.asia/
 
