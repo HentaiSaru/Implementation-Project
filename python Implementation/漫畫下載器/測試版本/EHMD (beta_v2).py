@@ -74,7 +74,7 @@ class Set:
             return self.Cookies
         elif Type.lower() == "filter":
             return self.TagExclude
-        
+ 
 class Read:
     """
     Read 類別 (自動讀取Json)
@@ -135,7 +135,7 @@ class Validation(DataRequest):
     Judgment_type = "https://e-hentai.org/" # 判斷輸入的網址類型, 用於驗證是否能請求
     E_HManga = r"https://e-hentai.org/g/\d+/[a-zA-Z0-9]+/"
     Ex_HManga = r"https://exhentai.org/g/\d+/[a-zA-Z0-9]+/"
-    
+
     category = [] # 分類用
     save_box = [] # 下載連結
 
@@ -158,7 +158,7 @@ class Validation(DataRequest):
                     return False
             else:
                 return False
-    
+
     # 網址進行分類
     def URL_Classification(self, link):
         try:
@@ -179,7 +179,7 @@ class Validation(DataRequest):
                     self.Judgment_type = "https://exhentai.org/"
                 else:
                     print(f"不支援的網址格式 : {url}")
-                    
+
             if len(self.save_box) > 0: # 驗證請求狀態
                 if self.Request_Status():
                     return self.save_box
@@ -285,13 +285,13 @@ class EHentaidownloader(Validation):
                     for index, url in enumerate(box):
                         executor.submit(self.Comic_Process, url, index+1)
                         time.sleep(self.ProcessDelay)
-    
+
     #? 處理漫畫數據           
     def Comic_Process(self, url, count):
         url = url.split("?p=")[0] # 獲取第一頁數據
         StartTime = time.time()
         print(f"[漫畫 {count} 開始處理] => {url}", flush=True)
-        
+
         #! 保存主頁跳轉連結
         home_page_link = []
         def home_page(tree):
@@ -299,7 +299,7 @@ class EHentaidownloader(Validation):
                 href = data.get("href")
                 if href != None:
                     home_page_link.append(href)
-                    
+
         #! 保存圖片連結
         image_link = OrderedDict()
         def picture_link(tree):
@@ -346,7 +346,7 @@ class EHentaidownloader(Validation):
                 if result:
                     print(f"[漫畫 {count} 排除]", flush=True)
                     return
-                
+
         #! 核心獲取圖片連結邏輯
         async def Trigger():
             count = 0 # 計數器
@@ -354,12 +354,12 @@ class EHentaidownloader(Validation):
             async with aiohttp.ClientSession() as session:
                 for page in range(1, total_pages):
                     work.append(asyncio.create_task(self.async_get(f"{url}?p={page}", session)))
-                    
+
                     count+=1
                     if count == 5: #* 每處理5頁, 暫停1秒
                         print(f"\r以處理 [{page}] 頁", end="", flush=True)
                         await asyncio.sleep(1)
-                        count = 0    
+                        count = 0
                 results = await asyncio.gather(*work)
 
                 # 處理獲取跳轉連結
@@ -393,7 +393,7 @@ class EHentaidownloader(Validation):
         # 數據轉換成 list, 處理數據後放入下載盒
         for page, link in enumerate(list(image_link.keys())):
             self.picture_link_box[f"{(page+1):04d}"] = link
-            
+
         print("\r[漫畫 %d 處理完成] => 處理耗時 %.3f 秒" % (count, (time.time() - StartTime)), flush=True)
         self.create_folder(self.save_location) # 創建資料夾
         self.download_processing() # 進行下載處理
@@ -411,7 +411,7 @@ class EHentaidownloader(Validation):
                save_location = os.path.join(self.save_location, f"{SaveName}.{Link.rsplit('.', 1)[1]}")
                executor.submit(self.download_pictures, save_location, Link)
                time.sleep(self.ProtectionDelay)
-    
+
     #? 圖判下載到本地
     def download_pictures(self, download_path, download_link):
         ImageData = self.get(download_link, "content")
@@ -426,7 +426,7 @@ if __name__ == "__main__":
         DownloadPath = "R:/",
         CookieSource = Read("cookie"),
     )
-    
+
     AutoCapture.settings("https://(exhentai|e-hentai)")
 
     # 獲取擷取列表, 一次回傳一個列表, 自動停止擷取
