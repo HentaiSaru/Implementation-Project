@@ -26,7 +26,7 @@ pip install pycryptodome
 pip install uncompyle6
 ::------------------------::
 :: 爬蟲
-pip install httpx
+pip install httpx[http2]
 pip install requests
 pip install grequests
 pip install Scrapy
