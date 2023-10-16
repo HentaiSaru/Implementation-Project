@@ -10,9 +10,9 @@ import re
 class AutomaticCapture:
     def __init__(self):
         self.sound = f"{os.path.dirname(os.path.abspath(__file__))}\\Effects\\notify.wav"
-        self.UrlFormat = r'^(?:http|ftp)s?://'
+        self.UrlFormat = re.compile(r'^(?:http|ftp)s?://')
 
-        self.initial_url_format = None
+        self.match_url = None
         self.intercept_delay = None
 
         self.clipboard_cache = None
@@ -25,7 +25,7 @@ class AutomaticCapture:
         self.count = 0
         
     def __verifica(self):
-        if self.initial_url_format != None:
+        if self.match_url != None:
             return True
         else:
             print("請先使用 settings(domainName) 設置域名")
@@ -45,7 +45,7 @@ class AutomaticCapture:
         print("複製網址後立即下載:")
         self.return_type = True
         threading.Thread(target=self.__Read_clipboard).start()
-        
+
     def __generate_trigger(self):
         print("自動監聽剪貼簿觸發下載(只能手動停止程式):")
         self.generate_type = True
@@ -56,19 +56,19 @@ class AutomaticCapture:
 
         while self.detection:
             clipboard = pyperclip.paste()
-            
-            if clipboard != self.clipboard_cache and re.match(self.initial_url_format , clipboard):
+
+            if clipboard != self.clipboard_cache and self.match_url.match(clipboard):
                 self.count += 1
                 print(f"擷取網址 [{self.count}] : {clipboard}")
                 self.download_list.add(clipboard)
                 self.clipboard_cache = clipboard
-                
+
                 if self.generate_type:
                     self.queue.put(clipboard)
                 elif self.return_type:
                     self.queue.put(clipboard)
                     break
-                
+
                 # try:playsound(self.sound)
                 # except:pass
 
@@ -80,8 +80,8 @@ class AutomaticCapture:
 
     def settings(self, domainName:str, delay=0.05):
         try:
-            if re.match(self.UrlFormat , domainName):
-                self.initial_url_format = r"{}.*".format(domainName)
+            if self.UrlFormat.match(domainName):
+                self.match_url = re.compile(rf"{domainName}.*")
                 self.intercept_delay = delay
             else:
                 raise Exception()
@@ -119,7 +119,7 @@ class AutomaticCapture:
                     yield link
             else:
                 return None
-            
+
     # 特別的擷取方法
     def Unlimited(self):
         """
