@@ -59,12 +59,12 @@ dir = os.path.abspath("R:/")
 
 # (該網站會每過一段時間會改域名 , 在此處更改即可繼續使用)
 def DomainName():
-    return "http://www.zerobyw5090.com/"
+    return "http://www.zerobyw603.com/"
 
 class ZeroDownloader:
     def __init__(self):
         self.session = requests.Session()
-        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"}
+        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"}
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
             *  { 進程處理 }
