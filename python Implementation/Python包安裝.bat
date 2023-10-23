@@ -149,11 +149,6 @@ pip install discord_webhook
 pip install --upgrade setuptools
 pip install --upgrade wheel
 
-timeout /t 03 >nul
-
-del /f /s /q "用" >nul
-del /f /s /q "開" >nul
-
 @echo ------------------------------
 @echo installation is complete
 @echo ------------------------------
