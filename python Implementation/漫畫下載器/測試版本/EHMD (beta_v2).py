@@ -108,10 +108,10 @@ class Read:
                 }
             elif Type.lower() == "filter":
                 self.Create_Format = {
-                    "Tags": ["Please enter Tag","Please enter Tag"],
+                    "Tags": ["Please enter Tag", "Please enter Tag"],
                 }
                 
-            with open(self.Open_Path , "w") as file:
+            with open(self.Open_Path, "w") as file:
                 file.write(json.dumps(self.Create_Format, indent=4, separators=(',',':')))
 
 # 實例化
@@ -143,8 +143,8 @@ class Validation(DataRequest):
     def Request_Status(self):
 
         try:
-            teee = self.get(self.Judgment_type)
-            teee.xpath("//div[@class='searchtext']/p/text()")
+            tree = self.get(self.Judgment_type)
+            tree.xpath("//div[@class='searchtext']/p/text()")
             return True
         except:
             if self.GetCookie:
