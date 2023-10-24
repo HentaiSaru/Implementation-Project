@@ -11,7 +11,7 @@ Todo    適用於 Python 3.10+
 
 class CarryHead:
     Head = {
-        "Google": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"},
+        "Google": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36"},
         "Edge": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.47"}
     }
 
@@ -28,6 +28,8 @@ class Reques(CarryHead):
     # 解析要回傳的類型
     def __Parse(self, respon, type):
         match type:
+            case "none":
+                return respon
             case "text":
                 return respon.text
             case "content":
@@ -47,7 +49,11 @@ class Reques(CarryHead):
 
         >>> [ result ]
         要獲取的結果類型
-        ("text" / "content" / "status" / "tree" / "bf")
+        ("none" / "text" / "content" / "status" / "tree" / "bf")
+
+        "none" => 無處理
+        "tree" => lxml 進行解析
+        "bf" => bs4 進行解析
         """
         return self.__Parse(
             self.session.get(url, headers=self.headers, cookies=self.cookies),
