@@ -170,19 +170,19 @@ class NHentaidownloader:
     
     # 下載設置功能
     def download_settings(
-            self,
-            SearchQuantity: int=5,
-            TitleFormat: bool=False,
-            TryGetCookie: bool=False,
-            TryRedownload: bool=True,
-            DownloadPath: str=os.path.dirname(os.path.abspath(__file__)),
+        self,
+        SearchQuantity: int=5,
+        TitleFormat: bool=False,
+        TryGetCookie: bool=False,
+        TryRedownload: bool=True,
+        DownloadPath: str=os.path.dirname(os.path.abspath(__file__)),
 
-            DownloadDelay = 0.3,
-            ProcessCreationDelay = 1,
-            MaxConcurrentDownload: int=cpu_count(),
+        DownloadDelay = 0.3,
+        ProcessCreationDelay = 1,
+        MaxConcurrentDownload: int=cpu_count(),
 
-            FilterTags: dict=None,
-            CookieSource: dict=Set("cookie"),
+        FilterTags: dict=None,
+        CookieSource: dict=Set("cookie"),
     ):
         """
     >>> SearchQuantity - 搜尋頁面的請求頁數 (預設: 5 頁)
@@ -402,7 +402,7 @@ class NHentaidownloader:
                 url = f"{link.split('?page=')[0]}?page=1"
             else:
                 url = f"{link}?page=1"
-            
+
             # 獲取漫畫連結方法
             def get_comic_link(tree):
                 for data1 in tree.xpath("//div[@class='container index-container']"): 
