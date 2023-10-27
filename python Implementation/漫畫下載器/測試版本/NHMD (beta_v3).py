@@ -203,6 +203,28 @@ class NHentaidownloader(Validation):
         FilterTags: dict=None,
         CookieSource: dict=Set("cookie"),
     ):
+        """
+        * Browser => 使用的瀏覽器 [Google/Edge]
+        * SearchQuantity => 傳入搜尋頁面時, 需要爬取幾頁的數據
+        * TitleFormat => 是否需要使用標題格式, 創建資料夾名稱的格式
+        * TryGetCookie => 是否啟用自動獲取 Cookie
+        * TryRedownload => 請求失敗時是否自動試錯
+        * DownloadPath => 下載的路徑
+        * DownloadDelay => 每張圖片的下載請求延遲
+        * ProcessCreationDelay => 進程創建的延遲
+        * MaxConcurrentDownload => 同時處理的最大進程數
+        * FilterTags => 用於過濾含有特定Tag的漫畫 [Read("filter") / Set("filter")]
+        * CookieSource => Cookie 的來源 [Read("cookie") / Set("cookie")]
+        
+        >>> FilterTags 補充說明 [數據格式必須有 key 值 , 包含數據 list]
+        !   {'Parodies': [''], 'Characters': [''], 'Tags': [''], 'Artists': [''], 'Languages': [''], 'Pages': ['']}
+        *   'Parodies' : 原創 / 二創作品
+        *   'Characters' : 人物角色
+        *   'Tags' : Tag 標籤
+        *   'Artists' : 繪師
+        *   'Languages' : 語言
+        *   'Pages' : 頁數
+        """
         self.SetUse = True # 判斷設置方法被調用
         self.path = DownloadPath
         self.Pages = SearchQuantity # 搜尋頁下載頁數
