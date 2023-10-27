@@ -1,5 +1,4 @@
-from Script.AutomaticCapture import AutoCapture
-from Script.GetCookiesAutomatically import Get
+from ..測試版本.Script import AutoCapture, Get
 from collections import OrderedDict
 from concurrent.futures import *
 from multiprocessing import *
