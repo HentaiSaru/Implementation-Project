@@ -1,4 +1,4 @@
-from ..重構測試版本.Script import AutoCapture, Get
+from ..測試版本.Script import AutoCapture, Get
 from collections import OrderedDict
 from concurrent.futures import *
 from multiprocessing import *
