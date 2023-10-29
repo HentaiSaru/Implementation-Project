@@ -9,6 +9,31 @@ import json
 import re
 import os
 
+""" Versions 1.0.0 (測試版)
+
+    Todo - e-hentai 漫畫下載器
+    
+        ? (開發/運行環境):
+        * Python 3.11.4 64-bit
+        * 第三方依賴庫 -> Python包安裝.bat 安裝
+        * 個人依賴項目 -> Script 資料夾含內容
+        
+        ? 功能說明:
+        * 可傳入 e-hentai 的漫畫頁面下載單本漫畫
+        * 或傳入搜尋頁面 並設置爬取頁數 並自動下載所有漫畫
+        * 可設置排除標籤 在自動爬取時 含有被排除的Tag時 會自動將該漫畫排除
+        
+        ? 使用說明:
+        * 運行請求前需要先輸入 Cookies 不然會請求不到數據
+        * 目前自動獲取功能失效 手動至網站獲取通過機器人驗證的 Cookies
+        * 並使用 Set 或 Read 傳入 Cookies 進行設置
+        * 更多相關設置於程式最下方 download_settings() 函數進行設置(設置說明也在那)
+        * 設置完成後啟用程式 即可自動擷取剪貼簿 擷取完成透過熱鍵 觸發請求下載
+        
+        ? 測試功能:
+        * 測試運行穩定性
+"""
+
 #Todo [ 手動獲取Cookie, 並保存Josn文件 ]
 def cookie_get():
     return Get.MGCookie("https://e-hentai.org/", rf"{os.getcwd()}\Cookie\NHCookies")
