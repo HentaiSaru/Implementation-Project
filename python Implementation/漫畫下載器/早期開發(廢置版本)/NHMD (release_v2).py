@@ -12,7 +12,7 @@ import json
 import re
 import os
 
-""" Versions 1.0.3 (測試版)
+""" Versions 1.0.3
 
     Todo - NHentai 漫畫下載
 
@@ -38,11 +38,7 @@ import os
 
     Todo - 相關說明
 
-        * 使用相關
-        ! cookie 相關有 set / read / get , 只有 set 需要手動更改代碼
-        ! filter 相關有 set / read / none , 並非強制設置 none 就是無設置
-        ! 大致上設置都在 download_settings() , 設置說明也於此處
-        ! 如果一直請求失敗 , 有可能是網站本身 , 或是網路連線問題
+        ! 廢置版本不再更新
 """
 
 #Todo [網站域名設置]
