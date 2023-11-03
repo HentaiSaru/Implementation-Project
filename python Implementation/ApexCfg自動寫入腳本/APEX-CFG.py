@@ -8,7 +8,7 @@ CFG = [
 
     'bind_US_standard "x" "+ping"                                                       ',  # 使用X ping點
     'bind_US_standard "space" "+jump; +jump; +jump;"                                    ',
-    'bind_US_standard "e" "+use; +use; +use; +use_long; +use_long;"                     ',
+    'bind_US_standard "e" "+use; +use; +use_long; +use_long;"                           ',
     'bind_US_standard "MOUSE4" "+melee"                                                 ',  # 側鍵近戰
     'bind_US_standard "mouse5" "+duck; +duck;" 											',  # 側鍵蹲
     'bind_US_standard "mwheelup" "+forward; +jump; +forward; +jump;" 					',  # 滾輪 (跳+前)
@@ -28,13 +28,13 @@ CFG = [
 
     'mouse_sensitivity "0.950000" 														',  # 腰射 edpi:
     'mouse_use_per_scope_sensitivity_scalars "1"										',  # 是否開啟個別設置倍鏡 1(True) 2(False)
-    'mouse_zoomed_sensitivity_scalar_0 "0.420000" 										',  # x1倍鏡 edpi:
-    'mouse_zoomed_sensitivity_scalar_1 "0.440000" 										',  # x2倍鏡 edpi:
-    'mouse_zoomed_sensitivity_scalar_2 "0.460000" 										',  # x3倍鏡 edpi:
-    'mouse_zoomed_sensitivity_scalar_3 "0.480000" 										',  # x4倍鏡 edpi:
-    'mouse_zoomed_sensitivity_scalar_4 "0.980000"										',  # x6倍鏡
-    'mouse_zoomed_sensitivity_scalar_5 "0.980000"										',  # x8倍鏡
-    'mouse_zoomed_sensitivity_scalar_6 "0.980000"										',  # x10倍鏡
+    'mouse_zoomed_sensitivity_scalar_0 "0.580000" 										',  # x1倍鏡 edpi:
+    'mouse_zoomed_sensitivity_scalar_1 "0.600000" 										',  # x2倍鏡 edpi:
+    'mouse_zoomed_sensitivity_scalar_2 "0.620000" 										',  # x3倍鏡 edpi:
+    'mouse_zoomed_sensitivity_scalar_3 "0.640000" 										',  # x4倍鏡 edpi:
+    'mouse_zoomed_sensitivity_scalar_4 "0.990000"										',  # x6倍鏡
+    'mouse_zoomed_sensitivity_scalar_5 "0.990000"										',  # x8倍鏡
+    'mouse_zoomed_sensitivity_scalar_6 "0.990000"										',  # x10倍鏡
     'mouse_zoomed_sensitivity_scalar_7 "1.0"											',  # 不知道衝三小的
 
     
@@ -183,47 +183,46 @@ CFG = [
 
     # 網路優化(loss丟失/choke阻塞)=======================================================================
     
-    # 'host_limitlocal "1"															    ',  # 是否關閉使用本地DNS
-    # 'rate "125000"																	    ',  # https//:agame01.com/article/682994/
-    # 'cl_cmdrate "100"																    ',  # 每秒上傳幾組 packet 到 server (丟包loss時降低)
-    # 'cl_updaterate "100"															    ',  # 每秒向 server 接收幾組 packet (阻塞choke時降低)
-    # 'cl_lagcompensation "1"															    ',  # 延遲補償開啟
-    # 'cl_resend "2"																	    ',  # 網路錯誤重發間隔
-    # 'cl_interp "0"																	    ',  # 網路插播關閉
-    # 'cl_interp_ratio "1"															    ',  # 間格比(數值加大減少丟包)
-    # 'cl_pred_optimize "1"															    ',  # 預優化?
-    # 'cl_predict "1"																	    ',  # 不確定
-    # 'cl_predictweapons "1"															    ',  # 不確定
-    # 'cl_wpn_sway_interp "0"															    ',  # wpn搖擺解釋器
-    # 'cl_interpolate "0"																    ',  # 不知道
-    # 'cl_interpolation_before_prediction "0"											    ',  # 不知道
-    # 'cl_cmdbackup "2"																    ',  # 數據包丟失備份發送
-    # 'cl_updatevisibility "1"														    ',  # 更新可見性
-    # 'cl_timeout "25"																    ',  # 超時請求
-    # 'cl_smooth "1"																	    ',  # 不知道
-    # 'cl_smoothtime "0.01"															    ',  # 不知道
-    # 'pin_opt_in "0"																	    ',  # 禁止將 PIN 遙測數據發送到 EA
-    # 'pin_plat_id "0"																    ',  # 退出重生數據調查
-    # 'telemetry_client_enable "0"													    ',  # 多久發送一次遙測數據
-    # 'projectile_prediction " 1 "													    ',  # 啟用客戶端預測和彈丸補償
-    # 'projectile_predictionErrorCorrectTime " 0.01 "									    ',  # 修正彈丸預測誤差的時間
-    # 'origin_presense_updateRate " 10 "												    ',  # 在每次 Origin 存在更新之間放寬秒數
-    # 'net_compresspackets " 1 "														    ',  # 壓縮發送到服務器的數據包
-    # 'net_compresspackets_minsize " 64 "												    ',  # 壓縮包不低於設定值
-    # 'net_maxcleartime " 0.030000 "													    ',  # 減少引擎等待發送另一個數據包的時間
-    # 'host_sleep "0"																	    ',  # 強製主機每幀休眠一定的毫秒數'''
-    # 'telemetry_client_sendInterval "0"',
+    'host_limitlocal "1"															    ',  # 是否關閉使用本地DNS
+    'rate "125000"																	    ',  # https//:agame01.com/article/682994/
+    'cl_cmdrate "120"																    ',  # 每秒上傳幾組 packet 到 server (丟包loss時降低)
+    'cl_updaterate "120"															    ',  # 每秒向 server 接收幾組 packet (阻塞choke時降低)
+    'cl_lagcompensation "1"															    ',  # 延遲補償開啟
+    'cl_resend "2"																	    ',  # 網路錯誤重發間隔
+    'cl_interp "0"																	    ',  # 網路插播關閉
+    'cl_interp_ratio "1"															    ',  # 間格比(數值加大減少丟包)
+    'cl_pred_optimize "1"															    ',  # 預優化?
+    'cl_predict "1"																	    ',  # 不確定
+    'cl_predictweapons "1"															    ',  # 不確定
+    'cl_wpn_sway_interp "0"															    ',  # wpn搖擺解釋器
+    'cl_interpolate "0"																    ',  # 不知道
+    'cl_interpolation_before_prediction "0"											    ',  # 不知道
+    'cl_cmdbackup "2"																    ',  # 數據包丟失備份發送
+    'cl_updatevisibility "1"														    ',  # 更新可見性
+    'cl_timeout "25"																    ',  # 超時請求
+    'cl_smooth "1"																	    ',  # 不知道
+    'cl_smoothtime "0.01"															    ',  # 不知道
+    'pin_opt_in "0"																	    ',  # 禁止將 PIN 遙測數據發送到 EA
+    'pin_plat_id "0"																    ',  # 退出重生數據調查
+    'telemetry_client_enable "0"													    ',  # 多久發送一次遙測數據
+    'projectile_prediction "1"													        ',  # 啟用客戶端預測和彈丸補償
+    'projectile_predictionErrorCorrectTime "0.01"									    ',  # 修正彈丸預測誤差的時間
+    'origin_presense_updateRate "10"												    ',  # 在每次 Origin 存在更新之間放寬秒數
+    'net_compresspackets "1"														    ',  # 壓縮發送到服務器的數據包
+    'net_compresspackets_minsize "64"												    ',  # 壓縮包不低於設定值
+    'net_maxcleartime " 0.030000 "													    ',  # 減少引擎等待發送另一個數據包的時間
+    'host_sleep "0"																	    ',  # 強製主機每幀休眠一定的毫秒數'''
+    'telemetry_client_sendInterval "0"',
 ]
 
 # ===================================================上面才是設定值,下面不用觀看=============================================================
-"""~~~~~~~~~~~~~~~~~~~~
-Versions 1.3
+""" Versions 1.3
 [+] 功能代碼重構
 [+] 多線程輸出加速
 
 預計增加
 [+] UI介面
-~~~~~~~~~~~~~~~~~~~~"""
+"""
 
 from tkinter import filedialog
 import configparser as config
@@ -286,9 +285,8 @@ class Automatic:
             elif self.path2.lower() == "null":pass
 
             # 用於已有設置ini檔,運行成功的提示
-            print('運行成功')
-            input('\n按任意鍵結束運行...')
-        
+            print('運行完畢')
+
         # 當出現讀取錯誤時創建
         except:self.file_creation()
 
@@ -353,14 +351,12 @@ class Automatic:
                     continue
 
             # 全部設置完就輸出第一路徑和第二路徑
-            threading.Thread(target=self.output,args=(self.path1,)).start()
-            threading.Thread(target=self.output,args=(self.path2,)).start()
+            threading.Thread(target=self.output, args=(self.path1,)).start()
+            threading.Thread(target=self.output, args=(self.path2,)).start()
             # 保存設置
             threading.Thread(target=self.save_settings).start()
 
-            print('運行成功')
-            input('\n按任意鍵結束運行...')
-            # os._exit(0)
+            print('運行完畢')
         except:
             os.system('cls')
             print('運行錯誤,請重新運行\n')
@@ -371,7 +367,7 @@ class Automatic:
     def output(self,path):
         with open(path, 'w') as Auto:
             for out in CFG:Auto.write(out + '\n')
-    
+
     def save_settings(self):
         with open("CFG_Set.ini", "w") as f:
             self.set.write(f,delimiter='')
