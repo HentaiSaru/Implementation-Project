@@ -37,7 +37,7 @@ CFG = [
     'mouse_zoomed_sensitivity_scalar_6 "0.990000"										',  # x10倍鏡
     'mouse_zoomed_sensitivity_scalar_7 "1.0"											',  # 不知道衝三小的
 
-    
+
     # 玩法優化 =======================================================================================
 
     'cl_showpos "1"																		',  # 顯示跑速座標等各項數據(1~4可選)
@@ -182,7 +182,7 @@ CFG = [
     'r_dxgi_max_frame_latency "1"',
 
     # 網路優化(loss丟失/choke阻塞)=======================================================================
-    
+
     'host_limitlocal "1"															    ',  # 是否關閉使用本地DNS
     'rate "125000"																	    ',  # https//:agame01.com/article/682994/
     'cl_cmdrate "120"																    ',  # 每秒上傳幾組 packet 到 server (丟包loss時降低)
