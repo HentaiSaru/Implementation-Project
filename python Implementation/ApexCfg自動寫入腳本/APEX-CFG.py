@@ -183,36 +183,36 @@ CFG = [
 
     # 網路優化(loss丟失/choke阻塞)=======================================================================
 
-    'host_limitlocal "1"															    ',  # 是否關閉使用本地DNS
-    'rate "125000"																	    ',  # https//:agame01.com/article/682994/
-    'cl_cmdrate "120"																    ',  # 每秒上傳幾組 packet 到 server (丟包loss時降低)
-    'cl_updaterate "120"															    ',  # 每秒向 server 接收幾組 packet (阻塞choke時降低)
-    'cl_lagcompensation "1"															    ',  # 延遲補償開啟
-    'cl_resend "2"																	    ',  # 網路錯誤重發間隔
-    'cl_interp "0"																	    ',  # 網路插播關閉
-    'cl_interp_ratio "1"															    ',  # 間格比(數值加大減少丟包)
-    'cl_pred_optimize "1"															    ',  # 預優化?
-    'cl_predict "1"																	    ',  # 不確定
-    'cl_predictweapons "1"															    ',  # 不確定
-    'cl_wpn_sway_interp "0"															    ',  # wpn搖擺解釋器
-    'cl_interpolate "0"																    ',  # 不知道
-    'cl_interpolation_before_prediction "0"											    ',  # 不知道
-    'cl_cmdbackup "2"																    ',  # 數據包丟失備份發送
-    'cl_updatevisibility "1"														    ',  # 更新可見性
-    'cl_timeout "25"																    ',  # 超時請求
-    'cl_smooth "1"																	    ',  # 不知道
-    'cl_smoothtime "0.01"															    ',  # 不知道
-    'pin_opt_in "0"																	    ',  # 禁止將 PIN 遙測數據發送到 EA
-    'pin_plat_id "0"																    ',  # 退出重生數據調查
-    'telemetry_client_enable "0"													    ',  # 多久發送一次遙測數據
-    'projectile_prediction "1"													        ',  # 啟用客戶端預測和彈丸補償
-    'projectile_predictionErrorCorrectTime "0.01"									    ',  # 修正彈丸預測誤差的時間
-    'origin_presense_updateRate "10"												    ',  # 在每次 Origin 存在更新之間放寬秒數
-    'net_compresspackets "1"														    ',  # 壓縮發送到服務器的數據包
-    'net_compresspackets_minsize "64"												    ',  # 壓縮包不低於設定值
-    'net_maxcleartime " 0.030000 "													    ',  # 減少引擎等待發送另一個數據包的時間
-    'host_sleep "0"																	    ',  # 強製主機每幀休眠一定的毫秒數'''
-    'telemetry_client_sendInterval "0"',
+    # 'host_limitlocal "1"															    ',  # 是否關閉使用本地DNS
+    # 'rate "125000"																	    ',  # https//:agame01.com/article/682994/
+    # 'cl_cmdrate "120"																    ',  # 每秒上傳幾組 packet 到 server (丟包loss時降低)
+    # 'cl_updaterate "120"															    ',  # 每秒向 server 接收幾組 packet (阻塞choke時降低)
+    # 'cl_lagcompensation "1"															    ',  # 延遲補償開啟
+    # 'cl_resend "2"																	    ',  # 網路錯誤重發間隔
+    # 'cl_interp "0"																	    ',  # 網路插播關閉
+    # 'cl_interp_ratio "1"															    ',  # 間格比(數值加大減少丟包)
+    # 'cl_pred_optimize "1"															    ',  # 預優化?
+    # 'cl_predict "1"																	    ',  # 不確定
+    # 'cl_predictweapons "1"															    ',  # 不確定
+    # 'cl_wpn_sway_interp "0"															    ',  # wpn搖擺解釋器
+    # 'cl_interpolate "0"																    ',  # 不知道
+    # 'cl_interpolation_before_prediction "0"											    ',  # 不知道
+    # 'cl_cmdbackup "2"																    ',  # 數據包丟失備份發送
+    # 'cl_updatevisibility "1"														    ',  # 更新可見性
+    # 'cl_timeout "25"																    ',  # 超時請求
+    # 'cl_smooth "1"																	    ',  # 不知道
+    # 'cl_smoothtime "0.01"															    ',  # 不知道
+    # 'pin_opt_in "0"																	    ',  # 禁止將 PIN 遙測數據發送到 EA
+    # 'pin_plat_id "0"																    ',  # 退出重生數據調查
+    # 'telemetry_client_enable "0"													    ',  # 多久發送一次遙測數據
+    # 'projectile_prediction "1"													        ',  # 啟用客戶端預測和彈丸補償
+    # 'projectile_predictionErrorCorrectTime "0.01"									    ',  # 修正彈丸預測誤差的時間
+    # 'origin_presense_updateRate "10"												    ',  # 在每次 Origin 存在更新之間放寬秒數
+    # 'net_compresspackets "1"														    ',  # 壓縮發送到服務器的數據包
+    # 'net_compresspackets_minsize "64"												    ',  # 壓縮包不低於設定值
+    # 'net_maxcleartime " 0.030000 "													    ',  # 減少引擎等待發送另一個數據包的時間
+    # 'host_sleep "0"																	    ',  # 強製主機每幀休眠一定的毫秒數'''
+    # 'telemetry_client_sendInterval "0"',
 ]
 
 # ===================================================上面才是設定值,下面不用觀看=============================================================
