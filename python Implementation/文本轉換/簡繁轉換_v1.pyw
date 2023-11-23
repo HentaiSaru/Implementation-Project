@@ -71,7 +71,7 @@ class basic:
             # 獲取文件路徑
             self.directory = os.path.dirname(data)
 
-            with open(data, 'r' , encoding='utf-8') as f:
+            with open(data, 'r' , encoding='utf-8') as f: # 當文件並非由utf-8編碼的, 也會開啟失敗
                 for line in f:
                     line = line.strip() # 刪除特殊轉譯符
                     self.SaveBox.append(line)
@@ -126,7 +126,7 @@ class basic:
 
         self.CreateOutput.config(font=("Arial Bold", 22), width=12, height=1, fg=buttontext , border=2, relief='groove', bg=buttonbackground , command=self.Create)
         self.OverwriteOutput.config(font=("Arial Bold", 22), width=12, height=1, fg=buttontext , border=2, relief='groove', bg=buttonbackground , command=self.Overwrite)
-        
+
         self.CreateOutput.place(x=270,y=630)
         self.OverwriteOutput.place(x=510,y=630)
 
