@@ -41,7 +41,7 @@ files.catbox.moe
 class UrlGenerator:
     def __init__(self):
         self.session = requests.Session()
-        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
+        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"}
         # 舊版隨機盒 self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
         self.RandomBox = [string.ascii_uppercase, string.ascii_lowercase, string.digits, string.ascii_letters, string.ascii_letters+string.digits]
         self.SupportDomain = ["reurl.cc","ppt.cc","files.catbox.moe"]
@@ -66,20 +66,20 @@ class UrlGenerator:
 
     def get_data(self,url):
         request = self.session.get(url, headers=self.headers)
-        return etree.fromstring(request.content , etree.HTMLParser()) , request.url
-    
-    def get_conversion_data(self,url):
+        return etree.HTML(request.text), request.url
+
+    def get_conversion_data(self, url):
         request = self.session.head(url, headers=self.headers)
         status = request.status_code
         if status == 200:
-            return request.url , status
+            return request.url, status
         else:
-            return False , status
-    
+            return False, status
+
     def save_json(self):
         if len(self.SaveBox) > 0:
-            with open("可用網址.json" , "w" , encoding="utf-8") as file:
-                file.write(json.dumps(self.SaveBox, indent=4, separators=(',',':')))
+            with open("可用網址.json", "w", encoding="utf-8") as file:
+                file.write(json.dumps(self.SaveBox, indent=4, separators=(",", ":")))
 
     def generate_settin(self, 
             domain: str,
@@ -110,13 +110,13 @@ class UrlGenerator:
                 self.FilterDomains = filterdomains
                 self.GeneratedNumber = generatednumber
                 self.SecondVerification = secondverification
-                
+
                 if charformat >= 0 and charformat <= 4: # 判斷生成格式設置 , 是否符合規範
                     self.CharFormat = charformat
                 else:
                     print("charformat 的範圍是 0 ~ 4")
                     raise Exception()
-                
+
                 if len(self.FilterDomains) > 0: # 判斷是否使用排除
                     self.filter_trigger = True
 
@@ -148,25 +148,25 @@ class UrlGenerator:
                         gen_char += random.choice(Format)
 
                     link = f"{self.DomainName}{gen_char}{self.Tail}"
-                    
+
                     executor.submit(self.Data_Processing, link)
                     time.sleep(0.001)
-            
+
             self.save.start()
             self.save.join()
         except:
-            print("請先使用 generate_settin() 進行設置後 , 再進行生成")
+            print("請先使用 generate_settin() 進行設置後, 再進行生成")
 
-    def Data_Processing(self,link):
+    def Data_Processing(self, link):
         if self.DeBug:
-            print(link , flush=True)
-            
+            print(f"\r{link}", end="", flush=True)
+
         try:
             # 第一重驗證 (開發支援)
             if self.support == 0:
-                tree , C_url = self.get_data(link)
+                tree, C_url = self.get_data(link)
                 url = unquote(tree.xpath("//span[@class='lead']/text()")[0])
-                title = tree.xpath("//div[@class='col-md-4 text-center mt-5 mb-5']/span/text()")[1].replace(","," ")
+                title = tree.xpath("//span[@class='text-muted']/text()")[0].replace(","," ")
 
             elif self.support == 1:
                 tree , C_url = self.get_data(link)
@@ -181,54 +181,56 @@ class UrlGenerator:
             elif self.support == 2:
                 url = link
                 title = ""
-            
+
             # 第二重驗證 (將請求回來的的 Url , 請求狀態碼驗證)
             if self.SecondVerification:
                 url , status = self.get_conversion_data(url)
                 if url == False or status != 200:
                     raise Exception()
-            
+
             # 域名排除
             if self.filter_trigger:
                 for domain in self.FilterDomains:
                     if url.find(domain) != -1:
                         raise Exception()
-            
+
             self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii').strip()
             self.SuccessCount += 1
-            print(f"成功生成總數 : {self.SuccessCount} [{link.split('+')[0]}]")
-        except Exception as e:
+            print(f"\n成功生成總數 : {self.SuccessCount} [{link.split('+')[0]}]")
+        except:
             pass
 
     def Forced_stop(self):
         print("在中途按下 Ctrl + E 可以強制停止程式 , 並輸出結果 =>")
         keyboard.wait("ctrl+e")
-        
+
         self.build_status = False
         self.save.start()
         self.save.join()
-        
-        print("生成完畢...")
+
+        print("\n生成完畢...")
         # 改成強制中止
         os._exit(1)
 
 if __name__ == "__main__":
     url = UrlGenerator()
 
-    # url.generate_settin(
-        # domain = "https://reurl.cc/",
-        # generatednumber = 10,
-        # charnumber = 6,
-        # charformat = 4,
-        # tail= "+",
-        # secondverification=True,
-        # filterdomains=[
-            # "google.com","bing.com","youtube.com","facebook.com","microsoft.com",
-            # "line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org",
-            # "udn.com","wikipedia.org","msn.com","shop2000.com","mirrormedia.mg",
-            # "opdws.fjuh.fju.edu.tw"
-        # ],
-    # )
+    """ ___ 設定檔 ___ """
+
+    url.generate_settin(
+        domain = "https://reurl.cc/",
+        generatednumber = 10,
+        charnumber = 6,
+        charformat = 4,
+        tail = "+",
+        secondverification=True,
+        filterdomains=[
+            "google.com","bing.com","youtube.com","facebook.com","microsoft.com",
+            "line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org",
+            "udn.com","wikipedia.org","msn.com","shop2000.com","mirrormedia.mg",
+            "opdws.fjuh.fju.edu.tw"
+        ], debug = True
+    )
 
     # url.generate_settin(
     #     domain = "https://ppt.cc/",
@@ -242,17 +244,21 @@ if __name__ == "__main__":
     #     ],
     # )
 
-    url.generate_settin(
-        domain = "https://files.catbox.moe/",
-        generatednumber = 300,
-        charnumber = 6,
-        charformat = 4,
-        tail= ".mp4",
-        secondverification=True,
-    )
+    # url.generate_settin(
+        # domain = "https://files.catbox.moe/",
+        # generatednumber = 300,
+        # charnumber = 6,
+        # charformat = 4,
+        # tail= ".mp4",
+        # secondverification=True,
+    # )
 
+    """ ___ 主要生成 ____ """
+
+    #? 自動調用開始生成
     url.generator()
-    
+
+    #? 輸入網址測試處理
     # url.Data_Processing("")
 
 
