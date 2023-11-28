@@ -47,7 +47,6 @@ class UrlGenerator:
         self.SupportDomain = ["reurl.cc","ppt.cc","files.catbox.moe"]
         # 判斷類變數
         self.build_status = True
-        self.filter_trigger = False
         self.support = None
         # 設置類變數
         self.Tail = None
@@ -57,6 +56,7 @@ class UrlGenerator:
         self.CharFormat = None
         self.FilterDomains = None
         self.GeneratedNumber = None
+        self.Whitelistdomains = None
         self.SecondVerification = None
         # 保存類變數
         self.SuccessCount = 0
@@ -89,6 +89,7 @@ class UrlGenerator:
             tail: str = None,
             secondverification: bool = False,
             filterdomains: list = [],
+            Whitelistdomains: list = [],
             debug: bool= False
         ):
             """
@@ -99,8 +100,9 @@ class UrlGenerator:
             >>> 選擇傳遞
             * charformat 填寫 0 ~ 4 (0英文(大), 1英文(小), 2(數字), 3英文(大+小), 4英文(大+小)+數字)
             * tail 要在生成網址最後加上得符號
-            * SecondVerification 啟用時會對生成的網址 , 進行二次驗證是否可以用 , 排除 404 (整體速度會減慢)
-            * FilterDomains 將要排除的網域名稱傳遞 , 就會將獲取的網址中 , 包含該網域的排除
+            * secondVerification 啟用時會對生成的網址 , 進行二次驗證是否可以用 , 排除 404 (整體速度會減慢)
+            * filterDomains 將要排除的網域名稱傳遞 , 就會將獲取的網址中 , 包含該網域的排除
+            * Whitelistdomains 白名單網域 , 將可以跳過驗證
             * debug 會顯示生成的網址樣式
             """
             try:
@@ -109,6 +111,7 @@ class UrlGenerator:
                 self.CharNumber = charnumber
                 self.FilterDomains = filterdomains
                 self.GeneratedNumber = generatednumber
+                self.Whitelistdomains = Whitelistdomains
                 self.SecondVerification = secondverification
 
                 if charformat >= 0 and charformat <= 4: # 判斷生成格式設置 , 是否符合規範
@@ -117,13 +120,7 @@ class UrlGenerator:
                     print("charformat 的範圍是 0 ~ 4")
                     raise Exception()
 
-                if len(self.FilterDomains) > 0: # 判斷是否使用排除
-                    self.filter_trigger = True
-
-                if tail != None:
-                    self.Tail = tail
-                else:
-                    self.Tail = ""
+                self.Tail = tail if tail is not None else ""
 
                 try:
                     self.support = self.SupportDomain.index(urlparse(domain).netloc) # 域名解析與判斷
@@ -169,7 +166,7 @@ class UrlGenerator:
                 title = tree.xpath("//span[@class='text-muted']/text()")[0].replace(","," ")
 
             elif self.support == 1:
-                tree , C_url = self.get_data(link)
+                tree, C_url = self.get_data(link)
                 C_url = unquote(C_url)
                 # 簡單驗證一下
                 if C_url.find(self.SupportDomain[1]) != -1:
@@ -181,20 +178,29 @@ class UrlGenerator:
             elif self.support == 2:
                 url = link
                 title = ""
-
-            # 第二重驗證 (將請求回來的的 Url , 請求狀態碼驗證)
-            if self.SecondVerification:
-                url , status = self.get_conversion_data(url)
-                if url == False or status != 200:
-                    raise Exception()
-
-            # 域名排除
-            if self.filter_trigger:
-                for domain in self.FilterDomains:
-                    if url.find(domain) != -1:
+            
+            # 進階驗證函數
+            def Advanced_verification(url):
+                # 將請求回來的的 Url, 請求狀態碼驗證
+                if self.SecondVerification:
+                    url, status = self.get_conversion_data(url)
+                    if not url or status != 200:
                         raise Exception()
 
-            self.SaveBox[link.split('+')[0]] = normalize('NFKC', title).encode('ascii', 'ignore').decode('ascii').strip()
+                # 域名排除
+                if bool(self.FilterDomains):
+                    for domain in self.FilterDomains:
+                        if url.find(domain) != -1:
+                            raise Exception()
+                        
+            if bool(self.Whitelistdomains):
+                for White in self.Whitelistdomains:
+                    if url.find(White) == -1:
+                        Advanced_verification(url)
+            else:
+                Advanced_verification(url)
+
+            self.SaveBox[link.split("+")[0]] = normalize("NFKC", title).encode("ascii", "ignore").decode("ascii").strip()
             self.SuccessCount += 1
             print(f"\n成功生成總數 : {self.SuccessCount} [{link.split('+')[0]}]")
         except:
@@ -209,7 +215,6 @@ class UrlGenerator:
         self.save.join()
 
         print("\n生成完畢...")
-        # 改成強制中止
         os._exit(1)
 
 if __name__ == "__main__":
@@ -229,6 +234,9 @@ if __name__ == "__main__":
             "line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org",
             "udn.com","wikipedia.org","msn.com","shop2000.com","mirrormedia.mg",
             "opdws.fjuh.fju.edu.tw"
+        ],
+        Whitelistdomains=[
+            "mega.nz"
         ], debug = True
     )
 
@@ -246,7 +254,7 @@ if __name__ == "__main__":
 
     # url.generate_settin(
         # domain = "https://files.catbox.moe/",
-        # generatednumber = 300,
+        # generatednumber = 10,
         # charnumber = 6,
         # charformat = 4,
         # tail= ".mp4",
