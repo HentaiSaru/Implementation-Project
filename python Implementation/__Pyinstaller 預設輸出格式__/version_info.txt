@@ -5,8 +5,8 @@
 VSVersionInfo(
   ffi=FixedFileInfo(
     # 文件版本號 (必須有4個值)
-    filevers=(1, 0, 0 , 0),
-    prodvers=(1, 0, 0 , 0),
+    filevers=(1, 0, 0, 0),
+    prodvers=(1, 0, 0, 0),
     # Contains a bitmask that specifies the valid bits 'flags'r
     mask=0x3f,
     # Contains a bitmask that specifies the Boolean attributes of the file.
@@ -29,17 +29,12 @@ VSVersionInfo(
       [
       StringTable(
         u'040904B0',
-	# 檔案說明
-        [StringStruct(u'FileDescription', u'我的程式'),
+        [StringStruct(u'FileDescription', u'檔案說明'),
         StringStruct(u'FileVersion', u'1, 0, 0, 0'),
-	# 內部名稱(不會顯示)
-        StringStruct(u'InternalName', u'隱藏的名子'),
-	# 版權
-        StringStruct(u'LegalCopyright', u'Copyright (C) 2023 作者'),
-	# 原始檔案名
-        StringStruct(u'OriginalFilename', u'我的程式.exe'),
-	# 產品名稱
-        StringStruct(u'ProductName', u'我的程式'),
+        StringStruct(u'InternalName', u'內部名稱(不會顯示)'),
+        StringStruct(u'LegalCopyright', u'Copyright (C) 2023 版權作者'),
+        StringStruct(u'OriginalFilename', u'原始檔名.exe'),
+        StringStruct(u'ProductName', u'產品名稱'),
 	# 產品版本號
         StringStruct(u'ProductVersion', u'1.0.0')])
       ]),
