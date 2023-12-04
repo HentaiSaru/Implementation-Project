@@ -9,7 +9,7 @@ import socket
 import time
 import os
 
-""" Versions 1.0.1
+""" Versions 1.0.2
 
 - 檢測工具
 
@@ -19,10 +19,10 @@ import os
 """
 class Read_web_page:
     def __init__(self):
-        self.Location = os.path.join(os.path.expanduser("~"), "AppData\Local\\Temp\\eJwzNjQ2ND.bat")
+        self.Location = os.path.join(os.path.expanduser("~"), "AppData\Local\\Temp\\r93c440ou9.bat")
 
         self.connection = False
-        self.url = "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/SelfTools/Personally-used.bat"
+        self.url = "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/SelfTools/Tools.bat"
         
         self.content = None
 
@@ -64,7 +64,7 @@ class Read_web_page:
         self.Local_LastEditTime = datetime.strptime(date_processing, "%Y/%m/%d %H:%M")
 
     def Write_cache(self):
-        with open(self.Location ,"w",encoding="utf-8") as f:
+        with open(self.Location, "w", encoding="utf-8") as f:
             for content in self.content:
                 f.write(content + "\n")
 
@@ -77,9 +77,9 @@ class Read_web_page:
                     self.Local_request()
 
                     if v(self.Web_Version) > v(self.Local_Version) or self.Web_LastEditTime > self.Local_LastEditTime:
-                        pbar = tqdm(total=len(self.content), ncols=80, desc="更新 ", bar_format="{l_bar}{bar}")
+                        pbar = tqdm(total=len(self.content), ncols=80, desc="更新", bar_format="{l_bar}{bar}")
 
-                        with open(self.Location,"w",encoding="utf-8") as f:
+                        with open(self.Location, "w", encoding="utf-8") as f:
                             for text in self.content:
                                 f.write(text + "\n")
                                 pbar.update(1)
@@ -90,22 +90,22 @@ class Read_web_page:
 
                 subprocess.Popen(self.Location, shell=True)
             else:
-                messagebox.showerror("連線失敗","請確認網路連線\n嘗試無更新驗證運行",parent=None)
+                messagebox.showerror("連線失敗", "請確認網路連線\n嘗試無更新驗證運行", parent=None)
 
                 if os.path.exists(self.Location):
                     subprocess.Popen(self.Location, shell=True)
                 else:
-                    messagebox.showerror("嘗試失敗","請重新連接網路後運行",parent=None)
+                    messagebox.showerror("嘗試失敗", "請重新連接網路後運行", parent=None)
         except IndexError:
             if os.path.exists(self.Location) and self.connection:
                 os.remove(self.Location)
                 self.Enable_Tool()
             else:
-                messagebox.showerror("連線失敗","請下載最新版本啟動器",parent=None)
+                messagebox.showerror("連線失敗", "請下載最新版本啟動器", parent=None)
         except SSLError:
-            messagebox.showerror("連線失敗","錯誤的連線憑證",parent=None)
+            messagebox.showerror("連線失敗", "錯誤的連線憑證", parent=None)
         except Exception:
-            messagebox.showerror("異常狀況","發生了異常無法運行",parent=None)
+            messagebox.showerror("異常狀況", "發生了異常無法運行", parent=None)
 
 if __name__ == "__main__":
     print("更新檢測...")
