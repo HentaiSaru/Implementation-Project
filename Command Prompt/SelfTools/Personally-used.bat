@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/08/22 16:51 -
+:: - LastEditTime 2023/12/04 14:05 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -27,7 +27,7 @@ cls
 
 @ ECHO [1m
 @ ECHO [94m======================================================================================================================
-@ ECHO                                       - 工具箱 Versions 1.0.8 2023/06/14 -
+@ ECHO                                       - 工具箱 Versions 1.0.8 2023/12/04 -
 @ ECHO ======================================================================================================================[91m
 @ ECHO.
 @ ECHO [3m[94m   Windows系統開關機 :[91m[23m
@@ -834,8 +834,12 @@ ECHO.
 
 if not exist "C:\Program Files\WinRAR\Rarreg.key" (
     certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Rar/Rarreg.key" Rarreg.key >nul
-    move Rarreg.key "C:\Program Files\WinRAR" >nul
-    ECHO 授權完成...
+    if not exist "Rarreg.key" (
+        ECHO 授權失敗...
+    ) else (
+        move Rarreg.key "C:\Program Files\WinRAR" >nul
+        ECHO 授權完成...
+    )
 ) else (
     ECHO 已存在授權...
 )
@@ -853,19 +857,26 @@ if not exist "%Temp%\IDM.cmd" (
     ECHO.
 
     certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Idm/IDM.tar" IDM.tar >nul
-    
-    tar -xf IDM.tar >nul
-    del /f /s /q IDM.tar >nul
-    move IDM.cmd "%Temp%" >nul
 
-    ECHO 下載完成...
+    if not exist "IDM.tar" (
+        ECHO 下載失敗...
+    ) else (
+        tar -xf IDM.tar >nul
+        del /f /s /q IDM.tar >nul
+        move IDM.cmd "%Temp%" >nul
+
+        ECHO 下載完成...
+        ECHO.
+        ECHO 啟動程式...
+        
+        cd %Temp%
+        start IDM.cmd
+    )
+
+) else (
+    ECHO 啟動程式...
+    cd /d "%Temp%" && IDM.cmd
 )
-
-ECHO.
-ECHO 啟動程式...
-
-cd %Temp%
-start IDM.cmd
 
 timeout /t 2 >nul
 
@@ -882,14 +893,18 @@ ECHO.
 
 :: 確保最新版本
 certutil -urlcache -split -f "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO.cmd" MAS_AIO.cmd >nul
-move MAS_AIO.cmd "%Temp%" >nul
 
-ECHO 下載完成...
-ECHO.
-ECHO 啟動程式...
+if not exist "MAS_AIO.cmd" (
+    ECHO 下載失敗...
+) else (
+    move MAS_AIO.cmd "%Temp%" >nul
 
-cd %Temp%
-start MAS_AIO.cmd
+    ECHO 下載完成...
+    ECHO.
+    ECHO 啟動程式...
+
+    cd /d "%Temp%" && MAS_AIO.cmd
+)
 
 timeout /t 2 >nul
 
@@ -905,14 +920,18 @@ ECHO 下載中請稍後...
 ECHO.
 
 certutil -urlcache -split -f "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/master/KMS_VL_ALL_AIO.cmd" KMS_VL_ALL_AIO.cmd >nul
-move KMS_VL_ALL_AIO.cmd "%Temp%" >nul
 
-ECHO 下載完成...
-ECHO.
-ECHO 啟動程式...
+if not exist "KMS_VL_ALL_AIO.cmd" (
+    ECHO 下載失敗...
+) else (
+    move KMS_VL_ALL_AIO.cmd "%Temp%" >nul
 
-cd %Temp%
-start KMS_VL_ALL_AIO.cmd
+    ECHO 下載完成...
+    ECHO.
+    ECHO 啟動程式...
+
+    cd /d "%Temp%" && KMS_VL_ALL_AIO.cmd
+)
 
 timeout /t 2 >nul
 
@@ -1039,38 +1058,35 @@ exit /b
 :: https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/
 :VSC
 
-if not exist "%Temp%\Visual.tar" (
+ECHO.
+ECHO 檔案較大請稍後 - 安裝包日期 : 2023 年 11 月 
+ECHO.
+ECHO Visual C++ 下載中...
+ECHO.
 
-    ECHO.
-    ECHO 檔案較大請稍後 - 安裝包日期 : 2023 年 5 月 
-    ECHO.
-    ECHO Visual C++ 下載中...
-    ECHO.
+certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar" Visual.tar >nul
 
-    certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar" Visual.tar >nul
+if not exist "Visual.tar" (
+    ECHO 下載失敗...
+) else (
+    ECHO 下載完成...
     move Visual.tar "%Temp%" >nul
 
-    ECHO 下載完成...
-    ECHO.
-
     cd %Temp%
-
+    ECHO.
     ECHO 解壓中...
     tar -xf Visual.tar >nul
 
-) else (
-    cd %Temp%
+    ECHO.
+    ECHO 開始安裝...
+
+    start /wait vcredist2005_x64.exe /q
+    start /wait vcredist2008_x64.exe /qb
+    start /wait vcredist2010_x64.exe /passive /norestart
+    start /wait vcredist2012_x64.exe /passive /norestart
+    start /wait vcredist2013_x64.exe /passive /norestart
+    start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
 )
-
-ECHO.
-ECHO 開始安裝...
-
-start /wait vcredist2005_x64.exe /q
-start /wait vcredist2008_x64.exe /qb
-start /wait vcredist2010_x64.exe /passive /norestart
-start /wait vcredist2012_x64.exe /passive /norestart
-start /wait vcredist2013_x64.exe /passive /norestart
-start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
 
 timeout /t 1 >nul
 
