@@ -19,15 +19,16 @@ import os
 """
 class Read_web_page:
     def __init__(self):
-        Location = os.path.expanduser("~")
-        self.Location = os.path.join(Location,"AppData\Local\\Temp\\eJwzNjQ2ND.bat")
+        self.Location = os.path.join(os.path.expanduser("~"), "AppData\Local\\Temp\\eJwzNjQ2ND.bat")
 
         self.connection = False
         self.url = "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/SelfTools/Personally-used.bat"
         
         self.content = None
+
         self.Web_Version = None
         self.Web_LastEditTime = None
+
         self.Local_Version = None
         self.Local_LastEditTime = None
 
@@ -38,7 +39,7 @@ class Read_web_page:
             return True
         except (socket.error, OSError):
             return False
-        
+
     def Network_request(self):
         reques = requests.get(self.url)
         if reques.status_code == 200:
@@ -53,7 +54,7 @@ class Read_web_page:
 
     def Local_request(self):
         data_box = []
-        with open(self.Location ,"r",encoding="utf-8") as f:
+        with open(self.Location ,"r", encoding="utf-8") as f:
             data_box.append(f.readlines())
 
         date_processing = data_box[0][1].split(" ")
@@ -61,7 +62,7 @@ class Read_web_page:
 
         self.Local_Version = data_box[0][0].split(" ")[3]
         self.Local_LastEditTime = datetime.strptime(date_processing, "%Y/%m/%d %H:%M")
-        
+
     def Write_cache(self):
         with open(self.Location ,"w",encoding="utf-8") as f:
             for content in self.content:
@@ -76,7 +77,7 @@ class Read_web_page:
                     self.Local_request()
 
                     if v(self.Web_Version) > v(self.Local_Version) or self.Web_LastEditTime > self.Local_LastEditTime:
-                        pbar = tqdm(total=len(self.content),ncols=80,desc="更新 ",bar_format="{l_bar}{bar}")
+                        pbar = tqdm(total=len(self.content), ncols=80, desc="更新 ", bar_format="{l_bar}{bar}")
 
                         with open(self.Location,"w",encoding="utf-8") as f:
                             for text in self.content:
@@ -87,13 +88,12 @@ class Read_web_page:
                 else:
                     self.Write_cache()
 
-                subprocess.call(self.Location, shell=True)
-                
+                subprocess.Popen(self.Location, shell=True)
             else:
                 messagebox.showerror("連線失敗","請確認網路連線\n嘗試無更新驗證運行",parent=None)
 
                 if os.path.exists(self.Location):
-                    subprocess.call(self.Location, shell=True)
+                    subprocess.Popen(self.Location, shell=True)
                 else:
                     messagebox.showerror("嘗試失敗","請重新連接網路後運行",parent=None)
         except IndexError:
@@ -108,6 +108,6 @@ class Read_web_page:
             messagebox.showerror("異常狀況","發生了異常無法運行",parent=None)
 
 if __name__ == "__main__":
-    print("檢查更新...")
+    print("更新檢測...")
     read = Read_web_page()
     read.Enable_Tool()
