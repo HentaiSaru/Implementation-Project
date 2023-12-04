@@ -1,0 +1,33 @@
+@ 創建:
+
+創建虛擬空間
+python -m venv PackSpace
+
+依賴
+再 Scripts資料夾, 放入 upx.exe
+
+運行
+call PackSpace\Scripts\activate
+
+@ 安裝:
+
+打包庫
+pip install pyinstaller
+
+加密庫
+pip install tinyaes
+
+安裝要打包的 Py 所需的第三方庫
+
+@ 指令:
+
+Pyinstaller -F -w -i display.ico --version-file version_info.txt display.py --add-data "包含的依賴" --add-data "包含的依賴"
+
+Pyinstaller display.spec
+
+--version-file 設置自己的版本資訊
+
+-F 單個檔案轉換為exe
+-w 執行時不顯示命令視窗(windows適用)
+-c 執行時要顯示命令視窗(windows適用,默認模式)
+-i 設置.ico圖檔 作為exe圖標
