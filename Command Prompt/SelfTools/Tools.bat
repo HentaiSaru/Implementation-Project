@@ -1,5 +1,5 @@
 :: - Versions 1.0.8 -
-:: - LastEditTime 2023/12/04 14:05 -
+:: - LastEditTime 2023/12/09 20:45 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -312,6 +312,7 @@ ECHO 防火牆 啟用中...
 ECHO.
 
 netsh advfirewall set allprofiles state on >nul
+netsh advfirewall firewall set rule all new enable=yes >nul
 
 timeout /t 1 >nul
 
@@ -325,6 +326,7 @@ ECHO 防火牆 關閉中...
 ECHO.
 
 netsh advfirewall set allprofiles state off >nul
+netsh advfirewall firewall set rule all new enable=no >nul
 
 timeout /t 1 >nul
 
