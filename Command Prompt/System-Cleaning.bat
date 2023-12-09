@@ -1,5 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2023/09/14 23:50 -
+:: - LastEditTime 2023/12/09 20:30 -
 :: [+] - 基本系統清理
 :: [+] - Line 緩存清理
 :: [+] - Google 緩存清理
@@ -170,7 +170,7 @@ del /f /s /q %windir%\Logs\MoSetup\*.log
 del /f /s /q %windir%\Logs\CBS\CbsPersist*.log
 del /f /s /q %localappdata%\Microsoft\Windows\WebCache\*.log
 
-rd /f /s /q %LocalAppData%\pip\cache
+rd /s /q %LocalAppData%\pip\cache
 rd /s /q C:\Users\%username%\.cache
 rd /s /q C:\Users\%username%\.Origin
 rd /s /q C:\Users\%username%\.QtWebEngineProcess
