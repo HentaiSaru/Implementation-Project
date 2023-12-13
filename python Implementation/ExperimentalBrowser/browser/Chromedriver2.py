@@ -53,9 +53,9 @@ class TestBrowser:
         self.Settings.add_argument(f"--remote-debugging-port={random.randint(1024,65535)}")
         return self.Settings
 
-    def Enable_browsing(self,url:str ="https://www.google.com.tw/"):
+    def Enable_browsing(self, url:str ="https://www.google.com.tw/"):
         self.driver = Chrome(
-            version_main=116,
+            version_main=120,
             advanced_elements=True,
             options=self.Setting_Options(),
             driver_executable_path=self.driver_path
