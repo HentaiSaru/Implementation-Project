@@ -1,5 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2023/12/18 23:55 -
+:: - LastEditTime 2023/12/18 23:58 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -191,7 +191,7 @@ if %choice% equ 0 (
 ) else if %choice% equ 30 (
     call :rewinop&goto menu
 
-) else if %choice% equ 30 (
+) else if %choice% equ 31 (
     call :tf&goto menu
 
 )else if /I "%choice%"=="ct" (
