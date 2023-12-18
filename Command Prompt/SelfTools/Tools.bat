@@ -1,5 +1,5 @@
-:: - Versions 1.0.8 -
-:: - LastEditTime 2023/12/09 20:45 -
+:: - Versions 1.0.9 -
+:: - LastEditTime 2023/12/18 23:55 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -27,7 +27,7 @@ cls
 
 @ ECHO [1m
 @ ECHO [94m======================================================================================================================
-@ ECHO                                       - 工具箱 Versions 1.0.8 2023/12/04 -
+@ ECHO                                       - 工具箱 Versions 1.0.9 2023/12/18 -
 @ ECHO ======================================================================================================================[91m
 @ ECHO.
 @ ECHO [3m[94m   Windows系統開關機 :[91m[23m
@@ -64,7 +64,7 @@ cls
 @ ECHO.
 @ ECHO    [26] 關閉UAC安全通知    [27] Visual C++ (x64)安裝    [28] .NET安裝    [29] Windows 一鍵優化設置
 @ ECHO.
-@ ECHO    [30] Windows 優化錯誤恢復
+@ ECHO    [30] Windows 優化錯誤恢復    [31] The Finals 修復
 @ ECHO.
 @ ECHO [3m[97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
@@ -191,7 +191,10 @@ if %choice% equ 0 (
 ) else if %choice% equ 30 (
     call :rewinop&goto menu
 
-) else if /I "%choice%"=="ct" (
+) else if %choice% equ 30 (
+    call :tf&goto menu
+
+)else if /I "%choice%"=="ct" (
     Control
     goto menu
 
@@ -953,6 +956,54 @@ ECHO.
 timeout /t 2 >nul
 exit /b
 
+:: ~~~~~ 安裝 Visual C++ ~~~~~
+:: https://learn.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
+:: https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/
+:VSC
+
+ECHO.
+ECHO 檔案較大請稍後 - 安裝包日期 : 2023 年 11 月 
+ECHO.
+ECHO Visual C++ 下載中...
+ECHO.
+
+certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar" Visual.tar >nul
+
+if not exist "Visual.tar" (
+    ECHO 下載失敗...
+) else (
+    ECHO 下載完成...
+    move Visual.tar "%Temp%" >nul
+
+    cd %Temp%
+    ECHO.
+    ECHO 解壓中...
+    tar -xf Visual.tar >nul
+
+    ECHO.
+    ECHO 開始安裝...
+
+    start /wait vcredist2005_x64.exe /q
+    start /wait vcredist2008_x64.exe /qb
+    start /wait vcredist2010_x64.exe /passive /norestart
+    start /wait vcredist2012_x64.exe /passive /norestart
+    start /wait vcredist2013_x64.exe /passive /norestart
+    start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
+)
+
+timeout /t 1 >nul
+
+exit /b
+
+:: ~~~~~ 安裝.NET ~~~~~
+:NETInstall
+
+winget install Microsoft.DotNet.SDK.6
+winget install Microsoft.DotNet.SDK.7
+
+timeout /t 2 >nul
+exit /b
+
 :: ~~~~~ windows系統優化 ~~~~~
 :winop
 
@@ -1046,52 +1097,18 @@ ECHO.
 timeout /t 2 >nul
 exit /b
 
-:: ~~~~~ 安裝.NET ~~~~~
-:NETInstall
+::~~~~~ The Finals TFAV0012 修復 2023/12/18 ~~~~~
+:tf
 
-winget install Microsoft.DotNet.SDK.6
-winget install Microsoft.DotNet.SDK.7
+ipconfig /flushdns >nul
+bcdedit /set dtrace OFF >nul
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CI\Config" /v "VulnerableDriverBlocklistEnable" /t REG_DWORD /d 1 /f
+
+ECHO.
+ECHO 電腦重啟後生效
+ECHO.
 
 timeout /t 2 >nul
-exit /b
-
-:: ~~~~~ 安裝 Visual C++ ~~~~~
-:: https://learn.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
-:: https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/
-:VSC
-
-ECHO.
-ECHO 檔案較大請稍後 - 安裝包日期 : 2023 年 11 月 
-ECHO.
-ECHO Visual C++ 下載中...
-ECHO.
-
-certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar" Visual.tar >nul
-
-if not exist "Visual.tar" (
-    ECHO 下載失敗...
-) else (
-    ECHO 下載完成...
-    move Visual.tar "%Temp%" >nul
-
-    cd %Temp%
-    ECHO.
-    ECHO 解壓中...
-    tar -xf Visual.tar >nul
-
-    ECHO.
-    ECHO 開始安裝...
-
-    start /wait vcredist2005_x64.exe /q
-    start /wait vcredist2008_x64.exe /qb
-    start /wait vcredist2010_x64.exe /passive /norestart
-    start /wait vcredist2012_x64.exe /passive /norestart
-    start /wait vcredist2013_x64.exe /passive /norestart
-    start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
-)
-
-timeout /t 1 >nul
-
 exit /b
 
 :: ************************************************************************************************************************
@@ -1210,13 +1227,9 @@ color 07
 
 @ ECHO ------------------------------------
 @ ECHO.
-@ ECHO   Versions 1.0.8 更新:
+@ ECHO   Versions 1.0.9 更新:
 @ ECHO.
-@ ECHO    [+] 增加功能 , .NET安裝
-@ ECHO.
-@ ECHO    [+] 增加功能 , Visual C++ 安裝
-@ ECHO.
-@ ECHO    [+] 增加功能 , windows 優化功能
+@ ECHO    [+] 增加功能 , The Finals 修復錯誤
 @ ECHO.
 @ ECHO ------------------------------------
 
