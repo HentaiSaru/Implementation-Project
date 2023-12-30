@@ -36,7 +36,7 @@ class DataProcessing:
     def __init__(self):
         self.Save = queue.Queue() # 保存轉換後要輸出的數據
         self.Work = queue.Queue() # 保存要進行轉換的工作路徑
-        self.Allow = ("txt", "srt", "ass", "ssa") # 允許的檔案類型
+        self.Allow = ("txt", "srt", "ass", "ssa", "lang") # 允許的檔案類型
         self.Converter = opencc.OpenCC("s2twp.json")
 
     # 過濾文件類型
