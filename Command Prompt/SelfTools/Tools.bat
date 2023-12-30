@@ -1,5 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2023/12/31 03:23 -
+:: - LastEditTime 2023/12/31 04:11 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -344,8 +344,6 @@ ECHO.
 ECHO Surfshark 啟動中...
 ECHO.
 
-sc config "Surfshark Service" start= demand >nul
-net start "Surfshark WireGuard" >nul
 net start "Surfshark Service" >nul
 start C:\"Program Files (x86)"\Surfshark\Surfshark.exe >nul
 
@@ -359,8 +357,6 @@ ECHO Surfshark 關閉中...
 ECHO.
 
 wmic process where name="Surfshark.exe" delete >nul
-sc config "Surfshark Service" start= demand >nul
-net stop "Surfshark WireGuard" >nul
 net stop "Surfshark Service" >nul
 
 exit /b
