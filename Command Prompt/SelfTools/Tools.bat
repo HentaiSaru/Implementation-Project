@@ -1,5 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2023/12/18 23:58 -
+:: - LastEditTime 2023/12/31 03:23 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -1000,6 +1000,7 @@ exit /b
 
 winget install Microsoft.DotNet.SDK.6
 winget install Microsoft.DotNet.SDK.7
+winget install Microsoft.DotNet.SDK.8
 
 timeout /t 2 >nul
 exit /b
