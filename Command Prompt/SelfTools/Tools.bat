@@ -83,11 +83,7 @@ cls
 @ ECHO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[91m
 @ ECHO.
 
-:: ************************************************************************************************************************
-
 set /p choice="輸入功能 [代號]/(Enter) : "
-
-:: 選擇後清除
 cls
 
 :: ************************************************************************************************************************
@@ -101,20 +97,26 @@ if %choice% equ 0 (
 ) else if /I "%choice%"=="v" (
     call :UB&goto menu
 
+:: ---------- Windows 系統開關機 ----------
+
 ) else if %choice% equ 1 (
-    call :Sleep&goto menu
+    start rundll32.exe powrprof.dll,SetSuspendState 0,1,0 >nul
 
 ) else if %choice% equ 2 (
-    call :Reboot&goto menu
+    shutdown /r /t 0 >nul
 
 ) else if %choice% equ 3 (
-    call :Shutdown&goto menu
+    shutdown /s /t 0 >nul
+
+:: ---------- Windows 防火牆開關 ----------
 
 ) else if %choice% equ 4 (
     call :DE&goto menu
 
 ) else if %choice% equ 5 (
     call :DD&goto menu
+
+:: ---------- Windows 相關優化 ----------
 
 ) else if %choice% equ 6 (
     call :winop&goto menu
@@ -130,6 +132,8 @@ if %choice% equ 0 (
 
 ) else if %choice% equ 10 (
     call :NETInstall&goto menu
+
+:: ---------- 瀏覽器設置 ----------
 
 ) else if %choice% equ 11 (
     call :GoogleCC&goto menu
@@ -148,51 +152,50 @@ if %choice% equ 0 (
 
 ) else if %choice% equ 16 (
     call :EdgeR&goto menu
-//----- 修正開始 -----//
+
+:: ---------- 授權啟用 ----------
+
 ) else if %choice% equ 17 (
-    call :Rdisk&goto menu
+    call :Rar&goto menu
 
 ) else if %choice% equ 18 (
-    call :GR&goto menu
-
-) else if %choice% equ 19 (
-    call :ER&goto menu
-
-) else if %choice% equ 20 (
-    call :ADE&goto menu
-
-) else if %choice% equ 21 (
-    call :ALE&goto menu
-
-) else if %choice% equ 22 (
-    call :Authorization&goto menu
-
-) else if %choice% equ 23 (
     call :Idm&goto menu
 
-) else if %choice% equ 24 (
+) else if %choice% equ 19 (
     call :windows&goto menu
 
-) else if %choice% equ 25 (
+) else if %choice% equ 20 (
     call :office&goto menu
 
+:: ---------- 進程操作 ----------
+
+) else if %choice% equ 21 (
+    call :GR&goto menu
+
+) else if %choice% equ 22 (
+    call :ER&goto menu
+
+) else if %choice% equ 23 (
+    call :ADE&goto menu
+
+) else if %choice% equ 24 (
+    call :ALE&goto menu
+
+:: ---------- 服務操作 ----------
+
+) else if %choice% equ 25 (
+    call :SE&goto menu
+
 )  else if %choice% equ 26 (
-    call :UACd&goto menu
+    call :SD&goto menu
+
+:: ---------- 特殊功能 ----------
 
 ) else if %choice% equ 27 (
-    call :VSC&goto menu
+    call :NR&goto menu
 
 ) else if %choice% equ 28 (
-    call :NETInstall&goto menu
-
-) else if %choice% equ 29 (
-    call :winop&goto menu
-
-) else if %choice% equ 30 (
-    call :rewinop&goto menu
-
-) else if %choice% equ 31 (
-    call :tf&goto menu
+    call :TF&goto menu
 
 :: ---------- 指令操作 ----------
 
@@ -285,29 +288,6 @@ if %choice% equ 0 (
 )
 
 :: ************************************************************************************************************************
-
-:: ========================= Windows 系統開關機 =========================
-
-:: ----- 電腦睡眠 -----
-:Sleep
-
-start rundll32.exe powrprof.dll,SetSuspendState 0,1,0 >nul
-
-exit
-
-:: ----- 電腦重啟 -----
-:Reboot
-
-shutdown /r /t 0 >nul
-
-exit
-
-:: ----- 電腦關機 -----
-:Shutdown
-
-shutdown /s /t 0 >nul
-
-exit
 
 :: ========================= Windows 防火牆開關 =========================
 
@@ -819,64 +799,119 @@ pause
 exit /b
 
 :: =========================  授權啟用 =========================
-//----- 修正開始 -----//
-:: ~~~~~ 啟動Surfshark ~~~~~
-:SE
+
+:: ----- RAR 授權 -----
+:Rar
 
 ECHO.
-ECHO Surfshark 啟動中...
+ECHO 授權中請稍後...
 ECHO.
 
-net start "Surfshark Service" >nul
-start C:\"Program Files (x86)"\Surfshark\Surfshark.exe >nul
+if not exist "C:\Program Files\WinRAR\Rarreg.key" (
+    certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Rar/Rarreg.key" Rarreg.key >nul
+    if not exist "Rarreg.key" (
+        ECHO 授權失敗...
+    ) else (
+        move Rarreg.key "C:\Program Files\WinRAR" >nul
+        ECHO 授權完成...
+    )
+) else (
+    ECHO 已存在授權...
+)
+
+timeout /t 2 >nul
 
 exit /b
 
-:: ~~~~~ 關閉Surfshark ~~~~~
-:SD
+:: ----- IDM 授權 -----
+:Idm
 
-ECHO.
-ECHO Surfshark 關閉中...
-ECHO.
+if not exist "%Temp%\IDM.cmd" (
+    ECHO.
+    ECHO 授權程式下載中請稍後...
+    ECHO.
 
-wmic process where name="Surfshark.exe" delete >nul
-net stop "Surfshark Service" >nul
+    certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Idm/IDM.tar" IDM.tar >nul
 
+    if not exist "IDM.tar" (
+        ECHO 下載失敗...
+    ) else (
+        tar -xf IDM.tar >nul
+        del /f /s /q IDM.tar >nul
+        move IDM.cmd "%Temp%" >nul
+
+        ECHO 下載完成...
+        ECHO.
+        ECHO 啟動程式...
+        
+        cd %Temp%
+        start IDM.cmd
+    )
+
+) else (
+    ECHO 啟動程式...
+    cd /d "%Temp%" && IDM.cmd
+)
+
+timeout /t 2 >nul
 exit /b
 
-:: ~~~~~ 網路重置 ~~~~~
-:NR
+:: ----- Windows 啟用授權 -----
+:windows
 
 ECHO.
-ECHO 網路重置中...
+ECHO 獲取授權程式最新版本
+ECHO.
+ECHO 下載中請稍後...
 ECHO.
 
-ipconfig /release >nul
-ipconfig /flushdns >nul
-netsh int ip reset >nul
-netsh int tcp reset >nul
-netsh winsock reset >nul
-netsh advfirewall reset >nul
-ipconfig /renew >nul
+:: 確保最新版本
+certutil -urlcache -split -f "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO.cmd" MAS_AIO.cmd >nul
 
-timeout /t 1 >nul
+if not exist "MAS_AIO.cmd" (
+    ECHO 下載失敗...
+) else (
+    move MAS_AIO.cmd "%Temp%" >nul
 
+    ECHO 下載完成...
+    ECHO.
+    ECHO 啟動程式...
+
+    cd /d "%Temp%" && MAS_AIO.cmd
+)
+
+timeout /t 2 >nul
 exit /b
 
-:: ~~~~~ R盤重置 ~~~~~
-:Rdisk
+:: ----- Office 啟用授權 -----
+:office
 
 ECHO.
-ECHO 開始重置...
+ECHO 獲取授權程式最新版本
+ECHO.
+ECHO 下載中請稍後...
 ECHO.
 
-RD /s /q R:\
+certutil -urlcache -split -f "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/master/KMS_VL_ALL_AIO.cmd" KMS_VL_ALL_AIO.cmd >nul
 
-timeout /t 1 >nul
+if not exist "KMS_VL_ALL_AIO.cmd" (
+    ECHO 下載失敗...
+) else (
+    move KMS_VL_ALL_AIO.cmd "%Temp%" >nul
 
+    ECHO 下載完成...
+    ECHO.
+    ECHO 啟動程式...
+
+    cd /d "%Temp%" && KMS_VL_ALL_AIO.cmd
+)
+
+timeout /t 2 >nul
 exit /b
 
-:: ~~~~~ Google重置 ~~~~~
+:: =========================  進程操作 =========================
+
+:: ----- Google 結束進程 -----
 :GR
 
 ECHO.
@@ -889,7 +924,7 @@ timeout /t 1 >nul
 
 exit /b
 
-:: ~~~~~ Edge重置 ~~~~~
+:: ----- Edge 結束進程 -----
 :ER
 
 ECHO.
@@ -902,7 +937,7 @@ timeout /t 1 >nul
 
 exit /b
 
-:: ~~~~~ Adobe結束背景 ~~~~~
+:: ----- Adobe 結束進程 -----
 :ADE
 
 ECHO.
@@ -918,7 +953,7 @@ timeout /t 1 >nul
 
 exit /b
 
-:: ~~~~~ AnLink結束背景 ~~~~~
+:: ----- AnLink 結束進程 -----
 :ALE
 
 ECHO.
@@ -952,125 +987,57 @@ if %errorlevel% equ 0 (
 )
 
 timeout /t 1 >nul
+exit /b
+
+:: =========================  服務操作 =========================
+
+:: ----- Surfshark 運行 -----
+:SE
+
+ECHO.
+ECHO Surfshark 啟動中...
+ECHO.
+
+net start "Surfshark Service" >nul
+start C:\"Program Files (x86)"\Surfshark\Surfshark.exe >nul
 
 exit /b
 
-:: ~~~~~ RAR授權 ~~~~~
-:Authorization
+:: ----- Surfshark 終止 -----
+:SD
 
 ECHO.
-ECHO 授權中請稍後...
+ECHO Surfshark 關閉中...
 ECHO.
 
-if not exist "C:\Program Files\WinRAR\Rarreg.key" (
-    certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Rar/Rarreg.key" Rarreg.key >nul
-    if not exist "Rarreg.key" (
-        ECHO 授權失敗...
-    ) else (
-        move Rarreg.key "C:\Program Files\WinRAR" >nul
-        ECHO 授權完成...
-    )
-) else (
-    ECHO 已存在授權...
-)
-
-timeout /t 2 >nul
+wmic process where name="Surfshark.exe" delete >nul
+net stop "Surfshark Service" >nul
 
 exit /b
 
-:: ~~~~~ IDM授權 ~~~~~
-:Idm
+:: =========================  特殊功能 =========================
 
-if not exist "%Temp%\IDM.cmd" (
-    ECHO.
-    ECHO 授權程式下載中請稍後...
-    ECHO.
+:: ----- 網路重置 -----
+:NR
 
-    certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Idm/IDM.tar" IDM.tar >nul
+ECHO.
+ECHO 網路重置中...
+ECHO.
 
-    if not exist "IDM.tar" (
-        ECHO 下載失敗...
-    ) else (
-        tar -xf IDM.tar >nul
-        del /f /s /q IDM.tar >nul
-        move IDM.cmd "%Temp%" >nul
+ipconfig /release >nul
+ipconfig /flushdns >nul
+netsh int ip reset >nul
+netsh int tcp reset >nul
+netsh winsock reset >nul
+netsh advfirewall reset >nul
+ipconfig /renew >nul
 
-        ECHO 下載完成...
-        ECHO.
-        ECHO 啟動程式...
-        
-        cd %Temp%
-        start IDM.cmd
-    )
-
-) else (
-    ECHO 啟動程式...
-    cd /d "%Temp%" && IDM.cmd
-)
-
-timeout /t 2 >nul
+timeout /t 1 >nul
 
 exit /b
 
-:: ~~~~~ windows啟用 ~~~~~
-:windows
-
-ECHO.
-ECHO 獲取授權程式最新版本
-ECHO.
-ECHO 下載中請稍後...
-ECHO.
-
-:: 確保最新版本
-certutil -urlcache -split -f "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO.cmd" MAS_AIO.cmd >nul
-
-if not exist "MAS_AIO.cmd" (
-    ECHO 下載失敗...
-) else (
-    move MAS_AIO.cmd "%Temp%" >nul
-
-    ECHO 下載完成...
-    ECHO.
-    ECHO 啟動程式...
-
-    cd /d "%Temp%" && MAS_AIO.cmd
-)
-
-timeout /t 2 >nul
-
-exit /b
-
-:: ~~~~~ office啟用 ~~~~~
-:office
-
-ECHO.
-ECHO 獲取授權程式最新版本
-ECHO.
-ECHO 下載中請稍後...
-ECHO.
-
-certutil -urlcache -split -f "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/master/KMS_VL_ALL_AIO.cmd" KMS_VL_ALL_AIO.cmd >nul
-
-if not exist "KMS_VL_ALL_AIO.cmd" (
-    ECHO 下載失敗...
-) else (
-    move KMS_VL_ALL_AIO.cmd "%Temp%" >nul
-
-    ECHO 下載完成...
-    ECHO.
-    ECHO 啟動程式...
-
-    cd /d "%Temp%" && KMS_VL_ALL_AIO.cmd
-)
-
-timeout /t 2 >nul
-
-exit /b
-
-:: ====================  進程操作 ====================
-
-::~~~~~ The Finals TFAV0012 修復 2023/12/18 ~~~~~
-:tf
+:: ----- The Finals TFAV0012 修復 2023/12/18 -----
+:TF
 
 ipconfig /flushdns >nul
 bcdedit /set dtrace OFF >nul
@@ -1083,13 +1050,9 @@ ECHO.
 timeout /t 2 >nul
 exit /b
 
-:: ====================  服務操作 ====================
-
-:: ====================  特殊功能 ====================
-
 :: ************************************************************************************************************************
 
-:: ~~~~~ 查看機器碼 ~~~~~
+:: ----- 查看機器碼 -----
 :Hwid
 
 Color 06
@@ -1146,11 +1109,11 @@ ECHO **********************************
 ECHO       serialnumber為序號列
 ECHO **********************************
 ECHO.
-pause
 
+pause
 exit /b
 
-:: ~~~~~ 系統修復 ~~~~~
+:: ----- 系統錯誤修復 -----
 :SystemRepair
 
 color 02
@@ -1165,12 +1128,11 @@ DISM /Online /Cleanup-image /RestoreHealth
 sfc /scannow
 
 pause
-
 exit /b
 
 :: ========================================================================================================================
 
-:: ~~~~~ 使用說明 ~~~~~
+:: ----- 使用說明 -----
 :Help
 
 color 07
@@ -1186,11 +1148,11 @@ color 07
 @ ECHO 3. 需操作的程式 , 必須都安裝在預設的路徑上 , 才可成功運行
 @ ECHO.
 @ ECHO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 pause
 exit /b
 
-:: ~~~~~ 更新資訊 ~~~~~
-::
+:: ----- 更新資訊 -----
 :UB
 
 color 07
