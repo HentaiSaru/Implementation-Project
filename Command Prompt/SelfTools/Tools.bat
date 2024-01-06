@@ -1,5 +1,5 @@
-:: - Versions 1.0.9 -
-:: - LastEditTime 2023/12/31 04:11 -
+:: - Versions 1.0.10 -
+:: - LastEditTime 2024/1/6 10:30 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -24,10 +24,9 @@ if "%firewall_status%"=="ON" (
 )
 
 cls
-
 @ ECHO [1m
 @ ECHO [94m======================================================================================================================
-@ ECHO                                       - 工具箱 Versions 1.0.9 2023/12/18 -
+@ ECHO                                       - 工具箱 Versions 1.0.10 2024/1/6 -
 @ ECHO ======================================================================================================================[91m
 @ ECHO.
 @ ECHO [3m[94m   Windows 系統開關機 :[91m[23m
@@ -97,8 +96,6 @@ if %choice% equ 0 (
 ) else if /I "%choice%"=="v" (
     call :UB&goto menu
 
-:: ---------- Windows 系統開關機 ----------
-
 ) else if %choice% equ 1 (
     start rundll32.exe powrprof.dll,SetSuspendState 0,1,0 >nul
 
@@ -108,15 +105,11 @@ if %choice% equ 0 (
 ) else if %choice% equ 3 (
     shutdown /s /t 0 >nul
 
-:: ---------- Windows 防火牆開關 ----------
-
 ) else if %choice% equ 4 (
     call :DE&goto menu
 
 ) else if %choice% equ 5 (
     call :DD&goto menu
-
-:: ---------- Windows 相關優化 ----------
 
 ) else if %choice% equ 6 (
     call :winop&goto menu
@@ -132,8 +125,6 @@ if %choice% equ 0 (
 
 ) else if %choice% equ 10 (
     call :NETInstall&goto menu
-
-:: ---------- 瀏覽器設置 ----------
 
 ) else if %choice% equ 11 (
     call :GoogleCC&goto menu
@@ -153,8 +144,6 @@ if %choice% equ 0 (
 ) else if %choice% equ 16 (
     call :EdgeR&goto menu
 
-:: ---------- 授權啟用 ----------
-
 ) else if %choice% equ 17 (
     call :Rar&goto menu
 
@@ -166,8 +155,6 @@ if %choice% equ 0 (
 
 ) else if %choice% equ 20 (
     call :office&goto menu
-
-:: ---------- 進程操作 ----------
 
 ) else if %choice% equ 21 (
     call :GR&goto menu
@@ -181,23 +168,17 @@ if %choice% equ 0 (
 ) else if %choice% equ 24 (
     call :ALE&goto menu
 
-:: ---------- 服務操作 ----------
-
 ) else if %choice% equ 25 (
     call :SE&goto menu
 
 )  else if %choice% equ 26 (
     call :SD&goto menu
 
-:: ---------- 特殊功能 ----------
-
 ) else if %choice% equ 27 (
     call :NR&goto menu
 
 ) else if %choice% equ 28 (
     call :TF&goto menu
-
-:: ---------- 指令操作 ----------
 
 ) else if /I "%choice%"=="ct" (
     Control
@@ -282,7 +263,7 @@ if %choice% equ 0 (
     call :SystemRepair&goto menu
 
 ) else (
-    echo 無效的選項
+    echo  無效的代號 !!
     timeout /t 2 >nul
     goto menu
 )
@@ -1159,9 +1140,11 @@ color 07
 
 @ ECHO ------------------------------------
 @ ECHO.
-@ ECHO   Versions 1.0.9 更新:
+@ ECHO   Versions 1.0.10 更新:
 @ ECHO.
-@ ECHO    [+] 增加功能 , The Finals 修復錯誤
+@ ECHO    [-] 刪除不常用功能
+@ ECHO.
+@ ECHO    [~] 重新調整順序與版面
 @ ECHO.
 @ ECHO ------------------------------------
 
