@@ -30,41 +30,41 @@ cls
 @ ECHO                                       - 工具箱 Versions 1.0.9 2023/12/18 -
 @ ECHO ======================================================================================================================[91m
 @ ECHO.
-@ ECHO [3m[94m   Windows系統開關機 :[91m[23m
+@ ECHO [3m[94m   Windows 系統開關機 :[91m[23m
 @ ECHO.
 @ ECHO    [1] 睡眠    [2] 重啟    [3] 關機
 @ ECHO.
-@ ECHO [3m[94m   Windows防火牆開關 :[91m[23m
+@ ECHO [3m[94m   Windows 防火牆開關 :[91m[23m
 @ ECHO.
 @ ECHO    [4] 開啟防火牆    [5] 關閉防火牆    [3m[7m 防火牆當前狀態 [95m[23m [%display%] [91m[27m
 @ ECHO.
-@ ECHO [3m[94m   Surfshark服務操作 :[91m[23m
+@ ECHO [3m[94m   Windows 相關優化 :[91m[23m
 @ ECHO.
-@ ECHO    [6] 開啟服務 (Surfshark運行)    [7] 關閉服務 (Surfshark終止)
+@ ECHO    [6] Windows 一鍵優化設置    [7] Windows 優化錯誤恢復    [8] 關閉UAC安全通知
 @ ECHO.
-@ ECHO [3m[94m   瀏覽器操作 :[91m[23m
+@ ECHO    [9] Visual C++ (x64)安裝    [10] .NET安裝
 @ ECHO.
-@ ECHO    [8] Edge 啟用右上AI圖示    [9] Edge 關閉右上AI圖示
+@ ECHO [3m[94m   瀏覽器設置 :[91m[23m
 @ ECHO.
-@ ECHO    [10] Google 變更緩存位置    [11] Google 一鍵優化設置    [12] Google 修復受機構管理 (重置優化設置)
+@ ECHO    [11] Google 變更緩存位置    [12] Google 一鍵優化設置    [13] Google 修復受機構管理 (重置優化設置)
 @ ECHO.
-@ ECHO    [13] Edge 變更緩存位置    [14] Edge 一鍵優化設置    [15] Edge 修復受組織管理 (重置優化設置)
+@ ECHO    [14] Edge 變更緩存位置    [15] Edge 一鍵優化設置    [16] Edge 修復受組織管理 (重置優化設置)
 @ ECHO.
-@ ECHO [3m[94m   重置功能 :[91m[23m
+@ ECHO [3m[94m   授權啟用 :[91m[23m
 @ ECHO.
-@ ECHO    [16] 網路重置    [17] R:/ 重置
+@ ECHO    [17] RAR 授權     [18] IDM 授權    [19] Windows 啟用授權    [20] Office 啟用授權
 @ ECHO.
-@ ECHO    [18] Google 結束進程    [19] Edge 結束進程    [20] Adobe 結束進程      [21] AnLink 結束進程     
+@ ECHO [3m[94m   進程操作 :[91m[23m
 @ ECHO.
-@ ECHO [3m[94m   授權功能 :[91m[23m
-@ ECHO.   
-@ ECHO    [22] RAR授權     [23] IDM授權    [24] Windows 啟用授權    [25] Office 啟用授權
+@ ECHO    [21] Google 結束進程    [22] Edge 結束進程    [23] Adobe 結束進程      [24] AnLink 結束進程
 @ ECHO.
-@ ECHO [3m[94m   特別功能 :[91m[23m
+@ ECHO [3m[94m   服務操作 :[91m[23m
 @ ECHO.
-@ ECHO    [26] 關閉UAC安全通知    [27] Visual C++ (x64)安裝    [28] .NET安裝    [29] Windows 一鍵優化設置
+@ ECHO    [25] 開啟服務 (Surfshark運行)    [26] 關閉服務 (Surfshark終止)
 @ ECHO.
-@ ECHO    [30] Windows 優化錯誤恢復    [31] The Finals 修復
+@ ECHO [3m[94m   特殊功能 :[91m[23m
+@ ECHO.
+@ ECHO    [27] 網路重置    [28] The Finals 修復
 @ ECHO.
 @ ECHO [3m[97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
@@ -83,14 +83,14 @@ cls
 @ ECHO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[91m
 @ ECHO.
 
-:: ========================================================================================================================
+:: ************************************************************************************************************************
 
-set /p choice="選擇功能 - 輸入按下(Enter) : "
+set /p choice="輸入功能 [代號]/(Enter) : "
 
 :: 選擇後清除
 cls
 
-:: ========================================================================================================================
+:: ************************************************************************************************************************
 
 if %choice% equ 0 (
     exit
@@ -117,38 +117,38 @@ if %choice% equ 0 (
     call :DD&goto menu
 
 ) else if %choice% equ 6 (
-    call :SE&goto menu
+    call :winop&goto menu
 
 ) else if %choice% equ 7 (
-    call :SD&goto menu
+    call :rewinop&goto menu
 
 ) else if %choice% equ 8 (
-    call :EdgeAIE&goto menu
+    call :UACd&goto menu
 
 ) else if %choice% equ 9 (
-    call :EdgeAID&goto menu
+    call :VSC&goto menu
 
 ) else if %choice% equ 10 (
-    call :GoogleCC&goto menu
+    call :NETInstall&goto menu
 
 ) else if %choice% equ 11 (
-    call :GoogleOp&goto menu
+    call :GoogleCC&goto menu
 
 ) else if %choice% equ 12 (
-    call :GoogleR&goto menu
+    call :GoogleOp&goto menu
 
 ) else if %choice% equ 13 (
-    call :EdgeCC&goto menu
+    call :GoogleR&goto menu
 
 ) else if %choice% equ 14 (
-    call :EdgeOp&goto menu
+    call :EdgeCC&goto menu
 
 ) else if %choice% equ 15 (
-    call :EdgeR&goto menu
+    call :EdgeOp&goto menu
 
 ) else if %choice% equ 16 (
-    call :NR&goto menu
-
+    call :EdgeR&goto menu
+//----- 修正開始 -----//
 ) else if %choice% equ 17 (
     call :Rdisk&goto menu
 
@@ -194,7 +194,9 @@ if %choice% equ 0 (
 ) else if %choice% equ 31 (
     call :tf&goto menu
 
-)else if /I "%choice%"=="ct" (
+:: ---------- 指令操作 ----------
+
+) else if /I "%choice%"=="ct" (
     Control
     goto menu
 
@@ -282,32 +284,34 @@ if %choice% equ 0 (
     goto menu
 )
 
-:: ========================================================================================================================
+:: ************************************************************************************************************************
 
-:: ~~~~~ 電腦睡眠 ~~~~~
+:: ========================= Windows 系統開關機 =========================
+
+:: ----- 電腦睡眠 -----
 :Sleep
 
 start rundll32.exe powrprof.dll,SetSuspendState 0,1,0 >nul
 
 exit
 
-:: ~~~~~ 電腦重啟 ~~~~~
+:: ----- 電腦重啟 -----
 :Reboot
 
 shutdown /r /t 0 >nul
 
 exit
 
-:: ~~~~~ 電腦關機 ~~~~~
+:: ----- 電腦關機 -----
 :Shutdown
 
 shutdown /s /t 0 >nul
 
 exit
 
-:: ========================================================================================================================
+:: ========================= Windows 防火牆開關 =========================
 
-:: ~~~~~ 啟用防火牆 ~~~~~
+:: ----- 啟用防火牆 -----
 :DE
 
 ECHO.
@@ -321,7 +325,7 @@ timeout /t 1 >nul
 
 exit /b
 
-:: ~~~~~ 禁用防火牆 ~~~~~
+:: ----- 禁用防火牆 -----
 :DD
 
 ECHO.
@@ -335,61 +339,164 @@ timeout /t 1 >nul
 
 exit /b
 
-:: ========================================================================================================================
+:: =========================  Windows 相關優化 =========================
 
-:: ~~~~~ 啟動Surfshark ~~~~~
-:SE
-
-ECHO.
-ECHO Surfshark 啟動中...
-ECHO.
-
-net start "Surfshark Service" >nul
-start C:\"Program Files (x86)"\Surfshark\Surfshark.exe >nul
-
-exit /b
-
-:: ~~~~~ 關閉Surfshark ~~~~~
-:SD
+:: ----- Windows 一鍵優化設置 -----
+:winop
 
 ECHO.
-ECHO Surfshark 關閉中...
+ECHO 開始優化設置
+ECHO.
+ECHO 有些功能不支援會跳出錯誤訊息
 ECHO.
 
-wmic process where name="Surfshark.exe" delete >nul
-net stop "Surfshark Service" >nul
+:: 關機時是否清除分頁文件
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "ClearPageFileAtShutdown" /t REG_DWORD /d 1 /f
+:: 是否禁用對執行文件（executable files）的分頁
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "DisablePagingExecutive" /t REG_DWORD /d 1 /f
+:: 否使用大型系統高速緩存
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "LargeSystemCache" /t REG_DWORD /d 1 /f
+:: 設置記憶體使用大小 1920x1080 / 6 | 2560x1440 / 12 | 3840x2160 / 24
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "SessionPoolSize" /t REG_DWORD /d 12 /f
 
-exit /b
+:: 設為1，那麼當您使用遊戲列(Win+G)來錄製全螢幕模式下的遊戲時，系統會自動將遊戲切換到全螢幕視窗化模式，以提高錄製的效能和品質
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_DXGIHonorFSEWindowsCompatible" /t REG_DWORD /d 1 /f
+:: 設定全螢幕模式下的遊戲錄製品質。可能的值有0、1或2，分別代表高、中或低品質
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_EFSEFeatureFlags" /t REG_DWORD /d 2 /f
+:: 設定全螢幕模式下的遊戲錄製行為。可能的值有0、1或2，分別代表停用、全螢幕視窗化或全螢幕專屬模式
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_FSEBehaviorMode" /t REG_DWORD /d 2 /f
+:: 螢幕錄製功能啟用
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_Enabled" /t REG_DWORD /d 2 /f
+:: 啟用全螢幕錄製行為
+reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_HonorUserFSEBehaviorMode" /t REG_DWORD /d 1 /f
 
-:: ========================================================================================================================
+:: 樣式效果美化/優化 ->
 
-:: ~~~~~ 啟用edge AI圖示 ~~~~~
-:EdgeAIE
+:: 動畫效果最佳化
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 2 /f
+:: 動畫效果設置自訂
+:: reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 3 /f
+:: 內部動畫顯示控制元素
+:: reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "EnableAnimatedWindows" /t REG_DWORD /d 1 /f
+:: 桌面的圖標標籤使用陰影
+:: reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ListviewShadow" /t REG_DWORD /d 1 /f
 
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "HubsSidebarEnabled" /t REG_DWORD /d 1 /f
+:: 去除螢幕字形毛邊
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "FontSmoothing" /t REG_SZ /d 2 /f
+:: 設置字體平滑的程度 (3高平滑)
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "FontSmoothingSize" /t REG_DWORD /d 3 /f
+:: 使用平滑的動畫來滾動內容
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "SmoothScroll" /t REG_DWORD /d 3 /f
+:: 允許使用更豐富的顏色來顯示圖形
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "ExtendedColors" /t REG_DWORD /d 256 /f
+
+:: 設置優化 ->
+
+:: 雙緩衝 圖形渲染到兩個緩衝區中，一個用於顯示，另一個用於繪製
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "Doublebuffer" /t REG_DWORD /d 1 /f
+:: 使用專用硬體來渲染圖形，從而提高性能
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "GraphicsAcceleration" /t REG_DWORD /d 1 /f
+:: 允許在移動滑鼠指針到窗口時看到窗口的標題欄和邊框
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "HotTracking" /t REG_DWORD /d 1 /f
+:: 自動結束未使用的程式
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "AutoEndTasks" /t REG_DWORD /d 1 /f
+:: 光標閃爍速度
+reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "CursorBlinkingRate" /t REG_DWORD /d 0 /f
+
+:: 記憶體相關設置
+powershell -command "Enable-MMAgent -ApplicationPreLaunch"
+powershell -command "Set-MMAgent -MaxOperationAPIFiles 2048"
 
 ECHO.
-ECHO 請自行重啟瀏覽器...
+ECHO 後續自行設置效能的 (視覺效果設置來進行優化) ...
+ECHO.
+
+timeout /t 3 >nul
+control sysdm.cpl,,3
+
+ECHO.
+ECHO 設置完成後重啟 或 登出帳戶 (載入效果)
 ECHO.
 
 pause
-
 exit /b
 
-:: ~~~~~ 關閉edge AI圖示 ~~~~~
-:EdgeAID
+:: ----- Windows 優化錯誤恢復 -----
+:rewinop
 
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "HubsSidebarEnabled" /t REG_DWORD /d 0 /f
+reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 0 /f
+reg delete "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /f
 
 ECHO.
-ECHO 請自行重啟瀏覽器...
+ECHO 電腦重啟後生效
 ECHO.
 
-pause
-
+timeout /t 2 >nul
 exit /b
 
-:: ~~~~~ google 變更緩存位置 ~~~~~
+:: ----- 關閉UAC安全通知 -----
+:UACd
+
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "EnableLUA" /t REG_DWORD /d 0 /f
+
+ECHO.
+ECHO 電腦重啟後生效
+ECHO.
+
+timeout /t 2 >nul
+exit /b
+
+:: ----- Visual C++ 安裝 -----
+:: https://learn.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
+:: https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/
+:VSC
+
+ECHO.
+ECHO 檔案較大請稍後 - 安裝包日期 : 2023 年 11 月 
+ECHO.
+ECHO Visual C++ 下載中...
+ECHO.
+
+certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar" Visual.tar >nul
+
+if not exist "Visual.tar" (
+    ECHO 下載失敗...
+) else (
+    ECHO 下載完成...
+    move Visual.tar "%Temp%" >nul
+
+    cd %Temp%
+    ECHO.
+    ECHO 解壓中...
+    tar -xf Visual.tar >nul
+
+    ECHO.
+    ECHO 開始安裝...
+
+    start /wait vcredist2005_x64.exe /q
+    start /wait vcredist2008_x64.exe /qb
+    start /wait vcredist2010_x64.exe /passive /norestart
+    start /wait vcredist2012_x64.exe /passive /norestart
+    start /wait vcredist2013_x64.exe /passive /norestart
+    start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
+)
+
+timeout /t 1 >nul
+exit /b
+
+:: ----- .NET安裝 -----
+:NETInstall
+
+winget install Microsoft.DotNet.SDK.6
+winget install Microsoft.DotNet.SDK.7
+winget install Microsoft.DotNet.SDK.8
+
+timeout /t 2 >nul
+exit /b
+
+:: =========================  瀏覽器設置 =========================
+
+:: ----- Google 變更緩存位置 -----
 :GoogleCC
 setlocal
 
@@ -421,7 +528,7 @@ endlocal
 timeout /t 2 >nul
 exit /b
 
-:: ~~~~~ google 一鍵功能優化 ~~~~~
+:: ----- Google 一鍵優化設置 -----
 :GoogleOp
 
 :: 原則說明文件
@@ -476,7 +583,7 @@ ECHO.
 pause
 exit /b
 
-:: ~~~~~ 修復 Google 瀏覽器受管理 ~~~~~
+:: ----- Google 修復受機構管理 -----
 :GoogleR
 
 reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /f
@@ -486,10 +593,9 @@ ECHO 請自行重啟瀏覽器...
 ECHO.
 
 pause
-
 exit /b
 
-:: ~~~~~ edge 變更緩存位置 ~~~~~
+:: ----- Edge 變更緩存位置 -----
 :EdgeCC
 setlocal
 
@@ -521,7 +627,7 @@ endlocal
 timeout /t 2 >nul
 exit /b
 
-:: ~~~~~ edge 一鍵功能優化 ~~~~~
+:: ----- Edge 一鍵優化設置 -----
 :EdgeOp
 
 :: 原則說明文件
@@ -697,7 +803,7 @@ ECHO.
 pause
 exit /b
 
-:: ~~~~~ 修復 edge 瀏覽器受管理 ~~~~~
+:: ----- Edge 修復受組織管理 -----
 :EdgeR
 
 reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /f
@@ -710,10 +816,33 @@ ECHO 請自行重啟瀏覽器...
 ECHO.
 
 pause
+exit /b
+
+:: =========================  授權啟用 =========================
+//----- 修正開始 -----//
+:: ~~~~~ 啟動Surfshark ~~~~~
+:SE
+
+ECHO.
+ECHO Surfshark 啟動中...
+ECHO.
+
+net start "Surfshark Service" >nul
+start C:\"Program Files (x86)"\Surfshark\Surfshark.exe >nul
 
 exit /b
 
-:: ========================================================================================================================
+:: ~~~~~ 關閉Surfshark ~~~~~
+:SD
+
+ECHO.
+ECHO Surfshark 關閉中...
+ECHO.
+
+wmic process where name="Surfshark.exe" delete >nul
+net stop "Surfshark Service" >nul
+
+exit /b
 
 :: ~~~~~ 網路重置 ~~~~~
 :NR
@@ -938,161 +1067,7 @@ timeout /t 2 >nul
 
 exit /b
 
-:: ************************************************************************************************************************
-
-:: ~~~~~ 關閉UAC通知 ~~~~~
-:UACd
-
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "EnableLUA" /t REG_DWORD /d 0 /f
-
-ECHO.
-ECHO 電腦重啟後生效
-ECHO.
-
-timeout /t 2 >nul
-exit /b
-
-:: ~~~~~ 安裝 Visual C++ ~~~~~
-:: https://learn.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
-:: https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/
-:VSC
-
-ECHO.
-ECHO 檔案較大請稍後 - 安裝包日期 : 2023 年 11 月 
-ECHO.
-ECHO Visual C++ 下載中...
-ECHO.
-
-certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar" Visual.tar >nul
-
-if not exist "Visual.tar" (
-    ECHO 下載失敗...
-) else (
-    ECHO 下載完成...
-    move Visual.tar "%Temp%" >nul
-
-    cd %Temp%
-    ECHO.
-    ECHO 解壓中...
-    tar -xf Visual.tar >nul
-
-    ECHO.
-    ECHO 開始安裝...
-
-    start /wait vcredist2005_x64.exe /q
-    start /wait vcredist2008_x64.exe /qb
-    start /wait vcredist2010_x64.exe /passive /norestart
-    start /wait vcredist2012_x64.exe /passive /norestart
-    start /wait vcredist2013_x64.exe /passive /norestart
-    start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
-)
-
-timeout /t 1 >nul
-
-exit /b
-
-:: ~~~~~ 安裝.NET ~~~~~
-:NETInstall
-
-winget install Microsoft.DotNet.SDK.6
-winget install Microsoft.DotNet.SDK.7
-winget install Microsoft.DotNet.SDK.8
-
-timeout /t 2 >nul
-exit /b
-
-:: ~~~~~ windows系統優化 ~~~~~
-:winop
-
-ECHO.
-ECHO 開始優化設置
-ECHO.
-ECHO 有些功能不支援會跳出錯誤訊息
-ECHO.
-
-:: 關機時是否清除分頁文件
-reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "ClearPageFileAtShutdown" /t REG_DWORD /d 1 /f
-:: 是否禁用對執行文件（executable files）的分頁
-reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "DisablePagingExecutive" /t REG_DWORD /d 1 /f
-:: 否使用大型系統高速緩存
-reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "LargeSystemCache" /t REG_DWORD /d 1 /f
-:: 設置記憶體使用大小 1920x1080 / 6 | 2560x1440 / 12 | 3840x2160 / 24
-reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "SessionPoolSize" /t REG_DWORD /d 12 /f
-
-:: 設為1，那麼當您使用遊戲列(Win+G)來錄製全螢幕模式下的遊戲時，系統會自動將遊戲切換到全螢幕視窗化模式，以提高錄製的效能和品質
-reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_DXGIHonorFSEWindowsCompatible" /t REG_DWORD /d 1 /f
-:: 設定全螢幕模式下的遊戲錄製品質。可能的值有0、1或2，分別代表高、中或低品質
-reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_EFSEFeatureFlags" /t REG_DWORD /d 2 /f
-:: 設定全螢幕模式下的遊戲錄製行為。可能的值有0、1或2，分別代表停用、全螢幕視窗化或全螢幕專屬模式
-reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_FSEBehaviorMode" /t REG_DWORD /d 2 /f
-:: 螢幕錄製功能啟用
-reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_Enabled" /t REG_DWORD /d 2 /f
-:: 啟用全螢幕錄製行為
-reg add "HKEY_CURRENT_USER\System\GameConfigStore" /v "GameDVR_HonorUserFSEBehaviorMode" /t REG_DWORD /d 1 /f
-
-:: 樣式效果美化/優化 -----
-
-:: 動畫效果最佳化
-reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 2 /f
-:: 動畫效果設置自訂
-:: reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 3 /f
-:: 內部動畫顯示控制元素
-:: reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "EnableAnimatedWindows" /t REG_DWORD /d 1 /f
-:: 桌面的圖標標籤使用陰影
-:: reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ListviewShadow" /t REG_DWORD /d 1 /f
-
-:: 去除螢幕字形毛邊
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "FontSmoothing" /t REG_SZ /d 2 /f
-:: 設置字體平滑的程度 (3高平滑)
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "FontSmoothingSize" /t REG_DWORD /d 3 /f
-:: 使用平滑的動畫來滾動內容
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "SmoothScroll" /t REG_DWORD /d 3 /f
-:: 允許使用更豐富的顏色來顯示圖形
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "ExtendedColors" /t REG_DWORD /d 256 /f
-
-:: 設置優化 -----
-
-:: 雙緩衝 圖形渲染到兩個緩衝區中，一個用於顯示，另一個用於繪製
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "Doublebuffer" /t REG_DWORD /d 1 /f
-:: 使用專用硬體來渲染圖形，從而提高性能
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "GraphicsAcceleration" /t REG_DWORD /d 1 /f
-:: 允許在移動滑鼠指針到窗口時看到窗口的標題欄和邊框
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "HotTracking" /t REG_DWORD /d 1 /f
-:: 自動結束未使用的程式
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "AutoEndTasks" /t REG_DWORD /d 1 /f
-:: 光標閃爍速度
-reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v "CursorBlinkingRate" /t REG_DWORD /d 0 /f
-
-:: 記憶體相關設置
-powershell -command "Enable-MMAgent -ApplicationPreLaunch"
-powershell -command "Set-MMAgent -MaxOperationAPIFiles 2048"
-
-ECHO.
-ECHO 後續自行設置效能的 (視覺效果設置來進行優化) ...
-ECHO.
-
-timeout /t 3 >nul
-control sysdm.cpl,,3
-
-ECHO.
-ECHO 設置完成後重啟 或 登出帳戶 (載入效果)
-ECHO.
-
-pause
-exit /b
-
-::~~~~~ windows 優化問題修復 ~~~~~
-:rewinop
-
-reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD /d 0 /f
-reg delete "HKEY_CURRENT_USER\Control Panel\Desktop" /v "UserPreferencesMask" /f
-
-ECHO.
-ECHO 電腦重啟後生效
-ECHO.
-
-timeout /t 2 >nul
-exit /b
+:: ====================  進程操作 ====================
 
 ::~~~~~ The Finals TFAV0012 修復 2023/12/18 ~~~~~
 :tf
@@ -1107,6 +1082,10 @@ ECHO.
 
 timeout /t 2 >nul
 exit /b
+
+:: ====================  服務操作 ====================
+
+:: ====================  特殊功能 ====================
 
 :: ************************************************************************************************************************
 
@@ -1202,15 +1181,9 @@ color 07
 @ ECHO.
 @ ECHO 1. 請注意某些特別的設置(優化之類的) , 這是以本人的電腦製作的 , 不一定適用於所有人
 @ ECHO.
-@ ECHO 2. 需操作的程式 , 必須都安裝在預設的路徑上 , 才可成功運行
+@ ECHO 2. Window 和 Office 的啟用工具 , 由網路下載資源(有時候下載比較慢) 請等待
 @ ECHO.
-@ ECHO 3. 主要是自用的工具 , 所以不是所有功能 , 所有人都用的到
-@ ECHO.
-@ ECHO 4. Window 和 Office 的啟用工具 , 是下載網路資源的 , 並非本人所寫 (有時候下載比較慢)
-@ ECHO.
-@ ECHO 5. 此程式是以個人使用為主去寫的 , 無考慮不同平台差異
-@ ECHO.
-@ ECHO 6. 如需要某些特定功能(或修復修改) , 可到 Discord 聯絡 NUS_apm#6830 , (可能)會嘗試製作
+@ ECHO 3. 需操作的程式 , 必須都安裝在預設的路徑上 , 才可成功運行
 @ ECHO.
 @ ECHO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 pause
