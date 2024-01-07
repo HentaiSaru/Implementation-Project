@@ -1,13 +1,6 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2023/12/09 20:30 -
-:: [+] - 基本系統清理
-:: [+] - Line 緩存清理
-:: [+] - Google 緩存清理
-:: [+] - Edge 緩存清理
-:: [+] - Discord 緩存清理
-:: [+] - 網路設置優化
-:: [+] - 系統微優化
-:: [+] - 系統修復
+:: - LastEditTime 2024/1/7 18:40 -
+:: [+] - Telegram 緩存清理
 
 @echo off
 chcp 65001 >nul 2>&1
@@ -120,35 +113,34 @@ RD %windir%\$hf_mig$ /S /Q
 :: 刪除舊版系統文件
 RD /S /Q C:\Windows.old
 :: 舊版刪除各瀏覽器緩存
-del /f /s /q "%LocalAppData%\Microsoft\Windows\WebCache\*.*"
-del /f /s /q "%LocalAppData%\Microsoft\Windows\INetCache\*.*"
-del /f /s /q "%AppData%\Opera Software\Opera Stable\Cache\*.*"
-del /f /s /q "%AppData%\Mozilla\Firefox\Profiles\*\cache2\*.*"
-del /f /s /q "%AppData%\Google\Chrome\User Data\Default\Cache\*.*"
-del /f /s /q "%LocalAppData%\Microsoft\Windows\Explorer\thumbcache*"
+DEL /f /s /q "%LocalAppData%\Microsoft\Windows\WebCache\*.*"
+DEL /f /s /q "%LocalAppData%\Microsoft\Windows\INetCache\*.*"
+DEL /f /s /q "%AppData%\Opera Software\Opera Stable\Cache\*.*"
+DEL /f /s /q "%AppData%\Mozilla\Firefox\Profiles\*\cache2\*.*"
+DEL /f /s /q "%AppData%\Google\Chrome\User Data\Default\Cache\*.*"
+DEL /f /s /q "%LocalAppData%\Microsoft\Windows\Explorer\thumbcache*"
 
-del /f /s /q "%Temp%"
-del /f /s /q "%windir%\*.bak"
-del /f /s /q "%windir%\temp\*.*"
-del /f /s /q "%systemdrive%\*.tmp"
-del /f /s /q "%systemdrive%\*._mp"
-del /f /s /q "%systemdrive%\*.log"
-del /f /s /q "%systemdrive%\*.gid"
-del /f /s /q "%systemdrive%\*.chk"
-del /f /s /q "%systemdrive%\*.dlf"
-del /f /s /q "C:\WINDOWS\HELP\*.*"
-del /f /s /q "%systemroot%\Temp\*.*"
-del /f /s /q "%windir%\prefetch\*.*"
-del /f /s /q "%userprofile%\recent\*.*"
-del /f /s /q "%userprofile%\cookies\*.*"
-del /f /s /q "%systemdrive%\recycled\*.*"
-del /f /s /q "%HomePath%\AppData\LocalLow\Temp\*.*"
-del /f /s /q "%userprofile%\Local Settings\Temp\*.*"
-del /f /s /q "%windir%\SoftwareDistribution\Download\*.*"
-del /f /s /q "%LOCALAPPDATA%\Microsoft\Windows\Caches\*.*"
-del /f /s /q "%programdata%\Microsoft\Windows\WER\Temp\*.*"
-del /f /s /q "%userprofile%\Local Settings\Temporary Internet Files\*.*"
-del /f /s /q "%AllUsersProfile%\「開始」功能表\程式集\Windows Messenger.lnk"
+DEL /f /s /q "%windir%\*.bak"
+DEL /f /s /q "%windir%\temp\*.*"
+DEL /f /s /q "%systemdrive%\*.tmp"
+DEL /f /s /q "%systemdrive%\*._mp"
+DEL /f /s /q "%systemdrive%\*.log"
+DEL /f /s /q "%systemdrive%\*.gid"
+DEL /f /s /q "%systemdrive%\*.chk"
+DEL /f /s /q "%systemdrive%\*.dlf"
+DEL /f /s /q "C:\WINDOWS\HELP\*.*"
+DEL /f /s /q "%systemroot%\Temp\*.*"
+DEL /f /s /q "%windir%\prefetch\*.*"
+DEL /f /s /q "%userprofile%\recent\*.*"
+DEL /f /s /q "%userprofile%\cookies\*.*"
+DEL /f /s /q "%systemdrive%\recycled\*.*"
+DEL /f /s /q "%HomePath%\AppData\LocalLow\Temp\*.*"
+DEL /f /s /q "%userprofile%\Local Settings\Temp\*.*"
+DEL /f /s /q "%windir%\SoftwareDistribution\Download\*.*"
+DEL /f /s /q "%LOCALAPPDATA%\Microsoft\Windows\Caches\*.*"
+DEL /f /s /q "%programdata%\Microsoft\Windows\WER\Temp\*.*"
+DEL /f /s /q "%userprofile%\Local Settings\Temporary Internet Files\*.*"
+DEL /f /s /q "%AllUsersProfile%\「開始」功能表\程式集\Windows Messenger.lnk"
 
 RD /s /q %localappdata%\Temp
 RD /s /q "C:\Windows\SystemTemp"
@@ -160,29 +152,30 @@ RD /s /q %userprofile%\Intel
 RD /s /q %userprofile%\source
 RD /s /q %systemdrive%\Program Files\Temp
 
-del /f /s /q %windir%\logs\*.log
-del /f /s /q %SYSTEMDRIVE%\AMD\*.*
-del /f /s /q %windir%\Panther\*.log
-del /f /s /q %SYSTEMDRIVE%\INTEL\*.*
-del /f /s /q %SYSTEMDRIVE%\NVIDIA\*.*
-del /f /s /q %SYSTEMDRIVE%\OneDriveTemp
-del /f /s /q %windir%\Logs\MoSetup\*.log
-del /f /s /q %windir%\Logs\CBS\CbsPersist*.log
-del /f /s /q %localappdata%\Microsoft\Windows\WebCache\*.log
+DEL /f /s /q %windir%\logs\*.log
+DEL /f /s /q %SYSTEMDRIVE%\AMD\*.*
+DEL /f /s /q %windir%\Panther\*.log
+DEL /f /s /q %SYSTEMDRIVE%\INTEL\*.*
+DEL /f /s /q %SYSTEMDRIVE%\NVIDIA\*.*
+DEL /f /s /q %SYSTEMDRIVE%\OneDriveTemp
+DEL /f /s /q %windir%\Logs\MoSetup\*.log
+DEL /f /s /q %windir%\Logs\CBS\CbsPersist*.log
+DEL /f /s /q %localappdata%\Microsoft\Windows\WebCache\*.log
 
-rd /s /q %LocalAppData%\pip\cache
-rd /s /q C:\Users\%username%\.cache
-rd /s /q C:\Users\%username%\.Origin
-rd /s /q C:\Users\%username%\.QtWebEngineProcess
-rd /s /q %localappdata%\Microsoft\Windows\INetCache\*.log
+RD /s /q %LocalAppData%\pip\cache
+RD /s /q C:\Users\%username%\.cache
+RD /s /q C:\Users\%username%\.Origin
+RD /s /q C:\Users\%username%\.QtWebEngineProcess
+RD /s /q %localappdata%\Microsoft\Windows\INetCache\*.log
 
-:: 額外特別項目清除
-del /f /q /s "%APPDATA%\IObit\IObit Uninstaller\UMlog\*.dbg"
-rd /s /q "C:\ProgramData\IObit\Driver Booster\Download"
-rd /s /q "%LocalAppData%\Surfshark\Updates"
+:: 額外軟體項目清除
+RD /s /q "%LocalAppData%\Surfshark\Updates"
+RD /s /q "%AppData%\Telegram Desktop\tdata\user_data"
+RD /s /q "C:\ProgramData\IObit\Driver Booster\Download"
+DEL /f /q /s "%APPDATA%\IObit\IObit Uninstaller\UMlog\*.dbg"
 
 :: Dx緩存清除
-rd /s /q "%USERPROFILE%\AppData\Local\NVIDIA\DXCache"
+RD /s /q "%USERPROFILE%\AppData\Local\NVIDIA\DXCache"
 
 color 3
 cls
@@ -194,7 +187,7 @@ net stop msiserver
 ren "C:\Windows\System32\catroot2 catroot2.old"
 ren "C:\Windows\SoftwareDistribution SoftwareDistribution.old"
 
-del /f /s /q "C:\Windows\SoftwareDistribution\*.*"
+DEL /f /s /q "C:\Windows\SoftwareDistribution\*.*"
 
 net start bits
 net start wuauserv
@@ -202,19 +195,19 @@ net start cryptSvc
 net start msiserver
 
 :: ========== 清除內建防火牆紀錄 ==========
-del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Support"
-del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\MetaStore"
-del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\CacheManager"
-del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\Service\*.log"
-del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\Results\Quick"
-del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\Results\Resource"
-del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\ReportLatency\Latency"
-del /f /s /q "%ProgramData%\Microsoft\Windows Defender\Network Inspection System\Support\*.log"
+DEL /f /s /q "%ProgramData%\Microsoft\Windows Defender\Support"
+DEL /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\MetaStore"
+DEL /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\CacheManager"
+DEL /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\Service\*.log"
+DEL /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\Results\Quick"
+DEL /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\Results\Resource"
+DEL /f /s /q "%ProgramData%\Microsoft\Windows Defender\Scans\History\ReportLatency\Latency"
+DEL /f /s /q "%ProgramData%\Microsoft\Windows Defender\Network Inspection System\Support\*.log"
 
 :: ========== Google清理 ==========
 color A
 cls
-@echo Google Chrom清理(將會被關閉)
+@echo Google Chrom 清理(將會被關閉)
 timeout /t 02 >nul
 
 :: 關閉
@@ -235,7 +228,7 @@ del /q /s /f "%ChromeCache%\*.*"
 del /q /s /f "%ChromeDataDir%\*Cookies*.*"
 
 :: ========== Edge清理 ==========
-@echo edge清理(將會被關閉) 因為清除所有緩存 , 第一次重開會比較卡
+@echo Edge 清理(將會被關閉)
 timeout /t 2 >nul
 
 wmic process where name="msedge.exe" delete
@@ -249,7 +242,7 @@ for /d %%E in ("%LocalAppData%\Microsoft\Edge\User Data\Profile*") do (
 )
 
 :: ========== VScode清理 ==========
-@echo VScode清理
+@echo VS Code 清理
 
 rd /s /q "%appdata%\Code\logs"
 rd /s /q "%appdata%\Code\Cache"
@@ -266,7 +259,7 @@ rd /s /q "%appdata%\Code\Service Worker\CacheStorage"
 rd /s /q "%appdata%\Code\User\globalStorage\redhat.java"
 
 :: ========== discord清理 ==========
-@echo discord清理(DC將會被關)
+@echo DisCord 清理(DC將會被關)
 
 timeout /t 02 >nul
 
