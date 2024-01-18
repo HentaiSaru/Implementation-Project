@@ -333,7 +333,7 @@ class NHentaidownloader(Validation):
             #* 雖然有點多餘 , 但還是避免重複
             link_exclude = list(OrderedDict.fromkeys(comic_link))
             print("\r獲取的漫畫數量 : %d => 獲取耗時 %.3f 秒\n" %(len(link_exclude), (time.time() - StartTime)), flush=True)
-            return
+
             #* 觸發漫畫頁處理
             with ProcessPoolExecutor(max_workers=self.MaxProcess) as executor:
                 for index, url in enumerate(link_exclude):
