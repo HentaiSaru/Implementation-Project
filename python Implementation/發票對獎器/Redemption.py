@@ -50,7 +50,7 @@ class DataProcessing:
                 link_Data.append({title.get("title") : self.__Get_Number(
                     self.__Get_Data(f"{url}/{title.get('href')}")
                 )})
-                
+
         self.Redemption_Data = link_Data
 
 class Comparison(DataProcessing):
