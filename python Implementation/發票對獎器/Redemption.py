@@ -98,6 +98,7 @@ class Comparison(DataProcessing):
             print(self.wait, end="")
 
             for bar in self.bar:
+                if self.Redemption_Data != None:break
                 print(bar, end="", flush=True)
                 time.sleep(0.1)
 
