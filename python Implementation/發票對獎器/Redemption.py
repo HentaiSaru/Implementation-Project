@@ -29,8 +29,16 @@ class DataProcessing:
         self.Redemption_Data = None
 
     def __Get_Data(self, Url) -> etree.Element:
-        data = self.Session.get(Url, headers=self.Headers)
-        return etree.HTML(data.text)
+        try:
+            data = self.Session.get(Url, headers=self.Headers)
+            if data.status_code == 200:
+                return etree.HTML(data.text)
+            else:
+                raise Exception()
+        except:
+            os.system("cls")
+            print("網站連接失敗, 檢查網路或伺服器")
+            os._exit(0)
 
     def __Get_Number(self, tree) -> list:
         number = tree.xpath("//table[@class='etw-table-bgbox etw-tbig']/tbody[1]")[0].xpath(".//span/text()")
