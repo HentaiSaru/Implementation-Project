@@ -68,7 +68,7 @@ class DataRead:
 
         filetype = None
 
-        for path , name in self.data.items():
+        for path, name in self.data.items():
 
             if len(name) != 0:
                 
@@ -132,20 +132,19 @@ class DataEmptyError(Exception):
     pass
 
 class output:
-    def __init__(self,choose):
+    def __init__(self, choose):
         self.working_status = []
+        self.save_route = f"{data.directory}/{data.filename} ({choose})"
 
         try:
             if len(data.filter_data) == 0:
                 raise DataEmptyError()
 
-            self.save_route = f"{data.directory}/{data.filename} ({choose})"
             os.mkdir(self.save_route)
             self.__copy_deal_with()
         except DataEmptyError:
             print("該路徑下無指定類型文件")
         except:
-            self.save_route = f"{data.directory}/{data.filename} ({choose})"
             self.__copy_deal_with()
 
     def __copy_deal_with(self): 
@@ -153,9 +152,9 @@ class output:
         for out in data.filter_data:
             convert = out.split("/")
             file_name = f"{convert[-2]}_{convert[-1]}"
-            new_path = os.path.join(self.save_route,file_name)
+            new_path = os.path.join(self.save_route, file_name)
             # 輸出工作
-            Work = threading.Thread(target=self.__copy_output,args=(out,new_path))
+            Work = threading.Thread(target=self.__copy_output, args=(out,new_path))
             self.working_status.append(Work)
             Work.start()
 
@@ -166,13 +165,14 @@ class output:
         ]
 
         with progressbar.ProgressBar(widgets=self.widgets, max_value=len(self.working_status)) as bar:
-            for index , working in enumerate(self.working_status):
+            for index, working in enumerate(self.working_status):
                 bar.update(index)
                 working.join()
 
-        # 直接開啟存檔位置
-        os.startfile(self.save_route)
+        # 開啟存檔位置
+        os.startfile(os.path.dirname(self.save_route))
 
+        """
         while True:
             Selection = int(input("\n是否再次選擇 ? [1] YES / [0] NO : "))
             if Selection == 1:
@@ -182,7 +182,7 @@ class output:
                 print("結束程式...")
                 break
             else:
-                print("無效的代號")
+                print("無效的代號")"""
 
     def __copy_output(self,out,path):
         shutil.copyfile(out,path)
