@@ -45,16 +45,17 @@ class DataProcessing:
         return number[0:2] + [f'{number[i]}{number[i + 1]}' for i in range(2, len(number), 2)]
 
     def Data_Analysis(self):
+        link_Data = []
         url = self.Url.rsplit("/", 1)[0]
         tree = self.__Get_Data(self.Url)
-        link_Data = []
 
-        for index, tr in enumerate(tree.xpath("//ul[@class='etw-submenu etw-submenu01']/li")):
+        for tr in tree.xpath("//ul[@class='etw-submenu etw-submenu01']/li"):
             title = tr.xpath("./a")[0]
-
-            if index == 0:
+            href = title.get("href")
+            
+            if href == "index.html": # 最近期
                 link_Data.append({title.get("title") : self.__Get_Number(tree)})
-            elif index == 2:
+            elif href == "lastNumber.html": # 上一期
                 link_Data.append({title.get("title") : self.__Get_Number(
                     self.__Get_Data(f"{url}/{title.get('href')}")
                 )})
