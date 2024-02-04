@@ -1,4 +1,5 @@
-from Browser import UC, UC2
+from Browser import SC, UC, UC2
 
+SC.Enable_Browsing()
 # UC.Enable_browsing()
-UC2.Enable_browsing()
+# UC2.Enable_browsing()
