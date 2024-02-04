@@ -30,7 +30,7 @@ class DataImport:
             return data_path
 
     def get_website_cookie(self, web: str):
-        data_path = os.path.join(self.path, f"{web}_default\\Jkf_cookies.json")
+        data_path = os.path.join(self.path, f"{web}_default\\{web}_cookies.json")
 
         if os.path.exists(data_path):
             return import_json(data_path)
