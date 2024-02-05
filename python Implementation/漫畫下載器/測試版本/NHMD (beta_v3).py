@@ -138,6 +138,27 @@ class Validation(DataRequest):
         self.category_box = [] # 保存正確的類型
         self.comics_box = [] # 漫畫頁面網址
         self.search_box = [] # 搜尋頁面網址
+        
+    def Request_Status(self) -> bool:
+        try: #! 沒寫網路請求狀態 或 xpath 格式變化, 都直接讓他 Exception(), 驗證失敗時特別注意
+            tree = self.get(self.domain)
+            verify = tree.xpath("//div[@class='container index-container']/h2/text()")[0].strip()
+            if verify == "New Uploads":
+                return True
+            else:
+                raise Exception()
+        except:
+            if self.GetCookie:
+                print(f"驗證錯誤請稍後...")
+                if cookie_get():
+                    print("\n獲取成功!\n")
+                    self.Cookies = Read("cookie")
+                    return True
+                else:
+                    print("\n獲取失敗!\n")
+                    return False
+            else:
+                return False
 
     def URL_Classification(self, link) -> bool:
 
@@ -166,32 +187,11 @@ class Validation(DataRequest):
                 raise TypeError()
 
         except TypeError:
-            print("請確認 Cookie, 使用的瀏覽器, 或是網路是否正常")
+            print("請確認, [網路|Cookie|使用的請求瀏覽器], 等是否正常")
             os._exit(1)
         except ValueError as e:
             print(f"錯誤的輸入格式\n錯誤碼 : {e}")
             os._exit(1)
-
-    def Request_Status(self) -> bool:
-        try: #! 沒寫網路請求狀態 或 xpath 格式變化, 都直接讓他 Exception(), 驗證失敗時特別注意
-            tree = self.get(self.domain)
-            verify = tree.xpath("//div[@class='container index-container']/h2/text()")[0].strip()
-            if verify == "New Uploads":
-                return True
-            else:
-                raise Exception()
-        except:
-            if self.GetCookie:
-                print(f"驗證錯誤請稍後...")
-                if cookie_get():
-                    print("\n獲取成功!\n")
-                    self.Cookies = Read("cookie")
-                    return True
-                else:
-                    print("\n獲取失敗!\n")
-                    return False
-            else:
-                return False
 
 #Todo [ 下載器主程式 ]
 class NHentaidownloader(Validation):
