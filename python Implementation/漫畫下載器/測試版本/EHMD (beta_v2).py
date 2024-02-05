@@ -12,7 +12,7 @@ import json
 import re
 import os
 
-""" Versions 1.0.0 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""" Versions 1.0.1 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - EHentai/ExHentai 漫畫下載
 
@@ -22,14 +22,14 @@ import os
         ? 目前只支援漫畫頁面的下載 , 搜尋頁面的不支援 , 後續會再添加
 
         * 開發環境 :
-        ? Python 版本 3.11.4 - 64 位元
+        ? Python 版本 3.11.7 - 64 位元
         ? 模塊下載 Python包安裝.bat 運行
         ? 依賴下載 Script 資料夾內所有腳本
-        
+
         * 測試項目 :
         ? 下載穩定性
         ? 請求處理穩定性
-        
+
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - 使用說明
@@ -43,7 +43,7 @@ import os
 
         * 關於排除 Tag 的字典 , 設置時的 Key 值隨便打 , value 需包含在 list 內
         * 只要該漫畫有相關標籤 , 就會被排除掉
-        
+
         * 傳入網址於 download_request() or 測試通道 , 即可開始請求下載
 """
 
@@ -123,10 +123,10 @@ class DataRequest:
     # 這邊有些多此一舉, 但是可以讓調用代碼縮短
     Reques = None
 
-    def get(self, link, result="tree"):
+    def get(self, link, result="tree") -> object:
         return self.Reques.get(link, result)
 
-    def async_get(self, link, session):
+    def async_get(self, link, session) -> object:
         return self.Reques.async_get(link, session)
 
 #Todo [下載連結驗證 分類]
@@ -140,7 +140,7 @@ class Validation(DataRequest):
     save_box = [] # 下載連結
 
     # 驗證是否請求到網站數據
-    def Request_Status(self):
+    def Request_Status(self) -> bool:
 
         try:
             tree = self.get(self.Judgment_type)
@@ -160,7 +160,7 @@ class Validation(DataRequest):
                 return False
 
     # 網址進行分類
-    def URL_Classification(self, link):
+    def URL_Classification(self, link) -> bool:
         try:
             # 判斷類型
             if isinstance(link, str):
@@ -187,7 +187,7 @@ class Validation(DataRequest):
                     raise TypeError()
 
         except TypeError:
-            print("請更換 Cookie , 或檢查使用的請求瀏覽器")
+            print("請確認, [網路|Cookie|使用的請求瀏覽器], 等是否正常")
             os._exit(1)
         except ValueError as e:
             print(f"錯誤的輸入格式\n錯誤碼 : {e}")
@@ -208,7 +208,7 @@ class EHentaidownloader(Validation):
         self.title = None
         self.test_counter = 0
         self.save_location = None
-        self.picture_link_box = {}
+        self.Download_link = {}
 
     #? 下載設定 
     def download_settings(
@@ -390,9 +390,13 @@ class EHentaidownloader(Validation):
         #! 觸發異步請求處理
         asyncio.run(Trigger())
 
-        # 數據轉換成 list, 處理數據後放入下載盒
-        for page, link in enumerate(list(image_link.keys())):
-            self.picture_link_box[f"{(page+1):04d}"] = link
+        # 將下載數據轉換成 list
+        data = list(image_link.keys())
+        # 計算漫畫名擴充值
+        filling = f"%0{int(math.log10(len(data))) + 1}d"
+        # 生成下載數據
+        for page, link in enumerate(data):
+            self.Download_link[f"{filling % (page+1)}"] = link
 
         print("\r[漫畫 %d 處理完成] => 處理耗時 %.3f 秒" % (count, (time.time() - StartTime)), flush=True)
         self.create_folder(self.save_location) # 創建資料夾
@@ -406,13 +410,13 @@ class EHentaidownloader(Validation):
     #? 圖片下載線程處理
     def download_processing(self):
         with ThreadPoolExecutor(max_workers=100) as executor:
-            for SaveName, Link in tqdm(self.picture_link_box.items(), desc=self.title, colour="#DB005B"):
+            for SaveName, Link in tqdm(self.Download_link.items(), desc=self.title, colour="#DB005B"):
 
                save_location = os.path.join(self.save_location, f"{SaveName}.{Link.rsplit('.', 1)[1]}")
                executor.submit(self.download_pictures, save_location, Link)
                time.sleep(self.ProtectionDelay)
 
-    #? 圖判下載到本地
+    #? 圖片下載
     def download_pictures(self, download_path, download_link):
         ImageData = self.get(download_link, "content")
         with open(download_path, "wb") as file:
