@@ -69,10 +69,4 @@ def calculate(Pages):
     return total_pages
         
 if __name__ == '__main__':
-    tree = request("")
-    def home_page(tree):
-        for data in tree.xpath("//div[@id='gdt']/div/a"):
-            href = data.get("href")
-            print(href)
-                
-    home_page(tree)
+    pass
