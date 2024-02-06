@@ -1,8 +1,7 @@
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from Script.Parameters import paramet
-from Script.Dataio import DO, DI
+from Script import paramet, DO , DI
 from selenium import webdriver
 from lxml import etree
 import threading
@@ -14,13 +13,13 @@ class AutomaticCheckin:
         self.exist = False
         self.offdelay = 5
 
-    def login_Confirm(self, link: str, webname: str, timeout: int, element: str, imset: bool = True, headless: bool = False, trylogin: bool = True):
+    def Login_Confirm(self, timeout: int, webname: str, link: str, xpath: str, imset: bool = True, headless: bool = False, trylogin: bool = True):
         """
-        * link = 開啟的網址
-        * webname = 網頁名稱
         * timeout = 等待超時
-        * element = 等待元素
-        * imset = 導入設置參數
+        * webname = 網頁名稱
+        * link = 開啟的連結
+        * xpath = 等待元素
+        * imset = 使否導入設置參數
         * headless = 使用無頭啟用
         * trylogin = 嘗試使用 Cookie 登入
         """
@@ -33,7 +32,7 @@ class AutomaticCheckin:
             driver = link
 
         try:
-            WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.XPATH, element)))
+            WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
         except:
             try:
                 if trylogin:
@@ -44,9 +43,8 @@ class AutomaticCheckin:
                     pass
             except:
                 input(f"網站 : {webname} , 自行登入完成後 => \n按下 (Enter) 確認 : ")
-                DO.json_cookie(driver.get_cookies(), webname)
 
-        # DO.pkl_cookie(driver.get_cookies(), webname)
+        DO.json_cookie(driver.get_cookies(), webname)
 
         if imset:
             return driver
@@ -55,10 +53,10 @@ class AutomaticCheckin:
             driver.quit()
 
     def Wuyong_Checkin(self):
-        Wuyongdriver = self.login_Confirm(
-            "https://wuyong.fun/",
+        Wuyongdriver = self.Login_Confirm(
+            10,
             "wuyong",
-            5,
+            "https://wuyong.fun/",
             "//img[@class='avatar b2-radius']",
         )
 
@@ -69,10 +67,10 @@ class AutomaticCheckin:
         Wuyongdriver.quit()
 
     def Black_Checkin(self):
-        blackdriver = self.login_Confirm(
-            "https://black.is-best.site/plugin.php?id=gsignin:index",
-            "black",
+        blackdriver = self.Login_Confirm(
             5,
+            "black",
+            "https://black.is-best.site/plugin.php?id=gsignin:index",
             "//div[@class='avt y']",
         )
 
@@ -92,29 +90,28 @@ class AutomaticCheckin:
         Zerodriver.get("https://www.miaoaaa.com/sites/530.html")
         Zerodriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
-        miaoaaabutton = WebDriverWait(Zerodriver,0).until(EC.element_to_be_clickable((By.XPATH, "//a[@class='btn btn-arrow mr-2']")))
+        miaoaaabutton = WebDriverWait(Zerodriver, 5).until(EC.element_to_be_clickable((By.XPATH, "//a[@class='btn btn-arrow mr-2']")))
         miaoaaabutton.click()
 
-        time.sleep(3)
+        time.sleep(5)
 
         handles = Zerodriver.window_handles
         Zerodriver.switch_to.window(handles[-1])
         # url = Zerodriver.current_url
 
-        self.login_Confirm(
-            Zerodriver,
+        self.Login_Confirm(
+            10,
             "zero",
-            8,
-            "//div[@class='avt y']",
-            imset=False,
-            headless = True
+            Zerodriver,
+            "//img[@class='user_avatar']",
+            imset = False
         )
 
     def Genshin_Checkin(self):
-        Genshin = self.login_Confirm(
-            "https://act.hoyolab.com/ys/event/signin-sea-v3/index.html?act_id=e202102251931481",
-            "Genshin",
+        Genshin = self.Login_Confirm(
             5,
+            "Genshin",
+            "https://act.hoyolab.com/ys/event/signin-sea-v3/index.html?act_id=e202102251931481",
             "//div[@class='mhy-hoyolab-account-block__avatar']" # 驗證元素待修正
         )
 
@@ -212,10 +209,10 @@ class AutomaticCheckin:
         Genshin.quit()
 
     def StarRail_Checkin(self):
-        StarRail = self.login_Confirm(
-            "https://act.hoyolab.com/bbs/event/signin/hkrpg/index.html?act_id=e202303301540311&hyl_auth_required=true&hyl_presentation_style=fullscreen&lang=zh-tw&plat_type=pc",
-            "StarRail",
+        StarRail = self.Login_Confirm(
             5,
+            "StarRail",
+            "https://act.hoyolab.com/bbs/event/signin/hkrpg/index.html?act_id=e202303301540311&hyl_auth_required=true&hyl_presentation_style=fullscreen&lang=zh-tw&plat_type=pc",
             "//div[@class='mhy-hoyolab-account-block__avatar']" # 無效的登入檢測
         )
 
@@ -289,7 +286,6 @@ class AutomaticCheckin:
                             time.sleep(0.5)
                     break
 
-                #! 等待 (測試)
                 input("星鐵登入完成後 => \n按下 (Enter) 確認 : ")
                 DO.json_cookie(StarRail.get_cookies() , "StarRail")
 
