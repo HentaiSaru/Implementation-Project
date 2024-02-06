@@ -11,10 +11,9 @@ class WinningInstructions():
             "二獎", "三獎", "四獎", "五獎", "六獎"
         ]
         self.Reward_conditions = [
-            "8 碼相同獲得 1000 萬", "8 碼相同獲得 200 萬", "8 碼相同獲得 20 萬",
-            "頭獎末 7 碼相同 4 萬", "頭獎末 6 碼相同 1 萬",
-            "頭獎末 5 碼相同 4 千", "頭獎末 4 碼相同 1 千",
-            "頭獎末 3 碼相同 200 元"
+            "8 碼相同獲得 1000 萬", "8 碼相同獲得 200 萬", 
+            "8 碼相同獲得 20 萬", "頭獎末 7 碼相同 4 萬", "頭獎末 6 碼相同 1 萬",
+            "頭獎末 5 碼相同 4 千", "頭獎末 4 碼相同 1 千", "頭獎末 3 碼相同 200 元"
         ]
 wi = WinningInstructions()
 
@@ -24,7 +23,7 @@ class DataProcessing:
         self.Url = "https://invoice.etax.nat.gov.tw/index.html"
         self.Headers = {
             "Cache-Control": "no-cache",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
         }
         self.Redemption_Data = None
 
@@ -74,12 +73,14 @@ class Comparison(DataProcessing):
         print("\n")
 
         while True:
-            Input = input("輸入發票末三碼 (0 中止): ")
+            Input = input("輸入發票末三碼 [0 中止]: ")
             Length = len(Input)
 
             try:
                 if Input == "0":
                     break
+                elif Input.lower() == "dev":
+                    print(f"{self.winning}\n")
                 elif not Input.isnumeric():
                     raise ValueError()
                 elif Length != 3:
@@ -88,9 +89,9 @@ class Comparison(DataProcessing):
                 for index, number in enumerate(self.winning):
                     if number.endswith(Input):
                         if index < 2:
-                            print(f"自行確認是否中獎 ({wi.Reward_level[index]})[{number}]\n")
+                            print(f"自行確認是否中獎 ({wi.Reward_level[index]}): {number}\n")
                         elif index < 5:
-                            print(f"自行確認是否中獎 ({wi.Reward_level[2]})[{number}]\n")
+                            print(f"自行確認是否中獎 ({wi.Reward_level[2]}): {number}\n")
 
             except ValueError:
                 print("錯誤輸入類型 !!\n")
