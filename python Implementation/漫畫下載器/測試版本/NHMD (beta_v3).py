@@ -7,10 +7,11 @@ import itertools
 import asyncio
 import time
 import json
+import csv
 import re
 import os
 
-""" Versions 1.0.1 (測試版)
+""" Versions 1.0.2 (測試版)
 
     Todo - e-hentai 漫畫下載器
 
@@ -32,10 +33,7 @@ import os
         * 設置完成後啟用程式 即可自動擷取剪貼簿 擷取完成透過熱鍵 觸發請求下載
 
         ? 更新說明:
-        * 修改標題格式邏輯
-        * 修改檔名填充邏輯
-        * 增加伺服器請求平均化
-        * 增加分類處理耗時顯示
+        * 增加下載紀錄功能
 """
 
 #Todo [ 手動獲取Cookie, 並保存Josn文件 ]
@@ -138,7 +136,7 @@ class Validation(DataRequest):
         self.category_box = [] # 保存正確的類型
         self.comics_box = [] # 漫畫頁面網址
         self.search_box = [] # 搜尋頁面網址
-        
+
     def Request_Status(self) -> bool:
         try: #! 沒寫網路請求狀態 或 xpath 格式變化, 都直接讓他 Exception(), 驗證失敗時特別注意
             tree = self.get(self.domain)
@@ -197,6 +195,8 @@ class Validation(DataRequest):
 class NHentaidownloader(Validation):
     def __init__(self):
         super().__init__()
+        # Todo [ 預設路徑 ]
+        self.DefaultPath = os.getcwd()
         # Todo [ 排除非法字元 ]
         self.illegal_filename = re.compile(r'[<>:"/\\|?*]')
         # Todo [ 判斷是否改變設置 ]
@@ -212,6 +212,7 @@ class NHentaidownloader(Validation):
         self.ProcessDelay = None # 進程創建延遲
         self.TagFilterBox = None
         self.MaxProcess = None
+        self.History = None
         self.Pages = None
         self.path = None
         # Todo [ 保存數據參數 ]
@@ -228,7 +229,8 @@ class NHentaidownloader(Validation):
         TitleFormat: bool=False,
         TryGetCookie: bool=False,
         TryRedownload: bool=True,
-        DownloadPath: str=os.getcwd(),
+        DownloadHistory: bool=False,
+        DownloadPath: str=None,
         
         DownloadDelay=0.3,
         ProcessCreationDelay=1,
@@ -243,13 +245,14 @@ class NHentaidownloader(Validation):
         * TitleFormat => 是否需要使用標題格式, 創建資料夾名稱的格式
         * TryGetCookie => 是否啟用自動獲取 Cookie
         * TryRedownload => 請求失敗時是否自動試錯
+        * DownloadHistory => 使否使用下載紀錄
         * DownloadPath => 下載的路徑
         * DownloadDelay => 每張圖片的下載請求延遲
         * ProcessCreationDelay => 進程創建的延遲
         * MaxConcurrentDownload => 同時處理的最大進程數
         * FilterTags => 用於過濾含有特定 Tag 的漫畫 [Read("filter") / Set("filter")], 主要用於搜尋頁下載
         * CookieSource => Cookie 的來源 [Read("cookie") / Set("cookie")]
-        
+
         >>> FilterTags 補充說明 [數據格式必須有 key 值 , 包含數據 list]
         !   {'Parodies': [''], 'Characters': [''], 'Tags': [''], 'Artists': [''], 'Languages': [''], 'Pages': ['']}
         *   'Parodies' : 原創 / 二創作品
@@ -260,9 +263,10 @@ class NHentaidownloader(Validation):
         *   'Pages' : 頁數
         """
         self.SetUse = True # 判斷設置方法被調用
-        self.path = DownloadPath
+        self.path = DownloadPath or self.DefaultPath
         self.Pages = SearchQuantity # 搜尋頁下載頁數
         self.GetCookie = TryGetCookie
+        self.History = DownloadHistory #! 目前歷史紀錄沒有意義, 就好看而已
         self.TagFilterBox = FilterTags
         self.TitleFormatting = TitleFormat
         self.ErrorReDownload = TryRedownload
@@ -357,6 +361,7 @@ class NHentaidownloader(Validation):
     #? [ 漫畫頁處理 ]
     def comic_page_data(self, url, count):
         print(f"[漫畫 {count} 處理] {url}", flush=True)
+        code = url.split("g/")[1].rstrip("/")
         StartTime = time.time()
 
         try:
@@ -366,7 +371,7 @@ class NHentaidownloader(Validation):
             label = tree.xpath("//section[@id='tags']")[0]
             #* 處理 Tag 數據格式
             for index, tag in enumerate(label.xpath(".//div")):
-                if index in {4, 6, 8}:continue #? 略過不須判斷的標
+                if index in {4, 6, 8}:continue #? 略過不須判斷的 Tag
                 self.labelbox[tag.text.strip().rstrip(':')] = tag.xpath(".//span[@class='name']/text()")
 
             #* 比對 Tag 數據
@@ -397,7 +402,7 @@ class NHentaidownloader(Validation):
                     try:
                         middle = TE.xpath(".//span[@class='pretty']/text()")[0].strip()
                     except:middle = ""
-                    
+
                     if middle == "":
                         try:
                             tail = TE.xpath(".//span[@class='after']/text()")[0].strip()
@@ -423,6 +428,10 @@ class NHentaidownloader(Validation):
             for number in range(1, Pages+1): #? 生成平均不同伺服器的網址
                 self.download_link[f"{filling % number}.{suffix}"] = f"{domain_name.replace('#', next(self.server))}/{number}.{suffix}"
 
+            #* 保存下載歷史
+            if self.History:
+                self.create_record(code)
+
             print("[漫畫 %d 處理完成] => 處理耗時 %.3f 秒" % (count , (time.time() - StartTime)), flush=True)
             self.download_processing()
         except Exception as e:
@@ -438,10 +447,32 @@ class NHentaidownloader(Validation):
                 executor.submit(self.download_pictures, Save, ComicLink)
                 time.sleep(self.ProtectionDelay)
 
-    #? [ 資料夾創建 ]
+    #? [ 創建資料夾 ]
     def create_folder(self, Name):
-        try:os.mkdir(Name)
+        try:os.makedirs(Name)
         except:pass
+
+    #? [ 創建紀錄檔 ]
+    def create_record(self, record):
+        path = fr"{self.DefaultPath}\Record\NHHistory.csv"
+        directory = os.path.dirname(path)
+        if not os.path.exists(directory):
+            os.mkdir(directory)
+        with open(path, "a+", newline="") as csvfile:
+            end = ", "
+            csvfile.seek(0) #* 回到開頭讀取
+            try: #* 當空數據時會出例外
+                if csvfile.readlines()[-1].count(",") == 19: #* 取得最後一行數據量(每 20 筆就換行)
+                    end = ",\r\n"
+            except:pass
+            #* 設置數據格式
+            csvwriter = csv.writer(
+                csvfile,
+                quoting=csv.QUOTE_NONE,
+                lineterminator=end
+            )
+            #* 寫入數據
+            csvwriter.writerow([record])
 
     #? [ 漫畫圖片下載 ]
     def download_pictures(self, download_path, download_link):
@@ -476,6 +507,7 @@ if __name__ == "__main__":
         DownloadDelay=0.1,
         SearchQuantity=10,
         DownloadPath="R:/",
+        DownloadHistory=True,
         FilterTags=Read("filter"),
         CookieSource=Read("cookie"),
     )
