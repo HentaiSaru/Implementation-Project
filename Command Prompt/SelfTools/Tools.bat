@@ -1,5 +1,5 @@
 :: - Versions 1.0.10 -
-:: - LastEditTime 2024/1/6 10:30 -
+:: - LastEditTime 2024/2/11 18:17 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -434,6 +434,7 @@ if not exist "Visual.tar" (
 
         ECHO.
         ECHO 開始安裝...
+        ECHO.
 
         :: 傻瓜判斷法, 避免出現奇怪的意外
         if exist "vcredist2005_x64.exe" (
@@ -442,35 +443,31 @@ if not exist "Visual.tar" (
         if exist "vcredist2008_x64.exe" (
             start /wait vcredist2008_x64.exe /qb
         )
-        set "install=vcredist2010_x64.exe vcredist2012_x64.exe vcredist2013_x64.exe vcredist2015_2017_2019_2022_x64.exe"
-        for %%i in (%install%) do (
-            if exist "%%i" (
-                start /wait "%%i" /passive /norestart
-            )
+        if exist "vcredist2010_x64.exe" (
+            start /wait vcredist2010_x64.exe /passive /norestart
         )
-        @REM if exist "vcredist2010_x64.exe" (
-            @REM start /wait vcredist2010_x64.exe /passive /norestart
-        @REM )
-        @REM if exist "vcredist2012_x64.exe" (
-            @REM start /wait vcredist2012_x64.exe /passive /norestart
-        @REM )
-        @REM if exist "vcredist2013_x64.exe" (
-            @REM start /wait vcredist2013_x64.exe /passive /norestart
-        @REM )
-        @REM if exist "vcredist2015_2017_2019_2022_x64.exe" (
-            @REM start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
-        @REM )
+        if exist "vcredist2012_x64.exe" (
+            start /wait vcredist2012_x64.exe /passive /norestart
+        )
+        if exist "vcredist2013_x64.exe" (
+            start /wait vcredist2013_x64.exe /passive /norestart
+        )
+        if exist "vcredist2015_2017_2019_2022_x64.exe" (
+            start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
+        )
     ) else (
         ECHO.
         ECHO 解壓縮錯誤...
     )
 )
 
-timeout /t 1 >nul
+timeout /t 2 >nul
 exit /b
 
 :: ----- .NET安裝 -----
 :NETInstall
+
+color 07
 
 winget install Microsoft.DotNet.SDK.6
 winget install Microsoft.DotNet.SDK.7
