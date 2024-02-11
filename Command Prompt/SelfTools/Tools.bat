@@ -413,7 +413,7 @@ exit /b
 :VSC
 
 ECHO.
-ECHO 檔案較大請稍後 - 安裝包日期 : 2023 年 11 月 
+ECHO 檔案較大請稍後 - 安裝包日期 : 2024 年 02 月 
 ECHO.
 ECHO Visual C++ 下載中...
 ECHO.
@@ -427,19 +427,43 @@ if not exist "Visual.tar" (
     move Visual.tar "%Temp%" >nul
 
     cd %Temp%
-    ECHO.
-    ECHO 解壓中...
-    tar -xf Visual.tar >nul
+    if exist "Visual.tar" (
+        ECHO.
+        ECHO 解壓中...
+        tar -xf Visual.tar >nul
 
-    ECHO.
-    ECHO 開始安裝...
+        ECHO.
+        ECHO 開始安裝...
 
-    start /wait vcredist2005_x64.exe /q
-    start /wait vcredist2008_x64.exe /qb
-    start /wait vcredist2010_x64.exe /passive /norestart
-    start /wait vcredist2012_x64.exe /passive /norestart
-    start /wait vcredist2013_x64.exe /passive /norestart
-    start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
+        :: 傻瓜判斷法, 避免出現奇怪的意外
+        if exist "vcredist2005_x64.exe" (
+            start /wait vcredist2005_x64.exe /q
+        )
+        if exist "vcredist2008_x64.exe" (
+            start /wait vcredist2008_x64.exe /qb
+        )
+        set "install=vcredist2010_x64.exe vcredist2012_x64.exe vcredist2013_x64.exe vcredist2015_2017_2019_2022_x64.exe"
+        for %%i in (%install%) do (
+            if exist "%%i" (
+                start /wait "%%i" /passive /norestart
+            )
+        )
+        @REM if exist "vcredist2010_x64.exe" (
+            @REM start /wait vcredist2010_x64.exe /passive /norestart
+        @REM )
+        @REM if exist "vcredist2012_x64.exe" (
+            @REM start /wait vcredist2012_x64.exe /passive /norestart
+        @REM )
+        @REM if exist "vcredist2013_x64.exe" (
+            @REM start /wait vcredist2013_x64.exe /passive /norestart
+        @REM )
+        @REM if exist "vcredist2015_2017_2019_2022_x64.exe" (
+            @REM start /wait vcredist2015_2017_2019_2022_x64.exe /passive /norestart
+        @REM )
+    ) else (
+        ECHO.
+        ECHO 解壓縮錯誤...
+    )
 )
 
 timeout /t 1 >nul
