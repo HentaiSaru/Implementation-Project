@@ -39,6 +39,7 @@ class AutomaticCheckin:
                     for cookie in DI.get_website_cookie(webname):
                         driver.add_cookie(cookie)
                     driver.refresh()
+                    WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
                 else:
                     pass
             except:
@@ -87,20 +88,19 @@ class AutomaticCheckin:
 
     def Zero_Checkin(self):
         Zerodriver = webdriver.Chrome(options=paramet.AddSet("zero"))
-        Zerodriver.get("https://www.miaoaaa.com/sites/530.html")
+        Zerodriver.get("https://zerobyw.github.io/")
         Zerodriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
-        miaoaaabutton = WebDriverWait(Zerodriver, 5).until(EC.element_to_be_clickable((By.XPATH, "//a[@class='btn btn-arrow mr-2']")))
+        miaoaaabutton = WebDriverWait(Zerodriver, 5).until(EC.element_to_be_clickable((By.XPATH, "//li[@class='layui-timeline-item']//button")))
         miaoaaabutton.click()
 
         time.sleep(5)
 
         handles = Zerodriver.window_handles
         Zerodriver.switch_to.window(handles[-1])
-        # url = Zerodriver.current_url
 
         self.Login_Confirm(
-            10,
+            8,
             "zero",
             Zerodriver,
             "//img[@class='user_avatar']",
