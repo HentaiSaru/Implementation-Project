@@ -1,33 +1,28 @@
-from Script.AutomaticCapture import AutoCapture
+from Script import AutoCapture, Reques, Get
 from concurrent.futures import *
 from multiprocessing import *
 from lxml import etree
-import requests
 import opencc
 import time
 import re
 import os
 
-""" Versions 1.0.7 (測試版)
+""" Versions 1.0.8 (垃圾版/等待重構)
 
     Todo - Zero 漫畫下載器
+    
+        * 功能概述 :
+        ? 目前雖代碼寫的超爛, 但功能都還正常可以使用
+        ? 可根據域名的變動修改 DomainName() 的參數
+        ? 提供自動擷取下載, 與自訂頁數下載函數
+        ? 可自訂下載位置, 與下載相關參數設置
+        ? 多進程 和 多線程 加速下載處理
+        ? 需 VIP 漫畫可直接下載
 
-        * - 當前功能 :
-        ?   [+] 下載位置選擇
-        ?   [+] 自動擷取連結
-        ?   [+] 完全自動下載
-        ?   [+] 自訂參數下載
-        ?   [+] 下載自動試錯
-        ?   [+] 處理時間顯示
-        ?   [+] 多進程下載處理
-        ?   [+] 多線程加速下載
-        ?   [+] 下載完成數據顯示
-
-        * - 測試功能 :
-        ?   [*] 漫畫數據處理 [處理第一話就是VIP的漫畫]
-
-        * - 刪除功能 :
-        ?   [-] 下載中進度顯示
+        * 開發環境 :
+        ? Python 版本 3.11.7 - 64 位元
+        ? 模塊下載 Python 包安裝.bat 運行
+        ? 依賴下載 Script 資料夾內所有腳本
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -59,12 +54,10 @@ dir = os.path.abspath("R:/")
 
 # (該網站會每過一段時間會改域名 , 在此處更改即可繼續使用)
 def DomainName():
-    return "http://www.zerobywgbo2.com/"
+    return "http://www.zerobywns.com/"
 
 class ZeroDownloader:
     def __init__(self):
-        self.session = requests.Session()
-        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
             *  { 進程處理 }
@@ -78,24 +71,24 @@ class ZeroDownloader:
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
             *  { 過濾格式 }
-            ?  [ UrlFormat ] 篩選正確的該網站網址格式
             ?  [ Filter ] 將字串中數字以外的過濾
-            ?  [ NameFormat ] 漫畫的名稱格式變換
+            ?  [ NameFormat ] 漫畫的名稱格式變
+            ?  [ UrlFormat ] 篩選正確的該網站網址格式
         Todo ----------------------------
         """
-        self.UrlFormat = fr"{DomainName()}plugin\.php\?id=(.*)"
         self.Filter = r'[^\d.-]'
         self.NameFormat = r"^(.*?)【"
+        self.UrlFormat = fr"{DomainName()}plugin\.php\?id=(.*)"
 
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
             *  { 狀態判斷 }
-            ?  [ request_status ] 判斷是否請求成功
             ?  [ retry ] 判斷是否使用自動試錯
+            ?  [ request_status ] 判斷是否請求成功
         Todo ----------------------------
         """
-        self.request_status = False
         self.retry = None
+        self.request_status = False
 
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
@@ -116,31 +109,33 @@ class ZeroDownloader:
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
             *  { 請求連結的構成要素 }
+            ?  [ reques ] 用於請求數據 ( API 調用)
             ?  [ FileExtension ] 請求網址的圖片副檔名
             ?  [ location ] 請求網址的位置
             ?  [ Mantissa ] 請求網址的尾數
             ?  [ domain ] 請求網址的網域
         Todo ----------------------------
         """
+        self.reques = Reques("Google")
         self.FileExtension = None
         self.location = None
         self.Mantissa = None
         self.domain = None
 
     def data_request(self, url):
-        request = self.session.get(url,headers=self.headers)
+        request = self.session.get(url, headers=self.headers)
         return etree.fromstring(request.content, etree.HTMLParser())
-    
+
     def data_processing(self, url):
 
-        print("請求漫畫數據...")
+        print("\n[獲取漫畫數據]\n")
         StartTime = time.time()
-        converter = opencc.OpenCC('s2twp.json')
+        converter = opencc.OpenCC("s2twp.json")
 
         if re.match(self.UrlFormat,url):
             try:
-                tree = self.data_request(url)
-                
+                tree = self.reques.get(url, "tree")
+
                 # 漫畫名稱處理
                 name = re.match(self.NameFormat , tree.xpath("//h3[@class='uk-heading-line mt10 m10']/text()")[0])
                 self.Manga_name = converter.convert(name.group(1))
@@ -149,11 +144,11 @@ class ZeroDownloader:
                 for link in tree.xpath("//a[@class='uk-button uk-button-default']"):
                     self.Comics_number.append(re.sub(self.Filter, "", link.xpath("./text()")[0]))
                     self.Comics_link.append(f"{DomainName()}/{link.get('href').split('./')[1]}")
-                    
+
                 self.Comic_link_format = tree.xpath("//div[@class='uk-width-medium']/img")[0].get('src')
                 self.request_status = True # 判斷是否完全請求到數據
-                
-                print("[請求成功] 耗時/%.3f秒" %((time.time() - StartTime)))
+
+                print("[獲取完成] 耗時 %.3f 秒\n" %((time.time() - StartTime)))
                 
             except Exception as e:
                 print(f"域名錯誤 , 或是伺服器問題! {e}")
@@ -167,9 +162,9 @@ class ZeroDownloader:
         count = 0
 
         if special:
-            print(f"第 {number} 特別話下載中請稍後...", flush=True)
+            print(f"第 {number} 特別話 - 開始下載", flush=True)
         else:
-            print(f"第 {number} 話下載中請稍後...", flush=True)
+            print(f"第 {number} 話 - 開始下載", flush=True)
 
         with ThreadPoolExecutor(max_workers=500) as executor:
             # 為了可下載需Vip權限的 , 因此使用模糊請求
@@ -194,7 +189,7 @@ class ZeroDownloader:
 
                 # 保存位置格式
                 Save = rf"{folder_name}\{page}.{self.FileExtension}"
-                
+
                 # 呼叫下載 , 並接收回傳 (雖然使用 result() 會降低效率 , 但因為不知道總頁數 , 不使用這樣就不好判斷結束)
                 Data_status = executor.submit(self.download, folder_name, Save, ComicLink).result()
 
@@ -211,7 +206,7 @@ class ZeroDownloader:
 
                 count += 1
 
-            print(f"第 {number} 話下載完成 [共 {count} 頁]", flush=True)
+            print(f"第 {number} 話 [共 {count} 頁] - 下載完成", flush=True)
 
     # 自動下載方法
     def Automatic(self, url:str, retry=False):
@@ -224,10 +219,10 @@ class ZeroDownloader:
             Manga_name = self.Manga_name # 漫畫名稱
             self.Ffolder(rf"{dir}{Manga_name}") # 創建漫畫資料夾
             self.domain = DomainName().replace("www","tupa") # 圖片請求域名格式變更
-            
+
             link = self.Comic_link_format.split("/") # 連結處理
             self.location = f"{link[-4]}/{link[-3]}" # 網址連結的位置
-            
+
             end = link[-1].split(".") # 網址尾部處理
             self.Mantissa = end[0] # 連結尾數
             self.FileExtension = end[1] # 連結擴展名
@@ -249,10 +244,10 @@ class ZeroDownloader:
                     self.cache = number
 
                     if special:
-                        print(f"準備下載 - 第{number}特別話", flush=True)
+                        print(f"第 {number} 特別話 - 準備下載", flush=True)
                     else:
-                        print(f"準備下載 - 第{number}話", flush=True)
-                    
+                        print(f"第 {number} 話 - 準備下載", flush=True)
+
                     executor.submit(self.accelerate, special, folder_name, number)
                     time.sleep(self.ProcessDelay)
 
@@ -281,7 +276,7 @@ class ZeroDownloader:
             Manga_name = self.Manga_name
             Comics_number = None
 
-            self.domain = DomainName().replace("www","tupa")
+            self.domain = DomainName().replace("www", "tupa")
 
             link = self.Comic_link_format.split("/")
             self.location = f"{link[-4]}/{link[-3]}"
@@ -314,9 +309,9 @@ class ZeroDownloader:
                     self.cache = number
 
                     if special:
-                        print(f"準備下載 - 第{number}特別話", flush=True)
+                        print(f"第 {number} 特別話 - 準備下載", flush=True)
                     else:
-                        print(f"準備下載 - 第{number}話", flush=True)
+                        print(f"第 {number} 話 - 準備下載", flush=True)
 
                     executor.submit(self.accelerate, special, folder_name, number)
                     time.sleep(self.ProcessDelay)
@@ -330,44 +325,44 @@ class ZeroDownloader:
     def Automatic_Trial_And_Error(self, url):
 
         # 將url從右側分割1次
-        initial = url.rsplit("/",1)
+        initial = url.rsplit("/", 1)
         # 取得url的尾數
         page = int(initial[1].split(".")[0])
 
-        # 尾數格式 , 並用set排除重複
-        mantissa_combination = list(set([f"{page:01d}",f"{page:02d}",f"{page:03d}",f"{page:04d}"]))
+        # 尾數格式
+        mantissa_combination = [f"{page:01d}", f"{page:02d}", f"{page:03d}", f"{page:04d}", f"{page:05d}"]
         # 擴展格式
-        file_extension_combination = ["jpg","jpeg","png"]
+        extension_combination = ["jpg", "png", "jpeg"]
 
-        for i in range(len(mantissa_combination)):
-            for j in range(len(file_extension_combination)):
+        for mantissa in mantissa_combination:
+            for extension in extension_combination:
                 # 測試的尾端格式
-                test = f"{mantissa_combination[i]}.{file_extension_combination[j]}"
+                test = f"{mantissa}.{extension}"
                 # 合併的測試連結
                 test_link = f"{initial[0]}/{test}"
                 # 請求測試
-                Data_status = requests.get(test_link,headers=self.headers)
+                Data_status = self.reques.get(test_link, "none")
 
                 if Data_status.status_code == 200:
                     # 成功的改變預設的 , 尾數/擴展名
-                    self.Mantissa = mantissa_combination[i]
-                    self.FileExtension = file_extension_combination[j]
+                    self.Mantissa = mantissa
+                    self.FileExtension = extension
                     return test_link
 
     # 下載方法
     def download(self, folder_name, save_name, link):
         # 請求後將狀態傳遞
-        Data_status = requests.get(link,headers=self.headers)
+        Data = self.reques.get(link, "none")
 
-        if Data_status.status_code == 200:
+        if Data.status_code == 200:
             # (請求成功) 當沒有資料夾時創建
             if not os.path.exists(folder_name):
                 self.Ffolder(folder_name)
 
             with open(save_name,"wb") as f:
-                f.write(Data_status.content)
+                f.write(Data.content)
 
-        return Data_status.status_code
+        return Data.status_code
 
 #################################################################################
 
