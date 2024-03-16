@@ -74,6 +74,7 @@ pip install pyperclip
 :: 可視化進度條
 pip install tqdm
 pip install progress
+pip install progressbar
 pip install progressbar2
 pip install alive-progress
 ::------------------------::
