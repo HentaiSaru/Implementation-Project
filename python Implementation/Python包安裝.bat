@@ -71,6 +71,8 @@ pip install packaging
 pip install wget
 :: 讀取剪貼簿
 pip install pyperclip
+:: 播放音訊
+pip install playsound
 :: 可視化進度條
 pip install tqdm
 pip install progress
@@ -106,6 +108,7 @@ pip install pywin32
 pip install mss
 ::------------------------::
 :: 創建GUI
+pip install PyQt5
 pip install PyQt6
 pip install PySide6
 :: 創建系托盤圖標和菜單
