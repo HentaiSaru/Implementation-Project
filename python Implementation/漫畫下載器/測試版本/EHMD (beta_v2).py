@@ -12,7 +12,7 @@ import json
 import re
 import os
 
-""" Versions 1.0.1 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""" Versions 1.0.2 (測試版) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Todo - EHentai/ExHentai 漫畫下載
 
@@ -22,11 +22,12 @@ import os
         ? 目前只支援漫畫頁面的下載 , 搜尋頁面的不支援 , 後續會再添加
 
         * 開發環境 :
-        ? Python 版本 3.11.7 - 64 位元
+        ? Python 版本 3.12.2 - 64 位元
         ? 模塊下載 Python包安裝.bat 運行
         ? 依賴下載 Script 資料夾內所有腳本
 
         * 測試項目 :
+        ? 原圖下載
         ? 下載穩定性
         ? 請求處理穩定性
 
@@ -40,6 +41,7 @@ import os
 
         * 請求的延遲別設置太短 , 有 IP 被 Ban 的可能性
         * 但有時請求失敗 , 可能是伺服器 , 或是 Cookie 的問題
+        * 下載原圖時盡量不要多本同時載 , 容易下載不完全 (目前試錯只有 10 次)
 
         * 關於排除 Tag 的字典 , 設置時的 Key 值隨便打 , value 需包含在 list 內
         * 只要該漫畫有相關標籤 , 就會被排除掉
@@ -201,6 +203,7 @@ class EHentaidownloader(Validation):
         # Todo [ 下載參數設置 ]
         self.path = None
         self.MaxProcess = None
+        self.OriginalType = None
         self.ProcessDelay = None
         self.TagFilterBox = None
         self.ProtectionDelay = None
@@ -217,6 +220,7 @@ class EHentaidownloader(Validation):
         GetCookie: bool=False,
         DownloadDelay =0.3,
         ProcessCreationDelay =1,
+        OriginalImage: bool=True,
         CookieSource: dict=Set("cookie"),
         MaxConcurrentDownload: int=cpu_count(),
         DownloadPath: str=os.getcwd(),
@@ -237,6 +241,10 @@ class EHentaidownloader(Validation):
         >>> [ ProcessCreationDelay (預設: 1s) ]
         * 開始處理數據時創建進程的延遲
         
+        >>> [ OriginalImage (預設: True) ]
+        * 選擇是否下載原圖, False 就是下載重新採樣圖
+        * 當選擇下載原圖時, DownloadDelay 調整最快設置為 2 秒
+
         >>> [ CookieSource (預設: Set("cookie")) ]
         * 設置 Cookie 的來源, 預設是讀取手動設置, 可改成讀取 Json
         * 改成 Read("cookie") 即可
@@ -256,10 +264,11 @@ class EHentaidownloader(Validation):
         self.path = DownloadPath
         self.GetCookie = GetCookie
         self.TagFilterBox = FilterTags
-        self.ProtectionDelay = DownloadDelay
+        self.OriginalType = OriginalImage
         self.MaxProcess = MaxConcurrentDownload
         self.ProcessDelay = ProcessCreationDelay
         self.Reques = Reques(Browser.lower().capitalize(), CookieSource) # 初始化請求
+        self.ProtectionDelay = max(2, DownloadDelay) if OriginalImage else DownloadDelay # 下載延遲計算
 
     #? (正式通道) 下載請求
     def download_request(self, link):
@@ -295,23 +304,37 @@ class EHentaidownloader(Validation):
         #! 保存主頁跳轉連結
         home_page_link = []
         def home_page(tree):
-            for data in tree.xpath("//div[@id='gdt']/div/a"):
-                href = data.get("href")
+            for link in tree.xpath("//div[@id='gdt']/div/a"):
+                href = link.get("href")
                 if href != None:
                     home_page_link.append(href)
 
-        #! 保存圖片連結
-        image_link = OrderedDict()
-        def picture_link(tree):
-            for data in tree.xpath("//img[@id='img']"):
-                #* 會有不同類型的例外
-                href = data.get("href")
-                src =  data.get("src")
 
-                if href != None:
-                    image_link[href] = None
-                elif src != None:
-                    image_link[src] = None
+        image_link = OrderedDict()
+        ResampleImage = "//img[@id='img']"
+        OriginalImage = "//div[@id='i6']/div[3]/a"
+        #? 根據 OriginalType 的選擇動跳調整, 索引順序
+        DownloadType = {True: [OriginalImage, ResampleImage], False: [ResampleImage, OriginalImage]}[self.OriginalType]
+        #! 保存圖片連結
+        """
+        ? 此寫法雖然較為簡潔, 但是對於大量數據處理時, 性能不太好
+        def picture_link(tree):
+            for link in tree.xpath(DownloadType[0]) or tree.xpath(DownloadType[1]):
+                href = link.get("href") or link.get("src")
+                image_link[href] = None
+        """
+        #! 需要優化
+        def picture_link(tree):
+            xp = tree.xpath(DownloadType[0])
+            if not xp:
+                xp = tree.xpath(DownloadType[1])
+            else:
+                for data in xp:
+                    link = data.get("src")
+                    if not link:
+                        link = data.get("href")
+                    elif not link.endswith("509.gif"):
+                        image_link[link] = None
 
         tree = self.get(url) # 請求第一頁連結
         home_page(tree)
@@ -352,26 +375,27 @@ class EHentaidownloader(Validation):
             count = 0 # 計數器
             work = work1 = []
             async with aiohttp.ClientSession() as session:
-                for page in range(1, total_pages):
-                    work.append(asyncio.create_task(self.async_get(f"{url}?p={page}", session)))
+                if total_pages > 1:
+                    for page in range(1, total_pages):
+                        work.append(asyncio.create_task(self.async_get(f"{url}?p={page}", session)))
 
-                    count+=1
-                    if count == 5: #* 每處理5頁, 暫停1秒
-                        print(f"\r以處理 [{page}] 頁", end="", flush=True)
-                        await asyncio.sleep(1)
-                        count = 0
-                results = await asyncio.gather(*work)
+                        count+=1
+                        if count == 5: #* 每處理5頁, 暫停1秒
+                            print(f"\r以處理 [{page}] 頁", end="", flush=True)
+                            await asyncio.sleep(1)
+                            count = 0
+                    results = await asyncio.gather(*work)
 
-                # 處理獲取跳轉連結
-                for tree in results:
-                    home_page(tree)
+                    # 處理獲取跳轉連結
+                    for tree in results:
+                        home_page(tree)
 
-                # 計算跳轉連結
-                Processed_pages = len(home_page_link)
-                if (Processed_pages <= 0):
-                    os.system("cls")
-                    print("數據處理錯誤")
-                    os._exit(1)
+                    # 計算跳轉連結
+                    Processed_pages = len(home_page_link)
+                    if (Processed_pages <= 0):
+                        os.system("cls")
+                        print("數據處理錯誤")
+                        os._exit(1)
 
                 for link in home_page_link:
                     work1.append(self.async_get(link, session))
@@ -393,7 +417,7 @@ class EHentaidownloader(Validation):
         # 將下載數據轉換成 list
         data = list(image_link.keys())
         # 計算漫畫名擴充值
-        filling = f"%0{int(math.log10(len(data))) + 1}d"
+        filling = f"%0{max(2, int(math.log10(len(data))) + 1)}d"
         # 生成下載數據
         for page, link in enumerate(data):
             self.Download_link[f"{filling % (page+1)}"] = link
@@ -412,21 +436,35 @@ class EHentaidownloader(Validation):
         with ThreadPoolExecutor(max_workers=100) as executor:
             for SaveName, Link in tqdm(self.Download_link.items(), desc=self.title, colour="#DB005B"):
 
-               save_location = os.path.join(self.save_location, f"{SaveName}.{Link.rsplit('.', 1)[1]}")
-               executor.submit(self.download_pictures, save_location, Link)
-               time.sleep(self.ProtectionDelay)
+                save_location = os.path.join(self.save_location, f"{SaveName}.{Link.rsplit('.', 1)[1]}")
+                executor.submit(self.download_pictures, save_location, Link)
+                time.sleep(self.ProtectionDelay)
 
-    #? 圖片下載
-    def download_pictures(self, download_path, download_link):
-        ImageData = self.get(download_link, "content")
-        with open(download_path, "wb") as file:
-            file.write(ImageData)
+    #? 圖片下載 (等待修正)
+    def download_pictures(self, download_path, download_link, Retries=10):
+        while Retries > 0:
+            ImageData = self.get(download_link, "none")
+            
+            if "do not have sufficient GP to buy a download quota" in ImageData.text:
+                print("\n原圖下載超額, 請變更 IP 位置")
+                os._exit(1)
+
+            elif ImageData.status_code == 200:
+                with open(download_path, "wb") as file:
+                    file.write(ImageData.content)
+                break
+
+            else:
+                # 簡單的試錯 (等待 5 秒重新循環), 有空在寫 Queue 處理
+                time.sleep(5)
+                Retries -= 1
 
 if __name__ == "__main__":
     eh = EHentaidownloader()
 
     # 進行下載設置
     eh.download_settings(
+        OriginalImage = False,
         DownloadPath = "R:/",
         CookieSource = Read("cookie"),
     )
