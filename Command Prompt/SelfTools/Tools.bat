@@ -1,5 +1,5 @@
 :: - Versions 1.0.10 -
-:: - LastEditTime 2024/3/20 11:45 -
+:: - LastEditTime 2024/3/20 14:07 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -499,7 +499,7 @@ for /f "delims=" %%I in ('cscript //nologo "%vbsScript%"') do set "folderPath=%%
 del "%vbsScript%"
 
 if defined folderPath (
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheDir" /t REG_SZ /d "%folderPath%GoogleCache" /f
+    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "DiskCacheDir" /t REG_SZ /d "%folderPath%GoogleCache" /f
     echo.
     echo 修改成功！緩存目錄已設置為："%folderPath%GoogleCache"
 ) else (
@@ -516,45 +516,71 @@ exit /b
 :: 原則說明文件
 :: https://admx.help/?Category=Chrome&Language=zh-tw
 
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DiskCacheSize" /t REG_SZ /d "2000000000" /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "DiskCacheSize" /t REG_SZ /d "2000000000" /f
+
 :: 安全瀏覽功能防護等級 0 關閉 1 預設 2強化防護
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "SafeBrowsingProtectionLevel" /t REG_DWORD /d 2 /f
-:: 將這項政策設為 Disabled，則表示除非使用者停用 PDF 外掛程式，否則系統一律會使用 PDF 外掛程式開啟 PDF 檔案
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "AlwaysOpenPdfExternally" /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "SafeBrowsingProtectionLevel" /t REG_DWORD /d 2 /f
 :: 下載檔案安全限制 0 ~ 4 , 0 無特別限制
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "DownloadRestrictions" /t REG_DWORD /d 0 /f
-:: 拼音檢查功能
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "SpellCheckServiceEnabled" /t REG_DWORD /d 0 /f
-:: 0 無論使用任何網路連線，皆預測網路動作
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "NetworkPredictionOptions" /t REG_DWORD /d 0 /f
-:: 首次啟動時從預設瀏覽器匯入已儲存的密碼
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ImportSavedPasswords" /t REG_DWORD /d 1 /f
-:: 首次啟動時從預設瀏覽器匯入搜尋引擎
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ImportSearchEngine" /t REG_DWORD /d 1 /f
-:: 首次啟動時從預設瀏覽器匯入搜尋書籤
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ImportBookmarks" /t REG_DWORD /d 1 /f
-:: 首次啟動時從預設瀏覽器匯入表單資料
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ImportAutofillFormData" /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "DownloadRestrictions" /t REG_DWORD /d 0 /f
+:: 為已輸入的憑證啟用資料外洩偵測功能
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "PasswordLeakDetectionEnabled" /t REG_DWORD /d 1 /f
+:: 密碼在網路詐騙網頁上遭到重複使用時，會觸發密碼保護警告
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "PasswordProtectionWarningTrigger" /t REG_DWORD /d 2 /f
+:: 啟用預設搜尋引擎
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "DefaultSearchProviderEnabled" /t REG_DWORD /d 1 /f
+:: 使用 POST 傳遞搜尋參數
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "DefaultSearchProviderSearchURLPostParams" /t REG_SZ /d "q={searchTerms}&client=chrome&sourceid=chrome&ie=UTF-8" /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "DefaultSearchProviderSuggestURLPostParams" /t REG_SZ /d "q={searchTerms}&client=chrome&sourceid=chrome&ie=UTF-8&oe=UTF-8" /f
+
+:: 將這項政策設為 Disabled，則表示除非使用者停用 PDF 外掛程式，否則系統一律會使用 PDF 外掛程式開啟 PDF 檔案
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "AlwaysOpenPdfExternally" /t REG_DWORD /d 1 /f
+:: 信用卡的自動填入功能
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "AutofillCreditCardEnabled" /t REG_DWORD /d 1 /f
+:: 地址的自動填入功能
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "AutofillAddressEnabled" /t REG_DWORD /d 1 /f
+:: 啟用搜尋建議
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "SearchSuggestEnabled" /t REG_DWORD /d 1 /f
 :: 顯示完整網址
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ShowFullUrlsInAddressBar" /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "ShowFullUrlsInAddressBar" /t REG_DWORD /d 1 /f
+
+:: 啟用剪貼簿共用功能
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "SharedClipboardEnabled" /t REG_DWORD /d 1 /f
+:: 拼字檢查網路服務
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "SpellCheckServiceEnabled" /t REG_DWORD /d 0 /f
+:: 0 無論使用任何網路連線，皆預測網路動作
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "NetworkPredictionOptions" /t REG_DWORD /d 0 /f
+:: 關閉 Google Chrome 關閉時繼續執行背景應用程式
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "BackgroundModeEnabled" /t REG_DWORD /d 0 /f
+
+:: 第一次執行時從預設瀏覽器匯入已儲存的密碼
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "ImportSavedPasswords" /t REG_DWORD /d 1 /f
+:: 第一次執行時從預設瀏覽器匯入搜尋引擎
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "ImportSearchEngine" /t REG_DWORD /d 1 /f
+:: 第一次執行時從預設瀏覽器匯入搜尋書籤
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "ImportBookmarks" /t REG_DWORD /d 1 /f
+:: 第一次執行時從預設瀏覽器匯入瀏覽記錄
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "ImportHistory" /t REG_DWORD /d 1 /f
+:: 第一次執行時從預設瀏覽器匯入自動填入表單資料
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "ImportAutofillFormData" /t REG_DWORD /d 1 /f
+
 :: Quic通訊
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "QuicAllowed" /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "QuicAllowed" /t REG_DWORD /d 1 /f
+:: 登入攔截功能
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "SigninInterceptionEnabled" /t REG_DWORD /d 0 /f
 :: 允許音訊程式在 Windows 系統上以高於一般優先順序的次序執行
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "AudioProcessHighPriorityEnabled" /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "AudioProcessHighPriorityEnabled" /t REG_DWORD /d 1 /f
 :: 禁止顯示侵入式廣告
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "AdsSettingForIntrusiveAdsSites" /t REG_DWORD /d 2 /f
-:: 匿名收集數據功能
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "UrlKeyedAnonymizedDataCollectionEnabled" /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "AdsSettingForIntrusiveAdsSites" /t REG_DWORD /d 2 /f
+:: 輸入網址匿名資料收集功能
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "UrlKeyedAnonymizedDataCollectionEnabled" /t REG_DWORD /d 0 /f
 :: 啟用視窗遮蔽功能
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "WindowOcclusionEnabled" /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "WindowOcclusionEnabled" /t REG_DWORD /d 1 /f
 :: YouTube 嚴格篩選模式
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "ForceYouTubeRestrict" /t REG_DWORD /d 0 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "ForceYouTubeRestrict" /t REG_DWORD /d 0 /f
 :: 允許使用無頭
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "HeadlessMode" /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "HeadlessMode" /t REG_DWORD /d 1 /f
 :: 加入進階保護計畫的使用者啟用額外防護功能
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "AdvancedProtectionAllowed" /t REG_DWORD /d 1 /f
-:: 設定單一 Chrome 例項可以使用的記憶體大小限制
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v "TotalMemoryLimitMb" /t REG_DWORD /d 1024 /f
+reg add "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /v "AdvancedProtectionAllowed" /t REG_DWORD /d 1 /f
 
 ECHO.
 ECHO 優化完成
@@ -568,7 +594,8 @@ exit /b
 :: ----- Google 修復受機構管理 -----
 :GoogleR
 
-reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /f
+reg delete "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /f
+reg delete "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /f
 
 ECHO.
 ECHO 請自行重啟瀏覽器...
