@@ -1,5 +1,5 @@
 :: - Versions 1.0.10 -
-:: - LastEditTime 2024/2/11 18:17 -
+:: - LastEditTime 2024/3/20 11:45 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -1013,6 +1013,7 @@ ECHO Surfshark 關閉中...
 ECHO.
 
 wmic process where name="Surfshark.exe" delete >nul
+wmic process where name="Surfshark.Service.exe" delete >nul
 net stop "Surfshark Service" >nul
 
 exit /b
