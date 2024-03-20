@@ -206,6 +206,7 @@ class EHentaidownloader(Validation):
         self.OriginalType = None
         self.ProcessDelay = None
         self.TagFilterBox = None
+        self.SpecifyRange = None
         self.ProtectionDelay = None
         # Todo [ 保存數據參數 ]
         self.title = None
@@ -221,9 +222,10 @@ class EHentaidownloader(Validation):
         DownloadDelay =0.3,
         ProcessCreationDelay =1,
         OriginalImage: bool=True,
+        DownloadPath: str=os.getcwd(),
         CookieSource: dict=Set("cookie"),
         MaxConcurrentDownload: int=cpu_count(),
-        DownloadPath: str=os.getcwd(),
+        Scope: str=None,
         FilterTags: dict=None,
     ):
         """
@@ -244,6 +246,9 @@ class EHentaidownloader(Validation):
         >>> [ OriginalImage (預設: True) ]
         * 選擇是否下載原圖, False 就是下載重新採樣圖
         * 當選擇下載原圖時, DownloadDelay 調整最快設置為 2 秒
+        
+        >>> [ DownloadPath (預設: 當前代碼路徑) ]
+        * 圖片下載位置
 
         >>> [ CookieSource (預設: Set("cookie")) ]
         * 設置 Cookie 的來源, 預設是讀取手動設置, 可改成讀取 Json
@@ -252,9 +257,10 @@ class EHentaidownloader(Validation):
         >>> [ MaxConcurrentDownload (預設: 自身 cpu 核心數) ]
         * 最大併發進程數量
         
-        >>> [ DownloadPath (預設: 當前代碼路徑) ]
-        * 圖片下載位置
-        
+        >>> [ Scope (預設: None) ]
+        * 指定下載的範圍
+        * 格式: "1, 2, 3, 4-6, 7~10, !8"
+
         >>> [ FilterTags (預設: None) ]
         * 輸入字典格式 {"key":["排除Tag","排除Tag","排除Tag"]}
         * 手動設置 -> Set("filter")
@@ -262,6 +268,7 @@ class EHentaidownloader(Validation):
         """
         self.SetUse = True # 當首次被呼叫時, 設置已使用
         self.path = DownloadPath
+        self.SpecifyRange = Scope
         self.GetCookie = GetCookie
         self.TagFilterBox = FilterTags
         self.OriginalType = OriginalImage
@@ -294,6 +301,30 @@ class EHentaidownloader(Validation):
                     for index, url in enumerate(box):
                         executor.submit(self.Comic_Process, url, index+1)
                         time.sleep(self.ProcessDelay)
+    
+    #? 計算需下載的範圍
+    def ScopeParsing(self, scope: str, box: dict) -> dict:
+        """
+        scope : -> 指定下載的範圍
+        box : -> 下載的數據
+        """
+        if isinstance(scope, str) and isinstance(box, dict):
+            all_keys = list(box.keys())
+            result = set(); exclude = set();
+            for s in re.split(r'\s*,\s*', scope):
+                if s.isdigit():
+                    result.add(int(s)-1)
+                elif re.match(r"^\d+(?:~\d+|-\d+)$", s):
+                    Range = list(map(int, re.split(r"\D+", s)))
+                    result.update([i-1 for i in range(Range[0], Range[1]+1)])
+                elif re.match(r"!+\d+", s):
+                    exclude.add(int(s.replace("!", ""))-1)
+
+            result -= exclude
+            valid_keys = [all_keys[index] for index in result if 0 <= index < len(all_keys)]
+            return {key: box[key] for key in valid_keys}
+        else:
+            raise ValueError("錯誤的輸入類型")
 
     #? 處理漫畫數據           
     def Comic_Process(self, url, count):
@@ -333,7 +364,7 @@ class EHentaidownloader(Validation):
                     link = data.get("src")
                     if not link:
                         link = data.get("href")
-                    elif not link.endswith("509.gif"):
+                    if not link.endswith("509.gif"):
                         image_link[link] = None
 
         tree = self.get(url) # 請求第一頁連結
@@ -416,11 +447,18 @@ class EHentaidownloader(Validation):
 
         # 將下載數據轉換成 list
         data = list(image_link.keys())
+        if len(data) < 1:
+            print("連結獲取失敗")
+            return
+
         # 計算漫畫名擴充值
         filling = f"%0{max(2, int(math.log10(len(data))) + 1)}d"
         # 生成下載數據
         for page, link in enumerate(data):
             self.Download_link[f"{filling % (page+1)}"] = link
+
+        if self.SpecifyRange:
+            self.Download_link = self.ScopeParsing(self.SpecifyRange, self.Download_link)
 
         print("\r[漫畫 %d 處理完成] => 處理耗時 %.3f 秒" % (count, (time.time() - StartTime)), flush=True)
         self.create_folder(self.save_location) # 創建資料夾
@@ -464,7 +502,6 @@ if __name__ == "__main__":
 
     # 進行下載設置
     eh.download_settings(
-        OriginalImage = False,
         DownloadPath = "R:/",
         CookieSource = Read("cookie"),
     )
