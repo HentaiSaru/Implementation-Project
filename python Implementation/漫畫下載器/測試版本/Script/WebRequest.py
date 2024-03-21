@@ -12,8 +12,8 @@ Todo    適用於 Python 3.10+
 class CarryHead:
     # 使用 navigator.userAgent 直接獲取
     Head = {
-        "Google": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"},
-        "Edge": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0"}
+        "Google": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"},
+        "Edge": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0"}
     }
 
 class Reques(CarryHead):
@@ -28,27 +28,22 @@ class Reques(CarryHead):
 
     # 解析要回傳的類型
     def __Parse(self, respon, type):
-        match type:
-            case "none":
-                return respon
-            case "text":
-                return respon.text
-            case "content":
-                return respon.content
-            case "status":
-                return respon.status_code
-            case "tree":
-                return etree.HTML(respon.text)
-            case "bf":
-                return BeautifulSoup(respon.text, "html.parser")
+        return {
+            "none" : respon,
+            "text" : respon.text,
+            "content" : respon.content,
+            "status" : respon.status_code,
+            "tree" : etree.HTML(respon.text),
+            "bf" : BeautifulSoup(respon.text, "html.parser"),
+        }[type]
 
-    def get(self, url: str, result: str="text") -> any:
+    def get(self, url: str, type: str="text") -> any:
         """
         *   基本 Get 請求
         >>> [ url ]
         要請求的連結
 
-        >>> [ result ]
+        >>> [ type ]
         要獲取的結果類型
         ("none" / "text" / "content" / "status" / "tree" / "bf")
 
@@ -58,7 +53,7 @@ class Reques(CarryHead):
         """
         return self.__Parse(
             self.session.get(url, headers=self.headers, cookies=self.cookies),
-            result
+            type
         )
 
     async def http_get(self, url: str) -> object:
