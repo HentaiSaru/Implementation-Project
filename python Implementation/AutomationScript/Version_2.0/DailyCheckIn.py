@@ -2,9 +2,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from Script import paramet, DO , DI
+from concurrent.futures import *
 from selenium import webdriver
 from lxml import etree
-import threading
+import multiprocessing
 import time
 import re
 
@@ -75,11 +76,11 @@ class AutomaticCheckin:
             "//div[@class='avt y']",
         )
 
-        time.sleep(paramet.WaitingTime() + 0.7)
+        time.sleep(paramet.WaitingTime() + 0.5)
         blackdriver.refresh()
 
-        for _ in range(3): # 新版測試
-            blackbutton = WebDriverWait(blackdriver,3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
+        for _ in range(3):
+            blackbutton = WebDriverWait(blackdriver, 3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
             blackbutton.click()
             blackdriver.refresh()
 
@@ -309,12 +310,20 @@ if __name__ == "__main__":
     AC = AutomaticCheckin()
     
     #################################################
-    threading.Thread(target=AC.Black_Checkin).start()
-    time.sleep(paramet.WaitingTime() + 5)
-    threading.Thread(target=AC.Wuyong_Checkin).start()
-    time.sleep(5)
-    threading.Thread(target=AC.Zero_Checkin).start()
-    time.sleep(5)
-    threading.Thread(target=AC.Genshin_Checkin).start()
-    time.sleep(5)
-    threading.Thread(target=AC.StarRail_Checkin).start()
+    # 原本的 threading 會造成錯誤
+    # multiprocessing.Process(target=AC.Black_Checkin).start()
+    # time.sleep(paramet.WaitingTime() + 5)
+    # multiprocessing.Process(target=AC.Wuyong_Checkin).start()
+    # time.sleep(5)
+    # multiprocessing.Process(target=AC.Zero_Checkin).start()
+    # time.sleep(5)
+    # multiprocessing.Process(target=AC.Genshin_Checkin).start()
+    # time.sleep(5)
+    # multiprocessing.Process(target=AC.StarRail_Checkin).start()
+
+    with ThreadPoolExecutor(max_workers=100) as executor:
+        for func, delay in zip([
+            AC.Black_Checkin, AC.Wuyong_Checkin, AC.Zero_Checkin, AC.Genshin_Checkin, AC.StarRail_Checkin
+        ], [paramet.WaitingTime()+10, 5, 5, 5, 5]): # 延遲設置
+            executor.submit(func)
+            time.sleep(delay)
