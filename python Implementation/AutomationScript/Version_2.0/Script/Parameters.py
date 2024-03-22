@@ -80,7 +80,7 @@ class Parameters:
         self.Settings.add_argument("--remote-debugging-address=0.0.0.0")
         self.Settings.add_argument(f"--remote-debugging-port={self.RandomPort()}")
         self.Settings.add_argument(f"--user-data-dir={UserData}")
-        self.Settings.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
+        self.Settings.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
 
         self.Settings.add_experimental_option('excludeSwitches', ['enable-logging'])
         self.Settings.add_experimental_option('excludeSwitches', ['enable-automation'])
