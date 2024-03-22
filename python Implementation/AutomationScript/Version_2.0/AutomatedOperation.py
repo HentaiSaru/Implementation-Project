@@ -191,7 +191,7 @@ class Hoyoverse:
         time.sleep(1)
 
         for key in gift: #! 懶得寫判斷不是列表的狀況
-            cdkey = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='cdkey__code']")))
+            cdkey = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='cdkey__code']")))
             cdkey.click()
 
             #? 不知道為什麼不能用 clear 清除文字, 只好使用全選刪除後再輸入
@@ -201,11 +201,11 @@ class Hoyoverse:
             cdkey.send_keys(key)
 
             # 關閉兌換成功或失敗窗口
-            receive = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='cdkey-form__submit']")))
+            receive = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='cdkey-form__submit']")))
             receive.click()
 
             # 點選兌換
-            close = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='cdkey-result__close']")))
+            close = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='cdkey-result__close']")))
             close.click()
 
             time.sleep(5)
@@ -228,16 +228,16 @@ class Hoyoverse:
         time.sleep(1)
 
         for key in gift:
-            cdkey = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='web_cdkey_code']")))
+            cdkey = WebDriverWait(StarRail, 5).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='web_cdkey_code']")))
             cdkey.click()
 
             cdkey.clear()
             cdkey.send_keys(key)
 
-            receive = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='web-cdkey-form__submit']")))
+            receive = WebDriverWait(StarRail, 5).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='web-cdkey-form__submit']")))
             receive.click()
 
-            close = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='closeBtn']")))
+            close = WebDriverWait(StarRail, 5).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='closeBtn']")))
             close.click()
 
             time.sleep(5)
