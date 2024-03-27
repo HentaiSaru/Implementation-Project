@@ -1,7 +1,7 @@
 from pynput import mouse
 import time
 
-class capture():
+class capture:
     def __init__(self):
         self.Button = None
         self.press_time = None
@@ -18,19 +18,19 @@ class capture():
             print(f"按下了 : {eval(self.Button)}")
         else:
             self.letgo_time = time.time()
-            print(f"按放開了 : {eval(self.Button)} , 持續時間 : {self.letgo_time-self.press_time}")
+            print(f"放開了 : {eval(self.Button)} , 持續時間 : {self.letgo_time-self.press_time}")
 
     def move(self, x, y):
         print(f"X座標:{x} , Y座標:{y}")
 
-class Mouse:
+class Mouse(capture):
     def __init__(self):
+        super().__init__()
         self.Delay = 10
         self.listener = None
 
     def __call__(self):
-        cap = capture()
-        self.listener = mouse.Listener(on_click=cap.click,on_move=cap.move).start()
+        self.listener = mouse.Listener(on_click=self.click, on_move=self.move).start()
         self.run()
 
     def run(self):

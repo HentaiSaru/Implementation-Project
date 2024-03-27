@@ -1,10 +1,9 @@
 from pynput import keyboard
-import threading
 import ctypes
 import time
 import re
 
-class capture():
+class capture:
     def __init__(self):
         self.Input_method_dictionary = {
             "1028": "繁中",
@@ -31,7 +30,7 @@ class capture():
 
         if SKey != self.key_cache:
             self.press_time = time.time() # 按下時間
-            print(f"輸入法 : {self.Get_Input()} , 按下鍵 : {SKey}")
+            print(f"按下鍵 : {SKey}")
             self.key_cache = SKey
 
     def release(self,key):
@@ -39,20 +38,16 @@ class capture():
         self.release_time = time.time()
         SKey = re.sub(self.Format,"",str(key))
 
-        print("按下時間 : %.3f" %(self.release_time-self.press_time))
-        print(f"輸入法 : {self.Get_Input()} , 放開鍵 : {SKey}\n")
+        print(f"輸入法 : [{self.Get_Input()}] | 放開鍵 : [{SKey}] | ", "持續時間 : [%.3f]\n" %(self.release_time-self.press_time))
 
-class Keyboard:
+class Keyboard(capture):
     def __init__(self):
-        self.cap = None
-        self.Delay = None
+        super().__init__()
 
-    def __call__(self,delay=0.001):
-        self.Delay = delay
-        self.cap = capture()
-        threading.Thread(target=self.run).start()
+    def __call__(self, delay=0.001):
+        self.run(delay)
 
-    def run(self):
-        with keyboard.Listener(on_press=self.cap.press, on_release=self.cap.release) as listener:
-            time.sleep(self.Delay)
+    def run(self, delay):
+        with keyboard.Listener(on_press=self.press, on_release=self.release) as listener:
+            time.sleep(delay)
             listener.join()
