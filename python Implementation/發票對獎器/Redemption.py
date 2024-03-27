@@ -1,10 +1,11 @@
 from lxml import etree
 import threading
+import msvcrt
 import httpx
 import time
 import os
 
-class WinningInstructions():
+class WinningInstructions:
     def __init__(self) -> None:
         self.Reward_level = [
             "特別獎", "特獎", "頭獎",
@@ -15,10 +16,10 @@ class WinningInstructions():
             "8 碼相同獲得 20 萬", "頭獎末 7 碼相同 4 萬", "頭獎末 6 碼相同 1 萬",
             "頭獎末 5 碼相同 4 千", "頭獎末 4 碼相同 1 千", "頭獎末 3 碼相同 200 元"
         ]
-wi = WinningInstructions()
 
-class DataProcessing:
+class DataProcessing(WinningInstructions):
     def __init__(self) -> None:
+        super().__init__()
         self.Session = httpx.Client()
         self.Url = "https://invoice.etax.nat.gov.tw/index.html"
         self.Headers = {
@@ -64,6 +65,7 @@ class DataProcessing:
 class Comparison(DataProcessing):
     def __init__(self) -> None:
         super().__init__()
+        self.input = ""
         self.winning = None
         self.bar = "░" * 10
         self.wait = "兌獎號碼獲取中 "
@@ -73,30 +75,40 @@ class Comparison(DataProcessing):
         print("\n")
 
         while True:
-            Input = input("輸入發票末三碼 [0 中止]: ")
-            Length = len(Input)
+            if self.input == "":
+                print("輸入發票末三碼 [Esc 中止]: ", end="")
+
+            Input = msvcrt.getch().decode()
+            if Input == "\x1b":
+                print("中止", end="")
+                break
+            else:
+                print(Input, end="")
 
             try:
-                if Input == "0":
-                    break
-                elif Input.lower() == "dev":
-                    print(f"{self.winning}\n")
-                elif not Input.isnumeric():
-                    raise ValueError()
-                elif Length != 3:
-                    raise IndexError()
+                self.input += Input
+                if len(self.input) >= 3:
+                    print("\n")
 
-                for index, number in enumerate(self.winning):
-                    if number.endswith(Input):
-                        if index < 2:
-                            print(f"自行確認是否中獎 ({wi.Reward_level[index]}): {number}\n")
-                        elif index < 5:
-                            print(f"自行確認是否中獎 ({wi.Reward_level[2]}): {number}\n")
+                    if self.input.lower() == "dev":
+                        print(f"{self.winning}\n")
+
+                    elif not self.input.isnumeric():
+                        self.input = ""
+                        raise ValueError()
+
+                    else:
+                        for index, number in enumerate(self.winning):
+                            if number.endswith(self.input):
+                                if index < 2:
+                                    print(f"自行確認是否中獎 ({self.Reward_level[index]}): {number}\n")
+                                elif index < 5:
+                                    print(f"自行確認是否中獎 ({self.Reward_level[2]}): {number}\n")
+
+                    self.input = ""
 
             except ValueError:
                 print("錯誤輸入類型 !!\n")
-            except IndexError:
-                print("錯誤的輸入長度 !!\n")
             except Exception:
                 print("幹啥呢 !!\n")
                 break
@@ -108,7 +120,7 @@ class Comparison(DataProcessing):
             print(self.wait, end="")
 
             for bar in self.bar:
-                if self.Redemption_Data != None:break
+                if self.Redemption_Data != None: break
                 print(bar, end="", flush=True)
                 time.sleep(0.1)
 
@@ -123,10 +135,11 @@ class Comparison(DataProcessing):
         length = len(self.Redemption_Data)
         while True:
             try:
-                select = int(input("\n輸入[代號]選擇日期: "))
+                print("\n輸入[代號]選擇日期: ", end="")
+                select = int(msvcrt.getch().decode())
 
                 if select > length:
-                    print("錯誤的代號, 請重新選擇")
+                    print("\n錯誤的代號, 請重新選擇")
                 else:
                     os.system("cls")
                     for title, number in self.Redemption_Data[select].items():
@@ -135,11 +148,11 @@ class Comparison(DataProcessing):
                     break
 
             except ValueError:
-                print("代號為數字, 請重新選擇")
+                print("\n代號為數字, 請重新選擇")
 
-        print("\n{:<9} {}".format(wi.Reward_level[0], wi.Reward_conditions[0]))
+        print("\n{:<9} {}".format(self.Reward_level[0], self.Reward_conditions[0]))
         for i in range(1, 8):
-            print("{:<10} {}".format(wi.Reward_level[i], wi.Reward_conditions[i]))
+            print("{:<10} {}".format(self.Reward_level[i], self.Reward_conditions[i]))
         self.__Comparison_Date()
 
 if __name__ == "__main__":
