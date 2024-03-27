@@ -18,12 +18,12 @@ import os
 
 """
 class Read_web_page:
-    def __init__(self):
-        self.Location = os.path.join(os.path.expanduser("~"), "AppData\Local\\Temp\\r93c440ou9.bat")
+    def __init__(self, CacheName, CheckLink):
+        self.URL = CheckLink
+        self.Location = os.path.join(os.path.expanduser("~"), rf"AppData\Local\Temp\{CacheName}.bat")
 
         self.connection = False
-        self.url = "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/SelfTools/Tools.bat"
-        
+
         self.content = None
 
         self.Web_Version = None
@@ -41,7 +41,7 @@ class Read_web_page:
             return False
 
     def Network_request(self):
-        reques = requests.get(self.url)
+        reques = requests.get(self.URL)
         if reques.status_code == 200:
             self.connection = True
         self.content = reques.text.split('\n')
@@ -109,5 +109,8 @@ class Read_web_page:
 
 if __name__ == "__main__":
     print("更新檢測...")
-    read = Read_web_page()
+    read = Read_web_page(
+        "r93c440ou9",
+        "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/SelfTools/Tools.bat"
+    )
     read.Enable_Tool()
