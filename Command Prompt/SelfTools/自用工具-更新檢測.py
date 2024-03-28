@@ -20,8 +20,9 @@ import os
 class Read_web_page:
     def __init__(self, CacheName, CheckLink):
         self.URL = CheckLink
-        self.Location = os.path.join(os.path.expanduser("~"), rf"AppData\Local\Temp\{CacheName}.bat")
-
+        #self.Location = os.path.join(os.path.expanduser("~"), rf"AppData\Local\Temp\{CacheName}.bat")
+        self.Location = rf"{os.environ["TEMP"]}{CacheName}.bat"
+        
         self.connection = False
 
         self.content = None
@@ -77,14 +78,10 @@ class Read_web_page:
                     self.Local_request()
 
                     if v(self.Web_Version) > v(self.Local_Version) or self.Web_LastEditTime > self.Local_LastEditTime:
-                        pbar = tqdm(total=len(self.content), ncols=80, desc="更新", bar_format="{l_bar}{bar}")
-
                         with open(self.Location, "w", encoding="utf-8") as f:
-                            for text in self.content:
+                            for text in tqdm(self.content.items(), ncols=80, desc="更新", bar_format="{l_bar}{bar}"):
                                 f.write(text + "\n")
-                                pbar.update(1)
                                 time.sleep(0.001)
-                            pbar.clear()
                 else:
                     self.Write_cache()
 
