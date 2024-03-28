@@ -36,12 +36,12 @@ class DataProcessing:
     def __init__(self):
         self.Save = queue.Queue() # 保存轉換後要輸出的數據
         self.Work = queue.Queue() # 保存要進行轉換的工作路徑
-        self.Allow = ("txt", "srt", "ass", "ssa", "lang") # 允許的檔案類型
+        self.Allow = {"txt", "srt", "ass", "ssa", "lng", "lang"} # 允許的檔案類型
         self.Converter = opencc.OpenCC("s2twp.json")
 
     # 過濾文件類型
     def Filter_type(self, path, data):
-        if data.endswith(self.Allow):
+        if data.rsplit(".", 1)[-1] in self.Allow:
             self.Work.put(os.path.join(path, data).replace("\\", "/"))
 
     # 轉換成繁體
@@ -149,13 +149,13 @@ class UICreation(DataProcessing):
         button.config(fg=buttontext, bg=buttonbackground)
 
         # 導入工作並分類
-        for path, name in data.items():
-            if isinstance(name, list):
-                for Filter in name:
-                    self.Filter_type(path, Filter.strip())
+        for Path, Name in data.items():
+            if isinstance(Name, list):
+                for name in Name:
+                    self.Filter_type(Path, name.strip())
 
-            elif isinstance(name, str):
-                self.Filter_type(path, name.strip())
+            elif isinstance(Name, str):
+                self.Filter_type(Path, Name.strip())
 
         # 讀取工作
         while not self.Work.empty():
@@ -224,25 +224,30 @@ class UICreation(DataProcessing):
         Start = time.time()
 
         if OutType == "create":
+            Directory = os.path.dirname(work)
             File_name = os.path.basename(work)
-            directory = os.path.dirname(work)
-            self.Output_Name = os.path.join(directory, f"(繁體轉換){File_name}")
+            self.Output_Name = os.path.join(Directory, f"(繁體轉換){File_name}")
         elif OutType == "override":
             self.Output_Name = work
-            
+
         try:
+            decode_text = ""
             with open(work, "rb") as file: # 以二進制讀取
                 text = file.read() # 獲取文本
                 encode = chardet.detect(text)["encoding"].lower() # 解析編碼類型
                 with ThreadPoolExecutor(max_workers=100) as executor:
                     if encode.startswith("utf-8"):
-                        for txt in text.decode("utf-8").splitlines(): # 轉換成字串, 並將其序列化
-                            self.Save.put(executor.submit(self.Text_conversion, txt).result())
+                        decode_text = text.decode("utf-8").splitlines() # 轉換成字串, 並將其序列化
                     elif encode.startswith("big5"):
-                        for txt in text.decode(encode).encode("utf-8").decode("utf-8").splitlines():
-                            self.Save.put(executor.submit(self.Text_conversion, txt).result())
+                        decode_text = text.decode(encode).encode("utf-8").decode("utf-8").splitlines()
+                    elif encode.startswith("utf-16"):
+                        decode_text = text.decode("utf-16").splitlines()
                     else:
                         raise UnicodeDecodeError(encode, b"", 0, 1, "不支援的編碼")
+
+                    # 解碼完成後進行轉換
+                    for txt in decode_text:
+                        self.Save.put(executor.submit(self.Text_conversion, txt).result())
 
             # 輸出
             with open(self.Output_Name, "w", encoding="utf-8") as output:
@@ -250,17 +255,17 @@ class UICreation(DataProcessing):
                     output.write(self.Save.get() + "\n")
 
             # 完成展示
-            self.Content_items.insert(float(index), f"({index}) {os.path.basename(work)} => [{self.ET(Start)}|Success]\n", self.Success)
+            self.Content_items.insert(float(index), f"({index}) {os.path.basename(work)} => [Success | {self.ET(Start)}]\n", self.Success)
             # 自動滾動到最下方
             self.Content_items.yview_moveto(1.0)
             # 檔名轉換
             os.rename(self.Output_Name, self.Text_conversion(self.Output_Name))
 
-        except UnicodeDecodeError:
-            self.Content_items.insert(float(index), f"({index}) {os.path.basename(work)} => [{self.ET(Start)}|Failure]\n", self.Failure)
+        except UnicodeDecodeError as e:
+            self.Content_items.insert(float(index), f"({index}) {os.path.basename(work)} => [Failure | {e}]\n", self.Failure)
             self.Content_items.yview_moveto(1.0)
         except Exception as e:
-            self.Content_items.insert(float(index), f"(Exception) => [{e}]\n", self.Failure)
+            self.Content_items.insert(float(index), f"(Exception) => {e}\n", self.Failure)
             self.Content_items.yview_moveto(1.0)
 
         self.lock.release() # 線程鎖釋放
@@ -286,7 +291,7 @@ class UICreation(DataProcessing):
                 )
                 Reset.place(x=920, y=645)
                 break
-            time.sleep(1)
+            time.sleep(1.5)
 
 if __name__ == "__main__":
     ui = UICreation()
