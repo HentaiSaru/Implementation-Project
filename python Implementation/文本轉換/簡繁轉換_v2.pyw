@@ -291,7 +291,7 @@ class UICreation(DataProcessing):
                 )
                 Reset.place(x=920, y=645)
                 break
-            time.sleep(1.5)
+            time.sleep(0.1)
 
 if __name__ == "__main__":
     ui = UICreation()
