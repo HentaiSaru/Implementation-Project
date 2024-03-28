@@ -54,11 +54,32 @@ class TemplateGeneration(ImageDataImport):
                         margin: 0 auto;
                     }
                 </style>
+                <script>
+                    async function ErrorRemove(Img) {
+                        Img.remove();
+                    }
+                    async function WidthModify() {
+                        const Rules = document.querySelector("style").sheet.cssRules[1];
+                        document.addEventListener("keydown", event=> {
+                            const key = event.key;
+                            if (key == "+" || key == "-") {
+                                const current = parseInt(Rules.style.maxWidth);
+                                requestAnimationFrame(()=> {
+                                    Rules.style.maxWidth =
+                                    key == "+"
+                                    ? `${Math.min(current + 1, 100)}%`
+                                    : `${Math.max(current - 1, 1)}%`;
+                                })
+                            }
+                        })
+                    }
+                    WidthModify();
+                </script>
             </head>
             <body>
                 <div id = "picture_box">
                     {% for src in data %}
-                    <img src="{{ src|safe }}">
+                    <img src="{{ src|safe }}" onerror="ErrorRemove(this)">
                     {% endfor %}
                 </div>
             </body>
