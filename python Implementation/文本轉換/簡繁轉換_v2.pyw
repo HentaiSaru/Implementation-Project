@@ -66,6 +66,7 @@ class UICreation(DataProcessing):
         self.Document_button = None
 
         self.Output_Name = None
+        self.Output_Rename = None
         self.Create_button = None
         self.Override_button = None
 
@@ -223,12 +224,15 @@ class UICreation(DataProcessing):
         self.lock.acquire() # 線程鎖
         Start = time.time()
 
+        Directory = os.path.dirname(work)
+        FileName = os.path.basename(work)
+
         if OutType == "create":
-            Directory = os.path.dirname(work)
-            File_name = os.path.basename(work)
-            self.Output_Name = os.path.join(Directory, f"(繁體轉換){File_name}")
+            self.Output_Name = os.path.join(Directory, f"(繁體轉換){FileName}")
+            self.Output_Rename = os.path.join(Directory, f"(繁體轉換){self.Text_conversion(FileName)}")
         elif OutType == "override":
             self.Output_Name = work
+            self.Output_Rename = os.path.join(Directory, self.Text_conversion(FileName))
 
         try:
             decode_text = ""
@@ -236,12 +240,12 @@ class UICreation(DataProcessing):
                 text = file.read() # 獲取文本
                 encode = chardet.detect(text)["encoding"].lower() # 解析編碼類型
                 with ThreadPoolExecutor(max_workers=100) as executor:
-                    if encode.startswith("utf-8"):
+                    if encode.startswith("utf-8") or encode.startswith("ascii"):
                         decode_text = text.decode("utf-8").splitlines() # 轉換成字串, 並將其序列化
-                    elif encode.startswith("big5"):
-                        decode_text = text.decode(encode).encode("utf-8").decode("utf-8").splitlines()
                     elif encode.startswith("utf-16"):
                         decode_text = text.decode("utf-16").splitlines()
+                    elif encode.startswith("big5"):
+                        decode_text = text.decode(encode).encode("utf-8").decode("utf-8").splitlines()
                     else:
                         raise UnicodeDecodeError(encode, b"", 0, 1, "不支援的編碼")
 
@@ -259,7 +263,7 @@ class UICreation(DataProcessing):
             # 自動滾動到最下方
             self.Content_items.yview_moveto(1.0)
             # 檔名轉換
-            os.rename(self.Output_Name, self.Text_conversion(self.Output_Name))
+            os.rename(self.Output_Name, self.Output_Rename)
 
         except UnicodeDecodeError as e:
             self.Content_items.insert(float(index), f"({index}) {os.path.basename(work)} => [Failure | {e}]\n", self.Failure)
