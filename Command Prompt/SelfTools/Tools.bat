@@ -1,5 +1,5 @@
 :: - Versions 1.0.10 -
-:: - LastEditTime 2024/3/29 23:46 -
+:: - LastEditTime 2024/3/29 23:51 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -876,7 +876,7 @@ if not exist "IDM.tar" (
     ECHO 啟動程式...
         
     cd %Temp%
-    start IDM.cmd
+    start /B IDM.cmd
 )
 
 timeout /t 2 >nul
