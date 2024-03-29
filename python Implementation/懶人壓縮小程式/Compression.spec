@@ -5,7 +5,7 @@ block_cipher = pyi_crypto.PyiBlockCipher(key='Compression')
 
 
 a = Analysis(
-    ['Compression.py'],
+    ['Compression.pyw'],
     pathex=[],
     binaries=[],
     datas=[('Compression.ico', '.')],
