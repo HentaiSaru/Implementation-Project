@@ -1,5 +1,5 @@
 :: - Versions 1.0.10 -
-:: - LastEditTime 2024/3/29 23:43 -
+:: - LastEditTime 2024/3/29 23:46 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -856,31 +856,27 @@ exit /b
 :: https://github.com/lstprjct/IDM-Activation-Script
 :Idm
 
-if not exist "%Temp%\IDM.cmd" (
-    ECHO.
-    ECHO 授權程式下載中請稍後...
-    ECHO.
+ECHO.
+ECHO 獲取最新版本 授權程式
+ECHO.
+ECHO 下載中請稍後...
+ECHO.
 
-    certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Idm/IDM.tar" IDM.tar >nul
+certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Idm/IDM.tar" IDM.tar >nul
 
-    if not exist "IDM.tar" (
-        ECHO 下載失敗...
-    ) else (
-        tar -xf IDM.tar >nul
-        del /f /s /q IDM.tar >nul
-        move IDM.cmd "%Temp%" >nul
-
-        ECHO 下載完成...
-        ECHO.
-        ECHO 啟動程式...
-        
-        cd %Temp%
-        start IDM.cmd
-    )
-
+if not exist "IDM.tar" (
+    ECHO 下載失敗...
 ) else (
+    tar -xf IDM.tar >nul
+    del /f /s /q IDM.tar >nul
+    move IDM.cmd "%Temp%" >nul
+
+    ECHO 下載完成...
+    ECHO.
     ECHO 啟動程式...
-    cd /d "%Temp%" && IDM.cmd
+        
+    cd %Temp%
+    start IDM.cmd
 )
 
 timeout /t 2 >nul
@@ -890,7 +886,7 @@ exit /b
 :windows
 
 ECHO.
-ECHO 獲取授權程式最新版本
+ECHO 獲取最新版本 授權程式
 ECHO.
 ECHO 下載中請稍後...
 ECHO.
@@ -917,7 +913,7 @@ exit /b
 :office
 
 ECHO.
-ECHO 獲取授權程式最新版本
+ECHO 獲取最新版本 授權程式
 ECHO.
 ECHO 下載中請稍後...
 ECHO.
