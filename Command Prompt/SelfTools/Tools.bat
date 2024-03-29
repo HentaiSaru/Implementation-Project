@@ -1,5 +1,5 @@
 :: - Versions 1.0.10 -
-:: - LastEditTime 2024/3/20 14:07 -
+:: - LastEditTime 2024/3/29 23:43 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -853,6 +853,7 @@ timeout /t 2 >nul
 exit /b
 
 :: ----- IDM 授權 -----
+:: https://github.com/lstprjct/IDM-Activation-Script
 :Idm
 
 if not exist "%Temp%\IDM.cmd" (
@@ -895,7 +896,7 @@ ECHO 下載中請稍後...
 ECHO.
 
 :: 確保最新版本
-certutil -urlcache -split -f "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO.cmd" MAS_AIO.cmd >nul
+certutil -urlcache -split -f "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO-CRC32_60BA35A8.cmd" MAS_AIO.cmd >nul
 
 if not exist "MAS_AIO.cmd" (
     ECHO 下載失敗...
