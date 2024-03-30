@@ -1,4 +1,4 @@
-from tkinter import filedialog , messagebox
+from tkinter import filedialog , messagebox , ttk
 import tkinter as tk
 import threading
 import time
@@ -17,8 +17,8 @@ import os
 
 [+] 修正 UI , 真的是醜爆了
 
-https://github.self/israel-dryer/ttkbootstrap
-https://github.self/rdbende/Sun-Valley-ttk-theme
+https://github.com/israel-dryer/ttkbootstrap
+https://github.com/rdbende/Sun-Valley-ttk-theme
 """
 
 class Compression:
@@ -27,25 +27,14 @@ class Compression:
         self.SeparateList = []
         self.IntegrationList = None
 
-        self.UpxError = f"\n\n\n\n\tUPX不支援整合壓縮"
-        self.UpxSupport = {"exe","dll","ocx","bpl","cpl","sys","ax","acm","drv","tlb"}
         self.UpxCC = "upx -9 --best --ultra-brute --force"
         self.UpxRC = "upx -d --force"
 
         self.RarCC = "rar a -ri15:0.00001 -m5 -mt24 -md1g"
         self.ZipCC = "-t7z -m0=lzma2 -mx=9 -mfb=128 -md=2048m -ms=1g -mmt=32 -mqs=on"
-
-    """---------- 命令操作 ----------"""
-
-    # 集成壓縮命令運行
-    def LeftSideOperation(self,order):
-        output = os.popen(order).read()
-        gui.LeftText.insert("end", f"{output}")
-
-    # 單獨壓縮命令運行
-    def RightSideOperation(self,order):
-        output = os.popen(order).read()
-        gui.RightText.insert("end", f"{output}")
+        
+        self.UpxError = f"\n\n\n\n\tUPX不支援整合壓縮"
+        self.UpxSupport = {"exe","dll","ocx","bpl","cpl","sys","ax","acm","drv","tlb"}
 
     """---------- 檔案導入 ----------"""
 
@@ -84,6 +73,17 @@ class Compression:
                 if os.path.isdir(path) and os.path.getsize(path) == 0:continue # 將空白目錄過濾
                 self.SeparateList.append(path)
 
+    """---------- 命令與操作 ----------"""
+
+    # 命令運行
+    def CommandRun(self, order, show):
+        output = os.popen(order).read()
+        show.insert("end", f"{output}")
+
+    # 恢復按鈕的 UI
+    def Ui_Recovery(self, object):
+        object.config(fg=gui.Compressbuttonnormal, bg=gui.Compressbuttonbackgroundcolor)
+
     """---------- UPX壓縮運行 ----------"""
 
     # UPX壓縮觸發
@@ -105,7 +105,7 @@ class Compression:
             gui.UPXRestore.config(fg=gui.Compressbuttontorun, bg=gui.Compressbuttonbackgroundcolor)
 
             if len(self.SeparateList) > 0:
-                self.UPXRun(self.SeparateList,"Restore")
+                self.UPXRun(self.SeparateList, "Restore")
             else:
                 raise Exception()
 
@@ -113,40 +113,40 @@ class Compression:
             self.UPX_Error_Trigger(gui.UPXRestore)
 
     # UPX壓縮運行
-    def UPXRun(self,Text,Work):
+    def UPXRun(self, Text, Work):
         Finally = []
         if len(Text) != 0: # 非必要判斷
-            for i in range(len(Text)): 
-                FileExtension = Text[i].split(".") # 將檔案副檔名與前面切片
-                if FileExtension[-1] in map(str.lower, self.UpxSupport) and FileExtension[-2] != "upx": # 判斷附檔名是否在支援格式中,後面是一開始寫的架構,避免壓縮到upx.exe自己
-                    Format = '"'+Text[i]+'"' # 加上格式後,一個一個丟入列表
-                    Finally.append(Format)
+            gui.RightText.delete("1.0", "end")
+            
+            for text in Text: 
+                FileExtension = text.split(".") # 將檔案副檔名與前面切片
+                if FileExtension[-1] in map(str.lower, self.UpxSupport) and FileExtension[-2] != "upx": # 判斷附檔名是否在支援格式中, 後面是一開始寫的架構, 避免壓縮到upx.exe自己
+                    Finally.append(f'"{text}"')
                 else:continue
 
             if len(Finally) > 0:
-                gui.RightText.delete("1.0", "end")
 
-                for i in range(len(Finally)): # 開始輸出列表
+                for fina in Finally: # 開始輸出列表
                     time.sleep(0.1)
                     if Work == "Compression": # 判斷是要還原還是壓縮
-                        self.UPX_Ui_Recovery(gui.UPXCompression)
-                        upx = f"{self.UpxCC} {Finally[i]}"
-                        threading.Thread(target=self.RightSideOperation, args=(upx,)).start()
+                        self.Ui_Recovery(gui.UPXCompression)
+                        threading.Thread(
+                            target=self.CommandRun,
+                            args=(f"{self.UpxCC} {fina}", gui.RightText)
+                        ).start()
                     elif Work == "Restore":
-                        self.UPX_Ui_Recovery(gui.UPXRestore)
-                        upx = f"{self.UpxRC} {Finally[i]}"
-                        threading.Thread(target=self.RightSideOperation, args=(upx,)).start()
+                        self.Ui_Recovery(gui.UPXRestore)
+                        threading.Thread(
+                            target=self.CommandRun,
+                            args=(f"{self.UpxRC} {fina}", gui.RightText)
+                        ).start()
 
-                messagebox.showinfo("運行完成",f"全部以操作完畢")
+                messagebox.showinfo("運行完成", f"全部以操作完畢")
 
             else:
-                self.UPX_Ui_Recovery(gui.UPXRestore)
-                self.UPX_Ui_Recovery(gui.UPXCompression)
+                self.Ui_Recovery(gui.UPXRestore)
+                self.Ui_Recovery(gui.UPXCompression)
                 messagebox.showerror("格式錯誤", "沒有可進行UPX操作的檔案格式")
-
-    # UPX 正確運行後的恢復
-    def UPX_Ui_Recovery(self, object):
-        object.config(fg=gui.Compressbuttonnormal, bg=gui.Compressbuttonbackgroundcolor)
     
     # UPX 點擊後錯誤的觸發
     def UPX_Error_Trigger(self, object):
@@ -169,38 +169,39 @@ class Compression:
                 raise Exception()
         except:
             messagebox.showerror("設置錯誤", "未檢測到文件")
-            gui.RARCompression.config(fg=gui.Compressbuttonnormal, bg=gui.Compressbuttonbackgroundcolor)
+            self.Ui_Recovery(gui.RARCompression)
 
     # RAR集成壓縮運行
-    def RARFusion(self,Text):
+    def RARFusion(self, Text):
         try:
-            Format = '"'+Text.split("\\")[0]+'"' # 壓縮檔案的路徑格式,通常到檔案最後就會變成\,所以將其切片取前面
-            os.system("cls")
-            RARFormat = '"'+Text.split(":/")[0]+":/"+Text.split(":/")[1].split("\\")[0]+".rar"+'"' # 壓縮檔名的格式
-            WinRAR = f'{self.RarCC} {RARFormat} {Format}' # 壓縮指令,並將兩個格式加上
-            gui.RARCompression.config(fg=gui.Compressbuttonnormal, bg=gui.Compressbuttonbackgroundcolor) # 按鈕便回原本顏色
-
             gui.LeftText.delete("1.0", "end")
-            threading.Thread(target=self.LeftSideOperation, args=(WinRAR,)).start() # 啟用運行壓縮線程
+            self.Ui_Recovery(gui.RARCompression)
+
+            Path = Text.split("\\", 1)[0] # 無論多少層 取得最父層資料夾 [A:/Parent]
+
+            threading.Thread( # 傳遞壓縮指令, 與顯示對象
+                target=self.CommandRun,
+                args=(f'{self.RarCC} "{Path}.rar" "{Path}"', gui.LeftText)
+            ).start()
 
             time.sleep(0.5)
-            messagebox.showinfo("開始壓縮",f"請稍後...\n檔案將保存於 : {RARFormat}") # 輸出開始壓縮,並將檔案壓縮位置輸出
+            messagebox.showinfo("開始壓縮", f"請稍後...\n檔案將保存於 : {Path}") # 輸出開始壓縮,並將檔案壓縮位置輸出
         except:pass
 
     # RAR個別壓縮運行
-    def RARRespective(self,Text):
+    def RARRespective(self, Text):
         try:
-            gui.RARCompression.config(fg=gui.Compressbuttonnormal, bg=gui.Compressbuttonbackgroundcolor)
-            os.system("cls")
-            for i in range(len(Text)): # 因為是個別所以是迴圈,一個一個輸入
-                Format = '"'+Text[i]+'"'
-                RARFormat = '"'+Text[i].split(":/")[0]+":/"+Text[i].split(":/")[1].split("\\")[1]+".rar"+'"'
-                WinRAR = f'{self.RarCC} {RARFormat} {Format}'
+            gui.RightText.delete("1.0", "end")
+            self.Ui_Recovery(gui.RARCompression)
+            for text in Text: # 因為是個別所以是迴圈, 一個一個輸入
+                Path = f"{text.split(':/')[0]}:/{text.rsplit("\\", 1)[1]}"
 
-                gui.RightText.delete("1.0", "end")
-                threading.Thread(target=self.RightSideOperation, args=(WinRAR,)).start()
+                threading.Thread(
+                    target=self.CommandRun,
+                    args=(f'{self.RarCC} "{Path}.rar" "{text}"', gui.RightText)
+                ).start()
 
-            messagebox.showinfo("壓縮完成",f"\n檔案將保存於 : {RARFormat}")
+            messagebox.showinfo("壓縮完成", f"\n檔案將保存於 : {Text[0].split("\\", 1)[0]}")
         except:pass
 
     """---------- ZIP壓縮運行 ----------"""
@@ -216,38 +217,39 @@ class Compression:
                 raise Exception()
         except:
             messagebox.showerror("設置錯誤", "未檢測到文件")
-            gui.ZipCompression.config(fg=gui.Compressbuttonnormal, bg=gui.Compressbuttonbackgroundcolor)  
+            self.Ui_Recovery(gui.ZipCompression) 
 
     # ZIP集成壓縮
-    def ZIPFusion(self,Text):
+    def ZIPFusion(self, Text):
         try:
-            Format = '"'+Text.split("\\")[0]+'"'
-            os.system("cls")
-            ZIPFormat = '"'+Text.split(":/")[0]+":/"+Text.split(":/")[1].split("\\")[0]+".7z"+'"'
-            ZIP = f'7z a {ZIPFormat} {Format} {self.ZipCC}'
-            gui.ZipCompression.config(fg=gui.Compressbuttonnormal, bg=gui.Compressbuttonbackgroundcolor)
+            gui.LeftText.delete("1.0", "end")
+            self.Ui_Recovery(gui.ZipCompression)
 
-            gui.LeftText.delete("1.0", "end")           
-            threading.Thread(target=self.LeftSideOperation, args=(ZIP,)).start()
+            Path = Text.split("\\", 1)[0]
+
+            threading.Thread(
+                target=self.CommandRun,
+                args=(f'7z a "{Path}.7z" "{Path}" {self.ZipCC}', gui.LeftText)
+            ).start()
 
             time.sleep(0.5)
-            messagebox.showinfo("開始壓縮",f"請稍後...\n檔案將保存於 : {ZIPFormat}")
+            messagebox.showinfo("開始壓縮",f"請稍後...\n檔案將保存於 : {Path}")
         except:pass
         
     # ZIP個別壓縮
-    def ZIPRespective(self,Text):
+    def ZIPRespective(self, Text):
         try:
-            os.system("cls")
-            gui.ZipCompression.config(fg=gui.Compressbuttonnormal, bg=gui.Compressbuttonbackgroundcolor)
-            for i in range(len(Text)):
-                Format = '"'+Text[i]+'"'
-                ZIPFormat = '"'+Text[i].split(":/")[0]+":/"+Text[i].split(":/")[1].split("\\")[1]+".7z"+'"'
-                ZIP = f'7z a {ZIPFormat} {Format} {self.ZipCC}'
+            gui.RightText.delete("1.0", "end")
+            self.Ui_Recovery(gui.ZipCompression)
+            for text in Text:
+                Path = f"{text.split(':/')[0]}:/{text.rsplit("\\", 1)[1]}"
 
-                gui.RightText.delete("1.0", "end")
-                threading.Thread(target=self.RightSideOperation, args=(ZIP,)).start()
+                threading.Thread(
+                    target=self.CommandRun,
+                    args=(f'7z a "{Path}.7z" "{text}" {self.ZipCC}', gui.RightText)
+                ).start()
 
-            messagebox.showinfo("壓縮完成",f"\n檔案將保存於 : {ZIPFormat}")
+            messagebox.showinfo("壓縮完成",f"\n檔案將保存於 : {Text[0].split("\\", 1)[0]}")
         except:pass
 
 class GUI(tk.Tk, Compression):
@@ -256,7 +258,7 @@ class GUI(tk.Tk, Compression):
         Compression.__init__(self)
 
         """ 窗口初始設置 """
-        Icon = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Compression.ico')
+        Icon = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Compression.ico")
 
         self.title("懶人壓縮器 - v1.0.2-Beta")
         self.iconbitmap(Icon)
@@ -271,7 +273,7 @@ class GUI(tk.Tk, Compression):
 
         
         """ 顏色設置 """
-        self.configure(background='#A4EBF3') # 整體背景色
+        self.configure(background="#A4EBF3") # 整體背景色
 
         Space = " "
         OuterFrameColor = "#F4F9F9"
@@ -290,33 +292,48 @@ class GUI(tk.Tk, Compression):
         self.UnderlyingFramework = tk.Canvas(self.OuterFrame, bd=0, highlightthickness=0, bg=OuterFrameColor) # 底層框架
 
         """ 元素宣告 """
+        
+        Element_style = {
+            "height": 1, "width": 10, "border": 3,
+            "cursor": "hand2", "font": ("Arial", 25, "bold"),
+            "relief": "groove", "fg": "#609EA2", "bg": OuterFrameColor
+        }
 
         # 個別壓縮導入按鈕
-        self.AloneData = tk.Button(self.TopFrame,text="單檔壓縮", command=self.ImportAsSeparateFiles)
-        self.AloneData.config(font=("Arial Bold", 25), width=10, height=1, fg="#609EA2" , border=3, relief='groove', bg=OuterFrameColor)
+        self.AloneData = tk.Button(self.TopFrame, Element_style, text="單檔壓縮", command=self.ImportAsSeparateFiles)
         # 整合壓縮導入按鈕
-        self.IntegrateData = tk.Button(self.TopFrame,text="整合壓縮", command=self.ImportAsIntegratedFile)
-        self.IntegrateData.config(font=("Arial Bold", 25), width=10, height=1, fg="#609EA2" , border=3, relief='groove', bg=OuterFrameColor)
+        self.IntegrateData = tk.Button(self.TopFrame, Element_style, text="整合壓縮", command=self.ImportAsIntegratedFile)
+
+        Display_style = {
+            "bd": 0,
+            "wrap": "word",
+            "cursor": "arrow",
+            "font": ("Arial", 13),
+            "fg": ImportTextColor, "bg": Displayboxcolor
+        }
+
         # 左側文字框
-        self.LeftText = tk.Text(self.LeftFrame,bg=Displayboxcolor,fg=ImportTextColor)
-        self.LeftText.config(font=("Arial", 13),bd=0)
+        self.LeftText = tk.Text(self.LeftFrame, Display_style)
         self.LeftText.insert("end", "\n\tUPX不支援整合壓縮")
         # 右側文字框
-        self.RightText = tk.Text(self.RightFrame,bg=Displayboxcolor,fg=ImportTextColor)
-        self.RightText.config(font=("Arial", 13),bd=0)
+        self.RightText = tk.Text(self.RightFrame, Display_style)
         self.RightText.insert("end", f"\n\t{Space*7}單檔壓縮主要適用於UPX壓縮\n\n\t{Space*9}UPX是針對EXE和Dll的壓縮\n\n\t{Space*15}壓縮前請自行備份\n\n\t{Space*15}壓縮後低機率損毀")
+
+        Element_style.update({
+            "border": 2,
+            "font": ("Arial", 15, "bold"),
+            "fg": self.Compressbuttonnormal,
+            "bg": self.Compressbuttonbackgroundcolor
+        })
+
         # 底層UPX壓縮按鈕
-        self.UPXCompression = tk.Button(self.UnderlyingFramework, text="UPX壓縮", command=self.UPXCompression)
-        self.UPXCompression.config(font=('Arial', 15, 'bold'), width=10, height=1, fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
+        self.UPXCompression = tk.Button(self.UnderlyingFramework, Element_style, text="UPX 壓縮", command=self.UPXCompression)
         # 底層UPX壓縮還原按鈕
-        self.UPXRestore = tk.Button(self.UnderlyingFramework, text="UPX還原", command=self.UPXRestore)
-        self.UPXRestore.config(font=('Arial', 15, 'bold'), width=10, height=1, fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
+        self.UPXRestore = tk.Button(self.UnderlyingFramework, Element_style, text="UPX 還原", command=self.UPXRestore)
         # 底層PAR壓縮按鈕
-        self.RARCompression = tk.Button(self.UnderlyingFramework, text="RAR壓縮", command=self.RARCopression)
-        self.RARCompression.config(font=('Arial', 15, 'bold'), width=10, height=1, fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
+        self.RARCompression = tk.Button(self.UnderlyingFramework, Element_style, text="RAR 壓縮", command=self.RARCopression)
         # 底層Zip壓縮按鈕
-        self.ZipCompression = tk.Button(self.UnderlyingFramework, text="ZIP壓縮", command=self.ZIPCompression)
-        self.ZipCompression.config(font=("Arial", 15, 'bold'), width=10, height=1, fg=self.Compressbuttonnormal,border=2,relief='groove',bg=self.Compressbuttonbackgroundcolor)
+        self.ZipCompression = tk.Button(self.UnderlyingFramework, Element_style, text="ZIP 壓縮", command=self.ZIPCompression)
 
         self.frame() # 創建框架
         self.Element() # 創建元素
@@ -326,7 +343,7 @@ class GUI(tk.Tk, Compression):
         self.TopFrame.place(width=790, height=80, x=20, y=0)
         self.LeftFrame.place(width=350, height=450, x=20, y=90)
         self.RightFrame.place(width=440, height=450, x=370, y=90)
-        self.MiddleFrame.place(width=20,height=450, x=350, y=90)
+        self.MiddleFrame.place(width=20, height=450, x=350, y=90)
         self.UnderlyingFramework.place(width=790, height=105, x=20, y=550)
 
     def Element(self):
