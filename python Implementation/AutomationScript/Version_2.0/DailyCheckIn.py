@@ -118,12 +118,12 @@ class AutomaticCheckin:
 
         # 關閉彈出窗口,如果有的話
         try:
-            Genshinbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
+            Genshinbutton = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
             Genshinbutton.click()
         except:pass
 
         try: # 某確認框
-            Genshinbutton = WebDriverWait(Genshin,3).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='mihoyo-cookie-tips__button mihoyo-cookie-tips__button--hk4e']")))
+            Genshinbutton = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='mihoyo-cookie-tips__button mihoyo-cookie-tips__button--hk4e']")))
             Genshinbutton.click()
         except:pass
 
@@ -149,11 +149,15 @@ class AutomaticCheckin:
             # 二次確認登入狀態
             if re.match(r"data:image/png;base64,.*", login):
                 try:
-                    Genshinbutton = WebDriverWait(Genshin,5).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='mhy-hoyolab-account-block__avatar-icon']")))
+                    Genshinbutton = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='mhy-hoyolab-account-block__avatar-icon']")))
                     Genshinbutton.click()
 
-                    # 使用Twitter 登入 div[1] = Google ... div[4] == Twitter
-                    Genshinbutton = WebDriverWait(Genshin,5).until(EC.element_to_be_clickable((By.XPATH, "//div[4][@class='account-sea-third-party-login-item']//img[@class='account-sea-login-icon']")))
+                    time.sleep(60) #? 自行登入完成後, 給 60 秒時間
+
+                    #! 自動登入自動化失效 (手動登入)
+                    """
+                    # 使用Twitter 登入 後方 [1: google, 2: apple, 3: facebook, 4: twitter]
+                    Genshinbutton = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='button-container mb-p8']/div[4]")))
                     Genshinbutton.click()
 
                     # 獲取當前開啟的窗口名稱
@@ -169,19 +173,22 @@ class AutomaticCheckin:
                     pas = Acc["Genshin_password"]
 
                     # 輸入帳號
-                    accountbutton = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='text']")))
+                    accountbutton = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='username_or_email']")))
                     accountbutton.click()
                     accountbutton.send_keys(acc)
 
                     # 輸入密碼
-                    passwordbutton = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='password text']")))
+                    passwordbutton = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='password']")))
                     passwordbutton.click()
                     passwordbutton.send_keys(pas)
+                    
+                    # 記住
+                    remember = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='remember']")))
+                    remember.click()
 
                     # 送出
-                    loginbutton = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@class='submit button selected']")))
+                    loginbutton = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='allow']")))
                     loginbutton.click()
-
 
                     input("原神登入完成後 => \n按下 (Enter) 確認 : ")
 
@@ -192,20 +199,20 @@ class AutomaticCheckin:
                         if "【原神】每日簽到" in Genshin.title:
                             break
 
-                    DO.json_cookie(cookies , "Genshin")
-                except:
-                    pass
+                    """
+                    DO.json_cookie(Genshin.get_cookies(), "Genshin")
+                except Exception as e:
+                    print(e)
 
-        # 點選簽到位置 (已經簽到的就會找不到, 因此當沒找到時, 要讓他跳過)     
+        # 點選簽到位置 (已經簽到的就會找不到, 因此當沒找到時, 要讓他跳過)
         try:
-            Genshinbutton = WebDriverWait(Genshin, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content-test_---red-point---2jUBf9']")))
+            Genshinbutton = WebDriverWait(Genshin, 20).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content-test_---red-point---2jUBf9']")))
             for _ in range(3): # 測試
                 Genshinbutton.click()
                 time.sleep(1)
         except:
             pass
 
-        # DO.pkl_cookie(cookies , "Genshin")
         time.sleep(self.offdelay)
         Genshin.quit()
 
@@ -244,7 +251,11 @@ class AutomaticCheckin:
                 loginclick = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='mhy-hoyolab-account-block__avatar-icon']")))
                 loginclick.click()
 
+                time.sleep(80) #? 自行登入完成後, 給 80 秒時間
+
+                #! 自動登入自動化失效 (手動登入)
                 # 使用FaceBook登入 , div[3] 是fb
+                """
                 loginbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//div[3][@class='account-sea-third-party-login-item']//img[@class='account-sea-login-icon']")))
                 loginbutton.click()
 
@@ -288,6 +299,7 @@ class AutomaticCheckin:
                     break
 
                 input("星鐵登入完成後 => \n按下 (Enter) 確認 : ")
+                """
                 DO.json_cookie(StarRail.get_cookies() , "StarRail")
 
         while True:
@@ -321,9 +333,10 @@ if __name__ == "__main__":
     # time.sleep(5)
     # multiprocessing.Process(target=AC.StarRail_Checkin).start()
 
+    #! 操作有些 BUG 等待修正
     with ThreadPoolExecutor(max_workers=100) as executor:
         for func, delay in zip([
             AC.Black_Checkin, AC.Wuyong_Checkin, AC.Zero_Checkin, AC.Genshin_Checkin, AC.StarRail_Checkin
-        ], [paramet.WaitingTime()+10, 5, 5, 5, 5]): # 延遲設置
+        ], [paramet.WaitingTime() + 10, 10, 10, 10, 10]): # 延遲設置
             executor.submit(func)
             time.sleep(delay)
