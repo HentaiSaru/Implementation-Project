@@ -13,7 +13,7 @@ class DataProcessing:
         self.Save = queue.Queue() # 保存轉換後要輸出的數據
         self.Work = queue.Queue() # 保存要進行轉換的工作路徑
         self.Converter = opencc.OpenCC("s2twp.json") # 調用 簡體 轉 繁體
-        self.Allow = {"txt", "srt", "ass", "ssa", "lng", "lang"} # 允許的檔案類型
+        self.Allow = {"po", "txt", "srt", "ass", "ssa", "lng", "lang"} # 允許的檔案類型
 
         # 文本轉換
         self.Text_conversion = lambda text: self.Converter.convert(text.strip())
