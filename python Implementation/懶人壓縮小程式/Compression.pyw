@@ -77,7 +77,7 @@ class Compression:
     # 命令運行
     def CommandRun(self, order, show):
         output = os.popen(order).read()
-        show.insert("end", f"{output}")
+        show.insert("end", f"{output}\n\n")
 
     # 恢復按鈕的 UI
     def Ui_Recovery(self, object):
