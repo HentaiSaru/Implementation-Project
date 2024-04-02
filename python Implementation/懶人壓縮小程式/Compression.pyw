@@ -13,9 +13,9 @@ import os
 
 未來修正
 
+[+] 添加滾動條
+[+] 修正 UI, 真的是醜爆了
 [+] 修改實現邏輯, 以前寫的真的垃圾
-
-[+] 修正 UI , 真的是醜爆了
 
 https://github.com/israel-dryer/ttkbootstrap
 https://github.com/rdbende/Sun-Valley-ttk-theme
@@ -25,7 +25,7 @@ class Compression:
     def __init__(self):
         self.State = None
         self.SeparateList = []
-        self.IntegrationList = None
+        self.IntegrationList = []
 
         self.UpxCC = "upx -9 --best --ultra-brute --force"
         self.UpxRC = "upx -d --force"
@@ -47,12 +47,11 @@ class Compression:
 
             FileSelection = filedialog.askdirectory()
 
-            for dirc, dirs, files in os.walk(FileSelection):
-                for name in files + dirs:
-                    gui.LeftText.insert("end", f"{name}\n")
-                    if dirc == len(files):
-                        gui.LeftText.insert("end")
-            self.IntegrationList = dirc # 這邊是直接取得完整的所有檔案路徑
+            for dirname in os.listdir(FileSelection): # 會包含隱藏目錄
+                Complete = os.path.join(FileSelection, dirname) # 排除非資料夾的檔案
+                if os.path.isdir(Complete):
+                    gui.LeftText.insert("end", f"{dirname}\n")
+                    self.IntegrationList.append(Complete)
         except:pass
 
     # 單獨導入所有文件,將每個文件丟至List
@@ -64,12 +63,12 @@ class Compression:
 
         FileSelection = filedialog.askdirectory() # 開啟資料夾選擇窗口
 
-        for dirc, dirs, files in os.walk(FileSelection): # 路徑,空資料夾,文檔
-            for name in files + dirs:
+        for path, dirname, filename in os.walk(FileSelection): # 路徑,空資料夾,文檔
+            for name in filename + dirname:
                 gui.RightText.insert("end", f"{name}\n\n") # f""是一種格式化字串的方式,這行是在每行的最後插入字串並且換行
-                if dirc == len(files): # 當取的的檔案路徑 == 檔案的長度,也就是最後一個了
+                if path == len(filename): # 當取的的檔案路徑 == 檔案的長度,也就是最後一個了
                     gui.RightText.insert("end") # 就不會輸入任何字串
-                path = os.path.join(dirc, name) # 取得路徑位置+檔名
+                path = os.path.join(path, name) # 取得路徑位置+檔名
                 if os.path.isdir(path) and os.path.getsize(path) == 0:continue # 將空白目錄過濾
                 self.SeparateList.append(path)
 
@@ -177,15 +176,13 @@ class Compression:
             gui.LeftText.delete("1.0", "end")
             self.Ui_Recovery(gui.RARCompression)
 
-            Path = Text.split("\\", 1)[0] # 無論多少層 取得最父層資料夾 [A:/Parent]
+            for text in Text:
+                threading.Thread( # 傳遞壓縮指令, 與顯示對象
+                    target=self.CommandRun,
+                    args=(f'{self.RarCC} "{text}.rar" "{text}"', gui.LeftText)
+                ).start()
 
-            threading.Thread( # 傳遞壓縮指令, 與顯示對象
-                target=self.CommandRun,
-                args=(f'{self.RarCC} "{Path}.rar" "{Path}"', gui.LeftText)
-            ).start()
-
-            time.sleep(0.5)
-            messagebox.showinfo("開始壓縮", f"請稍後...\n檔案將保存於 : {Path}") # 輸出開始壓縮,並將檔案壓縮位置輸出
+            messagebox.showinfo("開始壓縮", f"請稍後...\n檔案將保存於 : {Text[0].split("\\", 1)[0]}") # 輸出開始壓縮,並將檔案壓縮位置輸出
         except:pass
 
     # RAR個別壓縮運行
@@ -193,15 +190,15 @@ class Compression:
         try:
             gui.RightText.delete("1.0", "end")
             self.Ui_Recovery(gui.RARCompression)
-            for text in Text: # 因為是個別所以是迴圈, 一個一個輸入
-                Path = f"{text.split(':/')[0]}:/{text.rsplit("\\", 1)[1]}"
+            for text in Text:
+                Path = f"{text.split(':/')[0]}:/{text.rsplit("\\", 1)[1]}" # 取得最上層路徑 + 個別壓縮檔名, 合併後的字串
 
                 threading.Thread(
                     target=self.CommandRun,
                     args=(f'{self.RarCC} "{Path}.rar" "{text}"', gui.RightText)
                 ).start()
 
-            messagebox.showinfo("壓縮完成", f"\n檔案將保存於 : {Text[0].split("\\", 1)[0]}")
+            messagebox.showinfo("壓縮完成", f"\n檔案將保存於 : {Text[0].split("\\", 1)[0]}") # 取得最上層路徑
         except:pass
 
     """---------- ZIP壓縮運行 ----------"""
@@ -225,17 +222,15 @@ class Compression:
             gui.LeftText.delete("1.0", "end")
             self.Ui_Recovery(gui.ZipCompression)
 
-            Path = Text.split("\\", 1)[0]
+            for text in Text:
+                threading.Thread(
+                    target=self.CommandRun,
+                    args=(f'7z a "{text}.7z" "{text}" {self.ZipCC}', gui.LeftText)
+                ).start()
 
-            threading.Thread(
-                target=self.CommandRun,
-                args=(f'7z a "{Path}.7z" "{Path}" {self.ZipCC}', gui.LeftText)
-            ).start()
-
-            time.sleep(0.5)
-            messagebox.showinfo("開始壓縮",f"請稍後...\n檔案將保存於 : {Path}")
+            messagebox.showinfo("開始壓縮",f"請稍後...\n檔案將保存於 : {Text[0].split("\\", 1)[0]}")
         except:pass
-        
+
     # ZIP個別壓縮
     def ZIPRespective(self, Text):
         try:
@@ -314,7 +309,7 @@ class GUI(tk.Tk, Compression):
 
         # 左側文字框
         self.LeftText = tk.Text(self.LeftFrame, Display_style)
-        self.LeftText.insert("end", "\n\tUPX不支援整合壓縮")
+        self.LeftText.insert("end", f"\n\tUPX不支援整合壓縮\n\n{Space*8}不要同時進行過多的RAR壓縮\n\n{Space*12}該程式沒有對線程數限制\n\n\t過多可能造成嚴重卡頓")
         # 右側文字框
         self.RightText = tk.Text(self.RightFrame, Display_style)
         self.RightText.insert("end", f"\n\t{Space*7}單檔壓縮主要適用於UPX壓縮\n\n\t{Space*9}UPX是針對EXE和Dll的壓縮\n\n\t{Space*15}壓縮前請自行備份\n\n\t{Space*15}壓縮後低機率損毀")
