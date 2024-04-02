@@ -1,4 +1,5 @@
 from tkinter import filedialog , messagebox , ttk
+from multiprocessing import cpu_count
 import tkinter as tk
 import threading
 import win32api
@@ -42,9 +43,9 @@ class Compression:
         self.UpxCC = "upx -9 --best --ultra-brute --force"
         self.UpxRC = "upx -d --force"
 
-        self.RarCC = "rar a -ri15:0.00001 -m5 -mt24 -md1g"
-        self.ZipCC = "-t7z -m0=lzma2 -mx=9 -mfb=128 -md=2048m -ms=1g -mmt=32 -mqs=on"
-        
+        self.RarCC = f"rar a -ri15:0.00001 -m5 -mt{cpu_count()-1} -md1g"
+        self.ZipCC = f"-t7z -m0=lzma2 -mx=9 -mfb=128 -md=2048m -ms=1g -mmt={cpu_count()} -mqs=on"
+
         self.UpxError = f"\n\n\n\n\tUPX不支援整合壓縮"
         self.UpxSupport = {"exe","dll","ocx","bpl","cpl","sys","ax","acm","drv","tlb"}
 
@@ -84,14 +85,12 @@ class Compression:
 
         FileSelection = filedialog.askdirectory() # 開啟資料夾選擇窗口
 
-        for path, dirname, filename in os.walk(FileSelection): # 路徑,空資料夾,文檔
+        for path, dirname, filename in os.walk(FileSelection): # 路徑, 空資料夾, 文檔
             for name in filename + dirname:
                 gui.RightText.insert("end", f"{name}\n\n") # f""是一種格式化字串的方式,這行是在每行的最後插入字串並且換行
-                if path == len(filename): # 當取的的檔案路徑 == 檔案的長度,也就是最後一個了
-                    gui.RightText.insert("end") # 就不會輸入任何字串
-                path = os.path.join(path, name) # 取得路徑位置+檔名
-                if os.path.isdir(path) and os.path.getsize(path) == 0:continue # 將空白目錄過濾
-                self.SeparateList.append(path)
+                Complete = os.path.join(path, name) # 取得路徑位置 + 檔名
+                if os.path.isdir(Complete) and os.path.getsize(Complete) == 0:continue # 將空白目錄過濾
+                self.SeparateList.append(Complete)
 
     """---------- 命令與操作 ----------"""
 
