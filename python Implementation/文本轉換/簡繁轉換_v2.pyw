@@ -24,6 +24,9 @@ class DataProcessing:
 
         # 計算完成結束時間
         self.ET = lambda start_time: round(time.time() - start_time, 3)
+        
+        # 比較字串是否相等
+        self.Comp = lambda T1, T2: T1 == T2
 
     # 過濾文件類型
     def Filter_type(self, path, data):
@@ -223,16 +226,17 @@ class GUI(DataProcessing, tk.Tk):
             self.Output_Rename = os.path.join(Directory, self.Text_conversion(FileName))
 
         try:
-            decode_text = ""
+            encode = None
+            decode_text = None
             with open(work, "rb") as file: # 以二進制讀取
                 text = file.read() # 獲取文本
                 encode = chardet.detect(text)["encoding"].lower() # 解析編碼類型
                 with ThreadPoolExecutor(max_workers=100) as executor:
-                    if encode.startswith("utf-8") or encode.startswith("ascii"):
+                    if self.Comp(encode, "utf-8") or self.Comp(encode, "ascii"):
                         decode_text = text.decode("utf-8").splitlines() # 轉換成字串, 並將其序列化
-                    elif encode.startswith("utf-16"):
+                    elif self.Comp(encode, "utf-16"): # 假設都是 LE 類型的, 無特別處理 BE
                         decode_text = text.decode("utf-16").splitlines()
-                    elif encode.startswith("big5"):
+                    elif self.Comp(encode, "big5"):
                         decode_text = text.decode(encode).encode("utf-8").decode("utf-8").splitlines()
                     else:
                         raise UnicodeDecodeError(encode, b"", 0, 1, "不支援的編碼")
@@ -242,9 +246,9 @@ class GUI(DataProcessing, tk.Tk):
                         self.Save.put(executor.submit(self.Text_conversion, txt).result())
 
             # 輸出
-            with open(self.Output_Name, "w", encoding="utf-8") as output:
+            with open(self.Output_Name, "w", encoding=encode) as output:
                 while not self.Save.empty():
-                    output.write(self.Save.get() + "\n")
+                    output.write(self.Save.get() + ("\n" if not self.Save.empty() else ""))
 
             # 完成展示
             self.Content_items.insert(float(index), f"({index}) {os.path.basename(work)} => [Success | {self.ET(Start)}]\n", self.Success)
