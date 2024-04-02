@@ -1,17 +1,20 @@
 from tkinter import filedialog , messagebox , ttk
 import tkinter as tk
 import threading
+import win32api
 import time
 import os
 
 """ Versions 1.0.2 (測試版)
+
+適用於 Windows 系統
 
 [+] UPX壓縮
 [+] UPX還原
 [+] RAR壓縮
 [+] ZIP壓縮
 
-未來修正
+未來修正 =>
 
 [+] 添加滾動條
 [+] 修正 UI, 真的是醜爆了
@@ -27,6 +30,15 @@ class Compression:
         self.SeparateList = []
         self.IntegrationList = []
 
+        # 是否是隱藏文件 (只適用於 windows)
+        self.Is_hidden = lambda path: win32api.GetFileAttributes(path) & 2 != 0
+
+        # 清理顯示狀態
+        self.Clear_display = lambda: (
+            gui.RightText.delete("1.0", "end"), gui.LeftText.delete("1.0", "end")
+        )
+
+        # 以下為壓縮相關參數
         self.UpxCC = "upx -9 --best --ultra-brute --force"
         self.UpxRC = "upx -d --force"
 
@@ -38,28 +50,37 @@ class Compression:
 
     """---------- 檔案導入 ----------"""
 
+    # 是否是最上層 (資料夾, 只有磁碟機號不算)
+    def Is_topmost(self, path):
+        path = path.split(":\\")[1]
+        return False if path == "" else path.find("\\") == -1
+
     # 導入所有文件作為集成壓縮
     def ImportAsIntegratedFile(self):
         try:
             self.State = False
-            gui.RightText.delete("1.0", "end")
-            gui.LeftText.delete("1.0", "end")
+            self.IntegrationList.clear()
+            self.Clear_display()
 
             FileSelection = filedialog.askdirectory()
 
-            for dirname in os.listdir(FileSelection): # 會包含隱藏目錄
-                Complete = os.path.join(FileSelection, dirname) # 排除非資料夾的檔案
-                if os.path.isdir(Complete):
-                    gui.LeftText.insert("end", f"{dirname}\n")
-                    self.IntegrationList.append(Complete)
+            # 當只有最上層 路徑 + 資料夾
+            if self.Is_topmost(os.path.abspath(FileSelection)):
+                gui.LeftText.insert("end", f"{os.path.basename(FileSelection)}")
+                self.IntegrationList.append(FileSelection)
+            else: # 只有路徑號 或 大於兩層資料夾觸發
+                for dirname in os.listdir(FileSelection):
+                    Complete = os.path.join(FileSelection, dirname) # 組成完整目錄
+                    if os.path.isdir(Complete) and not self.Is_hidden(Complete): # 排除非目錄 和 隱藏資料夾
+                        gui.LeftText.insert("end", f"{dirname}\n")
+                        self.IntegrationList.append(Complete)
         except:pass
 
     # 單獨導入所有文件,將每個文件丟至List
     def ImportAsSeparateFiles(self):
         self.State = True
         self.SeparateList.clear()
-        gui.RightText.delete("1.0", "end") # 開啟時將兩邊GUI文本的內容清空 第一行第0個~最後一個
-        gui.LeftText.delete("1.0", "end")
+        self.Clear_display()
 
         FileSelection = filedialog.askdirectory() # 開啟資料夾選擇窗口
 
@@ -115,7 +136,7 @@ class Compression:
     def UPXRun(self, Text, Work):
         Finally = []
         if len(Text) != 0: # 非必要判斷
-            gui.RightText.delete("1.0", "end")
+            self.Clear_display()
             
             for text in Text: 
                 FileExtension = text.split(".") # 將檔案副檔名與前面切片
@@ -149,7 +170,7 @@ class Compression:
     
     # UPX 點擊後錯誤的觸發
     def UPX_Error_Trigger(self, object):
-        gui.LeftText.delete("1.0", "end")
+        self.Clear_display()
         gui.LeftText.insert("end", f"{self.UpxError}")
         messagebox.showerror("設置錯誤", "未檢測到文件")
         object.config(fg=gui.Compressbuttonnormal, bg=gui.Compressbuttonbackgroundcolor)
@@ -163,7 +184,8 @@ class Compression:
             if len(self.SeparateList) > 0 or len(self.IntegrationList) > 0:
                 if self.State: # 判斷是單獨壓縮還是集成壓縮
                     self.RARRespective(self.SeparateList) # True是單獨,呼叫單獨壓縮方式,傳遞單獨壓縮的列表
-                else:self.RARFusion(self.IntegrationList) # 反之集成壓縮,給予完整所有路徑
+                else:
+                    self.RARFusion(self.IntegrationList) # 反之集成壓縮,給予完整所有路徑
             else:
                 raise Exception()
         except:
@@ -173,7 +195,7 @@ class Compression:
     # RAR集成壓縮運行
     def RARFusion(self, Text):
         try:
-            gui.LeftText.delete("1.0", "end")
+            self.Clear_display()
             self.Ui_Recovery(gui.RARCompression)
 
             for text in Text:
@@ -188,7 +210,7 @@ class Compression:
     # RAR個別壓縮運行
     def RARRespective(self, Text):
         try:
-            gui.RightText.delete("1.0", "end")
+            self.Clear_display()
             self.Ui_Recovery(gui.RARCompression)
             for text in Text:
                 Path = f"{text.split(':/')[0]}:/{text.rsplit("\\", 1)[1]}" # 取得最上層路徑 + 個別壓縮檔名, 合併後的字串
@@ -219,7 +241,7 @@ class Compression:
     # ZIP集成壓縮
     def ZIPFusion(self, Text):
         try:
-            gui.LeftText.delete("1.0", "end")
+            self.Clear_display()
             self.Ui_Recovery(gui.ZipCompression)
 
             for text in Text:
@@ -234,7 +256,7 @@ class Compression:
     # ZIP個別壓縮
     def ZIPRespective(self, Text):
         try:
-            gui.RightText.delete("1.0", "end")
+            self.Clear_display()
             self.Ui_Recovery(gui.ZipCompression)
             for text in Text:
                 Path = f"{text.split(':/')[0]}:/{text.rsplit("\\", 1)[1]}"
@@ -254,7 +276,6 @@ class GUI(tk.Tk, Compression):
 
         """ 窗口初始設置 """
         Icon = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Compression.ico")
-
         self.title("懶人壓縮器 - v1.0.2-Beta")
         self.iconbitmap(Icon)
         self.resizable(False, False)
