@@ -10,8 +10,12 @@ import os
 
 class DataProcessing:
     def __init__(self):
+        self.Output_Name = None # 保存輸出名
+        self.Output_Rename = None # 保存更改後名
         self.Save = queue.Queue() # 保存轉換後要輸出的數據
         self.Work = queue.Queue() # 保存要進行轉換的工作路徑
+        self.lock = threading.Lock()
+
         self.Converter = opencc.OpenCC("s2twp.json") # 調用 簡體 轉 繁體
         self.Allow = {"po", "txt", "srt", "ass", "ssa", "lng", "lang"} # 允許的檔案類型
 
@@ -54,59 +58,47 @@ class GUI(tk.Tk, DataProcessing):
         self.buttonbackground = "#E8A0BF"
         self.configure(background="#BA90C6") # 介面背景色
 
-        self.Success = "Success"
-        self.Failure = "Failure"
-
-        self.Content_items = None
-        self.Content_frame = None
-
-        self.Scrollbar = None
-        self.Scrollbar_frame = None
-
-        self.File_button = None
-        self.Document_button = None
-
-        self.Output_Name = None
-        self.Output_Rename = None
-        self.Create_button = None
-        self.Override_button = None
-
-        self.lock = threading.Lock()
-
-    # 初始選擇 UI
-    def Initial_UI(self):
-        self.File_button = tk.Button(
-            self, text="選擇文件", font=("Arial Bold", 22),
-            height=1, width=12, border=2, relief="groove",
-            fg=self.buttontext, bg=self.buttonbackground, command=self.Select_File
-        )
-
-        self.Document_button = tk.Button(
-            self, text="選擇文檔", font=("Arial Bold", 22),
-            height=1, width=12, border=2, relief="groove",
-            fg=self.buttontext, bg=self.buttonbackground, command=self.Select_Document
-        )
-
-        # 選擇文件按鈕
-        self.File_button.place(x=27, y=15)
-        # 選擇文檔按鈕
-        self.Document_button.place(x=27, y=85)
-
-        # 宣告框架
+        # 內容顯示框架
         self.Content_frame = tk.Frame(self, width=1060, height=605)
         self.Content_frame.pack_propagate(False) # 禁止大小變動
+        # 滾動條框加
         self.Scrollbar_frame = tk.Frame(self, width=20, height=605, bg=self.buttontext)
-
-        # 宣告 (文字框 / 滾動條)
         self.Scrollbar = tk.Scrollbar(self.Scrollbar_frame, width=20, cursor="hand2", relief="raised")
+
+        # (文字框 / 滾動條)
         self.Content_items = tk.Text(
             self.Content_frame, font=("KaiTi", 24), fg=self.buttontext, bg=self.buttonbackground, yscrollcommand=self.Scrollbar.set
         )
-        # 設置標籤
+
+        # 設置標籤 (顯示顏色)
+        self.Success = "Success"
+        self.Failure = "Failure"
         self.Content_items.tag_configure(self.Success, foreground=self.success)
         self.Content_items.tag_configure(self.Failure, foreground=self.failure)
-        # 設置可通過滾動條拉動文字框
+
+        # 設置通過滾動條拉動文字框
         self.Scrollbar.config(command=self.Content_items.yview)
+        
+        Button_style = {
+            "height": 1, "width": 12, "border": 2,
+            "cursor": "hand2", "font": ("Arial Bold", 22),
+            "relief": "groove", "fg": self.buttontext, "bg": self.buttonbackground
+        }
+
+        self.File_button = tk.Button(self, Button_style, text="選擇文件", command=self.Select_File)
+        self.Document_button = tk.Button(self, Button_style, text="選擇文檔", command=self.Select_Document)
+
+        Button_style.update({ "width": 10, "font": ("Arial Bold", 20) }) # 更新樣式
+
+        self.Create_button = tk.Button(self, Button_style, text="新建輸出", command=lambda: self.Conversion_Trigger("create"))
+        self.Override_button = tk.Button(self, Button_style, text="覆蓋輸出", command=lambda: self.Conversion_Trigger("override"))
+        self.Reset = tk.Button(self, Button_style, text="重置選擇", command=self.UI_Reset)
+
+    # 運行創建
+    def __call__(self):
+        self.File_button.place(x=27, y=15) # 選擇文件
+        self.Document_button.place(x=27, y=85) # 選擇文檔
+        self.mainloop()
 
     # 開啟資料夾    
     def Select_File(self):
@@ -162,7 +154,7 @@ class GUI(tk.Tk, DataProcessing):
         # 讀取工作
         while not self.Work.empty():
             work = self.Work.get()
-            self.Content_items.insert(tk.END, f"{work}\n")
+            self.Content_items.insert(tk.END, f"{work}\n") # 插入文本
 
         self.Display_Data()
 
@@ -173,7 +165,7 @@ class GUI(tk.Tk, DataProcessing):
         Win_Height = self.Win_Height * 4
         self.geometry(f"{Win_Width}x{Win_Height}+{int((self.Win_Cur_Width() - Win_Width) / 2)}+{int((self.Win_Cur_Height() - Win_Height ) / 2)}")
 
-        # 刪除選擇檔案按鈕
+        # 刪除選擇按鈕
         self.File_button.destroy()
         self.Document_button.destroy()
 
@@ -190,17 +182,9 @@ class GUI(tk.Tk, DataProcessing):
         # 顯示文本
         self.Content_items.pack(fill=tk.BOTH, expand=True)
 
-        self.Create_button = tk.Button(
-            self, text="新建輸出", font=("Arial Bold", 20),
-            height=1, width=10, border=2, relief="groove",
-            fg=self.buttontext, bg=self.buttonbackground, command=lambda: self.Conversion_Trigger("create")
-        )
-        self.Override_button = tk.Button(
-            self, text="覆蓋輸出", font=("Arial Bold", 20),
-            height=1, width=10, border=2, relief="groove",
-            fg=self.buttontext, bg=self.buttonbackground, command=lambda: self.Conversion_Trigger("override")
-        )
+        # 新建輸出按鈕
         self.Create_button.place(x=720, y=645)
+        # 覆蓋輸出按鈕
         self.Override_button.place(x=920, y=645)
 
     # 觸發轉換
@@ -284,18 +268,9 @@ class GUI(tk.Tk, DataProcessing):
 
         while True:
             if threading.active_count() <= 2:
-                Reset = tk.Button(
-                    self, text="重置選擇", font=("Arial Bold", 20),
-                    height=1, width=10, border=2, relief="groove",
-                    fg=self.buttontext, bg=self.buttonbackground, command=self.UI_Reset
-                )
-                Reset.place(x=920, y=645)
+                self.Reset.place(x=920, y=645)
                 break
             time.sleep(0.1)
-
-    def __call__(self):
-        self.Initial_UI()
-        self.mainloop()
 
     # 重置選擇
     def UI_Reset(self):
