@@ -30,19 +30,18 @@ class DataProcessing:
         if data.rsplit(".", 1)[-1] in self.Allow:
             self.Work.put(os.path.join(path, data).replace("\\", "/"))
 
-class GUI(tk.Tk, DataProcessing):
+class GUI(DataProcessing, tk.Tk):
     def __init__(self):
-        tk.Tk.__init__(self)
         DataProcessing.__init__(self)
-        
-        self.title("簡轉繁 文字轉換器")
+        tk.Tk.__init__(self, className="文本簡繁轉換器 V2")
+
         Icon = os.path.join(os.getcwd(), "ChineseConversion.ico")
         self.iconbitmap(Icon)
-        self.resizable(False, False)
+        self.resizable(0, 0)
         
         # 窗口大小
         self.Win_Width = 280
-        self.Win_Height = 180
+        self.Win_Height = 165
         # 使用者的螢幕寬高
         self.Win_Cur_Width = lambda: self.winfo_screenwidth()
         self.Win_Cur_Height = lambda: self.winfo_screenheight()
@@ -162,7 +161,7 @@ class GUI(tk.Tk, DataProcessing):
     def Display_Data(self):
         # 變更窗口大小
         Win_Width = self.Win_Width * 4
-        Win_Height = self.Win_Height * 4
+        Win_Height = (self.Win_Height + 15) * 4
         self.geometry(f"{Win_Width}x{Win_Height}+{int((self.Win_Cur_Width() - Win_Width) / 2)}+{int((self.Win_Cur_Height() - Win_Height ) / 2)}")
 
         # 刪除選擇按鈕
@@ -278,9 +277,7 @@ class GUI(tk.Tk, DataProcessing):
         # [widget.destroy() for widget in self.winfo_children()]
 
         self.destroy() # 清除所有物件
-        gui = GUI() # 重新實例化
-        gui()
+        GUI().__call__() # 重新實例化
 
 if __name__ == "__main__":
-    gui = GUI()
-    gui()
+    GUI().__call__()
