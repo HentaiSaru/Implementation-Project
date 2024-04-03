@@ -1,12 +1,51 @@
-from concurrent.futures import *
-from tkinter import filedialog
+from concurrent.futures import ThreadPoolExecutor
+from tkinter import filedialog, messagebox
 import tkinter as tk
 import threading
+import pyperclip
 import chardet
 import opencc
 import queue
 import time
 import os
+
+""" Versions 1.0.0 - V2
+
+    Todo - 簡轉繁 轉換器
+    
+        ? (開發/運行環境):
+        * Windows 11 23H2
+        * Python 3.12.2 64-bit
+
+        * 第三方庫:
+        * opencc
+        * chardet
+        * pyperclip
+
+        ? 功能說明:
+        * 文本輸入
+        * 文件輸入
+        * 文檔輸入
+        * 結果顯示
+        * 多線程轉換
+        
+        ? 使用說明:
+        * 文本輸入:
+        * 將需轉換文字貼上至, 文本輸入框 (用快捷 Ctrl + v) 貼上才會觸發轉換
+        * 一貼上後就會立即轉換結果, 並將結果顯示於文本框中, 同時會自動添加結果到剪貼簿當中
+        * 也就是代表可立即貼上到所需地方, 不用再次手動複製轉換結果
+        
+        * 選擇文件:
+        * 選擇一個資料夾, 會根據 Allow 參數中, 允許的類型將導入結果, 顯示在文本框中
+        * 接著就可以選擇, 要使用覆蓋原檔案輸出, 還是創建新檔案輸出, 新檔案會創建在導入的目錄中
+        * 轉換時會顯示轉換結果, 告知轉換成功狀態, 與轉換消耗時間, 失敗通常會顯示原因
+        
+        * 選擇檔案:
+        * 功能基本同上, 只是變成選擇單個檔案, 但也會受到 Allow 的允許類型影響
+
+        ? 更新說明:
+        * 無
+"""
 
 class DataProcessing:
     def __init__(self):
@@ -92,7 +131,7 @@ class GUI(DataProcessing, tk.Tk):
 
         self.Text_button = tk.Button(self, Button_style, text="文本輸入", command=lambda: self.Display_Data(True))
         self.File_button = tk.Button(self, Button_style, text="選擇文件", command=self.Select_File)
-        self.Document_button = tk.Button(self, Button_style, text="選擇文檔", command=self.Select_Document)
+        self.Document_button = tk.Button(self, Button_style, text="選擇檔案", command=self.Select_Document)
         self.Input_Button_box = [self.Text_button, self.File_button, self.Document_button]
 
         Button_style.update({ "width": 10, "font": ("Arial Bold", 20) }) # 更新樣式
@@ -112,7 +151,7 @@ class GUI(DataProcessing, tk.Tk):
     def Select_File(self):
         try:
             self.File_button.config(fg=self.buttontrigger, bg=self.buttonbackground)
-            data = filedialog.askdirectory()
+            data = filedialog.askdirectory(title="選擇資料夾")
 
             if not data:raise FileNotFoundError
 
@@ -132,7 +171,7 @@ class GUI(DataProcessing, tk.Tk):
     def Select_Document(self):
         try:
             self.Document_button.config(fg=self.buttontrigger, bg=self.buttonbackground)
-            data = filedialog.askopenfilename()
+            data = filedialog.askopenfilename(title="選擇單獨檔案")
 
             if not data:raise FileNotFoundError
 
@@ -145,6 +184,12 @@ class GUI(DataProcessing, tk.Tk):
             pass
         except Exception as e:
             print(f"Exception: {e}")
+
+    # 取得文本框數據
+    def GetText(self, DEL: bool=True, END: str="end-1c"):
+        Text = self.Content_items.get("1.0", END).splitlines()
+        self.Content_items.delete("1.0", "end") if DEL else None
+        return Text if Text[0] != "" else False
 
     # 數據解析
     def Data_Analysis(self, data, button):
@@ -164,7 +209,11 @@ class GUI(DataProcessing, tk.Tk):
             work = self.Work.get()
             self.Content_items.insert(tk.END, f"{work}\n") # 插入文本
 
-        self.Display_Data(False)
+        # 判斷讀取的狀態 (只取一個小範圍)
+        if self.GetText(False, "2.0"):
+            self.Display_Data(False)
+        else:
+            messagebox.showerror("格式錯誤", "無可轉換的檔案格式")
 
     # 顯示數據
     def Display_Data(self, direct):
@@ -189,13 +238,16 @@ class GUI(DataProcessing, tk.Tk):
         self.Content_items.pack(fill=tk.BOTH, expand=True)
 
         if direct:
-            def trigger(event):
-                TexT = self.Content_items.get("1.0", "end-1c").splitlines()
-                self.Content_items.delete("1.0", "end")
+            def trigger(event): # 觸發後先讀取文本
+                TexT = self.GetText()
                 with ThreadPoolExecutor(max_workers=300) as executor:
+                    scrapbook = ""
                     length = len(TexT) - 1 # 取得結尾得長度
-                    for index, text in enumerate(TexT):
-                        self.Content_items.insert("end", executor.submit(self.Text_conversion, text).result() + ("" if index == length else "\n"))
+                    for index, text in enumerate(TexT): # 使用線程池 以多線程進行轉換
+                        change = executor.submit(self.Text_conversion, text).result() + ("" if index == length else "\n")
+                        scrapbook += change # 結果合併成一個字串
+                        self.Content_items.insert("end", change) # 結果插入文本框
+                    pyperclip.copy(scrapbook) # 將結果添加到使用者 剪貼簿
 
             self.Content_items.config(font=("Courier", 12))
             self.Reset.place(x=920, y=645)
@@ -214,12 +266,10 @@ class GUI(DataProcessing, tk.Tk):
         # 重新啟用寫入
         self.Content_items.config(state="normal")
         # 獲取文本數據
-        data = self.Content_items.get("1.0", "end-1c").splitlines()
-        # 刪除文本數據
-        self.Content_items.delete("1.0", "end")
+        TexT = self.GetText()
 
         # 為了可以轉換後立即更新UI, 採取此方式, 但運行過多項目會卡
-        for index, work in enumerate(data, start=1):
+        for index, work in enumerate(TexT, start=1):
             if work != "":
                 threading.Thread(target=self.Conversion_output, args=(index, work, OutType)).start()
 
@@ -251,7 +301,7 @@ class GUI(DataProcessing, tk.Tk):
             with open(work, "rb") as file: # 以二進制讀取
                 text = file.read() # 獲取文本
                 encode = chardet.detect(text)["encoding"].lower() # 解析編碼類型
-                with ThreadPoolExecutor(max_workers=100) as executor:
+                with ThreadPoolExecutor(max_workers=300) as executor:
                     if self.Comp(encode, "utf-8") or self.Comp(encode, "ascii"):
                         decode_text = text.decode("utf-8").splitlines() # 轉換成字串, 並將其序列化
                     elif self.Comp(encode, "utf-16"): # 假設都是 LE 類型的, 無特別處理 BE
