@@ -24,7 +24,7 @@ class DataProcessing:
 
         # 計算完成結束時間
         self.ET = lambda start_time: round(time.time() - start_time, 3)
-        
+
         # 比較字串是否相等
         self.Comp = lambda T1, T2: T1 == T2
 
@@ -44,7 +44,7 @@ class GUI(DataProcessing, tk.Tk):
         
         # 窗口大小
         self.Win_Width = 280
-        self.Win_Height = 165
+        self.Win_Height = 235
         # 使用者的螢幕寬高
         self.Win_Cur_Width = lambda: self.winfo_screenwidth()
         self.Win_Cur_Height = lambda: self.winfo_screenheight()
@@ -63,13 +63,16 @@ class GUI(DataProcessing, tk.Tk):
         # 內容顯示框架
         self.Content_frame = tk.Frame(self, width=1060, height=605)
         self.Content_frame.pack_propagate(False) # 禁止大小變動
+
         # 滾動條框加
+        Scrollbar_style = {"cursor": "hand2", "relief": "raised"}
         self.Scrollbar_frame = tk.Frame(self, width=20, height=605, bg=self.buttontext)
-        self.Scrollbar = tk.Scrollbar(self.Scrollbar_frame, width=20, cursor="hand2", relief="raised")
+        self.ScrollbarY = tk.Scrollbar(self.Scrollbar_frame, Scrollbar_style, width=20)
 
         # (文字框 / 滾動條)
         self.Content_items = tk.Text(
-            self.Content_frame, font=("KaiTi", 24), fg=self.buttontext, bg=self.buttonbackground, yscrollcommand=self.Scrollbar.set
+            self.Content_frame, font=("KaiTi", 24), fg=self.buttontext, bg=self.buttonbackground,
+            yscrollcommand=self.ScrollbarY.set
         )
 
         # 設置標籤 (顯示顏色)
@@ -79,27 +82,30 @@ class GUI(DataProcessing, tk.Tk):
         self.Content_items.tag_configure(self.Failure, foreground=self.failure)
 
         # 設置通過滾動條拉動文字框
-        self.Scrollbar.config(command=self.Content_items.yview)
-        
+        self.ScrollbarY.config(command=self.Content_items.yview)
+
         Button_style = {
             "height": 1, "width": 12, "border": 2,
             "cursor": "hand2", "font": ("Arial Bold", 22),
             "relief": "groove", "fg": self.buttontext, "bg": self.buttonbackground
         }
 
+        self.Text_button = tk.Button(self, Button_style, text="文本輸入", command=lambda: self.Display_Data(True))
         self.File_button = tk.Button(self, Button_style, text="選擇文件", command=self.Select_File)
         self.Document_button = tk.Button(self, Button_style, text="選擇文檔", command=self.Select_Document)
+        self.Input_Button_box = [self.Text_button, self.File_button, self.Document_button]
 
         Button_style.update({ "width": 10, "font": ("Arial Bold", 20) }) # 更新樣式
-
         self.Create_button = tk.Button(self, Button_style, text="新建輸出", command=lambda: self.Conversion_Trigger("create"))
         self.Override_button = tk.Button(self, Button_style, text="覆蓋輸出", command=lambda: self.Conversion_Trigger("override"))
+        self.Output_Button_box = [self.Create_button, self.Override_button]
         self.Reset = tk.Button(self, Button_style, text="重置選擇", command=self.UI_Reset)
 
     # 運行創建
     def __call__(self):
-        self.File_button.place(x=27, y=15) # 選擇文件
-        self.Document_button.place(x=27, y=85) # 選擇文檔
+        self.Text_button.place(x=27, y=15) # 文字輸入
+        self.File_button.place(x=27, y=85) # 選擇文件
+        self.Document_button.place(x=27, y=155) # 選擇文檔
         self.mainloop()
 
     # 開啟資料夾    
@@ -158,54 +164,68 @@ class GUI(DataProcessing, tk.Tk):
             work = self.Work.get()
             self.Content_items.insert(tk.END, f"{work}\n") # 插入文本
 
-        self.Display_Data()
+        self.Display_Data(False)
 
     # 顯示數據
-    def Display_Data(self):
+    def Display_Data(self, direct):
         # 變更窗口大小
         Win_Width = self.Win_Width * 4
-        Win_Height = (self.Win_Height + 15) * 4
+        Win_Height = (self.Win_Height - 55) * 4
         self.geometry(f"{Win_Width}x{Win_Height}+{int((self.Win_Cur_Width() - Win_Width) / 2)}+{int((self.Win_Cur_Height() - Win_Height ) / 2)}")
 
         # 刪除選擇按鈕
-        self.File_button.destroy()
-        self.Document_button.destroy()
+        for button in self.Input_Button_box:
+            button.destroy()
 
         # 顯示框架
         self.Content_frame.place(x=20, y=20)
         self.Scrollbar_frame.place(x=1080, y=20)
 
         # 顯示滾動條
-        self.Scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.Scrollbar.place(relheight=1.0, relwidth=1.0)
+        self.ScrollbarY.pack(side=tk.RIGHT, fill=tk.Y)
+        self.ScrollbarY.place(relheight=1.0, relwidth=1.0)
 
-        # 唯讀禁止修改
-        self.Content_items.config(state="disabled")
         # 顯示文本
         self.Content_items.pack(fill=tk.BOTH, expand=True)
 
-        # 新建輸出按鈕
-        self.Create_button.place(x=720, y=645)
-        # 覆蓋輸出按鈕
-        self.Override_button.place(x=920, y=645)
+        if direct:
+            def trigger(event):
+                TexT = self.Content_items.get("1.0", "end-1c").splitlines()
+                self.Content_items.delete("1.0", "end")
+                with ThreadPoolExecutor(max_workers=300) as executor:
+                    length = len(TexT) - 1 # 取得結尾得長度
+                    for index, text in enumerate(TexT):
+                        self.Content_items.insert("end", executor.submit(self.Text_conversion, text).result() + ("" if index == length else "\n"))
+
+            self.Content_items.config(font=("Courier", 12))
+            self.Reset.place(x=920, y=645)
+
+            self.bind("<Control-v>", trigger) # 貼上觸發
+        else:
+            # 唯讀禁止修改
+            self.Content_items.config(state="disabled")
+            # 新建輸出按鈕
+            self.Create_button.place(x=720, y=645)
+            # 覆蓋輸出按鈕
+            self.Override_button.place(x=920, y=645)
 
     # 觸發轉換
     def Conversion_Trigger(self, OutType):
         # 重新啟用寫入
         self.Content_items.config(state="normal")
         # 獲取文本數據
-        data = self.Content_items.get("1.0", tk.END).splitlines()
+        data = self.Content_items.get("1.0", "end-1c").splitlines()
         # 刪除文本數據
-        self.Content_items.delete("1.0", tk.END)
+        self.Content_items.delete("1.0", "end")
 
         # 為了可以轉換後立即更新UI, 採取此方式, 但運行過多項目會卡
         for index, work in enumerate(data, start=1):
             if work != "":
                 threading.Thread(target=self.Conversion_output, args=(index, work, OutType)).start()
 
-        # 消除按鈕
-        self.Create_button.destroy()
-        self.Override_button.destroy()
+        # 刪除輸出按鈕
+        for button in self.Output_Button_box:
+            button.destroy()
         # 等待所有線程完成
         threading.Thread(target=self.Thread_Wait).start()
 
