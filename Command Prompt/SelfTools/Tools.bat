@@ -1,5 +1,5 @@
 :: - Versions 1.0.10 -
-:: - LastEditTime 2024/3/29 23:51 -
+:: - LastEditTime 2024/4/11 21:31 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -418,7 +418,7 @@ ECHO.
 ECHO Visual C++ 下載中...
 ECHO.
 
-certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar" Visual.tar >nul
+certutil -urlcache -split -f "https://raw.githubusercontent.com/Canaan-HS/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar" Visual.tar >nul
 
 if not exist "Visual.tar" (
     ECHO 下載失敗...
@@ -837,7 +837,7 @@ ECHO 授權中請稍後...
 ECHO.
 
 if not exist "C:\Program Files\WinRAR\Rarreg.key" (
-    certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Rar/Rarreg.key" Rarreg.key >nul
+    certutil -urlcache -split -f "https://raw.githubusercontent.com/Canaan-HS/Implementation-Project/Main/Command Prompt/Rar/Rarreg.key" Rarreg.key >nul
     if not exist "Rarreg.key" (
         ECHO 授權失敗...
     ) else (
@@ -862,7 +862,7 @@ ECHO.
 ECHO 下載中請稍後...
 ECHO.
 
-certutil -urlcache -split -f "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command Prompt/Idm/IDM.tar" IDM.tar >nul
+certutil -urlcache -split -f "https://raw.githubusercontent.com/Canaan-HS/Implementation-Project/Main/Command Prompt/Idm/IDM.tar" IDM.tar >nul
 
 if not exist "IDM.tar" (
     ECHO 下載失敗...
