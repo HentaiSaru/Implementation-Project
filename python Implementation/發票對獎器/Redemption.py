@@ -5,6 +5,8 @@ import httpx
 import time
 import os
 
+#! 預計添加: 根據獲取月份, 顯示兌獎期限, 並修改 dev 也就是獲取時顯示的數據, 根據取得區域顯示對應獎項
+
 class WinningInstructions:
     def __init__(self) -> None:
         self.Reward_level = [
@@ -16,21 +18,28 @@ class WinningInstructions:
             "8 碼相同獲得 20 萬", "頭獎末 7 碼相同 4 萬", "頭獎末 6 碼相同 1 萬",
             "頭獎末 5 碼相同 4 千", "頭獎末 4 碼相同 1 千", "頭獎末 3 碼相同 200 元"
         ]
+        self.Prize_claim_period = {
+            "1-2": "1-2 月份領獎期限為 4/6 ~ 7/5",
+            "3-4": "3-4 月份領獎期限為 6/6 ~ 9/5",
+            "5-6": "5-6 月份領獎期限為 8/6 ~ 11/5",
+            "7-8": "7-8 月份領獎期限為 10/6 ~ 次年 1/5",
+            "9-10": "9-10 月份領獎期限為 12/6 ~ 次年 3/5",
+            "11-12": "11-12 月份領獎期限為次年 2/6 ~ 5/5"
+        }
 
-class DataProcessing(WinningInstructions):
+class DataProcessing:
     def __init__(self) -> None:
-        super().__init__()
-        self.Session = httpx.Client()
+        self.client = httpx.Client(http2=True)
         self.Url = "https://invoice.etax.nat.gov.tw/index.html"
         self.Headers = {
             "Cache-Control": "no-cache",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
         }
         self.Redemption_Data = None
 
     def __Get_Data(self, Url) -> etree.Element:
         try:
-            data = self.Session.get(Url, headers=self.Headers)
+            data = self.client.get(Url, headers=self.Headers)
             if data.status_code == 200:
                 return etree.HTML(data.text)
             else:
@@ -62,9 +71,10 @@ class DataProcessing(WinningInstructions):
 
         self.Redemption_Data = link_Data
 
-class Comparison(DataProcessing):
+class Comparison(DataProcessing, WinningInstructions):
     def __init__(self) -> None:
-        super().__init__()
+        DataProcessing.__init__(self)
+        WinningInstructions.__init__(self)
         self.input = ""
         self.winning = None
         self.bar = "░" * 10
@@ -156,5 +166,4 @@ class Comparison(DataProcessing):
         self.__Comparison_Date()
 
 if __name__ == "__main__":
-    invoice = Comparison()
-    invoice.Select_Date()
+    Comparison().Select_Date()
