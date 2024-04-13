@@ -13,7 +13,7 @@ def import_json(Json_name):
 
 def output_json(Json_name, Json_data):
     with open(Json_name , "w") as file:
-        file.write(json.dumps(Json_data, indent=4, separators=(',',':')))
+        file.write(json.dumps(Json_data, indent=4, separators=(",", ":"), ensure_ascii=False))
 
 # 數據輸入
 class DataImport:
@@ -61,6 +61,9 @@ class DataOutput:
     def __init__(self):
         self.path = data_location()
         self.cookie_save = []
+        
+    def json_record(self, path, name, record):
+        output_json(f"{path}\\{name}.json", record)
 
     def json_cookie(self, cookies: dict, web: str):
         self.cookie_save.clear()
