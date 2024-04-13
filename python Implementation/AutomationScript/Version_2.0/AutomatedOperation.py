@@ -6,7 +6,11 @@ from Script.Parameters import paramet
 from Script import paramet, DO , DI
 from selenium import webdriver
 from bs4 import BeautifulSoup
+from datetime import datetime
+import string
+import random
 import time
+import os
 
 class JKF_forum:
     def __init__(self):
@@ -147,6 +151,90 @@ class JKF_forum:
 
         self.driver.quit()
 
+class EHentai:
+    def __init__(self):
+        self.cache = r"R:\EHentaiCache"
+        self.delay = lambda: round(random.uniform(1.1, 2.2), 1)
+        self.generate_str = string.digits + string.ascii_letters
+        self.clearcache = lambda: os.system(f"rd /s /q {self.cache}")
+
+    def generator(self, Type="default"):
+        merge = ""
+
+        if (Type == "default"):
+            for _ in range(16):
+                merge += random.choice(self.generate_str)
+        elif (Type == "mail"):
+            for _ in range(8):
+                merge += random.choice(self.generate_str)
+            merge += "@gmail.com"
+
+        return merge
+
+    def regist(self):
+        driver = webdriver.Chrome(options=paramet.AddSet("EHentai", userdata=self.cache))
+        driver.get("https://forums.e-hentai.org/index.php?act=Reg&CODE=00")
+        driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+
+        agree = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='agree_cbox']")))
+        agree.click()
+
+        register = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//input[@value='Register']")))
+        time.sleep(self.delay())
+        register.click()
+        
+        def operate(Input, Xpath):
+            user =  WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, Xpath)))
+            user.click()
+            time.sleep(self.delay())
+            user.send_keys(Input)
+
+        # 取得名稱
+        name = self.generator()
+        # 登入名稱
+        operate(name, "//input[@id='reg-name']")
+        # 顯示名稱
+        operate(name, "//input[@id='reg-members-display-name']")
+
+        # 取得密碼
+        password = self.generator()
+        #密碼
+        operate(password, "//input[@id='reg-password']")
+        #確認密碼
+        operate(password, "//input[@id='reg-password-check']")
+
+        # 取得信箱
+        mail = self.generator("mail")
+        #郵件
+        operate(mail, "//input[@id='reg-emailaddress']")
+        #確認郵件
+        operate(mail, "//input[@id='reg-emailaddress-two']")
+
+        input("自行輸入安全碼後確認 : ")
+
+        #提交註冊
+        submit =  WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//input[@type='submit']")))
+        submit.click()
+
+        DO.json_record("R:/", "Eh_註冊紀錄", {
+            datetime.now().strftime("%Y-%m-%d-%H"): { # 取得時間
+                "連線位置": "自行輸入",
+                "帳號": name,
+                "密碼": password,
+                "信箱": mail,
+            }
+        })
+
+        # 回到 https://e-hentai.org/ 登入
+        # 等待後到 https://exhentai.org/
+
+        input("確認後關閉 : ")
+        driver.quit()
+        self.clearcache()
+        
+    def login(self):
+        pass
+
 class Hoyoverse: 
     def Login_Confirm(self, timeout: int, webname: str, link: str, xpath: str) -> webdriver:
         """
@@ -257,15 +345,22 @@ if __name__ == "__main__":
     #? Jkf論壇自動探索(次數 , 地點)
     #? 地點 : "墮落聖地" "焚燒之地" "巨木森林"
     # jkf.jkf_explore(10, "巨木森林")
+    
+    """===================="""
+
+    #? 註冊 E-Hentai 與 登入
+    eh = EHentai()
+    # eh.regist()
+    # eh.login()
 
     """===================="""
 
-    hoyo = Hoyoverse()
+    # hoyo = Hoyoverse()
 
     #? 原神輸入兌換碼
     # hoyo.Genshin_Impact_Gift([
     # ])
 
     #? 崩鐵輸入兌換碼
-    hoyo.Star_Rail([
-    ])
+    # hoyo.Star_Rail([
+    # ])
