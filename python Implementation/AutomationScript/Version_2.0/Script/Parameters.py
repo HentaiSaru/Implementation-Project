@@ -67,10 +67,10 @@ class Parameters:
         else:
             return seconds_to_wait
 
-    # 參數設置 (傳入的 value, 會去找同名的數據檔案, 除非去設置 UserData 的位置)
-    def AddSet(self, value: str, headless: bool = False, UserData: str = ""):
+    # 參數設置 (傳入的 value, 會去找同名的數據檔案, 除非去設置 userdata 的位置)
+    def AddSet(self, value: str, headless: bool = False, userdata: str = ""):
         if headless:self.Settings.add_argument("--headless")
-        if UserData == "": UserData = DI.get_website_data(value)
+        if userdata == "": userdata = DI.get_website_data(value)
         self.Settings.add_argument("--no-sandbox")
         self.Settings.add_argument("--log-level=3")
         self.Settings.add_argument("--start-maximized")
@@ -79,7 +79,7 @@ class Parameters:
         self.Settings.add_argument("--ignore-certificate-errors")
         self.Settings.add_argument("--remote-debugging-address=0.0.0.0")
         self.Settings.add_argument(f"--remote-debugging-port={self.RandomPort()}")
-        self.Settings.add_argument(f"--user-data-dir={UserData}")
+        self.Settings.add_argument(f"--user-data-dir={userdata}")
         self.Settings.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
 
         self.Settings.add_experimental_option('excludeSwitches', ['enable-logging'])
