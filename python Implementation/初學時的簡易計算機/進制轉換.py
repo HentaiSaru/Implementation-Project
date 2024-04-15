@@ -1,5 +1,7 @@
 import re
 
+# https://www.digikey.tw/zh/resources/conversion-calculators/conversion-calculator-number-conversion
+
 # 打印計算結果
 def Result(result):
     print(result)
@@ -18,34 +20,60 @@ class Binary:
         return value > 1 or value < 0
 
     def Binary_To_Octal(self, value):
-        pass
+        result = ""
+        initial = 0
+
+        try:
+            if len(value) > 1: # 處理小數點的
+                initial = f"{value[0]}.{value[1]}" # 將字串重新合併
+                #! 等待小數點邏輯
+            else:
+                initial = value[0]
+
+            Len = len(initial) # 計算是否能三個一組
+            Three = Len % 3
+
+            if Three != 0:
+                initial = initial.zfill(Len + (3 - Three)) # 填充到三的倍數
+
+            #? 公式: (例子) 10101111 => 從右到左三個一組, 不滿三個的前方補 0 => 010101111 => 010 101 111 => 分別轉成十, 並將其合併 => 2 5 7 => 257
+
+            for i in range(0, len(initial), 3):
+                cache = 0
+                for e, v in enumerate(initial[i : i+3][::-1]):
+                    number = int(v)
+                    cache += number * 2 ** e # 計算三個為一組轉 10 進制
+                result += str(cache) # 轉換回字串, 以字串合併
+
+        except Exception as e:
+            print(f"{e}: {initial}")
 
     def Binary_To_Decimal(self, value):
         result = 0
         initial = 0
 
         try:
-            if len(value) > 1:
-                initial = f"{value[0]}.{value[1]}"
-                for i, v in enumerate(value[1]):
+            if len(value) > 1: # 處理小數點的
+                initial = f"{value[0]}.{value[1]}" # 將字串重新合併
+                for e, v in enumerate(value[1]):
                     number = int(v)
                     
                     if self.Binary_Verify(number):
                         raise Exception("錯誤的二進制值")
 
                     #? 公式: n * 2^-1 + n * 2^-2 + n * 2^-n
-                    result += number * 2 ** (-1 * (i + 1))
+                    result += number * 2 ** (-1 * (e + 1))
             else:
                 initial = value[0]
 
-            for i, v in enumerate(value[0][::-1]):
+            for e, v in enumerate(initial[::-1]): # 處理正數
                 number = int(v)
 
                 if self.Binary_Verify(number):
                     raise Exception("錯誤的二進制值")
 
                 #? 公式: n * 2^0 + n * 2^1 + n * 2^n
-                result += number * 2 ** i
+                result += number * 2 ** e
 
             Result(f"{initial}(2) => {result}(10)")
 
@@ -125,7 +153,7 @@ class CalculationInput(Binary, Octal, Decimal, HexaDecimal):
         範例 12(10) (2) = 將數字 12 的十進制 轉換 為 二進制
         """
         try:
-            self.ComputeString = "10101101.10110(2) (10)" #input("輸入計算值: ")
+            self.ComputeString = "10101111(2) (8)" #input("輸入計算值: ")
             self.Separate = self.ComputeString.split(" ")
 
             if len(self.Separate) != 2:
