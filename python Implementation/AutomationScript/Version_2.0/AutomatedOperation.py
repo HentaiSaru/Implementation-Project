@@ -153,10 +153,16 @@ class JKF_forum:
 
 class EHentai:
     def __init__(self):
+        self.driver = None
         self.cache = r"R:\EHentaiCache"
         self.delay = lambda: round(random.uniform(1.1, 2.2), 1)
         self.generate_str = string.digits + string.ascii_letters
         self.clearcache = lambda: os.system(f"rd /s /q {self.cache}")
+
+    def start(self, url):
+        self.driver = webdriver.Chrome(options=paramet.AddSet("EHentai", userdata=self.cache))
+        self.driver.get(url)
+        self.driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
     def generator(self, Type="default"):
         merge = ""
@@ -171,49 +177,47 @@ class EHentai:
 
         return merge
 
-    def regist(self):
-        driver = webdriver.Chrome(options=paramet.AddSet("EHentai", userdata=self.cache))
-        driver.get("https://forums.e-hentai.org/index.php?act=Reg&CODE=00")
-        driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+    def operate(self, Input, Xpath):
+        user =  WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, Xpath)))
+        user.click()
+        time.sleep(self.delay())
+        user.send_keys(Input)
 
-        agree = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='agree_cbox']")))
+    def regist(self):
+        self.start("https://forums.e-hentai.org/index.php?act=Reg&CODE=00")
+
+        agree = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='agree_cbox']")))
         agree.click()
 
-        register = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//input[@value='Register']")))
+        register = WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//input[@value='Register']")))
         time.sleep(self.delay())
         register.click()
-        
-        def operate(Input, Xpath):
-            user =  WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, Xpath)))
-            user.click()
-            time.sleep(self.delay())
-            user.send_keys(Input)
 
         # 取得名稱
         name = self.generator()
         # 登入名稱
-        operate(name, "//input[@id='reg-name']")
+        self.operate(name, "//input[@id='reg-name']")
         # 顯示名稱
-        operate(name, "//input[@id='reg-members-display-name']")
+        self.operate(name, "//input[@id='reg-members-display-name']")
 
         # 取得密碼
         password = self.generator()
         #密碼
-        operate(password, "//input[@id='reg-password']")
+        self.operate(password, "//input[@id='reg-password']")
         #確認密碼
-        operate(password, "//input[@id='reg-password-check']")
+        self.operate(password, "//input[@id='reg-password-check']")
 
         # 取得信箱
         mail = self.generator("mail")
         #郵件
-        operate(mail, "//input[@id='reg-emailaddress']")
+        self.operate(mail, "//input[@id='reg-emailaddress']")
         #確認郵件
-        operate(mail, "//input[@id='reg-emailaddress-two']")
+        self.operate(mail, "//input[@id='reg-emailaddress-two']")
 
         input("自行輸入安全碼後確認 : ")
 
         #提交註冊
-        submit =  WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//input[@type='submit']")))
+        submit =  WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//input[@type='submit']")))
         submit.click()
 
         DO.json_record("R:/", "Eh_註冊紀錄", {
@@ -229,11 +233,21 @@ class EHentai:
         # 等待後到 https://exhentai.org/
 
         input("確認後關閉 : ")
-        driver.quit()
+        self.driver.quit()
         self.clearcache()
-        
-    def login(self):
-        pass
+
+    def login(self, account, password):
+        self.start("https://e-hentai.org/bounce_login.php?b=d&bt=1-1")
+
+        self.operate(account, "//input[@name='UserName']")
+        self.operate(password, "//input[@name='PassWord']")
+
+        input("機器人驗證 : ")
+        # "//input[@name='ipb_login_submit']"
+
+        input("確認後關閉 : ")
+        self.driver.quit()
+        self.clearcache()
 
 class Hoyoverse: 
     def Login_Confirm(self, timeout: int, webname: str, link: str, xpath: str) -> webdriver:
@@ -260,6 +274,10 @@ class Hoyoverse:
 
         DO.json_cookie(driver.get_cookies(), webname)
         return driver
+    
+    def operate(self, driver, Xpath):
+        button =  WebDriverWait(driver, 8).until(EC.element_to_be_clickable((By.XPATH, Xpath)))
+        button.click()
 
     # 原神使用兌換碼
     def Genshin_Impact_Gift(self, gift: list):
@@ -271,11 +289,8 @@ class Hoyoverse:
         )
 
         # 選取伺服器位置到亞洲
-        select = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='cdkey-select__btn']")))
-        select.click()
-
-        asia = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='cdkey-select__menu']/div[3]")))
-        asia.click()
+        self.operate(Genshin, "//div[@class='cdkey-select__btn']")
+        self.operate(Genshin, "//div[@class='cdkey-select__menu']/div[3]")
         time.sleep(1)
 
         for key in gift: #! 懶得寫判斷不是列表的狀況
@@ -289,12 +304,9 @@ class Hoyoverse:
             cdkey.send_keys(key)
 
             # 關閉兌換成功或失敗窗口
-            receive = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='cdkey-form__submit']")))
-            receive.click()
-
+            self.operate(Genshin, "//button[@class='cdkey-form__submit']")
             # 點選兌換
-            close = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='cdkey-result__close']")))
-            close.click()
+            self.operate(Genshin, "//img[@class='cdkey-result__close']")
 
             time.sleep(5)
 
@@ -308,11 +320,8 @@ class Hoyoverse:
             "//span[@class='web-cdkey-user__btn']"
         )
 
-        select = WebDriverWait(StarRail, 5).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='web-cdkey-form__select--toggle']")))
-        select.click()
-
-        asia = WebDriverWait(StarRail, 5).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='web-cdkey-form__select--menu cdkey-scrollbar']/div[3]")))
-        asia.click()
+        self.operate(StarRail, "//div[@class='web-cdkey-form__select--toggle']")
+        self.operate(StarRail, "//div[@class='web-cdkey-form__select--menu cdkey-scrollbar']/div[3]")
         time.sleep(1)
 
         for key in gift:
@@ -322,11 +331,8 @@ class Hoyoverse:
             cdkey.clear()
             cdkey.send_keys(key)
 
-            receive = WebDriverWait(StarRail, 5).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='web-cdkey-form__submit']")))
-            receive.click()
-
-            close = WebDriverWait(StarRail, 5).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='closeBtn']")))
-            close.click()
+            self.operate(StarRail, "//button[@class='web-cdkey-form__submit']")
+            self.operate(StarRail, "//img[@class='closeBtn']")
 
             time.sleep(5)
 
