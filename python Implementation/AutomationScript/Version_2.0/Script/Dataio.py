@@ -36,9 +36,15 @@ class DataImport:
             return import_json(data_path)
         else:
             return None
+        
+    def get_json(self, path: str):
+        if os.path.exists(path):
+            return import_json(path)
+        else:
+            return "Error Path"
 
     def get_acc(self):
-        data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Account.json")
+        data_path = os.path.join(os.getcwd(), "Account.json")
 
         if os.path.exists(data_path):
             Account = import_json(data_path)
