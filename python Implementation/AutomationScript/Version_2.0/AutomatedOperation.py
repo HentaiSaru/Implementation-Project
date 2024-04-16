@@ -183,7 +183,10 @@ class EHentai:
         time.sleep(self.delay())
         user.send_keys(Input)
 
-    def regist(self):
+    def regist(self, Save: str):
+        """
+        Save 設置註冊紀錄的路徑
+        """
         self.start("https://forums.e-hentai.org/index.php?act=Reg&CODE=00")
 
         agree = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='agree_cbox']")))
@@ -220,7 +223,7 @@ class EHentai:
         submit =  WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//input[@type='submit']")))
         submit.click()
 
-        DO.json_record("R:/", "Eh_註冊紀錄", {
+        DO.json_record(Save, "Eh_註冊紀錄", {
             datetime.now().strftime("%Y-%m-%d-%H"): { # 取得時間
                 "連線位置": "自行輸入",
                 "帳號": name,
@@ -377,7 +380,7 @@ if __name__ == "__main__":
 
     #? 註冊 E-Hentai 與 登入
     eh = EHentai()
-    # eh.regist()
+    # eh.regist("R:/")
 
     Cookie = DI.get_json(fr"{os.getcwd()}\EhCookie.json")
     # Cookie["邁阿密"]
