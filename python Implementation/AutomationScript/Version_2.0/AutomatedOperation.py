@@ -236,14 +236,35 @@ class EHentai:
         self.driver.quit()
         self.clearcache()
 
-    def login(self, account, password):
+    def login(self, Account: dict={}, Cookie: list=[]):
+        """
+        Account 傳入一個字典
+        格式: {'account': '', 'password': ''}
+        
+        Cookie 傳入一個列表
+        格式: [{"name": "ipb_member_id", "value": ""}, {"name": "ipb_pass_hash", "value": ""}]
+        """
         self.start("https://e-hentai.org/bounce_login.php?b=d&bt=1-1")
 
-        self.operate(account, "//input[@name='UserName']")
-        self.operate(password, "//input[@name='PassWord']")
+        if bool(Account):
+            account = Account.get("account", None)
+            password = Account.get("password", None)
 
-        input("機器人驗證 : ")
-        # "//input[@name='ipb_login_submit']"
+            if account and password:
+                self.operate(account, "//input[@name='UserName']")
+                self.operate(password, "//input[@name='PassWord']")
+
+                input("機器人驗證 : ")
+                submit =  WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//input[@name='ipb_login_submit']")))
+                submit.click()
+            else:
+                print("輸入正確的對應值: {'account': '', 'password': ''}")
+                self.driver.quit()
+
+        elif bool(Cookie): # 無驗證數據對錯
+            for cookie in Cookie:
+                self.driver.add_cookie(cookie)
+            self.driver.get("https://e-hentai.org/")
 
         input("確認後關閉 : ")
         self.driver.quit()
@@ -338,7 +359,7 @@ class Hoyoverse:
 
         StarRail.quit()
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     # jkf = JKF_forum()
 
     #? Jkf論壇使用體力藥水(此腳本就是藥水全部都用完)
@@ -357,7 +378,12 @@ if __name__ == "__main__":
     #? 註冊 E-Hentai 與 登入
     eh = EHentai()
     # eh.regist()
-    # eh.login()
+
+    Cookie = DI.get_json(fr"{os.getcwd()}\EhCookie.json")
+    # Cookie["邁阿密"]
+    # Cookie["波士頓"]
+    eh.login(Cookie=Cookie["邁阿密"])
+    
 
     """===================="""
 
