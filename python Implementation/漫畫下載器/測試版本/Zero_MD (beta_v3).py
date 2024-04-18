@@ -209,7 +209,7 @@ class ZeroDownloader:
             print(f"第 {number} 話 [共 {count} 頁] - 下載完成", flush=True)
 
     # 自動下載方法
-    def Automatic(self, url:str, retry=False):
+    def Automatic(self, url:str, retry=True):
 
         # 請求數據
         self.data_processing(url)
@@ -252,7 +252,7 @@ class ZeroDownloader:
                     time.sleep(self.ProcessDelay)
 
     # 自訂下載方法
-    def Custom(self,url:str, chapter=None, mantissa=3, FE="png", retry=False, special=False):
+    def Custom(self,url:str, chapter=None, mantissa=3, FE="png", retry=True, special=False):
 
         # 尾數轉換字串
         def mantissa_conversion(mantissa):
@@ -390,7 +390,7 @@ if __name__ == "__main__":
     AutoCapture.settings(DomainName())
     
     capture = AutoCapture.GetLink()
-    zero.Automatic(capture, True)
+    zero.Automatic(capture)
 
 #################################################################################
 
@@ -410,4 +410,4 @@ if __name__ == "__main__":
     # 可使用自訂範圍 , 或是直接填入CB , 設置完成 , 直接再 Custom 尾數傳入 CB
     # custom_range(1,2)
 
-    # zero.Custom("#" , chapter=1 , retry=True)
+    # zero.Custom("#" , chapter=1)
