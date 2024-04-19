@@ -13,6 +13,11 @@ class AutomaticCheckin:
     def __init__(self):   
         self.exist = False
         self.offdelay = 5
+        
+    def LoadWait(self, driver):
+        WebDriverWait(driver, 10).until(
+            lambda driver: driver.execute_script("return document.readyState") == "complete"
+        )
 
     def Login_Confirm(self, timeout: int, webname: str, link: str, xpath: str, imset: bool = True, headless: bool = False, trylogin: bool = True):
         """
@@ -28,7 +33,8 @@ class AutomaticCheckin:
         if imset:
             driver = webdriver.Chrome(options=paramet.AddSet(webname, headless))
             driver.get(link)
-            driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+            self.LoadWait(driver)
+            driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         else:
             driver = link
 
@@ -40,7 +46,9 @@ class AutomaticCheckin:
                     for cookie in DI.get_website_cookie(webname):
                         driver.add_cookie(cookie)
                     driver.refresh()
+
                     WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
+                    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
                 else:
                     pass
             except:
@@ -62,7 +70,7 @@ class AutomaticCheckin:
             "//img[@class='avatar b2-radius']",
         )
 
-        Wuyongbutton = WebDriverWait(Wuyongdriver,3).until(EC.element_to_be_clickable((By.XPATH, "//i[@class='b2font b2-gift-2-line ']")))
+        Wuyongbutton = WebDriverWait(Wuyongdriver, 3).until(EC.element_to_be_clickable((By.XPATH, "//i[@class='b2font b2-gift-2-line ']")))
         Wuyongbutton.click()
 
         time.sleep(self.offdelay)
@@ -334,9 +342,9 @@ if __name__ == "__main__":
     # multiprocessing.Process(target=AC.StarRail_Checkin).start()
 
     #! 操作有些 BUG 等待修正
-    with ThreadPoolExecutor(max_workers=100) as executor:
-        for func, delay in zip([
-            AC.Black_Checkin, AC.Wuyong_Checkin, AC.Zero_Checkin, AC.Genshin_Checkin, AC.StarRail_Checkin
-        ], [paramet.WaitingTime() + 10, 10, 10, 10, 10]): # 延遲設置
-            executor.submit(func)
-            time.sleep(delay)
+    # with ThreadPoolExecutor(max_workers=100) as executor:
+        # for func, delay in zip([
+            # AC.Black_Checkin, AC.Wuyong_Checkin, AC.Zero_Checkin, AC.Genshin_Checkin, AC.StarRail_Checkin
+        # ], [paramet.WaitingTime() + 10, 10, 10, 10, 10]): # 延遲設置
+            # executor.submit(func)
+            # time.sleep(delay)
