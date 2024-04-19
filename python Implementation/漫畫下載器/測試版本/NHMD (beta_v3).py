@@ -38,7 +38,7 @@ import os
 
 #Todo [ 手動獲取Cookie, 並保存Josn文件 ]
 def cookie_get():
-    return Get.MGCookie("https://e-hentai.org/", rf"{os.getcwd()}\Cookie\NHCookies")
+    return Get.AGCookie("https://nhentai.net/", rf"{os.getcwd()}\Cookie\NHCookies")
 
 class Set:
     """
