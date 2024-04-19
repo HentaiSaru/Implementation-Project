@@ -12,11 +12,12 @@ import random
 import time
 import os
 
-class JKF_forum:
+class JKF:
     def __init__(self):
-        self.driver = webdriver.Chrome(options=paramet.AddSet("Jkf"))
+        self.driver = None
 
     def Login_Confirm(self):
+        self.driver = webdriver.Chrome(options=paramet.AddSet("Jkf"))
         self.driver.get("https://www.jkforum.net/forum.php?mod=forum")
         self.driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
@@ -362,40 +363,42 @@ class Hoyoverse:
 
         StarRail.quit()
 
+class Main(JKF, EHentai, Hoyoverse):
+    def __init__(self):
+        JKF.__init__(self)
+        EHentai.__init__(self)
+        Hoyoverse.__init__(self)
+
 if __name__ == "__main__":
-    # jkf = JKF_forum()
+    main = Main()
 
     #? Jkf論壇使用體力藥水(此腳本就是藥水全部都用完)
-    # jkf.jkf_use_props()
+    # main.jkf_use_props()
 
     #? Jkf論壇自動挖礦(次數 , 地點)
     #? 地點 : "巨龍巢穴" "精靈峽谷" "廢棄礦坑"
-    # jkf.jkf_mining(10, "廢棄礦坑")
+    # main.jkf_mining(10, "廢棄礦坑")
 
     #? Jkf論壇自動探索(次數 , 地點)
     #? 地點 : "墮落聖地" "焚燒之地" "巨木森林"
-    # jkf.jkf_explore(10, "巨木森林")
+    # main.jkf_explore(10, "巨木森林")
     
     """===================="""
 
     #? 註冊 E-Hentai 與 登入
-    eh = EHentai()
-    # eh.regist("R:/")
+    # main.regist("R:/")
 
-    Cookie = DI.get_json(fr"{os.getcwd()}\EhCookie.json")
     # Cookie["邁阿密"]
     # Cookie["波士頓"]
-    eh.login(Cookie=Cookie["邁阿密"])
-    
+    Cookie = DI.get_json(fr"{os.getcwd()}\EhCookie.json")
+    main.login(Cookie=Cookie["邁阿密"])
 
     """===================="""
 
-    # hoyo = Hoyoverse()
-
     #? 原神輸入兌換碼
-    # hoyo.Genshin_Impact_Gift([
+    # main.Genshin_Impact_Gift([
     # ])
 
     #? 崩鐵輸入兌換碼
-    # hoyo.Star_Rail([
+    # main.Star_Rail([
     # ])
