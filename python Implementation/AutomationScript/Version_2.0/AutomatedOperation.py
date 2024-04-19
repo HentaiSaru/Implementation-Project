@@ -17,6 +17,10 @@ class JKF:
     def __init__(self):
         self.driver = None
 
+    def click_operate(self, Driver, Xpath, Wait=10):
+        button =  WebDriverWait(Driver, Wait).until(EC.element_to_be_clickable((By.XPATH, Xpath)))
+        button.click()
+
     def JKF_Login_Confirm(self, Jump):
         self.driver = webdriver.Chrome(options=paramet.AddSet("Jkf"))
         self.driver.get("https://www.jkforum.net/forum.php?mod=forum")
@@ -36,16 +40,11 @@ class JKF:
                 DO.json_cookie(self.driver.get_cookies(), "Jkf")
 
         # 等待文件載入完成
-        while True:
-            complete = self.driver.execute_script("return document.readyState === 'complete'")
-            if complete:break
-            time.sleep(0.5)
+        WebDriverWait(self.driver, 10).until(
+            lambda driver: driver.execute_script("return document.readyState") == "complete"
+        )
 
         self.driver.get(Jump)
-
-    def click_operate(self, Driver, Xpath, Wait=10):
-        button =  WebDriverWait(Driver, Wait).until(EC.element_to_be_clickable((By.XPATH, Xpath)))
-        button.click()
 
     # 使用藥水
     def jkf_use_props(self):
