@@ -1,3 +1,4 @@
+from selenium.webdriver.support.ui import WebDriverWait
 import subprocess
 import importlib
 import threading
@@ -27,7 +28,7 @@ class TestBrowser:
     def __init__(self):
         self.driver_path = rf"{os.path.dirname(os.path.abspath(__file__))}\driver\chromedriver.exe"
         self.Settings = uc.ChromeOptions()
-        self.Version = "1.0.2"
+        self.Version = lambda: "1.0.3"
         self.driver = None
 
     def Setting_Options(self):
@@ -35,6 +36,7 @@ class TestBrowser:
         self.Settings.add_argument('--no-sandbox')
         self.Settings.add_argument('--log-level=3')
         self.Settings.add_argument('--no-first-run')
+        self.Settings.add_argument("--headless=new")
         self.Settings.add_argument('--disable-infobars')
         self.Settings.add_argument("--disable-extensions")
         self.Settings.add_argument('--no-service-autorun')
@@ -50,16 +52,23 @@ class TestBrowser:
         self.Settings.add_argument("--disable-plugins-discovery")
         self.Settings.add_argument('--remote-debugging-address=0.0.0.0')
         self.Settings.add_argument('--disable-blink-features=AutomationControlled')
-        self.Settings.add_argument(f"--remote-debugging-port={random.randint(1024,65535)}")
+        self.Settings.add_argument(f"--remote-debugging-port={random.randint(1024, 65535)}")
         return self.Settings
+
+    def LoadWait(self):
+        WebDriverWait(self.driver, 10).until(
+            lambda driver: driver.execute_script("return document.readyState") == "complete"
+        )
 
     def Enable_browsing(self, url:str ="https://www.google.com.tw/"):
         self.driver = Chrome(
-            version_main=120,
+            version_main=123,
             advanced_elements=True,
             options=self.Setting_Options(),
             driver_executable_path=self.driver_path
         )
+
+        self.LoadWait()
         self.driver.delete_all_cookies()
         self.driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
@@ -67,15 +76,12 @@ class TestBrowser:
 
         threading.Thread(target=self.detection).start()
 
-    def get_version(self):
-        return self.Version
-
     def detection(self):
         try:
             while True:
+                time.sleep(3)
                 if not self.driver.window_handles:
                     self.driver.close()
                     break
-                time.sleep(5)
         except:
             pass
