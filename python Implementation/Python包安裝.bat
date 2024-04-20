@@ -41,7 +41,6 @@ pip install aiofiles
 :: 自動化操作
 pip install selenium
 :: 反爬自動化
-pip install undetected-chromedriver
 pip install undetected-chromedriver2
 :: 驅動安裝
 pip install chromedriver_autoinstaller
