@@ -62,10 +62,8 @@ class Browser(Settings):
 
     def Detection(self):
         try:
-            while True:
+            while self.Driver.window_handles:
                 time.sleep(3)
-                if not self.Driver.window_handles:
-                    self.Driver.quit()
-                    break
+            self.Driver.quit()
         except:
-            pass
+            self.Driver.quit()
