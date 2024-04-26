@@ -7,6 +7,7 @@ from Script import paramet, DO , DI
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from datetime import datetime
+import threading
 import string
 import random
 import math
@@ -190,14 +191,23 @@ class EHentai:
         self.driver = webdriver.Chrome(options=paramet.AddSet("EHentai", userdata=self.cache))
         self.driver.get(url)
         self.driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+        
+    def end(self):
+        try:
+            while self.driver.window_handles:
+                time.sleep(3)
+        except Exception as e: # 這邊很奇怪, 上面 quit 會直接跳例外
+            self.driver.quit()
+            self.clearcache()
+            print("清除")
 
     def generator(self, Type="default"):
         merge = ""
 
-        if (Type == "default"):
+        if Type == "default":
             for _ in range(16):
                 merge += random.choice(self.generate_str)
-        elif (Type == "mail"):
+        elif Type == "mail":
             for _ in range(8):
                 merge += random.choice(self.generate_str)
             merge += "@gmail.com"
@@ -261,10 +271,8 @@ class EHentai:
 
         # 回到 https://e-hentai.org/ 登入
         # 等待後到 https://exhentai.org/
-
-        input("確認後關閉 : ")
-        self.driver.quit()
-        self.clearcache()
+        
+        threading.Thread(target=self.end).start()
 
     def Login(self, Account: dict={}, Cookie: list=[]):
         """
@@ -296,9 +304,7 @@ class EHentai:
                 self.driver.add_cookie(cookie)
             self.driver.get("https://e-hentai.org/")
 
-        input("確認後關閉 : ")
-        self.driver.quit()
-        self.clearcache()
+        threading.Thread(target=self.end).start()
 
 class Hoyoverse:
     def Hoyo_Login_Confirm(self, timeout: int, webname: str, link: str, xpath: str) -> webdriver:
