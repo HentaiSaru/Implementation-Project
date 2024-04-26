@@ -78,10 +78,8 @@ class TestBrowser:
 
     def detection(self):
         try:
-            while True:
+            while self.driver.window_handles:
                 time.sleep(3)
-                if not self.driver.window_handles:
-                    self.driver.close()
-                    break
+            self.driver.quit()
         except:
-            pass
+            self.driver.quit()
