@@ -14,18 +14,17 @@ Versions 1.0.2
 
 """
 class Check:
-    def __init__(self, GpuUrl):
-        self.Url = GpuUrl
+    def __init__(self, CheckUrl):
         self.Space = " " * 8
         self.Session = requests.Session()
-        self.Header = {"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
         self.GpuName = self.GPUDriver = self.GetVersion = self.ReleaseTime = None
+        self.Request_info = lambda Url=None: etree.HTML(
+            self.Session.get(
+                Url or CheckUrl, # 如果 Url 是空的就取 CheckUrl
+                headers={"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
+            ).text
+        )
         self.Analyze_info()
-
-    # 請求更新資訊
-    def Request_info(self, Url=None):
-        Data = self.Session.get(Url or self.Url, headers=self.Header)
-        return etree.HTML(Data.text)
 
     # 請求下載資訊
     def Download_info(self, tree):
