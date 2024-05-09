@@ -9,13 +9,13 @@ import queue
 import time
 import os
 
-""" Versions 1.0.0 - V2
+""" Versions 1.0.1 - V2
 
     Todo - 簡轉繁 轉換器
-    
+
         ? (開發/運行環境):
         * Windows 11 23H2
-        * Python 3.12.2 64-bit
+        * Python 3.12.3 64-bit
 
         * 第三方庫:
         * opencc
@@ -33,18 +33,18 @@ import os
         * 文本輸入:
         * 將需轉換文字貼上至, 文本輸入框 (用快捷 Ctrl + v) 貼上才會觸發轉換
         * 一貼上後就會立即轉換結果, 並將結果顯示於文本框中, 同時會自動添加結果到剪貼簿當中
-        * 也就是代表可立即貼上到所需地方, 不用再次手動複製轉換結果
-        
+        * 代表可立即貼上到所需地方, 不用再次手動複製轉換結果, 點選其他窗口後, 再次回到轉換器, 會自動清除先前內容
+
         * 選擇文件:
         * 選擇一個資料夾, 會根據 Allow 參數中, 允許的類型將導入結果, 顯示在文本框中
         * 接著就可以選擇, 要使用覆蓋原檔案輸出, 還是創建新檔案輸出, 新檔案會創建在導入的目錄中
         * 轉換時會顯示轉換結果, 告知轉換成功狀態, 與轉換消耗時間, 失敗通常會顯示原因
-        
+
         * 選擇檔案:
         * 功能基本同上, 只是變成選擇單個檔案, 但也會受到 Allow 的允許類型影響
 
         ? 更新說明:
-        * 無
+        * 添加 文本輸入轉換, 會自動清除先前轉換結果
 """
 
 class DataProcessing:
@@ -140,6 +140,9 @@ class GUI(DataProcessing, tk.Tk):
         self.Output_Button_box = [self.Create_button, self.Override_button]
         self.Reset = tk.Button(self, Button_style, text="重置選擇", command=self.UI_Reset)
 
+        # 用於文本輸入時, 自動清除內容
+        self.WaitClear = False
+
     # 運行創建
     def __call__(self):
         self.Text_button.place(x=27, y=15) # 文字輸入
@@ -187,9 +190,9 @@ class GUI(DataProcessing, tk.Tk):
 
     # 取得文本框數據
     def GetText(self, DEL: bool=True, END: str="end-1c"):
-        Text = self.Content_items.get("1.0", END).splitlines()
-        self.Content_items.delete("1.0", "end") if DEL else None
-        return Text if Text[0] != "" else False
+        Text = self.Content_items.get("1.0", END).splitlines(); Exist = len(Text) > 0
+        self.Content_items.delete("1.0", "end") if DEL and Exist else None
+        return Text if Exist and Text[0] != "" else False
 
     # 數據解析
     def Data_Analysis(self, data, button):
@@ -249,9 +252,21 @@ class GUI(DataProcessing, tk.Tk):
                         self.Content_items.insert("end", change) # 結果插入文本框
                     pyperclip.copy(scrapbook) # 將結果添加到使用者 剪貼簿
 
+            # 焦點狀態
+            def focus_in(event):
+                if self.WaitClear:
+                    self.WaitClear = False
+                    self.GetText() # 清除內容
+
+            # 離開焦點
+            def focus_out(event):
+                self.WaitClear = True
+
             self.Content_items.config(font=("Courier", 12))
             self.Reset.place(x=920, y=645)
 
+            self.Content_items.bind("<FocusIn>", focus_in)
+            self.Content_items.bind("<FocusOut>", focus_out)
             self.bind("<Control-v>", trigger) # 貼上觸發
         else:
             # 唯讀禁止修改
