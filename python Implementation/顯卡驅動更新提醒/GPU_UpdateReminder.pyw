@@ -6,39 +6,44 @@ import re
 import os
 
 """
-Versions 1.0.1
+Versions 1.0.2
 
-[+] 顯卡驅動檢測
-[+] 顯卡資訊顯示
-[+] 抓取最新版本
-[+] 更新彈窗提醒
+1. 修改宣告排版
+2. 更新請求頭 與 部份處理邏輯
+3. 修改下載連結直接取得 檔案
+
 """
-class Crawl:
-    def __init__(self,GpuUrl):
-        self.Session = requests.Session()
-        self.Header = {"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"}
+class Check:
+    def __init__(self, GpuUrl):
         self.Url = GpuUrl
         self.Space = " " * 8
-        self.GpuName = None
-        self.Download = None
-        self.GPUDriver = None
-        self.GetVersion = None
-        self.ReleaseTime = None
-        self.GPU = GPUtil.getGPUs()
+        self.Session = requests.Session()
+        self.Header = {"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
+        self.GpuName = self.GPUDriver = self.GetVersion = self.ReleaseTime = None
+        self.Analyze_info()
 
-    def GetData(self):
+    # 請求更新資訊
+    def Request_info(self, Url=None):
+        Data = self.Session.get(Url or self.Url, headers=self.Header)
+        return etree.HTML(Data.text)
+
+    # 請求下載資訊
+    def Download_info(self, tree):
+        tree = self.Request_info("https:{}".format(tree.xpath("//tr[@id='driverList']//a")[0].get("href")))
+        return "https://tw.download.nvidia.com{}".format(re.search(r"\?url=(.*?\.exe)", tree.xpath("//a[@id='lnkDwnldBtn']")[0].get("href")).group(1))
+
+    # 解析獲取資訊
+    def Analyze_info(self):
+        tree = self.Request_info()
+
         # 顯卡資訊取得
-        for Information in self.GPU:
-            self.GpuName = Information.name.lstrip("NVIDIA GeForce ")
+        for Information in GPUtil.getGPUs():
+            self.GpuName = Information.name.lstrip("NVIDIA GeForce")
             self.GPUDriver = Information.driver
-        
-        # 請求網頁數據
-        Data = self.Session.get(self.Url,headers=self.Header)
-        tree = etree.fromstring(Data.content, etree.HTMLParser())
-        
+
         # 獲取更新的驅動資訊
         VersionNumber = tree.xpath("//tr[@id='driverList']//td[@class='gridItem']/text()")
-        VersionNumber = [re.sub(r'[\n\r\t]+','',d) for d in VersionNumber if d.strip()]
+        VersionNumber = [re.sub(r"[\n\r\t]+", "", d) for d in VersionNumber if d.strip()]
 
         # 驅動版本號
         self.GetVersion = VersionNumber[0]
@@ -46,26 +51,24 @@ class Crawl:
         # 將獲取的驅動發布時間反轉處理
         NewReleaseTime = VersionNumber[1].split(".")[::-1]
         self.ReleaseTime = f"{NewReleaseTime[0]}.{NewReleaseTime[1]}.{NewReleaseTime[2]}"
-        
-        # 下載連結
-        self.Download = "https:{}".format(tree.xpath("//tr[@id='driverList']//a")[0].get('href'))
 
         # 進行比對更新
-        self.Comparison()
+        self.Comparison_info(tree)
 
-    def Comparison(self):
-
+    # 比對版本
+    def Comparison_info(self, tree):
         if float(self.GPUDriver) < float(self.GetVersion):
 
-            text = f"顯卡型號: {self.GpuName}\n舊驅動版本: {self.GPUDriver}\n\n新驅動版本:{self.GetVersion}\n發布日期:{self.ReleaseTime}\n\n{self.Space}您是否要下載"
-            
-            choose = messagebox.askquestion("發現新版本", text ,parent=None)
+            choose = messagebox.askquestion(
+                "發現新版本",
+                f"顯卡型號: {self.GpuName}\n舊驅動版本: {self.GPUDriver}\n\n新驅動版本:{self.GetVersion}\n發布日期:{self.ReleaseTime}\n\n{self.Space}您是否要下載",
+                parent=None
+            )
+
             if choose == "yes":
-                os.system(f"start {self.Download}")
+                os.system(f"start {self.Download_info(tree)}")
         else:
-            messagebox.showinfo("沒有新版本",f"顯卡型號: {self.GpuName}\n當前驅動: {self.GPUDriver} 是最新版本",parent=None)
-        
+            messagebox.showinfo("沒有新版本", f"顯卡型號: {self.GpuName}\n當前驅動: {self.GPUDriver} 是最新版本", parent=None)
+
 if __name__ == "__main__":
-    
-    Run = Crawl("https://www.nvidia.com.tw/Download/processFind.aspx?psid=107&pfid=902&osid=135&lid=6&whql=1&lang=tw&ctk=0&qnfslb=00&dtcid=1")
-    Run.GetData()
+    Check("https://www.nvidia.com.tw/Download/processFind.aspx?psid=107&pfid=902&osid=135&lid=6&whql=1&lang=tw&ctk=0&qnfslb=00&dtcid=1")
