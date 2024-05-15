@@ -1,6 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2024/1/7 18:40 -
-:: [+] - Telegram 緩存清理
+:: - LastEditTime 2024/5/16 02:46 -
 
 @echo off
 chcp 65001 >nul 2>&1
@@ -137,14 +136,15 @@ DEL /f /s /q "%systemdrive%\recycled\*.*"
 DEL /f /s /q "%HomePath%\AppData\LocalLow\Temp\*.*"
 DEL /f /s /q "%userprofile%\Local Settings\Temp\*.*"
 DEL /f /s /q "%windir%\SoftwareDistribution\Download\*.*"
-DEL /f /s /q "%LOCALAPPDATA%\Microsoft\Windows\Caches\*.*"
-DEL /f /s /q "%programdata%\Microsoft\Windows\WER\Temp\*.*"
+DEL /f /s /q "%LocalAppData%\Microsoft\Windows\Caches\*.*"
+DEL /f /s /q "C:\ProgramData\Microsoft\Windows\WER\Temp\*.*"
 DEL /f /s /q "%userprofile%\Local Settings\Temporary Internet Files\*.*"
 DEL /f /s /q "%AllUsersProfile%\「開始」功能表\程式集\Windows Messenger.lnk"
 
-RD /s /q %localappdata%\Temp
+RD /s /q %LocalAppData%\Temp
 RD /s /q "C:\Windows\SystemTemp"
 RD /s /q %userprofile%\RecycleBin
+RD /s /q "C:\ProgramData\Package Cache"
 RD /s /q C:\Windows\ServiceProfiles\NetworkService\AppData\Local\Microsoft\Windows\DeliveryOptimization
 
 RD /s /q %userprofile%\Local
@@ -160,19 +160,19 @@ DEL /f /s /q %SYSTEMDRIVE%\NVIDIA\*.*
 DEL /f /s /q %SYSTEMDRIVE%\OneDriveTemp
 DEL /f /s /q %windir%\Logs\MoSetup\*.log
 DEL /f /s /q %windir%\Logs\CBS\CbsPersist*.log
-DEL /f /s /q %localappdata%\Microsoft\Windows\WebCache\*.log
+DEL /f /s /q %LocalAppData%\Microsoft\Windows\WebCache\*.log
 
 RD /s /q %LocalAppData%\pip\cache
 RD /s /q C:\Users\%username%\.cache
 RD /s /q C:\Users\%username%\.Origin
 RD /s /q C:\Users\%username%\.QtWebEngineProcess
-RD /s /q %localappdata%\Microsoft\Windows\INetCache\*.log
+RD /s /q %LocalAppData%\Microsoft\Windows\INetCache\*.log
 
 :: 額外軟體項目清除
 RD /s /q "%LocalAppData%\Surfshark\Updates"
 RD /s /q "%AppData%\Telegram Desktop\tdata\user_data"
 RD /s /q "C:\ProgramData\IObit\Driver Booster\Download"
-DEL /f /q /s "%APPDATA%\IObit\IObit Uninstaller\UMlog\*.dbg"
+DEL /f /q /s "%AppData%\IObit\IObit Uninstaller\UMlog\*.dbg"
 
 :: Dx緩存清除
 RD /s /q "%USERPROFILE%\AppData\Local\NVIDIA\DXCache"
@@ -244,19 +244,19 @@ for /d %%E in ("%LocalAppData%\Microsoft\Edge\User Data\Profile*") do (
 :: ========== VScode清理 ==========
 @echo VS Code 清理
 
-rd /s /q "%appdata%\Code\logs"
-rd /s /q "%appdata%\Code\Cache"
-rd /s /q "%appdata%\Code\Crashpad"
-rd /s /q "%appdata%\Code\Code Cache"
-rd /s /q "%appdata%\Code\CachedData"
-rd /s /q "%appdata%\Code\User\History"
-rd /s /q "%appdata%\Code\CachedExtensions"
-rd /s /q "%appdata%\Code\CachedExtensionVSIXs"
-rd /s /q "%appdata%\Code\User\workspaceStorage"
+rd /s /q "%AppData%\Code\logs"
+rd /s /q "%AppData%\Code\Cache"
+rd /s /q "%AppData%\Code\Crashpad"
+rd /s /q "%AppData%\Code\Code Cache"
+rd /s /q "%AppData%\Code\CachedData"
+rd /s /q "%AppData%\Code\User\History"
+rd /s /q "%AppData%\Code\CachedExtensions"
+rd /s /q "%AppData%\Code\CachedExtensionVSIXs"
+rd /s /q "%AppData%\Code\User\workspaceStorage"
 rd /s /q "%LocalAppData%\Microsoft\vscode-cpptools"
-rd /s /q "%appdata%\Code\Service Worker\ScriptCache"
-rd /s /q "%appdata%\Code\Service Worker\CacheStorage"
-rd /s /q "%appdata%\Code\User\globalStorage\redhat.java"
+rd /s /q "%AppData%\Code\Service Worker\ScriptCache"
+rd /s /q "%AppData%\Code\Service Worker\CacheStorage"
+rd /s /q "%AppData%\Code\User\globalStorage\redhat.java"
 
 :: ========== discord清理 ==========
 @echo DisCord 清理(DC將會被關)
@@ -267,9 +267,9 @@ timeout /t 02 >nul
 wmic process where name="Discord.exe" delete
 
 del /f /s /q "%AppData%\Discord\Cache\*.*"
-del /f /s /q "%APPDATA%\Discord\GPUCache\*.*"
-del /f /s /q "%APPDATA%\Discord\Code Cache\*.*"
-del /f /s /q "%APPDATA%\Discord\DawnCache\*.*"
+del /f /s /q "%AppData%\Discord\GPUCache\*.*"
+del /f /s /q "%AppData%\Discord\Code Cache\*.*"
+del /f /s /q "%AppData%\Discord\DawnCache\*.*"
 
 :: ========== Line清理 ==========
 @echo 清理Line緩存(Line將會被關閉)
