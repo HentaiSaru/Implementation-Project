@@ -41,7 +41,7 @@ files.catbox.moe
 class UrlGenerator:
     def __init__(self):
         self.session = requests.Session()
-        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"}
+        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
         # 舊版隨機盒 self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
         self.RandomBox = [string.ascii_uppercase, string.ascii_lowercase, string.digits, string.ascii_letters, string.ascii_letters+string.digits]
         self.SupportDomain = ["reurl.cc","ppt.cc","files.catbox.moe"]
@@ -136,22 +136,21 @@ class UrlGenerator:
             stop = threading.Thread(target=self.Forced_stop)
             stop.daemon = True
             stop.start()
+            
+            def gen():
+                while len(self.SaveBox) < self.GeneratedNumber and self.build_status:
+                    gen_char = "".join(random.choice(Format) for _ in range(self.CharNumber))
+                    yield f"{self.DomainName}{gen_char}{self.Tail}"
 
             with ThreadPoolExecutor(max_workers=(cpu_count() * 30)) as executor:
-                while len(self.SaveBox) < self.GeneratedNumber and self.build_status:
-                    gen_char = ""
-
-                    for _ in range(self.CharNumber):
-                        gen_char += random.choice(Format)
-
-                    link = f"{self.DomainName}{gen_char}{self.Tail}"
-
+                for link in gen():
                     executor.submit(self.Data_Processing, link)
                     time.sleep(0.001)
 
             self.save.start()
             self.save.join()
         except:
+            os.system("cls")
             print("請先使用 generate_settin() 進行設置後, 再進行生成")
 
     def Data_Processing(self, link):
