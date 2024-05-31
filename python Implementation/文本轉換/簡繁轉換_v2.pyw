@@ -1,13 +1,14 @@
-from concurrent.futures import ThreadPoolExecutor
-from tkinter import filedialog, messagebox
-import tkinter as tk
-import threading
-import pyperclip
-import chardet
-import opencc
-import queue
-import time
 import os
+import time
+import queue
+import threading
+import tkinter as tk
+from tkinter import filedialog, messagebox
+from concurrent.futures import ThreadPoolExecutor
+
+import opencc
+import chardet
+import pyperclip
 
 """ Versions 1.0.1 - V2
 
