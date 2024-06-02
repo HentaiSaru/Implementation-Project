@@ -1,5 +1,5 @@
 :: - Versions 1.0.10 -
-:: - LastEditTime 2024/4/11 21:31 -
+:: - LastEditTime 2024/06/03 06:35 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -63,7 +63,7 @@ cls
 @ ECHO.
 @ ECHO [3m[94m   特殊功能 :[91m[23m
 @ ECHO.
-@ ECHO    [27] 網路重置    [28] The Finals 修復
+@ ECHO    [27] 網路重置
 @ ECHO.
 @ ECHO [3m[97m----------------------------------------------------------------------------------------------------------------------
 @ ECHO                                           - 系統指令操作 (不分大小寫) -
@@ -176,9 +176,6 @@ if %choice% equ 0 (
 
 ) else if %choice% equ 27 (
     call :NR&goto menu
-
-) else if %choice% equ 28 (
-    call :TF&goto menu
 
 ) else if /I "%choice%"=="ct" (
     Control
@@ -1061,20 +1058,6 @@ ipconfig /renew >nul
 
 timeout /t 1 >nul
 
-exit /b
-
-:: ----- The Finals TFAV0012 修復 2023/12/18 -----
-:TF
-
-ipconfig /flushdns >nul
-bcdedit /set dtrace OFF >nul
-reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CI\Config" /v "VulnerableDriverBlocklistEnable" /t REG_DWORD /d 1 /f
-
-ECHO.
-ECHO 電腦重啟後生效
-ECHO.
-
-timeout /t 2 >nul
 exit /b
 
 :: ************************************************************************************************************************
