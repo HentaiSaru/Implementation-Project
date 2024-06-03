@@ -1,6 +1,4 @@
 from tkinter import filedialog
-from PyQt6.QtWidgets import *
-from PyQt6.QtCore import *
 import tkinter as tk
 import progressbar
 import threading
