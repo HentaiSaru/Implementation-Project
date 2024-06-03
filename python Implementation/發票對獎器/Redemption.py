@@ -126,16 +126,15 @@ class Comparison(DataProcessing, WinningInstructions):
     def Select_Date(self) -> None:
         threading.Thread(target=self.Data_Analysis).start()
 
-        while self.Redemption_Data == None:
+        while self.Redemption_Data is None:
             print(self.wait, end="")
 
             for bar in self.bar:
-                if self.Redemption_Data != None: break
+                if self.Redemption_Data is not None: break
                 print(bar, end="", flush=True)
                 time.sleep(0.1)
 
-            print(f"\r{self.space}", end="")
-            print("\r", end="")
+            print(f"\r{self.space}\r", end="")
 
         print("{:<6} {}".format("代號", "兌獎日期"))
         for index, Redemption_Data in enumerate(self.Redemption_Data):
