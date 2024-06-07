@@ -422,8 +422,8 @@ if __name__ == "__main__":
 
     # Cookie["邁阿密"]
     # Cookie["波士頓"]
-    Cookie = DI.get_json(fr"{os.getcwd()}\EhCookie.json")
-    main.Login(Cookie=Cookie["邁阿密"])
+    # Cookie = DI.get_json(fr"{os.getcwd()}\EhCookie.json")
+    # main.Login(Cookie=Cookie["邁阿密"])
 
     """===================="""
 
