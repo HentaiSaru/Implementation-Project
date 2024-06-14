@@ -34,7 +34,7 @@ class UpdateDetection:
             datetime.fromtimestamp(int(title.xpath("./span/text()")[0])).strftime("%Y-%m-%d %H:%M:%S")
         )
         # 更新補丁
-        self.update_patch = "https://trs.mtool.app/{}".format(tree.xpath('//a[@class="goAfterClick"]/@href')[0])
+        self.update_patch = "{}".format(tree.xpath('//a[@class="goAfterClick"]/@href')[0])
 
     def Get_version(self):
         print(self.version)
