@@ -1,190 +1,222 @@
-from tkinter import filedialog
-import tkinter as tk
-import progressbar
-import threading
-import shutil
 import os
+import shutil
+import threading
+import tkinter as tk
+from tkinter import filedialog
+from operator import itemgetter
+from collections import Counter
 
-""" 精簡版檔案分類
+import progressbar
 
-Versions 1.0.6
+""" Versions 1.0.0 - V2
 
-[+] 資料夾路徑選取
-[+] 設置分類副檔名
-[+] 多線程複製輸出
-[+] 重複選擇功能
-[+] 輸出進度顯示
-[+] 完成自動開啟
+    Todo - 精簡版檔案類型分類
 
-* 說明
+        ? (開發/運行環境):
+        * Windows 11 23H2
+        * Python 3.12.3 64-bit
 
-- 輸出的速度取決於硬碟讀寫速度
-- 輸出是採複製的方式 , 對原始檔案無影響
+        * 第三方庫:
+        * progressbar
 
+        ? 功能說明:
+        * 資料夾路徑選取
+        * 多線程複製輸出
+        * 檔案類型選擇
+        * 輸出進度顯示
+        * 完成自動開啟
+        * 功能選項
+
+        ? 使用說明:
+        * 選擇需分類檔案的資料夾
+        * 接著根據顯示的代號, 選擇要複製的檔案類型
+
+        * 輸出的速度取決於硬碟讀寫速度
+        * 輸出是採複製的方式 , 對原始檔案無影響
 """
-root = tk.Tk()
 
-class DataRead:
+class Read(tk.Tk):
     def __init__(self):
-        self.directory = None
-        self.filename = None
+        tk.Tk.__init__(self)
+        self.Folder_Path = None
+        self.Complete_Data = None
 
+    def __Read_All_Files(self):
         # 保存選擇資料夾後讀取的所有數據
-        self.data = {}
+        Read_Data = {}
+
+        for Root, _, Files in os.walk(self.Folder_Path): # 路徑 , 資料夾 , 檔名
+            Read_Data[Root] = Files
+
+        return Read_Data
+
+    # 選擇開啟資料夾
+    def __Open_Folder(self):
+        self.withdraw() # 隱藏主窗口
+        self.Folder_Path = filedialog.askdirectory(title="選擇資料夾")
+        self.destroy() # 消除
+
+        if self.Folder_Path is not None:
+            return self.__Read_All_Files()
+
+    # 解析開啟的路徑數據
+    def Analysis(self):
+
+        Data = self.__Open_Folder()
+
+        if len(Data) <= 0:
+            print("無選擇資料夾")
+            os._exit(1)
+
+        # 緩存處理擴展名
+        File_Extension = None
         # 保存所有檔案類型 用於顯示選擇
-        self.file_type = set()
+        File_Type = set()
         # 保存所有檔案類型 用於計算數量
-        self.quantity = []
+        Type_Quantity = []
         # 保存所有檔案數據
-        self.all_data = []
-        # 保存過濾後檔案數據
-        self.filter_data = []
-        # 將塞選的類型數據轉回list保存
-        self.listtype = []
+        Complete_Data = []
 
-        # 最終顯示的表格
-        self.show_table = []
-
-    def open_folder(self):
-
-        root.withdraw() # 隱藏主窗口
-        folder_path = filedialog.askdirectory(title="資料夾選擇")
-        root.destroy() # 消除
-
-        if folder_path:
-            self.directory = folder_path
-            self.filename = os.path.basename(folder_path)
-            self.__read_file()
-            self.__filter_files()
-
-    def __read_file(self):
-
-        for root, dirs, files in os.walk(self.directory): # 路徑 , 資料夾 , 檔名
-            self.data[root] = files
-
-    def __filter_files(self):
-
-        filetype = None
-
-        for path, name in self.data.items():
-
-            if len(name) != 0:
-                
-                for _filter_ in name:
-                    Complete = os.path.join(path,_filter_)
+        for Path, FileBox in Data.items():
+            if len(FileBox) != 0: # 當他是 0 帶表示空資料夾
+                for name in FileBox:
                     try:
-                        filetype = _filter_.rsplit(".", 1 )[1].strip()
-                    except:
+                        File_Extension = name.rsplit(".", 1)[1].strip()
+                    except Exception: # 可能有例外
                         pass
 
                     try:
-                        self.file_type.add(filetype.lower())
-                        self.quantity.append(filetype.lower())
-                        self.all_data.append(Complete.replace("\\","/"))
-                    except:
-                        print("沒有可分類檔案")
-                        return
+                        Lowercase = File_Extension.lower()
 
-        self.listtype = list(self.file_type)
-        show = ["[0]", "ALL", f"{len(self.all_data)}"]
-        self.show_table.append(show)
+                        File_Type.add(Lowercase)
+                        Type_Quantity.append(Lowercase)
+                        Complete_Data.append(os.path.join(Path, name).replace("\\","/"))
+                    except Exception:
+                        print("無可分類檔案")
+                        os._exit(1)
 
-        for index , Type in enumerate(self.listtype):
-            show = [f"[{index+1}]",Type,self.quantity.count(Type)]
-            self.show_table.append(show)
+        self.Complete_Data = Complete_Data
+        return File_Type, Type_Quantity
 
-        print("{:<6} {:<8} {}".format("代號", "檔案類型", "類型數量"))
-        for row in self.show_table:
-            print("{:<10} {:<11} {}".format(row[0], row[1], row[2]))
-
-        self.RepeatedSelection()
-
-    def RepeatedSelection(self):  
-        self.filter_data.clear()
-
-        while True:
-            try:
-                Filter = int(input("\n選擇輸出檔案類型 (代號) : "))
-                if Filter == 0:
-                    print(f"你選擇了 : 全部\n")
-                else:
-                    print(f"你選擇了 : {self.listtype[Filter-1]}\n")
-
-                for data in self.all_data:
-                    if Filter == 0:
-                        self.filter_data.append(data)
-                    else:
-                        if data.endswith(f".{self.listtype[Filter-1]}"):
-                            self.filter_data.append(data)
-
-                if Filter == 0:
-                    output("ALL")
-                    break
-                else:
-                    output(self.listtype[Filter-1])
-                    break
-            except:
-                print("無效的代號")
-
+# 自訂例外
 class DataEmptyError(Exception):
     pass
 
-class output:
-    def __init__(self, choose):
-        self.working_status = []
-        self.save_route = f"{data.directory}/{data.filename} ({choose})"
+class Copy:
+    def __init__(self):
+        self.Save_Path = None
+        self.Origin_Path = None
+        self.Output_Data = None
+        self.Output_Select = None
+        self.__Copy_Output = lambda Copy_Path, Output_Path: shutil.copyfile(Copy_Path, Output_Path)
 
-        try:
-            if len(data.filter_data) == 0:
-                raise DataEmptyError()
+    # 複製處理
+    def __Copy_Deal(self):
+        Work_State = []
 
-            os.mkdir(self.save_route)
-            self.__copy_deal_with()
-        except DataEmptyError:
-            print("該路徑下無指定類型文件")
-        except:
-            self.__copy_deal_with()
+        for Copy_Path in self.Output_Data:
+           Convert = Copy_Path.split("/")
 
-    def __copy_deal_with(self): 
+           # 將檔案路徑的, 上一層資料夾, 與檔名分離出來, 組成輸出路徑
+           Output_Path = os.path.join(self.Save_Path, f"[{Convert[-2]}]{Convert[-1]}")
 
-        for out in data.filter_data:
-            convert = out.split("/")
-            file_name = f"{convert[-2]}_{convert[-1]}"
-            new_path = os.path.join(self.save_route, file_name)
-            # 輸出工作
-            Work = threading.Thread(target=self.__copy_output, args=(out,new_path))
-            self.working_status.append(Work)
-            Work.start()
+           # 輸出工作
+           Work = threading.Thread(target=self.__Copy_Output, args=(Copy_Path, Output_Path))
+           Work_State.append(Work)
+           Work.start()
 
-        # 進度條設置
-        self.widgets = [
+        WorkLoad = len(Work_State)
+        Progress_Bar = [ # 進度條樣式配置
             ' ', progressbar.Bar(marker='■', left='[', right=']'),
-            ' ', progressbar.Counter(), f'/{len(self.working_status)}',
+            ' ', progressbar.Counter(), f'/{WorkLoad}',
         ]
 
-        with progressbar.ProgressBar(widgets=self.widgets, max_value=len(self.working_status)) as bar:
-            for index, working in enumerate(self.working_status):
-                bar.update(index)
-                working.join()
+        with progressbar.ProgressBar(widgets=Progress_Bar, max_value=WorkLoad) as bar:
+            for Index, Working in enumerate(Work_State):
+                bar.update(Index)
+                Working.join()
 
         # 開啟存檔位置
-        os.startfile(os.path.dirname(self.save_route))
+        os.startfile(os.path.dirname(self.Save_Path))
 
-        """
+    # 處理輸出數據
+    def Output(self):
+        # 生成保存路徑
+        self.Save_Path = f"{self.Origin_Path}/{os.path.basename(self.Origin_Path)} ({self.Output_Select})"
+
+        try:
+            if len(self.Output_Data) == 0 or self.Output_Data is None:
+                raise DataEmptyError()
+
+            os.mkdir(self.Save_Path)
+            self.__Copy_Deal()
+
+        except DataEmptyError:
+            print("該路徑下無可複製文件")
+        except Exception:
+            self.__Copy_Deal()
+
+class TypeSelection(Read, Copy):
+    def __init__(self):
+        Read.__init__(self)
+        Copy.__init__(self)
+        self.Repeat = None
+
+    # 選擇輸出類型
+    def __Choose(self, Options):
+
         while True:
-            Selection = int(input("\n是否再次選擇 ? [1] YES / [0] NO : "))
-            if Selection == 1:
-                data.RepeatedSelection()
-                break
-            elif Selection == 0:
-                print("結束程式...")
-                break
-            else:
-                print("無效的代號")"""
+            try:
+                Select = int(input("\n選擇輸出類型 (代號) : "))
+                if Select == 0:
+                    print(f"你選擇了 : 全部\n")
+                    self.Output_Select = "ALL"
+                else:
+                    Type = Options[Select-1][0]
+                    print(f"你選擇了 : {Type}\n")
 
-    def __copy_output(self,out,path):
-        shutil.copyfile(out,path)
+                    Format = f".{Type}"
+                    self.Output_Data = [Item for Item in self.Complete_Data if Item.endswith(Format)]
+                    self.Output_Select = Type
+
+                self.Output()
+                if not self.Repeat: break
+
+            except Exception:
+                print("無效的代號")
+
+    """
+    選擇輸出類型文件
+    
+    Repeat = 是否重複選擇
+
+    """
+    def Select(self, Repeat: bool=False):
+        # 獲取解析數據
+        File_Type, Type_Quantity = self.Analysis()
+        self.Origin_Path = self.Folder_Path
+        self.Repeat = Repeat
+
+        # 展示用
+        Show_Table = []
+        Show_Table.append(["[0]", "ALL", f"{len(self.Complete_Data)}"])
+
+        # Key = 類型, Value = 對應數量
+        Quantity = Counter(Type_Quantity)
+        Sort_Cache = {Type: Quantity[Type] for Type in File_Type}
+
+        # 使用數量由大到小排序
+        Sorted = sorted(Sort_Cache.items(), key=itemgetter(1), reverse=True)
+        for Index, (Type, Count) in enumerate(Sorted):
+            Show_Table.append([f"[{Index+1}]", Type, Count])
+
+        # 顯示選擇
+        print("{:<6} {:<8} {}".format("代號", "檔案類型", "類型數量"))
+        for Row in Show_Table:
+            print("{:<10} {:<11} {}".format(Row[0], Row[1], Row[2]))
+
+        # 輸入選擇
+        self.__Choose(Sorted)
 
 if __name__ == "__main__":
-    data = DataRead()
-    data.open_folder()
+    TypeSelection().Select(True)
