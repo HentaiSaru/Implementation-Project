@@ -102,6 +102,7 @@ class Read(tk.Tk):
 class DataEmptyError(Exception):
     pass
 
+# 複製輸出
 class Copy:
     def __init__(self):
         self.Save_Path = None
@@ -185,13 +186,12 @@ class TypeSelection(Read, Copy):
             except Exception:
                 print("無效的代號")
 
-    """
-    選擇輸出類型文件
-    
-    Repeat = 是否重複選擇
-
-    """
     def Select(self, Repeat: bool=False):
+        """
+        選擇輸出類型文件
+
+        Repeat = 是否重複選擇
+        """
         # 獲取解析數據
         File_Type, Type_Quantity = self.Analysis()
         self.Origin_Path = self.Folder_Path
