@@ -3,6 +3,7 @@ import threading
 import msvcrt
 import httpx
 import time
+import json
 import os
 
 #! 預計添加: 根據獲取月份, 顯示兌獎期限, 並修改 dev 也就是獲取時顯示的數據, 根據取得區域顯示對應獎項
@@ -33,7 +34,7 @@ class DataProcessing:
         self.Url = "https://invoice.etax.nat.gov.tw/index.html"
         self.Headers = {
             "Cache-Control": "no-cache",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
         }
         self.Redemption_Data = None
 
@@ -76,7 +77,7 @@ class Comparison(DataProcessing, WinningInstructions):
         DataProcessing.__init__(self)
         WinningInstructions.__init__(self)
         self.input = ""
-        self.winning = None
+        self.winning = {}
         self.bar = "░" * 10
         self.wait = "兌獎號碼獲取中 "
         self.space = " " * (len(self.bar) * len(self.wait))
@@ -86,11 +87,11 @@ class Comparison(DataProcessing, WinningInstructions):
 
         while True:
             if self.input == "":
-                print("輸入發票末三碼 [Esc 中止]: ", end="")
+                print("輸入發票末三碼 [Esc 停止]: ", end="")
 
             Input = msvcrt.getch().decode()
             if Input == "\x1b":
-                print("中止", end="")
+                print("停止", end="")
                 break
             else:
                 print(Input, end="")
@@ -101,19 +102,16 @@ class Comparison(DataProcessing, WinningInstructions):
                     print("\n")
 
                     if self.input.lower() == "dev":
-                        print(f"{self.winning}\n")
+                        print(f"{json.dumps(self.winning, indent=4, ensure_ascii=False)}\n")
 
                     elif not self.input.isnumeric():
                         self.input = ""
                         raise ValueError()
 
                     else:
-                        for index, number in enumerate(self.winning):
-                            if number.endswith(self.input):
-                                if index < 2:
-                                    print(f"自行確認是否中獎 ({self.Reward_level[index]}): {number}\n")
-                                elif index < 5:
-                                    print(f"自行確認是否中獎 ({self.Reward_level[2]}): {number}\n")
+                        winning = self.winning.get(self.input)
+                        if winning is not None:
+                            print(f"自行確認是否中獎 ({winning['level']}): {winning['number']}\n")
 
                     self.input = ""
 
@@ -138,6 +136,7 @@ class Comparison(DataProcessing, WinningInstructions):
 
         print("{:<6} {}".format("代號", "兌獎日期"))
         for index, Redemption_Data in enumerate(self.Redemption_Data):
+            #! 如需要根據選取月份, 顯示兌換日期, 需要解析此處的 key, 選擇的日期
             for key in Redemption_Data.keys():
                 print("[{}]{:<5} {}".format(index, "", key))
 
@@ -151,8 +150,13 @@ class Comparison(DataProcessing, WinningInstructions):
                     print("\n錯誤的代號, 請重新選擇")
                 else:
                     os.system("cls")
-                    for title, number in self.Redemption_Data[select].items():
-                        self.winning = number
+                    for title, winning in self.Redemption_Data[select].items():
+                        # 將數據列表解析為字典 (測試以下寫法 比列導式快一些, 雖然列導式更簡潔)
+                        for index, number in enumerate(winning[:2]): # 前兩個獎勵等級為, 特別獎, 特獎
+                            self.winning[number[-3:]] = {"level": self.Reward_level[index], "number": number}
+                        for number in winning[2:]: # 後面都是 頭獎
+                            self.winning[number[-3:]] = {"level": self.Reward_level[2], "number": number}
+
                         print(title)
                     break
 
@@ -160,7 +164,7 @@ class Comparison(DataProcessing, WinningInstructions):
                 print("\n代號為數字, 請重新選擇")
 
         print("\n{:<9} {}".format(self.Reward_level[0], self.Reward_conditions[0]))
-        for i in range(1, 8):
+        for i in range(1, 8): # 顯示 獎勵等級, 獎勵條件 
             print("{:<10} {}".format(self.Reward_level[i], self.Reward_conditions[i]))
         self.__Comparison_Date()
 
