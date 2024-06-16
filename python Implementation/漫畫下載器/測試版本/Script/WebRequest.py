@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from lxml import etree
 import requests
 import httpx
+import time
 
 """
 Todo    適用於 Python 3.10+
@@ -12,8 +13,8 @@ Todo    適用於 Python 3.10+
 class CarryHead:
     # 使用 navigator.userAgent 直接獲取
     Head = {
-        "Google": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"},
-        "Edge": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0"}
+        "Google": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"},
+        "Edge": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0"}
     }
 
 class Reques(CarryHead):
@@ -22,6 +23,7 @@ class Reques(CarryHead):
         * headers: "Google" or "Edge", 兩字串擇一, 不處理例外
         * cookies: 傳入字典 cookie
         """
+        self.client = httpx.Client(http2=True)
         self.session = requests.Session()
         self.headers = self.Head[headers]
         self.cookies = cookies
@@ -36,6 +38,18 @@ class Reques(CarryHead):
             "tree" : etree.HTML(respon.text),
             "bf" : BeautifulSoup(respon.text, "html.parser"),
         }[type]
+        
+    def Elapsed_Time(func):
+        """
+        加上裝飾器 @Elapsed_Time 測試請求運行耗時
+        """
+        def wrapper(self, url):
+            start_time = time.time()
+            result = func(self, url)
+            end_time = time.time()
+            print(f"調用: {func.__name__}, 耗時: {end_time - start_time} 秒")
+            return result
+        return wrapper
 
     def get(self, url: str, type: str="text") -> any:
         """
@@ -56,7 +70,26 @@ class Reques(CarryHead):
             type
         )
 
-    async def http_get(self, url: str) -> object:
+    def http2_get(self, url: str, type: str="text") -> any:
+        """
+        *   支援 http2 的 Get 請求
+        >>> [ url ]
+        要請求的連結
+
+        >>> [ type ]
+        要獲取的結果類型
+        ("none" / "text" / "content" / "status" / "tree" / "bf")
+
+        "none" => 無處理
+        "tree" => lxml 進行解析
+        "bf" => bs4 進行解析
+        """
+        return self.__Parse(
+            self.client.get(url, headers=self.headers, cookies=self.cookies),
+            type
+        )
+
+    async def async_http_get(self, url: str) -> object:
         """
         *   異步 Get 請求
 
@@ -66,7 +99,7 @@ class Reques(CarryHead):
         >>> [ 使用方式 ]
         import asyncio
         async def main():
-            work = [http_get(url) for url in date]
+            work = [async_http_get(url) for url in date]
             results = await asyncio.gather(*work)
         asyncio.run(main())
         """
