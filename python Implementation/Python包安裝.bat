@@ -33,6 +33,15 @@ pip install Scrapy
 pip install urllib3
 pip install beautifulsoup4
 ::------------------------::
+:: 反爬處理
+pip install scrapy-crawlera
+:: 繞過 cloud 反爬檢測 (免費版)
+pip install cloudscraper
+:: 反爬自動化
+pip install undetected-chromedriver2
+:: 簡單的處理反爬, 與動態生成網站
+pip install requests-html
+::------------------------::
 :: 異步請求
 pip install aiohttp
 :: 異步讀寫檔案
@@ -40,12 +49,8 @@ pip install aiofiles
 ::------------------------::
 :: 自動化操作
 pip install selenium
-:: 反爬自動化
-pip install undetected-chromedriver2
 :: 驅動安裝
 pip install chromedriver_autoinstaller
-:: 繞過反爬檢測
-pip install cloudscraper
 ::------------------------::
 :: RSS解析
 pip install feedparser
