@@ -103,7 +103,7 @@ class Reques(CarryHead):
             results = await asyncio.gather(*work)
         asyncio.run(main())
         """
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(http2=True) as client:
             response = await client.get(url, headers=self.headers, cookies=self.cookies)
             return etree.HTML(response.text)
 
