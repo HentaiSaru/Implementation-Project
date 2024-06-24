@@ -33,7 +33,7 @@ import os
         * 設置完成後啟用程式 即可自動擷取剪貼簿 擷取完成透過熱鍵 觸發請求下載
 
         ? 更新說明:
-        * 增加下載紀錄功能
+        * 使用 3.12 運行時, 有不知原因的 BUG, 沒有任何錯誤訊息, 暫時無法正常使用
 """
 
 #Todo [ 手動獲取Cookie, 並保存Josn文件 ]
@@ -121,10 +121,10 @@ class DataRequest:
         self.domain = "https://nhentai.net"
 
     def get(self, link, result="tree") -> object:
-        return self.Reques.get(link, result)
+        return self.Reques.http2_get(link, result)
 
-    def http_get(self, link) -> object:
-        return self.Reques.http_get(link)
+    def async_http_get(self, link) -> object:
+        return self.Reques.async_http_get(link)
 
 #Todo [ 下載連結驗證 分類 ]
 class Validation(DataRequest):
@@ -204,7 +204,7 @@ class NHentaidownloader(Validation):
         # Todo [ 生成網址輪替數據 ]
         self.shunt = ["i", "i2", "i3", "i5", "i7"] # 分流
         self.server = itertools.cycle(self.shunt) # 循環迭代器
-        self.extension = ["jpg", "png"] # 擴展名
+        self.extension = ["jpg", "png", "gif"] # 擴展名
         # Todo [ 下載參數設置 ]
         self.TitleFormatting = None
         self.ProtectionDelay = None # 下載的延遲
@@ -234,7 +234,7 @@ class NHentaidownloader(Validation):
         
         DownloadDelay=0.3,
         ProcessCreationDelay=1,
-        MaxConcurrentDownload: int=cpu_count(),
+        MaxConcurrentDownload: int=cpu_count()-1,
         
         FilterTags: dict=None,
         CookieSource: dict=Set("cookie"),
@@ -291,10 +291,15 @@ class NHentaidownloader(Validation):
             for url in self.search_box:
                 self.search_page_data(url)
         elif len(self.comics_box) > 0:
-            with ProcessPoolExecutor(max_workers=self.MaxProcess) as executor:
-                for index, url in enumerate(self.comics_box):
-                    executor.submit(self.comic_page_data, url, index+1)
-                    time.sleep(self.ProcessDelay)
+            for index, url in enumerate(self.comics_box):
+                self.comic_page_data(url, index+1)
+                time.sleep(self.ProcessDelay)
+
+            #! 進程池有問題
+            # with ProcessPoolExecutor(max_workers=self.MaxProcess) as executor:
+                # for index, url in enumerate(self.comics_box):
+                    # executor.submit(self.test, url, index+1)
+                    # time.sleep(self.ProcessDelay)
 
     #? [ 搜尋頁處理 ]
     def search_page_data(self, link):
@@ -331,7 +336,7 @@ class NHentaidownloader(Validation):
                 count = 0
                 work = []
                 for page in range(2, self.Pages+1):
-                    work.append(asyncio.create_task(self.http_get(f"{url.split('?page=')[0]}?page={page}")))
+                    work.append(asyncio.create_task(self.async_http_get(f"{url.split('?page=')[0]}?page={page}")))
                     count+=1
                     if count == 5 and self.Pages > 5:
                         print(f"\r以處理 [{page-1}] 頁 休息1秒...", end="", flush=True)
@@ -441,11 +446,17 @@ class NHentaidownloader(Validation):
     def download_processing(self):
         self.create_folder(self.save_location)
 
-        with ThreadPoolExecutor(max_workers=100) as executor:
-            for SaveName, ComicLink in tqdm(self.download_link.items(), desc=self.title, colour="#9575DE"):
-                Save = os.path.join(self.save_location, SaveName) #* 圖片保存位置
-                executor.submit(self.download_pictures, Save, ComicLink)
-                time.sleep(self.ProtectionDelay)
+        for SaveName, ComicLink in tqdm(self.download_link.items(), desc=self.title, colour="#9575DE"):
+            Save = os.path.join(self.save_location, SaveName) #* 圖片保存位置
+            self.download_pictures(Save, ComicLink)
+            time.sleep(self.ProtectionDelay)
+
+        #! 線程池有問題
+        # with ThreadPoolExecutor(max_workers=100) as executor:
+            # for SaveName, ComicLink in tqdm(self.download_link.items(), desc=self.title, colour="#9575DE"):
+                # Save = os.path.join(self.save_location, SaveName)
+                # executor.submit(self.download_pictures, Save, ComicLink)
+                # time.sleep(self.ProtectionDelay)
 
     #? [ 創建資料夾 ]
     def create_folder(self, Name):
@@ -504,7 +515,6 @@ if __name__ == "__main__":
 
     nh.download_settings(
         TitleFormat=True,
-        DownloadDelay=0.1,
         SearchQuantity=10,
         DownloadPath="R:/",
         DownloadHistory=True,
@@ -512,10 +522,12 @@ if __name__ == "__main__":
         CookieSource=Read("cookie"),
     )
 
-    AutoCapture.settings("https://nhentai.net/")
-    capture = AutoCapture.GetList()
-    if capture != None:
-        nh.download_request(capture)
-    else:
-        print("無擷取內容")
-        os._exit(0)
+    nh.download_request("https://nhentai.net/g/471884/")
+    
+    # AutoCapture.settings("https://nhentai.net/")
+    # capture = AutoCapture.GetList()
+    # if capture != None:
+        # nh.download_request(capture)
+    # else:
+        # print("無擷取內容")
+        # os._exit(0)
