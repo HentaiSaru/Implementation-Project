@@ -1,5 +1,5 @@
 :: - Versions 1.0.10 -
-:: - LastEditTime 2024/06/03 06:35 -
+:: - LastEditTime 2024/06/25 23:24 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -846,7 +846,6 @@ if not exist "C:\Program Files\WinRAR\Rarreg.key" (
 )
 
 timeout /t 2 >nul
-
 exit /b
 
 :: ----- IDM 授權 -----
@@ -859,25 +858,21 @@ ECHO.
 ECHO 下載中請稍後...
 ECHO.
 
-certutil -urlcache -split -f "https://raw.githubusercontent.com/Canaan-HS/Implementation-Project/Main/Command Prompt/Idm/IDM.tar" IDM.tar >nul
+certutil -urlcache -split -f "https://raw.githubusercontent.com/lstprjct/IDM-Activation-Script/main/IAS.cmd" IDM.cmd >nul
 
-if not exist "IDM.tar" (
+if not exist "IDM.cmd" (
     ECHO 下載失敗...
+    timeout /t 2 >nul
+    exit /b
 ) else (
-    tar -xf IDM.tar >nul
-    del /f /s /q IDM.tar >nul
     move IDM.cmd "%Temp%" >nul
 
     ECHO 下載完成...
-    ECHO.
-    ECHO 啟動程式...
         
     cd %Temp%
     start /B IDM.cmd
+    exit
 )
-
-timeout /t 2 >nul
-exit /b
 
 :: ----- Windows 啟用授權 -----
 :windows
@@ -1153,7 +1148,7 @@ color 07
 @ ECHO.
 @ ECHO 1. 請注意某些特別的設置(優化之類的) , 這是以本人的電腦製作的 , 不一定適用於所有人
 @ ECHO.
-@ ECHO 2. Window 和 Office 的啟用工具 , 由網路下載資源(有時候下載比較慢) 請等待
+@ ECHO 2. 授權啟用工具 , 由網路下載資源(有時候下載比較慢) 請等待
 @ ECHO.
 @ ECHO 3. 需操作的程式 , 必須都安裝在預設的路徑上 , 才可成功運行
 @ ECHO.
