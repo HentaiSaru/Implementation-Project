@@ -345,6 +345,6 @@ if __name__ == "__main__":
     with ThreadPoolExecutor(max_workers=100) as executor:
         for func, delay in zip([
             AC.Wuyong_Checkin, AC.Zero_Checkin, AC.Genshin_Checkin, AC.StarRail_Checkin
-        ], [paramet.WaitingTime() + 10, 10, 10, 10, 10]): # 延遲設置
+        ], [10, 10, 10, 10]): # 延遲設置
             executor.submit(func)
             time.sleep(delay)
