@@ -66,7 +66,7 @@ class ZeroDownloader:
         Todo ----------------------------
         """
         self.ProcessDelay = 1
-        self.MaxProcesses = cpu_count() # cpu 核心數
+        self.MaxProcesses = cpu_count() - 1 # cpu 核心數
 
         """ #_#_#_#_#_#_#_#_#_#_#_#_#_#_#
         Todo ----------------------------
@@ -121,10 +121,6 @@ class ZeroDownloader:
         self.location = None
         self.Mantissa = None
         self.domain = None
-
-    def data_request(self, url):
-        request = self.session.get(url, headers=self.headers)
-        return etree.fromstring(request.content, etree.HTMLParser())
 
     def data_processing(self, url):
 
