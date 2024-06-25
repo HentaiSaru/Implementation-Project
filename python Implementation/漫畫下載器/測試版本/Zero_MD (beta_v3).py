@@ -54,7 +54,7 @@ dir = os.path.abspath("R:/")
 
 # (該網站會每過一段時間會改域名 , 在此處更改即可繼續使用)
 def DomainName():
-    return "http://www.zerobywns.com/"
+    return "https://www.zerobywzz.com/"
 
 class ZeroDownloader:
     def __init__(self):
@@ -134,7 +134,7 @@ class ZeroDownloader:
 
         if re.match(self.UrlFormat,url):
             try:
-                tree = self.reques.get(url, "tree")
+                tree = self.reques.http2_get(url, "tree")
 
                 # 漫畫名稱處理
                 name = re.match(self.NameFormat , tree.xpath("//h3[@class='uk-heading-line mt10 m10']/text()")[0])
@@ -332,7 +332,7 @@ class ZeroDownloader:
         # 尾數格式
         mantissa_combination = [f"{page:01d}", f"{page:02d}", f"{page:03d}", f"{page:04d}", f"{page:05d}"]
         # 擴展格式
-        extension_combination = ["jpg", "png", "jpeg"]
+        extension_combination = ["jpg", "png", "gif", "jpeg"]
 
         for mantissa in mantissa_combination:
             for extension in extension_combination:
@@ -341,7 +341,7 @@ class ZeroDownloader:
                 # 合併的測試連結
                 test_link = f"{initial[0]}/{test}"
                 # 請求測試
-                Data_status = self.reques.get(test_link, "none")
+                Data_status = self.reques.http2_get(test_link, "none")
 
                 if Data_status.status_code == 200:
                     # 成功的改變預設的 , 尾數/擴展名
@@ -352,7 +352,7 @@ class ZeroDownloader:
     # 下載方法
     def download(self, folder_name, save_name, link):
         # 請求後將狀態傳遞
-        Data = self.reques.get(link, "none")
+        Data = self.reques.http2_get(link, "none")
 
         if Data.status_code == 200:
             # (請求成功) 當沒有資料夾時創建
