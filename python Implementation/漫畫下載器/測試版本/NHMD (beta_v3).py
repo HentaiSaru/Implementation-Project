@@ -522,12 +522,10 @@ if __name__ == "__main__":
         CookieSource=Read("cookie"),
     )
 
-    nh.download_request("https://nhentai.net/g/471884/")
-    
-    # AutoCapture.settings("https://nhentai.net/")
-    # capture = AutoCapture.GetList()
-    # if capture != None:
-        # nh.download_request(capture)
-    # else:
-        # print("無擷取內容")
-        # os._exit(0)
+    AutoCapture.settings("https://nhentai.net/")
+    capture = AutoCapture.GetList()
+    if capture is not None:
+        nh.download_request(capture)
+    else:
+        print("無擷取內容")
+        os._exit(0)
