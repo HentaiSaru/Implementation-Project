@@ -5,219 +5,171 @@ from Script import paramet, DO , DI
 from concurrent.futures import *
 from selenium import webdriver
 from lxml import etree
-import multiprocessing
 import time
 import re
 
 class AutomaticCheckin:
-    def __init__(self):   
-        self.exist = False
+    def __init__(self):
+        self.tree = None
         self.offdelay = 5
-        
+
+    # 等待網頁載入完成
     def LoadWait(self, driver):
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 20).until(
             lambda driver: driver.execute_script("return document.readyState") == "complete"
         )
+        time.sleep(3) # 某些用 Ajex 生成的, 目前沒很好的檢測方法
 
-    def Login_Confirm(self, timeout: int, webname: str, link: str, xpath: str, imset: bool = True, headless: bool = False, trylogin: bool = True):
+    # 等待可點擊元素出現 (開啟頁面, 等待時間, 等待元素)
+    def ClickWait(self, driver, timeout: int, xpath: str):
+        Element = WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((By.XPATH, xpath)))
+        return Element
+
+    # icon 的驗證函數 (開啟頁面, 查找 icon 元素的 xpath)
+    def IconVerify(self, element: str) -> bool:
+        login = self.tree.xpath(element)[0].get("src")
+        # 當匹配成功是預設 base64 貼圖, 代表沒有登入成功
+        return not re.match(r"data:image/png;base64,.*", login)
+
+    # Cookie 的驗證函數 (開啟頁面, 驗證 是否存在的類型)
+    def CookieVerify(self, driver, value: str) -> bool:
+        return any(cookie["name"] == value for cookie in driver.get_cookies())
+
+    # 驗證登入
+    def Login_Confirm(self,
+        webname: str,
+        link: str,
+        verify_method: dict,
+        needset: bool = True,
+        headless: bool = False,
+        trylogin: bool = True
+    ):
         """
         * timeout = 等待超時
         * webname = 網頁名稱
         * link = 開啟的連結
-        * xpath = 等待元素
-        * imset = 使否導入設置參數
+        * verify_method (沒有寫對於參數錯誤的驗證):
+        {"type": "", "value": "", "waittime": 5}
+        type 可以傳入的類型, icon | xpath | cookie, value 驗證搭配值, waittime 等待時間
+        * needset = 使否導入設置參數
         * headless = 使用無頭啟用
         * trylogin = 嘗試使用 Cookie 登入
         """
 
-        if imset:
+        if needset:
             driver = webdriver.Chrome(options=paramet.AddSet(webname, headless))
             driver.get(link)
             self.LoadWait(driver)
+            self.tree = etree.fromstring(driver.page_source, etree.HTMLParser())
             driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         else:
             driver = link
 
+        # 這邊開始驗證登入狀態
+        [Type, value, waittime] = [ # 解構驗證方法
+            verify_method.get("type"),
+            verify_method.get("value"),
+            verify_method.get("waittime")
+        ]
+        verify = { # 驗證方法的類型 (寫在這裡並沒有很好, 但我懶得傳參數給 lambda)
+            "icon": lambda: self.IconVerify(value),
+            "xpath": lambda: WebDriverWait(driver, waittime).until(EC.presence_of_element_located((By.XPATH, value))),
+            "cookie": lambda: self.CookieVerify(driver, value),
+        }
+
         try:
-            WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
+            if not verify[Type.lower()](): raise Exception("驗證失敗")
         except:
             try:
                 if trylogin:
                     for cookie in DI.get_website_cookie(webname):
                         driver.add_cookie(cookie)
                     driver.refresh()
-
-                    WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
-                    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-                else:
-                    pass
+                    self.LoadWait(driver)
+                    if not verify[Type.lower()](): raise Exception("驗證失敗")
+                else: raise Exception("無嘗試登入")
             except:
                 input(f"網站 : {webname} , 自行登入完成後 => \n按下 (Enter) 確認 : ")
 
         DO.json_cookie(driver.get_cookies(), webname)
 
-        if imset:
+        if needset:
             return driver
         else:
-            time.sleep(timeout)
+            time.sleep(waittime)
             driver.quit()
 
     def Wuyong_Checkin(self):
-        Wuyongdriver = self.Login_Confirm(
-            10,
+        Wuyong = self.Login_Confirm(
             "wuyong",
-            "https://wuyong.fun/",
-            "//img[@class='avatar b2-radius']",
+            "https://wuyong.fun/#google_vignette",
+            {
+                "type": "xpath",
+                "value": "//img[@class='avatar b2-radius']",
+                "waittime": 8
+            }
         )
 
-        Wuyongbutton = WebDriverWait(Wuyongdriver, 3).until(EC.element_to_be_clickable((By.XPATH, "//i[@class='b2font b2-gift-2-line ']")))
+        Wuyong.execute_script("setInterval(() => {document.querySelector('#dismiss-button')?.click()}, 800);")
+        Wuyongbutton = self.ClickWait(Wuyong, 3, "//i[@class='b2font b2-gift-2-line ']")
         Wuyongbutton.click()
 
         time.sleep(self.offdelay)
-        Wuyongdriver.quit()
-
-    def Black_Checkin(self):
-        blackdriver = self.Login_Confirm(
-            5,
-            "black",
-            "https://black.is-best.site/plugin.php?id=gsignin:index",
-            "//div[@class='avt y']",
-        )
-
-        time.sleep(paramet.WaitingTime() + 0.5)
-        blackdriver.refresh()
-
-        for _ in range(3):
-            blackbutton = WebDriverWait(blackdriver, 3).until(EC.element_to_be_clickable((By.XPATH,"//a[@class='right']")))
-            blackbutton.click()
-            blackdriver.refresh()
-
-        time.sleep(self.offdelay)
-        blackdriver.quit()
+        Wuyong.quit()
 
     def Zero_Checkin(self):
-        Zerodriver = webdriver.Chrome(options=paramet.AddSet("zero"))
-        Zerodriver.get("https://zerobyw.github.io/")
-        Zerodriver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
+        Zero = webdriver.Chrome(options=paramet.AddSet("zero"))
+        Zero.get("https://zerobyw.github.io/")
+        Zero.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
-        miaoaaabutton = WebDriverWait(Zerodriver, 5).until(EC.element_to_be_clickable((By.XPATH, "//li[@class='layui-timeline-item']//button")))
-        miaoaaabutton.click()
+        Jump = self.ClickWait(Zero, 5, "//li[@class='layui-timeline-item']//button")
+        Jump.click()
 
-        time.sleep(5)
-
-        handles = Zerodriver.window_handles
-        Zerodriver.switch_to.window(handles[-1])
+        time.sleep(5) # 愚蠢的等待方式
+        handles = Zero.window_handles
+        Zero.switch_to.window(handles[-1])
 
         self.Login_Confirm(
-            8,
             "zero",
-            Zerodriver,
-            "//img[@class='user_avatar']",
-            imset = False
+            Zero,
+            {
+                "type": "xpath",
+                "value": "//img[@class='user_avatar']",
+                "waittime": 8
+            },
+            needset = False
         )
 
     def Genshin_Checkin(self):
         Genshin = self.Login_Confirm(
-            5,
             "Genshin",
             "https://act.hoyolab.com/ys/event/signin-sea-v3/index.html?act_id=e202102251931481",
-            "//div[@class='mhy-hoyolab-account-block__avatar']" # 驗證元素待修正
+            {
+                "type": "icon",
+                "value": "//img[@class='mhy-hoyolab-account-block__avatar-icon']",
+                "waittime": 8
+            }
         )
 
         # 關閉彈出窗口,如果有的話
         try:
-            Genshinbutton = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")))
-            Genshinbutton.click()
+            GenshinClose = self.ClickWait(Genshin, 3, "//span[@class='components-home-assets-__sign-guide_---guide-close---2VvmzE']")
+            GenshinClose.click()
         except:pass
 
         try: # 某確認框
-            Genshinbutton = WebDriverWait(Genshin, 3).until(EC.element_to_be_clickable((By.XPATH, "//button[@class='mihoyo-cookie-tips__button mihoyo-cookie-tips__button--hk4e']")))
-            Genshinbutton.click()
+            GenshinConfirm = self.ClickWait(Genshin, 3, "//button[@class='mihoyo-cookie-tips__button mihoyo-cookie-tips__button--hk4e']")
+            GenshinConfirm.click()
         except:pass
-
-        # 取得 cookie 來判斷登入狀態
-        cookies = Genshin.get_cookies()
-        for cookie in cookies:
-            if cookie["name"] == "account_id":
-                self.exist = True
-
-        # 這邊嘗試使用 cookie 狀態來判斷登入 , 與否
-        if not self.exist: #! 測試
-            # 第一次 嘗試 cookie 登入
-            try:
-                for cookie in DI.get_website_cookie("Genshin"):
-                    Genshin.add_cookie(cookie)
-                Genshin.refresh()
-            except:pass
-
-            time.sleep(2)
-            tree = etree.fromstring(Genshin.page_source, etree.HTMLParser())
-            login = tree.xpath("//img[@class='mhy-hoyolab-account-block__avatar-icon']")[0].get("src")
-
-            # 二次確認登入狀態
-            if re.match(r"data:image/png;base64,.*", login):
-                try:
-                    Genshinbutton = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='mhy-hoyolab-account-block__avatar-icon']")))
-                    Genshinbutton.click()
-
-                    time.sleep(60) #? 自行登入完成後, 給 60 秒時間
-
-                    #! 自動登入自動化失效 (手動登入)
-                    """
-                    # 使用Twitter 登入 後方 [1: google, 2: apple, 3: facebook, 4: twitter]
-                    Genshinbutton = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='button-container mb-p8']/div[4]")))
-                    Genshinbutton.click()
-
-                    # 獲取當前開啟的窗口名稱
-                    handles = Genshin.window_handles
-                    for handle in handles:
-                        Genshin.switch_to.window(handle)
-                        if "Twitter / 授權應用程式" in Genshin.title:
-                            break
-
-                    # 取得保存的帳號,密碼
-                    Acc = DI.get_acc()
-                    acc = Acc["Genshin_account"]
-                    pas = Acc["Genshin_password"]
-
-                    # 輸入帳號
-                    accountbutton = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH, "//input[@id='username_or_email']")))
-                    accountbutton.click()
-                    accountbutton.send_keys(acc)
-
-                    # 輸入密碼
-                    passwordbutton = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='password']")))
-                    passwordbutton.click()
-                    passwordbutton.send_keys(pas)
-                    
-                    # 記住
-                    remember = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='remember']")))
-                    remember.click()
-
-                    # 送出
-                    loginbutton = WebDriverWait(Genshin, 5).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='allow']")))
-                    loginbutton.click()
-
-                    input("原神登入完成後 => \n按下 (Enter) 確認 : ")
-
-                    #! 再次切回原窗口 (測試)
-                    handles = Genshin.window_handles
-                    for handle in handles:
-                        Genshin.switch_to.window(handle)
-                        if "【原神】每日簽到" in Genshin.title:
-                            break
-
-                    """
-                    DO.json_cookie(Genshin.get_cookies(), "Genshin")
-                except Exception as e:
-                    print(e)
 
         # 點選簽到位置 (已經簽到的就會找不到, 因此當沒找到時, 要讓他跳過)
         try:
-            Genshinbutton = WebDriverWait(Genshin, 20).until(EC.element_to_be_clickable((By.XPATH, "//span[@class='components-home-assets-__sign-content-test_---red-point---2jUBf9']")))
-            for _ in range(3): # 測試
-                Genshinbutton.click()
-                time.sleep(1)
+            while True:
+                checkin = self.ClickWait(Genshin, 3, "//span[@class='components-home-assets-__sign-content-test_---red-point---2jUBf9']")
+                if checkin:
+                    checkin.click()
+                    break
+                time.sleep(0.5)
         except:
             pass
 
@@ -226,94 +178,24 @@ class AutomaticCheckin:
 
     def StarRail_Checkin(self):
         StarRail = self.Login_Confirm(
-            5,
             "StarRail",
-            "https://act.hoyolab.com/bbs/event/signin/hkrpg/index.html?act_id=e202303301540311&hyl_auth_required=true&hyl_presentation_style=fullscreen&lang=zh-tw&plat_type=pc",
-            "//div[@class='mhy-hoyolab-account-block__avatar']" # 無效的登入檢測
+            "https://act.hoyolab.com/bbs/event/signin/hkrpg/index.html?act_id=e202303301540311",
+            {
+                "type": "icon",
+                "value": "//img[@class='mhy-hoyolab-account-block__avatar-icon']",
+                "waittime": 8
+            }
         )
 
         try: # 關閉彈出窗口
-            StarRailClos = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='components-pc-assets-__dialog_---dialog-close---3G9gO2']")))
-            StarRailClos.click()
+            StarRailClose = self.ClickWait(StarRail, 3, "//div[@class='components-pc-assets-__dialog_---dialog-close---3G9gO2']")
+            StarRailClose.click()
         except:pass
-
-        # 獲取登入帳戶圖標連結
-        tree = etree.fromstring(StarRail.page_source, etree.HTMLParser())
-        login = tree.xpath("//img[@class='mhy-hoyolab-account-block__avatar-icon']")[0].get("src")
-
-        # 第一次嘗試 cookie 進行登入 (匹配成功代表未登入)
-        if re.match(r"data:image/png;base64,.*", login):
-            try:
-                for cookie in DI.get_website_cookie("StarRail"):
-                    StarRail.add_cookie(cookie)
-                StarRail.refresh()
-            except:pass
-
-            # 第二次再檢測如果未登入 , 再使用登入操作
-            time.sleep(2)
-            tree = etree.fromstring(StarRail.page_source, etree.HTMLParser())
-            login = tree.xpath("//img[@class='mhy-hoyolab-account-block__avatar-icon']")[0].get("src")
-
-            if re.match(r"data:image/png;base64,.*", login):
-                # 點選登入
-                loginclick = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//img[@class='mhy-hoyolab-account-block__avatar-icon']")))
-                loginclick.click()
-
-                time.sleep(80) #? 自行登入完成後, 給 80 秒時間
-
-                #! 自動登入自動化失效 (手動登入)
-                # 使用FaceBook登入 , div[3] 是fb
-                """
-                loginbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, "//div[3][@class='account-sea-third-party-login-item']//img[@class='account-sea-login-icon']")))
-                loginbutton.click()
-
-                Acc = DI.get_acc()
-                acc = Acc["StarRail_account"]
-                pas = Acc["StarRail_password"]
-
-                time.sleep(2)
-                # 切換操作窗口
-                handles = StarRail.window_handles
-                for handle in handles:
-                    StarRail.switch_to.window(handle)
-
-                try: # 嘗試進行輸入帳號登入
-                    accountbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='email']")))
-                    accountbutton.click()
-                    accountbutton.send_keys(acc)
-
-                    passwordbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@id='pass']")))
-                    passwordbutton.click()
-                    passwordbutton.send_keys(pas)
-
-                    loginbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='login']")))
-                    loginbutton.click()
-                except:
-                    passwordbutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH,"//input[@name='pass']")))
-                    passwordbutton.click()
-                    passwordbutton.send_keys(pas)
-
-                    continuebutton = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH,"//label[@class='uiButton uiButtonConfirm uiButtonLarge']")))
-                    continuebutton.click()
-
-                while True: # 採用另一種方式切換
-                    handles = StarRail.window_handles
-                    for handle in handles:
-                        StarRail.switch_to.window(handle)
-                        if "《崩壞：星穹鐵道》每日簽到" in StarRail.title:
-                            break
-                        else:
-                            time.sleep(0.5)
-                    break
-
-                input("星鐵登入完成後 => \n按下 (Enter) 確認 : ")
-                """
-                DO.json_cookie(StarRail.get_cookies() , "StarRail")
 
         while True:
             try:
                 # 取得當前簽到時間 + 1
-                checkinday = int(tree.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
+                checkinday = int(self.tree.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
                 # 尋找 + 1 後的天數 , 就是要簽到的時間
                 checkin = WebDriverWait(StarRail, 3).until(EC.element_to_be_clickable((By.XPATH, f"//span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")))
 
@@ -326,25 +208,54 @@ class AutomaticCheckin:
         time.sleep(self.offdelay)
         StarRail.quit()
 
+    def ZoneZero_Checkin(self):
+        ZoneZero = self.Login_Confirm(
+            "ZoneZero",
+            "https://act.hoyolab.com/bbs/event/signin/zzz/e202406031448091.html?act_id=e202406031448091",
+            {
+                "type": "icon",
+                "value": "//img[@class='mhy-hoyolab-account-block__avatar-icon']",
+                "waittime": 8
+            }
+        )
+        
+        try: # 關閉彈出窗口
+            ZoneZeroClose = self.ClickWait(ZoneZero, 3, "//div[@class='components-pc-assets-__dialog_---dialog-close---3G9gO2']")
+            ZoneZeroClose.click()
+        except:pass
+
+        while True:
+            try:
+                # 取得當前簽到時間 + 1
+                checkinday = int(self.tree.xpath("//p[@class='components-pc-assets-__main-module_---day---3Q5I5A day']/span/text()")[0])+1
+                # 尋找 + 1 後的天數 , 就是要簽到的時間
+                checkin = self.ClickWait(ZoneZero, 3, f"//span[@class='components-pc-assets-__prize-list_---no---3smN44'][contains(text(), '第{checkinday}天')]")
+
+                if checkin:
+                    checkin.click()
+                    break
+                time.sleep(0.5)
+            except:pass
+
+        time.sleep(self.offdelay)
+        ZoneZero.quit()
+
 if __name__ == "__main__":
     AC = AutomaticCheckin()
-    
-    #################################################
-    # 原本的 threading 會造成錯誤
-    # multiprocessing.Process(target=AC.Black_Checkin).start()
-    # time.sleep(paramet.WaitingTime() + 5)
-    # multiprocessing.Process(target=AC.Wuyong_Checkin).start()
-    # time.sleep(5)
-    # multiprocessing.Process(target=AC.Zero_Checkin).start()
-    # time.sleep(5)
-    # multiprocessing.Process(target=AC.Genshin_Checkin).start()
-    # time.sleep(5)
-    # multiprocessing.Process(target=AC.StarRail_Checkin).start()
 
-    #! 操作有些 BUG 等待修正
+    # AC.Wuyong_Checkin()
+    # AC.Zero_Checkin()
+    # AC.Genshin_Checkin()
+    # AC.StarRail_Checkin()
+    # AC.ZoneZero_Checkin()
+
     with ThreadPoolExecutor(max_workers=100) as executor:
         for func, delay in zip([
-            AC.Wuyong_Checkin, AC.Zero_Checkin, AC.Genshin_Checkin, AC.StarRail_Checkin
-        ], [10, 10, 10, 10]): # 延遲設置
+            AC.Wuyong_Checkin,
+            AC.Zero_Checkin,
+            AC.Genshin_Checkin,
+            AC.StarRail_Checkin,
+            AC.ZoneZero_Checkin
+        ], [10, 10, 10, 10, 1]): # 延遲設置 (設置太短可能造成資源競爭)
             executor.submit(func)
             time.sleep(delay)
