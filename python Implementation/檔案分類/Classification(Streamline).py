@@ -8,7 +8,7 @@ from collections import Counter
 
 import progressbar
 
-""" Versions 1.0.0 - V2
+""" Versions 1.0.1 - V2
 
     Todo - 精簡版檔案類型分類
 
@@ -172,19 +172,21 @@ class TypeSelection(Read, Copy):
                 if Select == 0:
                     print(f"你選擇了 : 全部\n")
                     self.Output_Select = "ALL"
+                    self.Output_Data = self.Complete_Data # 將完整數據賦予給輸出數據
                 else:
-                    Type = Options[Select-1][0]
+                    Type = Options[Select-1][0] # 根據索引取出選擇則字串
                     print(f"你選擇了 : {Type}\n")
 
                     Format = f".{Type}"
-                    self.Output_Data = [Item for Item in self.Complete_Data if Item.endswith(Format)]
                     self.Output_Select = Type
+                    # 根據選擇類型, 取出完整數據中符合該副檔名的文件
+                    self.Output_Data = [Item for Item in self.Complete_Data if Item.endswith(Format)]
 
                 self.Output()
                 if not self.Repeat: break
 
-            except Exception:
-                print("無效的代號")
+            except Exception as e:
+                print(f"錯誤: {e}")
 
     def Select(self, Repeat: bool=False):
         """
