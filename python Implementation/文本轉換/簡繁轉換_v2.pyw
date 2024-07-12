@@ -74,6 +74,16 @@ class DataProcessing:
             self.Work.put(os.path.join(path, data).replace("\\", "/"))
 
 class GUI(DataProcessing, tk.Tk):
+    __slots__ = (
+        "Output_Name", "Output_Rename", 
+        "Save", "Work", "lock", "ET",
+        "Converter", "Allow", "Comp",
+        "Text_conversion",
+        "Scrollbar_style",
+        "Button_style",
+        "Content_items",
+    )
+    
     def __init__(self):
         DataProcessing.__init__(self)
         tk.Tk.__init__(self, className="文本簡繁轉換器 V2")
