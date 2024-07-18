@@ -1,5 +1,5 @@
 :: - Versions 1.0.9 -
-:: - LastEditTime 2024/5/16 02:46 -
+:: - LastEditTime 2024/7/19 02:23 -
 
 @echo off
 chcp 65001 >nul 2>&1
@@ -321,7 +321,7 @@ sc config "WMPNetworkSvc" start=disabled
 :: 清理虛擬內存後 , 再次創建設置
 wmic pagefileset delete
 wmic pagefileset create name="C:\pagefile.sys"
-wmic pagefileset where name="C:\\pagefile.sys" set InitialSize=8192,MaximumSize=16384
+wmic pagefileset where name="C:\\pagefile.sys" set InitialSize=4096,MaximumSize=12288
 
 :: 關閉桌面管理器動畫
 reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\DWM" /v "DisallowAnimations" /t REG_dword /d 1 /f
