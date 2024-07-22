@@ -58,10 +58,10 @@ class Main {
 
             Get-ItemProperty -Path $path -Name $name -ErrorAction Stop
             Remove-ItemProperty -Path $path -Name $name -Force # 存在就刪除
-            Print "已刪除值: $name" 'Red'
+            Print "已刪除: $name" 'Red'
         } catch {
             New-ItemProperty -Path $path -Name $name -PropertyType $type -Value $value -Force # 不存在就添加
-            Print "已註冊值: $name" 'Green'
+            Print "已註冊: $name" 'Green'
         }
     }
     <#
@@ -93,9 +93,9 @@ class Main {
 
         # 根據防火牆狀態設置 display 變量
         $display = if ($firewallStatus -eq "ON") {
-            "防火牆已 [[32m啟用[37m]"
+            "[[32m啟用[37m]"
         } else {
-            "防火牆已 [[31m禁用[37m]"
+            "[[31m禁用[37m]"
         }
 
         [Main]::InitIndex = 0 # 每次調用會重設
@@ -134,7 +134,7 @@ class Main {
         # 打印菜单内容
         $P_ = "" # 換行用, 方便自己觀看 (不會打印出來)
         Print "========================================================================================================================" 'Red'
-        Print "                                         - 工具箱v2 Versions 0.0.1 2024/1/1 -" 'Magenta'
+        Print "                                              - 工具箱v2 Versions 0.0.1 -" 'Magenta'
         Print "========================================================================================================================" 'White'
         $P_
         Print "   Windows 系統開關機 :" 'Cyan'
@@ -143,7 +143,7 @@ class Main {
         $P_
         Print "   Windows 防火牆開關 :" 'Cyan'
         $P_
-        Print "   $(& $index) 開啟防火牆    $(& $index) 關閉防火牆    $display`n" 'White'
+        Print "   $(& $index) 開啟防火牆    $(& $index) 關閉防火牆    [33m當前狀態:[37m $display`n" 'White'
         $P_
         Print "   Windows 優化相關 :" 'Cyan'
         $P_
@@ -173,7 +173,7 @@ class Main {
         $P_
         Print "   $(& $index) 網路重置" 'White'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
-        Print "                                          - 系統指令操作 (不分大小寫) -" 'Magenta'
+        Print "                                             - 系統指令操作 (不分大小寫) -" 'Magenta'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
         Print "   $(& $index 'CT') 系統控制台    $(& $index 'GP') 本機群組原則    $(& $index 'RD') 登入編輯程式    $(& $index 'UG') 使用者群組    $(& $index 'DX') DX診斷工具    $(& $index 'MF') 系統開機設置" 'White'
         $P_
@@ -183,7 +183,7 @@ class Main {
         $P_
         Print "   $(& $index 'WF') 顯示已連接過的wifi    $(& $index 'DV') 修復驅動安裝問題    $(& $index 'SR') 系統錯誤修復" 'White'
         Print "========================================================================================================================" 'White'
-        Print "                                   $(& $index 'H') 工具說明     $(& $index '0') 離開程式     $(& $index 'V') 更新資訊" 'White'
+        Print "                                    $(& $index 'H') 工具說明     $(& $index '0') 離開程式     $(& $index 'V') 更新資訊" 'White'
         Print "========================================================================================================================`n" 'Red'
 
         $this.Choice()
@@ -500,12 +500,68 @@ class Main {
                 ), $true)
                 $this.WaitBack()
             }
-            12 {}
-            13 {}
-            14 {}
-            15 {}
-            16 {}
-            17 {}
+            12 { # Google 變更緩存位置
+
+                # 創建 Shell.Application COM 物件
+                $shellApp = New-Object -ComObject Shell.Application
+
+                Print "這將會改變 Google 的緩存位置！"
+                Print "`n===== 選擇要設置的路徑位置 ====="
+
+                # 顯示選擇文件夾選擇器
+                $folder = $shellApp.BrowseForFolder(0, "選擇設置路徑", 0, 0)
+
+                if ($null -ne $folder) {
+                    $folderPath = $folder.Self.Path
+
+                    $this.RegistItem(@(
+                        "HKLM:\Software\Policies\Google\Chrome", "DiskCacheDir", "String", "$($folderPath)GoogleCache"
+                    ), $false)
+
+                    Print "修改成功！緩存目錄已設置為： $($folderPath)GoogleCache"
+                } else {
+                    Print "未選擇任何路徑，修改取消。"
+                }
+
+                $this.WaitBack()
+            }
+            13 { # Google 一鍵優化設置
+
+            }
+            14 { # Google 重置受機構管理
+
+            }
+            15 { # Edge 變更緩存位置
+
+                $shellApp = New-Object -ComObject Shell.Application
+
+                Print "這將會改變 Edge 的緩存位置！"
+                Print "`n===== 選擇要設置的路徑位置 ====="
+
+                # 顯示選擇文件夾選擇器
+                $folder = $shellApp.BrowseForFolder(0, "選擇設置路徑", 0, 0)
+
+                if ($null -ne $folder) {
+                    $folderPath = $folder.Self.Path
+
+                    $this.RegistItem(@(
+                        "HKLM:\Software\Policies\Microsoft\Edge", "DiskCacheDir", "String", "$($folderPath)EdgeCache"
+                    ), $false)
+
+                    Print "修改成功！緩存目錄已設置為： $($folderPath)EdgeCache"
+                } else {
+                    Print "未選擇任何路徑，修改取消。"
+                }
+
+                $this.WaitBack()
+
+            }
+            16 { # Edge 一鍵優化設置
+
+            }
+            17 { # Edge 重置受組織管理
+
+            }
             18 {}
             19 {}
             20 {}
