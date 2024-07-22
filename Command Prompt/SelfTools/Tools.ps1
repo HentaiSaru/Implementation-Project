@@ -24,16 +24,64 @@ function Print { # 打印文本
     $Host.UI.RawUI.ForegroundColor = [ConsoleColor]::$foregroundColor
     $Host.UI.RawUI.BackgroundColor = [ConsoleColor]::$backgroundColor
     
-    # 打印文本
-    Write-Host $text
+    # 打印文本 (粗體)
+    Write-Host "[1m$text"
 }
 
 class Main {
+    static [int]$InitIndex = 0
+    static [string]$Temp = $env:Temp
 
-    [void]CMD([string]$command, [bool]$pause) {
+    # 等待返回菜單
+    [void]WaitBack() {
+        Read-Host "`n[37m[7m[1mEnter返回選單[27m"
+        $this.Menu()
+    }
+
+    # 運行 CMD 指令並打印出來, 命令, 是否確認後返回首頁
+    [void]CMD([string]$command, [bool]$back) {
         Start-Process cmd.exe -ArgumentList "/c $command" -NoNewWindow -Wait
-        if ($pause) {
-            pause
+        if ($back) {
+            $this.WaitBack()
+        }
+    }
+
+    # 註冊 (不應該直接調用)
+    [void]__Regist([string]$path, [string]$name, [string]$type, [object]$value, [bool]$del) {
+        if (-not (Test-Path $path)) {
+            New-Item -Path $path -Force # 路徑添加
+        }
+        try { # 檢查註冊表值是否存在
+            if (-not($del)) {
+                throw [System.Exception]::new()
+            }
+
+            Get-ItemProperty -Path $path -Name $name -ErrorAction Stop
+            Remove-ItemProperty -Path $path -Name $name -Force # 存在就刪除
+            Print "已刪除值: $name" 'Red'
+        } catch {
+            New-ItemProperty -Path $path -Name $name -PropertyType $type -Value $value -Force # 不存在就添加
+            Print "已註冊值: $name" 'Green'
+        }
+    }
+    <#
+        註冊表操作 (非 reg add)
+
+        參數 1 設置註冊表
+        參數 2 設置是否刪除
+
+        $this.RegistItem(@(
+            @(path, name, type, value),
+            @(path, name, type, value)
+        ), true)
+    #>
+    [void]RegistItem([array]$Items, [bool]$Delete) {
+        if ($Items.Length -gt 0 -and $Items[0] -is [array]) { # 二維數組註冊
+            $Items | ForEach-Object {
+                $this.__Regist($_[0], $_[1], $_[2], $_[3], $Delete)
+            }
+        } else { # 一維數組註冊
+            $this.__Regist($Items[0], $Items[1], $Items[2], $Items[3], $Delete)
         }
     }
 
@@ -50,15 +98,15 @@ class Main {
             "防火牆已 [[31m禁用[37m]"
         }
 
-        $InitIndex = 0
+        [Main]::InitIndex = 0 # 每次調用會重設
         $index = { # 根據調用次數累加索引值
             param (
                 [string]$param = ""
             )
 
             if ($param -eq "") {
-                $global:InitIndex++
-                return "[[31m$global:InitIndex[37m]"
+                [Main]::InitIndex++
+                return "[[31m$([Main]::InitIndex)[37m]"
             } else {
                 return "[[31m$param[37m]"
             }
@@ -97,17 +145,17 @@ class Main {
         $P_
         Print "   $(& $index) 開啟防火牆    $(& $index) 關閉防火牆    $display`n" 'White'
         $P_
-        Print "   Windows 相關優化 :" 'Cyan'
+        Print "   Windows 優化相關 :" 'Cyan'
         $P_
-        Print "   $(& $index) Windows 一鍵優化設置    $(& $index) Windows 優化錯誤恢復    $(& $index) 關閉UAC安全通知" 'White'
+        Print "   $(& $index) .NET安裝    $(& $index) Visual C++ (x64)安裝    $(& $index) 關閉UAC安全通知" 'White'
         $P_
-        Print "   $(& $index) Visual C++ (x64)安裝    $(& $index) .NET安裝`n" 'White'
+        Print "   $(& $index) Windows 一鍵優化    $(& $index) Windows 恢復不適用優化    $(& $index) Win11 檔案總管優化 (再次運行恢復)`n" 'White'
         $P_
         Print "   瀏覽器設置 :" 'Cyan'
         $P_
-        Print "   $(& $index) Google 變更緩存位置    $(& $index) Google 一鍵優化設置    $(& $index) Google 修復受機構管理 (重置優化設置)" 'White'
+        Print "   $(& $index) Google 變更緩存位置    $(& $index) Google 一鍵優化設置    $(& $index) Google 重置受機構管理" 'White'
         $P_
-        Print "   $(& $index) Edge 變更緩存位置    $(& $index) Edge 一鍵優化設置    $(& $index) Edge 修復受組織管理 (重置優化設置)`n" 'White'
+        Print "   $(& $index) Edge 變更緩存位置    $(& $index) Edge 一鍵優化設置    $(& $index) Edge 重置受組織管理`n" 'White'
         $P_
         Print "   授權啟用 :" 'Cyan'
         $P_
@@ -142,7 +190,7 @@ class Main {
     }
 
     [void]Choice() {
-        $choice = Read-Host "[37m輸入功能 [代號]/(Enter) "
+        $choice = Read-Host "[37m[7m[1m輸入功能 [代號][27m"
         Clear-Host
 
         switch ($choice) {
@@ -204,7 +252,6 @@ class Main {
             "SI" { # 查看系統資訊
                 Print "請稍等...`n"
                 $this.CMD("systeminfo", $true)
-                $this.Menu()
             }
             "MSI" { # 查看完整系統資訊
                 MSInfo32
@@ -212,7 +259,6 @@ class Main {
             }
             "NV" { # 查看顯卡驅動版本
                 $this.CMD("nvidia-smi", $true)
-                $this.Menu()
             }
             "HW" { # 查看機器碼
                 Print "[92m===============================[93m"
@@ -264,45 +310,214 @@ class Main {
                 Print "[91m       MAC 地址"
                 Print "[94m===============================[93m"
                 $this.CMD("getmac", $true)
-                $this.Menu()
             }
             "IP" { # 查看 IP 和網卡資訊
                 $this.CMD("ipconfig /all", $true)
-                $this.Menu()
             }
-            "RS" {
+            "RS" { # 查看遠端分享
                 $this.CMD("net share", $true)
-                $this.Menu()
             }
-            "MC" {
+            "MC" { # MAC地址查詢
                 $this.CMD("getmac /fo table /v", $true)
-                $this.Menu()
             }
-            "SV" {
+            "SV" { # 查看運行中的服務
                 $this.CMD("net start", $true)
-                $this.Menu()
             }
-            "MRT" {
+            "MRT" { # 惡意軟體移除工具
                 mrt
                 $this.Menu()
             }
-            "WF" {
+            "WF" { # 顯示已連接過的wifi
                 $this.CMD("netsh wlan show profiles", $true)
-                $this.Menu()
             }
-            "DV" {
+            "DV" { # 修復驅動安裝問題
                 msdt.exe -id DeviceDiagnostic
                 $this.Menu()
             }
-            "SR" {
+            "SR" { # 系統錯誤修復
                 Print "準備修復 請稍後...`n"
 
                 $this.CMD("Dism /Online /Cleanup-Image /ScanHealth", $false)
                 $this.CMD("Dism /Online /Cleanup-Image /CheckHealth", $false)
                 $this.CMD("DISM /Online /Cleanup-image /RestoreHealth", $false)
-                $this.CMD("sfc /scannow", $false)
+                $this.CMD("sfc /scannow", $true)
+            }
+            1 { # 睡眠
+                rundll32.exe powrprof.dll,SetSuspendState 0,1,0
+            }
+            2 { # 重啟
+                Restart-Computer -Force
+            }
+            3 { # 關機
+                Stop-Computer -Force
+            }
+            4 { # 開啟防火牆
+                Print "啟用中...`n"
+                netsh advfirewall set allprofiles state on
+                netsh advfirewall firewall set rule all new enable=yes
                 $this.Menu()
             }
+            5 { # 關閉防火牆
+                Print "禁用中...`n"
+                netsh advfirewall set allprofiles state off
+                netsh advfirewall firewall set rule all new enable=no
+                $this.Menu()
+            }
+            6 { # .NET安裝
+                # winget search Microsoft.DotNet.SDK
+
+                $this.CMD("winget install Microsoft.DotNet.SDK.6", $false)
+                $this.CMD("winget install Microsoft.DotNet.SDK.7", $false)
+                $this.CMD("winget install Microsoft.DotNet.SDK.8", $true)
+            }
+            7 { # Visual C++ (x64)安裝
+                # https://learn.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
+                # https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/
+
+                $DownloadPath = "$([Main]::Temp)\Visual.tar"
+                $DownloadURL = "https://raw.githubusercontent.com/Canaan-HS/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar"
+
+                $InstallPackage = @( # 安裝包 與 安裝指令
+                    @{ package = "vcredist2005_x64.exe"; Order = "/q" },
+                    @{ package = "vcredist2008_x64.exe"; Order = "/qb" },
+                    @{ package = "vcredist2010_x64.exe"; Order = "/passive /norestart" },
+                    @{ package = "vcredist2012_x64.exe"; Order = "/passive /norestart" },
+                    @{ package = "vcredist2013_x64.exe"; Order = "/passive /norestart" },
+                    @{ package = "vcredist2015_2017_2019_2022_x64.exe"; Order = "/passive /norestart" }
+                )
+
+                # 有重複的先進行刪除
+                if (Test-Path $DownloadPath) { Remove-Item $DownloadPath -Force }
+
+                Print "檔案較大請稍後 - 安裝包日期 : 2024 年 05 月"
+                Print "`n===== Visual C++ 開始下載 ====="
+
+                # 請求數據
+                Invoke-WebRequest -Uri $DownloadURL -OutFile $DownloadPath -Resume -HttpVersion 3.0 -SkipCertificateCheck -SkipHeaderValidation
+                if (Test-Path $DownloadPath) { # 避免意外在檢測是否存在
+
+                    Print "`n解壓縮中..."
+                    tar -xvf $DownloadPath -C $env:Temp
+                    Remove-Item $DownloadPath -Force # 解壓後刪除
+
+                    # 遍歷安裝程式
+                    foreach ($install in $InstallPackage) {
+                        $Path = "$([Main]::Temp)\$($install.package)" # 合併路徑
+                        if (Test-Path $Path) {
+                            Start-Process -FilePath $Path -ArgumentList $install.Order -Wait -NoNewWindow
+                            Remove-Item $Path -Force # 安裝完成刪除
+                        }
+                    }
+
+                    $this.Menu()
+                } else {
+                    Print "`n下載失敗"
+                    $this.WaitBack()
+                }
+            }
+            8 { # 關閉UAC安全通知
+                $this.RegistItem(@(
+                    "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System", "EnableLUA", "DWORD", 0
+                ), $false)
+                Print "`n電腦重啟後生效"
+                $this.WaitBack()
+            }
+            9 { # Windows 一鍵優化
+                $this.RegistItem(@(
+                    # 關機清除分頁文件
+                    @("HKLM:\System\CurrentControlSet\Control\Session Manager\Memory Management", "ClearPageFileAtShutdown", "DWORD", 1),
+                    # 禁用對執行文件（executable files）的分頁
+                    @("HKLM:\System\CurrentControlSet\Control\Session Manager\Memory Management", "DisablePagingExecutive", "DWORD", 1),
+                    # 使用大型系統高速緩存
+                    @("HKLM:\System\CurrentControlSet\Control\Session Manager\Memory Management", "LargeSystemCache", "DWORD", 1),
+                    # 設置記憶體使用大小 1920x1080 / 6 | 2560x1440 / 12 | 3840x2160 / 24
+                    @("HKLM:\System\CurrentControlSet\Control\Session Manager\Memory Management", "SessionPoolSize", "DWORD", 12),
+
+                    # 設為1，那麼當您使用遊戲列(Win+G)來錄製全螢幕模式下的遊戲時，系統會自動將遊戲切換到全螢幕視窗化模式，以提高錄製的效能和品質
+                    @("HKCU:\System\GameConfigStore", "GameDVR_DXGIHonorFSEWindowsCompatible", "DWORD", 1),
+                    # 設定全螢幕模式下的遊戲錄製品質。可能的值有0、1或2，分別代表高、中或低品質
+                    @("HKCU:\System\GameConfigStore", "GameDVR_EFSEFeatureFlags", "DWORD", 0),
+                    # 設定全螢幕模式下的遊戲錄製行為。可能的值有0、1或2，分別代表停用、全螢幕視窗化或全螢幕專屬模式
+                    @("HKCU:\System\GameConfigStore", "GameDVR_FSEBehaviorMode", "DWORD", 2),
+                    # 螢幕錄製功能啟用
+                    @("HKCU:\System\GameConfigStore", "GameDVR_Enabled", "DWORD", 2),
+                    # 啟用全螢幕錄製行為
+                    @("HKCU:\System\GameConfigStore", "GameDVR_HonorUserFSEBehaviorMode", "DWORD", 1),
+
+                    # 動畫效果最佳化
+                    @("HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects", "VisualFXSetting", "DWORD", 2),
+                    # 去除螢幕字形毛邊
+                    @("HKCU:\Control Panel\Desktop", "FontSmoothing", "String", 2),
+                    # 設置字體平滑的程度 (3高平滑)
+                    @("HKCU:\Control Panel\Desktop", "FontSmoothingSize", "DWORD", 3),
+                    # 使用平滑的動畫來滾動內容
+                    @("HKCU:\Control Panel\Desktop", "SmoothScroll", "DWORD", 3),
+                    # 允許使用更豐富的顏色來顯示圖形
+                    @("HKCU:\Control Panel\Desktop", "ExtendedColors", "DWORD", 256),
+
+                    # 雙緩衝 圖形渲染到兩個緩衝區中，一個用於顯示，另一個用於繪製
+                    @("HKCU:\Control Panel\Desktop", "Doublebuffer", "DWORD", 1),
+                    # 使用專用硬體來渲染圖形，從而提高性能
+                    @("HKCU:\Control Panel\Desktop", "GraphicsAcceleration", "DWORD", 1),
+                    # 允許在移動滑鼠指針到窗口時看到窗口的標題欄和邊框
+                    @("HKCU:\Control Panel\Desktop", "HotTracking", "DWORD", 1),
+                    # 自動結束未使用的程式
+                    @("HKCU:\Control Panel\Desktop", "AutoEndTasks", "DWORD", 1),
+                    # 光標閃爍速度
+                    @("HKCU:\Control Panel\Desktop", "CursorBlinkingRate", "DWORD", 0)
+                ), $false)
+
+                Print "`n等待記憶體設置操作...`n"
+
+                # 頁面合併
+                Disable-MMAgent -PageCombining
+                # 應用程式預讀取
+                Disable-MMAgent -ApplicationPreLaunch
+
+                # 記憶體壓縮
+                Enable-MMAgent -MemoryCompression
+                # 操作 API 調用時允許的最大文件數
+                Set-MMAgent -MaxOperationAPIFiles 2048
+
+                Print "`n========== 後續自行設置視覺效果 ==========`n"
+                $this.CMD("control sysdm.cpl,,3", $false)
+
+                Print "設置完成後 重啟 或 登出 應用效果"
+                $this.WaitBack()
+            }
+            10 { # Windows 恢復不適用優化
+                $this.RegistItem(@(
+                    "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects", "VisualFXSetting", "DWORD", 0
+                ), $false)
+                $this.WaitBack()
+            }
+            11 { # Win11 檔案總管優化
+                $this.RegistItem(@(
+                    # 恢復 win 10 菜單
+                    @("HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell", "FolderType", "String", "NotSpecified"),
+                    # 避免大量運算 檔案類型
+                    @("HKLM:\Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked", "{e2bf9676-5f8f-435c-97eb-11607a5bedf7}", "String", "")
+                ), $true)
+                $this.WaitBack()
+            }
+            12 {}
+            13 {}
+            14 {}
+            15 {}
+            16 {}
+            17 {}
+            18 {}
+            19 {}
+            20 {}
+            21 {}
+            22 {}
+            23 {}
+            24 {}
+            25 {}
+            26 {}
+            27 {}
+            28 {}
+            29 {}
             Default {
                 Print "無效的代號"
                 Start-Sleep -Seconds 1.5
