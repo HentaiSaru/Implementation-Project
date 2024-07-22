@@ -1,5 +1,5 @@
 :: - Versions 1.0.10 -
-:: - LastEditTime 2024/06/25 23:24 -
+:: - LastEditTime 2024/07/23 00:00 -
 @echo off
 chcp 65001 >nul 2>&1
 %1 %2
@@ -26,7 +26,7 @@ if "%firewall_status%"=="ON" (
 cls
 @ ECHO [1m
 @ ECHO [94m======================================================================================================================
-@ ECHO                                       - 工具箱 Versions 1.0.10 2024/1/6 -
+@ ECHO                                        - 工具箱 Versions 1.0.10 (停止維護) -
 @ ECHO ======================================================================================================================[91m
 @ ECHO.
 @ ECHO [3m[94m   Windows 系統開關機 :[91m[23m
@@ -591,7 +591,6 @@ exit /b
 :: ----- Google 修復受機構管理 -----
 :GoogleR
 
-reg delete "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /f
 reg delete "HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome" /f
 
 ECHO.
@@ -1166,9 +1165,7 @@ color 07
 @ ECHO.
 @ ECHO   Versions 1.0.10 更新:
 @ ECHO.
-@ ECHO    [-] 刪除不常用功能
-@ ECHO.
-@ ECHO    [~] 重新調整順序與版面
+@ ECHO    1. 此版本目前已停止維護
 @ ECHO.
 @ ECHO ------------------------------------
 
