@@ -396,11 +396,11 @@ class Main {
                 Invoke-WebRequest -Uri $DownloadURL -OutFile $DownloadPath -Resume -HttpVersion 3.0 -SkipCertificateCheck -SkipHeaderValidation
                 if (Test-Path $DownloadPath) { # 避免意外在檢測是否存在
 
-                    Print "`n解壓縮中..."
                     tar -xvf $DownloadPath -C $env:Temp
                     Remove-Item $DownloadPath -Force # 解壓後刪除
 
                     # 遍歷安裝程式
+                    Print "`n===== 開始安裝 ====="
                     foreach ($install in $InstallPackage) {
                         $Path = "$([Main]::Temp)\$($install.package)" # 合併路徑
                         if (Test-Path $Path) {
