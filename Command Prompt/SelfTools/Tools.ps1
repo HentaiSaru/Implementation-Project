@@ -29,8 +29,8 @@ function Print { # 打印文本
 }
 
 class Main {
-    static [int]$InitIndex = 0
-    static [string]$Temp = $env:Temp
+    static [int]$InitIndex = 0 # 菜單的索引計數
+    static [string]$Temp = $env:Temp # 配置路徑
 
     # 等待返回菜單
     [void]WaitBack() {
@@ -226,7 +226,7 @@ class Main {
         $P_
         Print "   特殊功能 :" 'Cyan'
         $P_
-        Print "   $(& $index) 網路重置" 'White'
+        Print "   $(& $index) 網路重置    $(& $index) 自動配置最快 DNS" 'White'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
         Print "                                             - 系統指令操作 (不分大小寫) -" 'Magenta'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
@@ -547,11 +547,6 @@ class Main {
                 $this.WaitBack()
             }
             11 { # Win11 檔案總管優化
-                $this.RegistItem(@(
-                    # 避免大量運算 檔案類型
-                    @("HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell", "FolderType", "String", "NotSpecified")
-                ), $true)
-
                 $pathA = "HKCU:\Software\Classes\CLSID\{2aa9162e-c906-4dd9-ad0b-3d24a8eef5a0}"
                 $pathB = "HKCU:\Software\Classes\CLSID\{6480100b-5a83-4d1e-9f69-8ae5a88e9a33}"
                 $dll = "C:\Windows\System32\Windows.UI.FileExplorer.dll_"
@@ -565,6 +560,11 @@ class Main {
                     @{path=$pathB; name="(default)"; value="File Explorer Xaml Island View Adapter"},
                     @{path="$pathB\InProcServer32"; name="(default)"; value=$dll; parent=$pathB},
                     @{path="$pathB\InProcServer32"; name="ThreadingModel"; type="String"; value="Apartment"; parent=$pathB}
+                ), $true)
+
+                $this.RegistItem(@(
+                    # 避免大量運算 檔案類型
+                    @("HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell", "FolderType", "String", "NotSpecified")
                 ), $true)
 
                 $this.RegistItem(@(
@@ -641,7 +641,6 @@ class Main {
                 }
 
                 $this.WaitBack()
-
             }
             16 { # Edge 一鍵優化設置
 
@@ -659,8 +658,115 @@ class Main {
             25 {}
             26 {}
             27 {}
-            28 {}
-            29 {}
+            28 {
+                Print "網路重置中..."
+                # 釋放 IP 配置
+                ipconfig /release
+                # 清除 DNS 緩存
+                Clear-DnsClientCache
+                # 重置 IP 設定
+                netsh int ip reset
+                # 重置 TCP/IP 堆疊
+                netsh int tcp reset
+                # 重置 Winsock
+                netsh winsock reset
+                # 重置 Windows 防火牆
+                netsh advfirewall reset
+                # 更新 IP 配置
+                ipconfig /renew
+                $this.Menu()
+            }
+            29 { # 自動配置 最快 DNS
+                $pingResults = @{} # 存儲每個 DNS 伺服器的平均延遲
+
+                $dnsServers = ( # 要測試的 DNS 伺服器列表
+                    @{name="Cloudflare DNS"; dns="1.1.1.1"},
+                    @{name="Cloudflare DNS"; dns="1.0.0.1"},
+                    @{name="Google DNS"; dns="8.8.8.8"},
+                    @{name="Google DNS"; dns="8.8.4.4"},
+                    @{name="Comodo Secure DNS"; dns="8.26.56.26"},
+                    @{name="Comodo Secure DNS"; dns="8.20.247.20"},
+                    @{name="IBM DNS"; dns="9.9.9.9"},
+                    @{name="IBM DNS"; dns="9.9.9.10"},
+                    @{name="德國 DNS Watch"; dns="84.200.69.80"},
+                    @{name="德國 DNS Watch"; dns="84.200.70.40"},
+                    @{name="AdGuard DNS"; dns="94.140.14.14"},
+                    @{name="AdGuard DNS"; dns="94.140.15.15"},
+                    @{name="臺灣網路資訊中心 DNS"; dns="101.101.101.101"},
+                    @{name="臺灣網路資訊中心 DNS"; dns="101.102.103.104"},
+                    @{name="種花電信"; dns="168.95.1.1"},
+                    @{name="種花電信"; dns="168.95.192.1"},
+                    @{name="CleanBrowsing 安全過濾 DNS"; dns="185.228.168.9"},
+                    @{name="CleanBrowsing 安全過濾 DNS"; dns="185.228.169.9"},
+                    @{name="Open DNS"; dns="208.67.222.222"},
+                    @{name="Open DNS"; dns="208.67.220.220"},
+                    @{name="Level3 DNS"; dns="209.244.0.3"},
+                    @{name="Level3 DNS"; dns="209.244.0.4"},
+                    @{name="Ali DNS"; dns="223.5.5.5"},
+                    @{name="Ali DNS"; dns="223.6.6.6"}
+                )
+
+                Print " =========================================== "
+                Print "自動開始配置時 建議不要有消耗網路流量的操作" "Cyan"
+                Print "根據環境不同 可能出現延遲顯示都是 0 這是正常的" "Cyan"
+                Print " =========================================== "
+
+                $y = Read-Host "`n輸入 y 確認操作"
+                switch ($y) {
+                    "y" {
+                        Print "`n這個操作需要一些時間 請稍後...`n"
+                        Start-Sleep -Milliseconds 1000
+                    }
+                    Default {
+                        Print "`n確認失敗 返回首頁..."
+                        Start-Sleep -Milliseconds 1300
+                        $this.Menu()
+                    }
+                }
+
+                Print "===== 開始測試延遲 ======`n"
+                $dnsServers | ForEach-Object {
+                    $totalTime = 0
+                    $successCount = 0
+
+                    for ($i = 0; $i -lt 15; $i++) { # ping dns 伺服器 15 次
+                        $pingResult = Test-Connection -ComputerName $_.dns -Count 1 -ErrorAction SilentlyContinue
+                        if ($pingResult) {
+                            $successCount++
+                            $totalTime += $pingResult.ResponseTime
+                            Start-Sleep -Milliseconds 100 # 延遲 100 毫秒
+                        }
+                    }
+
+                    if ($successCount -gt 0) {
+                        $averageTime = $totalTime / $successCount
+                        $pingResults[@($_.name, $_.dns)] = $averageTime
+                        Print "$($_.name) | $($_.dns) | $averageTime ms" "Yellow"
+                    }
+                }
+
+                # 按平均延遲排序，選出最短的兩個 DNS 伺服器
+                $sortedResults = $pingResults.GetEnumerator() | Sort-Object Value
+
+                # 取出慣用和其他的結果
+                $idiomaticResults = $sortedResults[0].Key
+                $otherResults = $sortedResults[1].Key
+
+                # 獲取 dns 項
+                $idiomaticDNS = $idiomaticResults[1]
+                $otherDNS = $otherResults[1]
+
+                Clear-DnsClientCache # 清除 DNS 緩存
+                $interfaceIndex = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" }).ifIndex
+                Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses ($idiomaticDNS, $otherDNS)
+
+                Print "`n===== 完成配置 ======`n"
+
+                Print "慣用配置: $($idiomaticResults[0]) | $idiomaticDNS" "Green"
+                Print "其他配置: $($otherResults[0]) | $otherDNS" "Green"
+
+                $this.WaitBack()
+            }
             Default {
                 Print "無效的代號"
                 Start-Sleep -Seconds 1.5
