@@ -46,42 +46,97 @@ class Main {
         }
     }
 
-    # 註冊 (不應該直接調用)
-    [void]__Regist([string]$path, [string]$name, [string]$type, [object]$value, [bool]$del) {
-        if (-not (Test-Path $path)) {
-            New-Item -Path $path -Force # 路徑添加
+    # 註冊預設值 (特殊函數)
+    [void]__RegistSpecial([string]$Path, [string]$Name, [object]$Value, [object]$FollowParent, [bool]$Delete) {
+        if ($null -eq $FollowParent -and -not (Test-Path $Path)) {
+            New-Item -Path $Path -Force
         }
-        try { # 檢查註冊表值是否存在
-            if (-not($del)) {
-                throw [System.Exception]::new()
+
+        try {
+            if (-not($Delete)) { # 當刪除是 true, 那他的反就不會觸發這邊
+                throw [System.Exception]::new("不刪除")
             }
 
-            Get-ItemProperty -Path $path -Name $name -ErrorAction Stop
-            Remove-ItemProperty -Path $path -Name $name -Force # 存在就刪除
-            Print "已刪除: $name" 'Red'
+            if ($null -ne $FollowParent) {
+                if (Test-Path $FollowParent) {
+                    throw [System.Exception]::new("父母存在 進行註冊")
+                }
+            } else {
+                Get-ItemProperty -Path $Path -Name $Name -ErrorAction Stop
+                Remove-Item -Path $Path -Recurse -Force
+            }
+
+            Print "已刪除: $Name" 'Red'
         } catch {
-            New-ItemProperty -Path $path -Name $name -PropertyType $type -Value $value -Force # 不存在就添加
-            Print "已註冊: $name" 'Green'
+            if ($null -ne $FollowParent -and -not (Test-Path $Path)) {
+                New-Item -Path $Path -Force
+            }
+
+            Set-ItemProperty -Path $Path -Name $Name -Value $Value
+            Print "已註冊: $Name" 'Green'
+        }
+    }
+    # 註冊值 (不應該直接調用)
+    [void]__RegistNormal([string]$Path, [string]$Name, [string]$Type, [object]$Value, [object]$FollowParent, [bool]$Delete) {
+        if ($null -eq $FollowParent -and -not (Test-Path $Path)) {
+            New-Item -Path $Path -Force # 路徑添加
+        }
+        try { # 檢查註冊表值是否存在
+            if (-not($Delete)) { # 跳過刪除
+                throw [System.Exception]::new("不刪除")
+            }
+
+            if ($null -ne $FollowParent) {
+                if (Test-Path $FollowParent) {
+                    throw [System.Exception]::new("父母存在 進行註冊")
+                }
+            } else {
+                Get-ItemProperty -Path $Path -Name $Name -ErrorAction Stop
+                Remove-Item -Path $Path -Recurse -Force
+            }
+
+            Print "已移除: $Name" 'Red'
+        } catch {
+            if ($null -ne $FollowParent -and -not (Test-Path $Path)) {
+                New-Item -Path $Path -Force
+            }
+
+            New-ItemProperty -Path $Path -Name $Name -PropertyType $Type -Value $Value -Force # 不存在就添加
+            Print "已註冊: $Name" 'Green'
         }
     }
     <#
         註冊表操作 (非 reg add)
 
         參數 1 設置註冊表
-        參數 2 設置是否刪除
+        參數 2 是否需要反選 觸發 刪除
+
+        $this.RegistItem(@(path, name, type, value), $true)
 
         $this.RegistItem(@(
             @(path, name, type, value),
             @(path, name, type, value)
-        ), true)
+        ), $true)
+
+        $this.RegistItem(@{path=1; name=2; type=3; value=4}, $true)
     #>
-    [void]RegistItem([array]$Items, [bool]$Delete) {
-        if ($Items.Length -gt 0 -and $Items[0] -is [array]) { # 二維數組註冊
+    [void]RegistItem([System.Object]$Items, [bool]$Delete) {
+        if ($Items -is [array] -and $Items[0] -is [string]) { # 一維數組
+            $this.__RegistNormal($Items[0], $Items[1], $Items[2], $Items[3], $null, $Delete)
+        } elseif ($Items -is [array] -and $Items[0] -is [array]) { # 二維數組
             $Items | ForEach-Object {
-                $this.__Regist($_[0], $_[1], $_[2], $_[3], $Delete)
+                $this.__RegistNormal($_[0], $_[1], $_[2], $_[3], $null, $Delete)
             }
-        } else { # 一維數組註冊
-            $this.__Regist($Items[0], $Items[1], $Items[2], $Items[3], $Delete)
+        } elseif ($Items -is [array] -and $Items[0] -is [System.Collections.Hashtable]) { # 一維是數組 二維是 哈希表
+            $Items | ForEach-Object {
+                if ($null -ne $_.type) { # parent 會讓該項目已他作為檢查值, 只要父項存在就是無條件創建, 只要父項不存在, 就是無條件刪除
+                    $this.__RegistNormal($_.path, $_.name, $_.type, $_.value, $_.parent, $Delete)
+                } else {
+                    $this.__RegistSpecial($_.path, $_.name, $_.value, $_.parent, $Delete)
+                }
+            }
+        } else {
+            Print "不支援的註冊格式: $Items"
         }
     }
 
@@ -493,11 +548,43 @@ class Main {
             }
             11 { # Win11 檔案總管優化
                 $this.RegistItem(@(
-                    # 恢復 win 10 菜單
-                    @("HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell", "FolderType", "String", "NotSpecified"),
                     # 避免大量運算 檔案類型
-                    @("HKLM:\Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked", "{e2bf9676-5f8f-435c-97eb-11607a5bedf7}", "String", "")
+                    @("HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell", "FolderType", "String", "NotSpecified")
                 ), $true)
+
+                $pathA = "HKCU:\Software\Classes\CLSID\{2aa9162e-c906-4dd9-ad0b-3d24a8eef5a0}"
+                $pathB = "HKCU:\Software\Classes\CLSID\{6480100b-5a83-4d1e-9f69-8ae5a88e9a33}"
+                $dll = "C:\Windows\System32\Windows.UI.FileExplorer.dll_"
+
+                $this.RegistItem(@(
+                    # 以下為將檔案總管變回 win 10 的方式
+                    @{path=$pathA; name="(default)"; value="CLSID_ItemsViewAdapter"},
+                    @{path="$pathA\InProcServer32"; name="(default)"; value=$dll; parent=$pathA},
+                    @{path="$pathA\InProcServer32"; name="ThreadingModel"; type="String"; value="Apartment"; parent=$pathA},
+
+                    @{path=$pathB; name="(default)"; value="File Explorer Xaml Island View Adapter"},
+                    @{path="$pathB\InProcServer32"; name="(default)"; value=$dll; parent=$pathB},
+                    @{path="$pathB\InProcServer32"; name="ThreadingModel"; type="String"; value="Apartment"; parent=$pathB}
+                ), $true)
+
+                $this.RegistItem(@(
+                    @{path="HKCU:\Software\Microsoft\Internet Explorer\Toolbar\ShellBrowser"; name="ITBar7Layout"; value=[byte[]]@(
+                        0x13,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x00,0x00,0x00,
+                        0x10,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x01,0x07,0x00,0x00,
+                        0x5e,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+                    )}
+                ), $false)
+
+                Print "`n===== 重新啟動後應用 ====="
+
                 $this.WaitBack()
             }
             12 { # Google 變更緩存位置
