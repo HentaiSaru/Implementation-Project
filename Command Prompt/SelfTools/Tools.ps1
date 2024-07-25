@@ -28,13 +28,45 @@ function Print { # 打印文本
     Write-Host "[1m$text"
 }
 
+function Input { # 輸入文字
+    param (
+        [string]$text,
+        [string]$foregroundColor = 'default'
+    )
+
+    if ($foregroundColor -eq 'default') {
+        return Read-Host "`n[37m[7m[1m$text[27m"
+    } else {
+        $Host.UI.RawUI.ForegroundColor = [ConsoleColor]::$foregroundColor
+        $Host.UI.RawUI.BackgroundColor = [ConsoleColor]::'Black'
+        return Read-Host "`n[1m$text"
+    }
+}
+
+<#
+    Todo PowerShell 不支援的 =>
+    * 文字效果 : 1m(粗體) 3m(斜體) 23m(正體) 4m(底線) 53m(上划線) 22m(雙底線) 9m(刪除線) 7m(背景色與文字色反轉) 27m(復原背景色與文字色)
+    * 背景色 : 49m(透明底)
+
+    ~ 文字色
+    & 灰黑色 (30m)：DarkGray
+    & 紅色 (31m)：Red
+    & 綠色 (32m)：Green
+    & 黃色 (33m)：Yellow
+    & 藍色 (34m)：Blue
+    & 紫色 (35m)：Magenta
+    & 青藍色 (36m)：Cyan
+    & 白色 (37m)：White
+    & 黑色 (40m)：Black
+#>
+
 class Main {
     static [int]$InitIndex = 0 # 菜單的索引計數
     static [string]$Temp = $env:Temp # 配置路徑
 
     # 等待返回菜單
     [void]WaitBack() {
-        Read-Host "`n[37m[7m[1mEnter返回選單[27m"
+        Input "Enter 返回選單"
         $this.Menu()
     }
 
@@ -44,6 +76,30 @@ class Main {
         if ($back) {
             $this.WaitBack()
         }
+    }
+
+    # 關閉進程 (傳入要關閉的進程名稱)
+    [void]StopProcess([object]$Process) {
+        $ProcessList = Get-Process
+        if ($Process -is [string]) { # 傳入的是字串
+            Stop-Process -Name $Process -Force -ErrorAction SilentlyContinue
+        } elseif ($Process -is [array] -and $Process[0] -is [string]) { # 傳入的是一維列表
+            $Process | ForEach-Object {
+                Stop-Process -Name $_ -Force -ErrorAction SilentlyContinue
+            }
+        }
+    }
+
+    # 獲取遠端授權代碼
+    [void]Authorize([string]$DL_Path, [string]$DL_URL) {
+        Print "===== 獲取最新版本 授權程式 =====`n"
+        if (Test-Path $DL_Path) { Remove-Item $DL_Path -Force } # 先刪除舊文件
+        Invoke-WebRequest -Uri $DL_URL -OutFile $DL_Path
+        if (-not (Test-Path $DL_Path)) {
+            Print "獲取失敗" 'Red'
+            $this.WaitBack()
+        }
+        $this.CMD($DL_Path, $true)
     }
 
     # 註冊預設值 (特殊函數)
@@ -136,8 +192,18 @@ class Main {
                 }
             }
         } else {
-            Print "不支援的註冊格式: $Items"
+            Print "不支援的註冊格式: $Items" 'Red'
         }
+    }
+
+    # 字串轉 MD5
+    [string]MD5([string]$string) {
+        $MD5 = [System.Security.Cryptography.MD5]::Create()
+        $FileByte = [System.Text.Encoding]::UTF8.GetBytes($string)
+        $HashByte = $MD5.ComputeHash($FileByte)
+        $HashString = [BitConverter]::ToString($HashByte) -replace '-'
+        $LowerString = $HashString.ToLower()
+        return $LowerString.Substring(8, 24)
     }
 
     [void]Menu() {
@@ -154,7 +220,7 @@ class Main {
         }
 
         [Main]::InitIndex = 0 # 每次調用會重設
-        $index = { # 根據調用次數累加索引值
+        function Index { # 根據調用次數累加索引值
             param (
                 [string]$param = ""
             )
@@ -169,97 +235,79 @@ class Main {
 
         Clear-Host
 
-        <#
-            Todo PowerShell 不支援的 =>
-            * 文字效果 : 1m(粗體) 3m(斜體) 23m(正體) 4m(底線) 53m(上划線) 22m(雙底線) 9m(刪除線) 7m(背景色與文字色反轉) 27m(復原背景色與文字色)
-            * 背景色 : 49m(透明底)
-
-            ~ 文字色
-            & 灰黑色 (30m)：DarkGray
-            & 紅色 (31m)：Red
-            & 綠色 (32m)：Green
-            & 黃色 (33m)：Yellow
-            & 藍色 (34m)：Blue
-            & 紫色 (35m)：Magenta
-            & 青藍色 (36m)：Cyan
-            & 白色 (37m)：White
-            & 黑色 (40m)：Black
-        #>
-
         # 打印菜单内容
-        $P_ = "" # 換行用, 方便自己觀看 (不會打印出來)
+        $P_ = "縮排用方便自己觀看 (不會打印出來)"
         Print "========================================================================================================================" 'Red'
         Print "                                              - 工具箱v2 Versions 0.0.1 -" 'Magenta'
         Print "========================================================================================================================" 'White'
         $P_
         Print "   Windows 系統開關機 :" 'Cyan'
         $P_
-        Print "   $(& $index) 睡眠    $(& $index) 重啟    $(& $index) 關機`n" 'White'
+        Print "   $(Index) 睡眠    $(Index) 重啟    $(Index) 關機`n" 'White'
         $P_
         Print "   Windows 防火牆開關 :" 'Cyan'
         $P_
-        Print "   $(& $index) 開啟防火牆    $(& $index) 關閉防火牆    [33m當前狀態:[37m $display`n" 'White'
+        Print "   $(Index) 開啟防火牆    $(Index) 關閉防火牆    [33m當前狀態:[37m $display`n" 'White'
         $P_
         Print "   Windows 優化相關 :" 'Cyan'
         $P_
-        Print "   $(& $index) .NET安裝    $(& $index) Visual C++ (x64)安裝    $(& $index) 關閉UAC安全通知" 'White'
+        Print "   $(Index) .NET安裝    $(Index) Visual C++ (x64)安裝    $(Index) 關閉UAC安全通知" 'White'
         $P_
-        Print "   $(& $index) Windows 一鍵優化    $(& $index) Windows 恢復不適用優化    $(& $index) Win11 檔案總管優化 (再次運行恢復)`n" 'White'
+        Print "   $(Index) Windows 一鍵優化    $(Index) Windows 恢復不適用優化    $(Index) Win11 檔案總管優化 (再次運行恢復)`n" 'White'
         $P_
         Print "   瀏覽器設置 :" 'Cyan'
         $P_
-        Print "   $(& $index) Google 變更緩存位置    $(& $index) Google 一鍵優化設置    $(& $index) Google 重置受機構管理" 'White'
+        Print "   $(Index) Google 變更緩存位置    $(Index) Google 一鍵優化設置    $(Index) Google 重置受機構管理" 'White'
         $P_
-        Print "   $(& $index) Edge 變更緩存位置    $(& $index) Edge 一鍵優化設置    $(& $index) Edge 重置受組織管理`n" 'White'
+        Print "   $(Index) Edge 變更緩存位置    $(Index) Edge 一鍵優化設置    $(Index) Edge 重置受組織管理`n" 'White'
         $P_
         Print "   授權啟用 :" 'Cyan'
         $P_
-        Print "   $(& $index) RAR 授權     $(& $index) IDM 授權    $(& $index) Windows 啟用授權    $(& $index) Office 啟用授權`n" 'White'
+        Print "   $(Index) RAR 授權     $(Index) IDM 授權    $(Index) Windows 啟用授權    $(Index) Office 啟用授權`n" 'White'
         $P_
         Print "   進程操作 :" 'Cyan'
         $P_
-        Print "   $(& $index) Google 結束進程    $(& $index) Edge 結束進程    $(& $index) Adobe 結束進程      $(& $index) AnLink 結束進程`n" 'White'
+        Print "   $(Index) Google 結束進程    $(Index) Edge 結束進程    $(Index) Adobe 結束進程`n" 'White'
         $P_
         Print "   服務操作 :" 'Cyan'
         $P_
-        Print "   $(& $index) 開啟服務 (Surfshark運行)    $(& $index) 關閉服務 (Surfshark終止)`n" 'White'
+        Print "   $(Index) Surfshark 運行    $(Index) Surfshark 終止`n" 'White'
         $P_
         Print "   特殊功能 :" 'Cyan'
         $P_
-        Print "   $(& $index) 網路重置    $(& $index) 自動配置最快 DNS" 'White'
+        Print "   $(Index) 網路重置    $(Index) 自動配置 DNS" 'White'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
         Print "                                             - 系統指令操作 (不分大小寫) -" 'Magenta'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
-        Print "   $(& $index 'CT') 系統控制台    $(& $index 'GP') 本機群組原則    $(& $index 'RD') 登入編輯程式    $(& $index 'UG') 使用者群組    $(& $index 'DX') DX診斷工具    $(& $index 'MF') 系統開機設置" 'White'
+        Print "   $(Index 'CT') 系統控制台    $(Index 'GP') 本機群組原則    $(Index 'RD') 登入編輯程式    $(Index 'UG') 使用者群組    $(Index 'DX') DX診斷工具    $(Index 'MF') 系統開機設置" 'White'
         $P_
-        Print "   $(& $index 'WS') 電腦啟用狀態    $(& $index 'SI') 查看系統資訊    $(& $index 'MSI') 查看完整系統資訊    $(& $index 'NV') 查看顯卡驅動版本    $(& $index 'HW') 查看電腦機器碼" 'White'
+        Print "   $(Index 'WS') 電腦啟用狀態    $(Index 'SI') 查看系統資訊    $(Index 'MSI') 查看完整系統資訊    $(Index 'NV') 查看顯卡驅動版本    $(Index 'HW') 查看電腦機器碼" 'White'
         $P_
-        Print "   $(& $index 'IP') 查看電腦IP位置    $(& $index 'RS') 查看遠端分享    $(& $index 'MC') MAC地址查詢    $(& $index 'SV') 查看運行中的服務    $(& $index 'MRT') 惡意軟體移除工具" 'White'
+        Print "   $(Index 'IP') 查看電腦IP位置    $(Index 'RS') 查看遠端分享    $(Index 'MC') MAC地址查詢    $(Index 'SV') 查看運行中的服務    $(Index 'MRT') 惡意軟體移除工具" 'White'
         $P_
-        Print "   $(& $index 'WF') 顯示已連接過的wifi    $(& $index 'DV') 修復驅動安裝問題    $(& $index 'SR') 系統錯誤修復" 'White'
+        Print "   $(Index 'WF') 顯示已連接過的wifi    $(Index 'DV') 修復驅動安裝問題    $(Index 'SR') 系統錯誤修復" 'White'
         Print "========================================================================================================================" 'White'
-        Print "                                    $(& $index 'H') 工具說明     $(& $index '0') 離開程式     $(& $index 'V') 更新資訊" 'White'
-        Print "========================================================================================================================`n" 'Red'
+        Print "                                    $(Index 'H') 工具說明     $(Index '0') 離開程式     $(Index 'V') 更新資訊" 'White'
+        Print "========================================================================================================================" 'Red'
 
         $this.Choice()
     }
 
     [void]Choice() {
-        $choice = Read-Host "[37m[7m[1m輸入功能 [代號][27m"
+        $choice = Input "輸入功能 [代號]"
         Clear-Host
 
         switch ($choice) {
             0 {exit} # 離開
             "V" { # 更新資訊
-                Print "------------------------------------"
+                Print "----------------------------"
                 Print ""
                 Print "  Versions 0.0.1 更新:"
                 Print ""
-                Print "   1. 首次發佈"
+                Print "      1. 首次發佈"
                 Print ""
-                Print "------------------------------------"
-                pause
-                $this.Menu()
+                Print "----------------------------"
+                $this.WaitBack()
             }
             "H" { # 使用說明
                 Print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -273,8 +321,7 @@ class Main {
                 Print " 3. 請注意某些特別的設置(優化之類的) , 這是以本人的電腦製作的 , 不一定適用於所有人"
                 Print ""
                 Print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-                pause
-                $this.Menu()
+                $this.WaitBack()
             }
             "CT" { # 系統控制台
                 Control
@@ -390,7 +437,7 @@ class Main {
                 $this.Menu()
             }
             "SR" { # 系統錯誤修復
-                Print "準備修復 請稍後...`n"
+                Print "準備修復 請稍後...`n" 'Yellow'
 
                 $this.CMD("Dism /Online /Cleanup-Image /ScanHealth", $false)
                 $this.CMD("Dism /Online /Cleanup-Image /CheckHealth", $false)
@@ -407,13 +454,13 @@ class Main {
                 Stop-Computer -Force
             }
             4 { # 開啟防火牆
-                Print "啟用中...`n"
+                Print "===== 啟用中 =====`n"
                 netsh advfirewall set allprofiles state on
                 netsh advfirewall firewall set rule all new enable=yes
                 $this.Menu()
             }
             5 { # 關閉防火牆
-                Print "禁用中...`n"
+                Print "===== 禁用中 =====`n"
                 netsh advfirewall set allprofiles state off
                 netsh advfirewall firewall set rule all new enable=no
                 $this.Menu()
@@ -448,7 +495,7 @@ class Main {
                 Print "`n===== Visual C++ 開始下載 ====="
 
                 # 請求數據
-                Invoke-WebRequest -Uri $DownloadURL -OutFile $DownloadPath -Resume -HttpVersion 3.0 -SkipCertificateCheck -SkipHeaderValidation
+                Invoke-WebRequest -Uri $DownloadURL -OutFile $DownloadPath
                 if (Test-Path $DownloadPath) { # 避免意外在檢測是否存在
 
                     tar -xvf $DownloadPath -C $env:Temp
@@ -605,9 +652,9 @@ class Main {
                         "HKLM:\Software\Policies\Google\Chrome", "DiskCacheDir", "String", "$($folderPath)GoogleCache"
                     ), $false)
 
-                    Print "修改成功！緩存目錄已設置為： $($folderPath)GoogleCache"
+                    Print "修改成功！緩存目錄已設置為： $($folderPath)GoogleCache" 'Green'
                 } else {
-                    Print "未選擇任何路徑，修改取消。"
+                    Print "未選擇任何路徑，修改取消。" 'Red'
                 }
 
                 $this.WaitBack()
@@ -635,9 +682,9 @@ class Main {
                         "HKLM:\Software\Policies\Microsoft\Edge", "DiskCacheDir", "String", "$($folderPath)EdgeCache"
                     ), $false)
 
-                    Print "修改成功！緩存目錄已設置為： $($folderPath)EdgeCache"
+                    Print "修改成功！緩存目錄已設置為： $($folderPath)EdgeCache" 'Green'
                 } else {
-                    Print "未選擇任何路徑，修改取消。"
+                    Print "未選擇任何路徑，修改取消。" 'Red'
                 }
 
                 $this.WaitBack()
@@ -648,17 +695,85 @@ class Main {
             17 { # Edge 重置受組織管理
 
             }
-            18 {}
-            19 {}
-            20 {}
-            21 {}
-            22 {}
-            23 {}
-            24 {}
-            25 {}
-            26 {}
-            27 {}
-            28 {
+            18 { # RAR 授權
+                Print "===== 獲取授權 =====`n"
+                $RegistPath = "C:\Program Files\WinRAR\Rarreg.key"
+
+                if (-not (Test-Path $RegistPath)) {
+                    $DownloadURL = "https://raw.githubusercontent.com/Canaan-HS/Implementation-Project/Main/Command Prompt/Rar/Rarreg.key"
+                    Invoke-WebRequest -Uri $DownloadURL -OutFile $RegistPath
+
+                    if (Test-Path $RegistPath) {
+                        Print "授權完成" 'Green'
+                    } else {
+                        Print "授權失敗" 'Red'
+                    }
+
+                } else {
+                    Print "已擁有授權" 'Green'
+                }
+
+                $this.WaitBack()
+            }
+            19 { # IDM 授權
+                # https://github.com/lstprjct/IDM-Activation-Script
+                $this.Authorize(
+                    "$([Main]::Temp)\$($this.MD5("IAS")).cmd",
+                    "https://raw.githubusercontent.com/lstprjct/IDM-Activation-Script/main/IAS.cmd"
+                )
+            }
+            20 { # Windows 啟用授權
+                # https://github.com/massgravel/Microsoft-Activation-Scripts/tree/master/MAS/All-In-One-Version
+                $this.Authorize(
+                    "$([Main]::Temp)\$($this.MD5("MAS_AIO-CRC32_31F7FD1E")).cmd",
+                    "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO-CRC32_31F7FD1E.cmd"
+                )
+            }
+            21 { # Office 啟用授權 (他會導致回到菜單時歪掉)
+                $this.Authorize(
+                    "$([Main]::Temp)\$($this.MD5("KMS_VL_ALL_AIO")).cmd",
+                    "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/master/KMS_VL_ALL_AIO.cmd"
+                )
+            }
+            22 { # Google 結束進程
+                $this.StopProcess("chrome")
+                $this.Menu()
+            }
+            23 { # Edge 結束進程
+                $this.StopProcess("msedge")
+                $this.Menu()
+            }
+            24 { # Adobe 結束進程
+                $this.StopProcess(
+                    @("node", "CCLibrary", "AdobeIPCBroker", "OfficeClickToRun")
+                )
+                $this.Menu()
+            }
+            25 { # Surfshark 運行
+                Print "===== Surfshark 啟動中 ====="
+                $Path = "C:\Program Files (x86)\Surfshark\Surfshark.exe"
+
+                if (Test-Path $Path) {
+                    # 啟動服務
+                    Start-Service -Name "Surfshark Service" -ErrorAction SilentlyContinue
+                    Start-Process -FilePath $Path
+                    $this.Menu()
+                } else {
+                    Print "找不到啟動程序: $Path" 'Red'
+                    Print "下載連結: https://surfshark.com/zh-tw/download" 'Green'
+                    $this.WaitBack()
+                }
+            }
+            26 { # Surfshark 終止
+                $this.StopProcess(
+                    @("Surfshark", "Surfshark.Service")
+                )
+                # 關閉服務
+                # Stop-Service -Name "Surfshark Service" -Force -ErrorAction SilentlyContinue
+                Get-Service | Where-Object { $_.Name -eq "Surfshark Service" } | ForEach-Object { Stop-Service -Name $_.Name -Force }
+                $this.Menu()
+            }
+            27 { # 網路重置
                 Print "網路重置中..."
                 # 釋放 IP 配置
                 ipconfig /release
@@ -676,7 +791,7 @@ class Main {
                 ipconfig /renew
                 $this.Menu()
             }
-            29 { # 自動配置 最快 DNS
+            28 { # 自動配置 DNS
                 $pingResults = @{} # 存儲每個 DNS 伺服器的平均延遲
 
                 $dnsServers = ( # 要測試的 DNS 伺服器列表
@@ -711,15 +826,15 @@ class Main {
                 Print "根據環境不同 可能出現延遲顯示都是 0 這是正常的" "Cyan"
                 Print " =========================================== "
 
-                $y = Read-Host "`n輸入 y 確認操作"
+                $y = Input "輸入 y 確認操作" 'Yellow'
                 switch ($y) {
                     "y" {
                         Print "`n這個操作需要一些時間 請稍後...`n"
-                        Start-Sleep -Milliseconds 1000
+                        Start-Sleep -Seconds 1
                     }
                     Default {
-                        Print "`n確認失敗 返回首頁..."
-                        Start-Sleep -Milliseconds 1300
+                        Print "`n確認失敗 返回首頁..." 'Red'
+                        Start-Sleep -Seconds 1.3
                         $this.Menu()
                     }
                 }
@@ -768,8 +883,8 @@ class Main {
                 $this.WaitBack()
             }
             Default {
-                Print "無效的代號"
-                Start-Sleep -Seconds 1.5
+                Print "無效的代號" 'Red'
+                Start-Sleep -Seconds 1.3
                 $this.Menu()
             }
         }
@@ -778,5 +893,4 @@ class Main {
 
 <# ------------------------------ #>
 
-$MainInstance = [Main]::new()
-$MainInstance.Menu() # 首次調用菜單
+[Main]::new().Menu() # 首次調用菜單
