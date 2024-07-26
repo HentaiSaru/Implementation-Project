@@ -120,7 +120,7 @@ class ProcessingCore {
             Invoke-Expression -Command $code
         } catch {
             Print "解碼運行錯誤" "Red"
-            Read-Host "`nEnter 退出程式"
+            Read-Host "[1mEnter 退出程式..."
         }
     }
 }
