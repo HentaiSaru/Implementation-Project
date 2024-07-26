@@ -1,18 +1,5 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-# 檢查是否有管理員權限
-function IsAdmin {
-    # 創建 WindowsPrincipal 對象
-    $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
-
-if (-not (IsAdmin)) {
-    # 提升權限重啟腳本
-    Start-Process powershell -ArgumentList "& '$PSCommandPath'" -Verb RunAs
-    exit
-}
-
 function Print { # 打印文本
     param (
         [string]$text,
@@ -233,6 +220,7 @@ class Main {
         }
 
         Clear-Host
+        [Console]::SetCursorPosition(0, 0) # 一個替代方案 用於 Invoke-Expression 呼叫時, 清除不到的進行覆蓋
 
         # 打印菜单内容
         $P_ = "縮排 方便自己觀看 (不會顯示)"
