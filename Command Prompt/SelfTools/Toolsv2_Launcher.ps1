@@ -117,7 +117,8 @@ class ProcessingCore {
 
     [void]InvokeCode([string]$code) { # 運行解密字串
         try {
-            Invoke-Expression -Command $code
+            Clear-Host
+            Invoke-Expression $code
         } catch {
             Print "解碼運行錯誤" "Red"
             Read-Host "[1mEnter 退出程式..."
