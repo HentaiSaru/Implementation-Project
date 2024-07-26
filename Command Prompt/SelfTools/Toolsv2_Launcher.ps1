@@ -195,17 +195,14 @@ if (-not (CheckNetwork)) { # 沒有網路
     }
 
     $remoteStringValid = $null -ne $remoteString # 檢查遠端狀態
-
     if ((& $FileExists) -and $remoteStringValid) { # 有本地文件, 且有遠端數據
         $RemoteHash = &($String.ToSHA) $remoteString # 遠端哈希值
         $codeString = $Core.GetDecrypt() # 獲取本地代碼字串
         $LocalHash = &($String.ToSHA) $codeString # 本地哈希值
 
-        Print "本地版本: $LocalHash" "Green"
-        Print "雲端版本: $RemoteHash" "Green"
-
         if (-not($RemoteHash -eq $LocalHash)) { # 哈希值不同 (需要更新)
             $codeString = $Core.OutputAndGet($remoteString) # 輸出加密 並獲取結果
+            Print "數據已更新" "Green"
         }
     } elseif (-not((& $FileExists)) -and $remoteStringValid) { # 沒有本地文件, 但有遠端數據
         $codeString = $Core.OutputAndGet($remoteString) # 輸出加密 並獲取結果
