@@ -80,7 +80,6 @@ class Main {
 
     # 關閉進程 (傳入要關閉的進程名稱)
     [void]StopProcess([object]$Process) {
-        $ProcessList = Get-Process
         if ($Process -is [string]) { # 傳入的是字串
             Stop-Process -Name $Process -Force -ErrorAction SilentlyContinue
         } elseif ($Process -is [array] -and $Process[0] -is [string]) { # 傳入的是一維列表
