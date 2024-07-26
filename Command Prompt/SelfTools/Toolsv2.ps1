@@ -30,6 +30,23 @@ function Input { # 輸入文字
     }
 }
 
+Add-Type @"
+using System;
+
+public class ConsoleHelper
+{
+    public static void Clear()
+    {
+        Console.Clear();
+    }
+}
+"@
+
+function ClearScreen {
+    Clear-Host
+    [ConsoleHelper]::Clear()
+}
+
 <#
     Todo PowerShell 不支援的 =>
     * 文字效果 : 1m(粗體) 3m(斜體) 23m(正體) 4m(底線) 53m(上划線) 22m(雙底線) 9m(刪除線) 7m(背景色與文字色反轉) 27m(復原背景色與文字色)
@@ -219,9 +236,7 @@ class Main {
             }
         }
 
-        Clear-Host
-        [Console]::SetCursorPosition(0, 0) # 一個替代方案 用於 Invoke-Expression 呼叫時, 清除不到的進行覆蓋
-
+        ClearScreen
         # 打印菜单内容
         $P_ = "縮排 方便自己觀看 (不會顯示)"
         Print "========================================================================================================================" 'Red'
@@ -286,7 +301,7 @@ class Main {
         [Main]::InitIndex = 0 # 每次調用會重設
         function index {return [int](++[Main]::InitIndex)}
 
-        Clear-Host
+        ClearScreen
         switch ($choice) {
             0 {exit} # 離開
             "V" { # 更新資訊
