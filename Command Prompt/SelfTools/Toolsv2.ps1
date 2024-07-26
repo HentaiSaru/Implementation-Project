@@ -1,6 +1,21 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+<#
+    Todo PowerShell 不支援的 =>
+    * 文字效果 : 1m(粗體) 3m(斜體) 23m(正體) 4m(底線) 53m(上划線) 22m(雙底線) 9m(刪除線) 7m(背景色與文字色反轉) 27m(復原背景色與文字色)
+    * 背景色 : 49m(透明底)
 
-function Print { # 打印文本
+    ~ 文字色
+    & 灰黑色 (30m)：DarkGray
+    & 紅色 (31m)：Red
+    & 綠色 (32m)：Green
+    & 黃色 (33m)：Yellow
+    & 藍色 (34m)：Blue
+    & 紫色 (35m)：Magenta
+    & 青藍色 (36m)：Cyan
+    & 白色 (37m)：White
+    & 黑色 (40m)：Black
+#>
+function Print {
     param (
         [string]$text,
         [string]$foregroundColor = 'White',
@@ -11,7 +26,7 @@ function Print { # 打印文本
     $Host.UI.RawUI.ForegroundColor = [ConsoleColor]::$foregroundColor
     $Host.UI.RawUI.BackgroundColor = [ConsoleColor]::$backgroundColor
     
-    # 打印文本 (粗體)
+    # 打印粗體
     Write-Host "[1m$text"
 }
 
@@ -30,39 +45,10 @@ function Input { # 輸入文字
     }
 }
 
-Add-Type @"
-using System;
-
-public class ConsoleHelper
-{
-    public static void Clear()
-    {
-        Console.Clear();
-    }
-}
-"@
-
-function ClearScreen {
+function _Cls {
+    # 啟動器由 Invoke-Expression 調用該代碼, 運行時會有清除不乾淨的問題, 等待後續研究
     Clear-Host
-    [ConsoleHelper]::Clear()
 }
-
-<#
-    Todo PowerShell 不支援的 =>
-    * 文字效果 : 1m(粗體) 3m(斜體) 23m(正體) 4m(底線) 53m(上划線) 22m(雙底線) 9m(刪除線) 7m(背景色與文字色反轉) 27m(復原背景色與文字色)
-    * 背景色 : 49m(透明底)
-
-    ~ 文字色
-    & 灰黑色 (30m)：DarkGray
-    & 紅色 (31m)：Red
-    & 綠色 (32m)：Green
-    & 黃色 (33m)：Yellow
-    & 藍色 (34m)：Blue
-    & 紫色 (35m)：Magenta
-    & 青藍色 (36m)：Cyan
-    & 白色 (37m)：White
-    & 黑色 (40m)：Black
-#>
 
 class Main {
     static [int]$InitIndex = 0 # 菜單的索引計數
@@ -236,7 +222,7 @@ class Main {
             }
         }
 
-        ClearScreen
+        _Cls
         # 打印菜单内容
         $P_ = "縮排 方便自己觀看 (不會顯示)"
         Print "========================================================================================================================" 'Red'
@@ -301,7 +287,7 @@ class Main {
         [Main]::InitIndex = 0 # 每次調用會重設
         function index {return [int](++[Main]::InitIndex)}
 
-        ClearScreen
+        _Cls
         switch ($choice) {
             0 {exit} # 離開
             "V" { # 更新資訊
