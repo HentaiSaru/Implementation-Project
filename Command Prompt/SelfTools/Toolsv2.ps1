@@ -283,7 +283,7 @@ class Main {
         $P_
         Print "   特殊功能 :" 'Cyan'
         $P_
-        Print "   $(Index) 網路重置    $(Index) 自動配置 DNS    $(Index) 取得網址 IP" 'White'
+        Print "   $(Index) 網路重置    $(Index) 自動配置 DNS    $(Index) 取得網域 IP" 'White'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
         Print "                                              - 系統指令操作 (不分大小寫) -" 'Magenta'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
@@ -317,7 +317,7 @@ class Main {
                 Print ""
                 Print "   1. 增加網路檢測"
                 Print ""
-                Print "   2. 增加取得網址 IP 功能"
+                Print "   2. 增加取得網域 IP 功能"
                 Print "----------------------------"
                 $this.WaitBack()
             }
@@ -1180,7 +1180,8 @@ class Main {
             }
             (index) { # 取得網址 IP
                 $this.NetworkState()
-                Print "===== 輸入要取得的網址 (輸入 0 直接退出返回) ====="
+                Print "===== 輸入要取得的網域 (輸入 0 直接退出返回) =====`n"
+                Print "!! 只能取得網域的 IP 不是完整網址的" 'Magenta'
 
                 while ($true) {
                     $url = Input "輸入網址" 'Yellow'
@@ -1200,7 +1201,9 @@ class Main {
 
                         # 如果獲取到 IP 地址，進行 Test-Connection
                         if ($ipAddresses) {
-                            Print "IP 地址為: $ipAddresses" 'Green'
+                            $IPFormt = $ipAddresses | ConvertTo-Json -Compress
+                            Print "轉換連結: $($ipAddresses[0])$($uri.LocalPath)"
+                            Print "所有 IP 地址: $IPFormt" 'Green'
                         } else {
                             Print "無法獲取 IP 地址" 'Red'
                         }
