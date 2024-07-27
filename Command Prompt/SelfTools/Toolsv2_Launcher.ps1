@@ -48,7 +48,7 @@ function Print {
 
 function CheckNetwork { # 檢查網路連接
     try {
-        Test-Connection -ComputerName "www.google.com" -Count 1 -ErrorAction Stop
+        Test-Connection -ComputerName "1.1.1.1" -Count 1 -ErrorAction Stop
         return $true
     } catch {
         return $false
