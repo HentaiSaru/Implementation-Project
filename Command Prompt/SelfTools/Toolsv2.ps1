@@ -15,6 +15,16 @@
     & 白色 (37m)：White
     & 黑色 (40m)：Black
 #>
+
+function CheckNetwork {
+    try {
+        Test-Connection -ComputerName "1.1.1.1" -Count 1 -ErrorAction Stop
+        return $true
+    } catch {
+        return $false
+    }
+}
+
 function Print {
     param (
         [string]$text,
@@ -60,6 +70,14 @@ class Main {
         $this.Menu()
     }
 
+    # 檢查網路狀態
+    [void]NetworkState() {
+        if (-not(CheckNetwork)) {
+            Print "操作失敗: 沒有網路無法運行" 'Red'
+            $this.WaitBack()
+        }
+    }
+
     # 運行 CMD 指令並打印出來, 命令, 是否確認後返回首頁
     [void]CMD([string]$command, [bool]$back) {
         Start-Process cmd.exe -ArgumentList "/c $command" -NoNewWindow -Wait
@@ -82,6 +100,8 @@ class Main {
     # 獲取遠端授權代碼
     [void]Authorize([string]$DL_Path, [string]$DL_URL) {
         Print "===== 獲取最新版本 授權程式 =====`n"
+        $this.NetworkState()
+
         if (Test-Path $DL_Path) { Remove-Item $DL_Path -Force } # 先刪除舊文件
         Invoke-WebRequest -Uri $DL_URL -OutFile $DL_Path
         if (-not (Test-Path $DL_Path)) {
@@ -263,7 +283,7 @@ class Main {
         $P_
         Print "   特殊功能 :" 'Cyan'
         $P_
-        Print "   $(Index) 網路重置    $(Index) 自動配置 DNS" 'White'
+        Print "   $(Index) 網路重置    $(Index) 自動配置 DNS    $(Index) 取得網址 IP" 'White'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
         Print "                                              - 系統指令操作 (不分大小寫) -" 'Magenta'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
@@ -293,10 +313,11 @@ class Main {
             "V" { # 更新資訊
                 Print "----------------------------"
                 Print ""
-                Print "  Versions 0.0.1 更新:"
+                Print "  Versions 0.0.2 更新:"
                 Print ""
-                Print "      1. 首次發佈"
+                Print "   1. 增加網路檢測"
                 Print ""
+                Print "   2. 增加取得網址 IP 功能"
                 Print "----------------------------"
                 $this.WaitBack()
             }
@@ -313,7 +334,7 @@ class Main {
                 Print ""
                 Print " 1. 操作的程式 , 必須安裝在預設的路徑上 , 才可成功運行"
                 Print " 2. 優化之類的設置 , 是以個人環境製作的 , 不一定適用於所有人"
-                Print ""
+                Print " 3. 為了避免多餘操作 , 啟動器運行方式會導致 , 有時返回菜單時 上方會有殘留操作訊息 (不要看就好)"
                 Print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
                 $this.WaitBack()
             }
@@ -461,6 +482,7 @@ class Main {
             }
             (index) { # .NET安裝
                 # winget search Microsoft.DotNet.SDK
+                $this.NetworkState()
                 $this.CMD("winget install Microsoft.DotNet.SDK.6", $false)
                 $this.CMD("winget install Microsoft.DotNet.SDK.7", $false)
                 $this.CMD("winget install Microsoft.DotNet.SDK.8", $true)
@@ -468,6 +490,7 @@ class Main {
             (index) { # Visual C++ (x64)安裝
                 # https://learn.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
                 # https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/
+                $this.NetworkState()
 
                 $DownloadPath = "$([Main]::Temp)\Visual.tar"
                 $DownloadURL = "https://raw.githubusercontent.com/Canaan-HS/Implementation-Project/Main/Command Prompt/Visual C++/Visual.tar"
@@ -967,6 +990,8 @@ class Main {
             }
             (index) { # RAR 授權
                 Print "===== 獲取授權 =====`n"
+
+                $this.NetworkState()
                 $RegistPath = "C:\Program Files\WinRAR\Rarreg.key"
 
                 if (-not (Test-Path $RegistPath)) {
@@ -1062,7 +1087,7 @@ class Main {
                 $this.Menu()
             }
             (index) { # 自動配置 DNS
-                $pingResults = @{} # 存儲每個 DNS 伺服器的平均延遲
+                $this.NetworkState()
 
                 $dnsServers = ( # 要測試的 DNS 伺服器列表
                     @{name="Cloudflare DNS"; dns="1.1.1.1"},
@@ -1110,6 +1135,7 @@ class Main {
                 }
 
                 Print "===== 開始測試延遲 ======`n"
+                $pingResults = @{} # 存儲每個 DNS 伺服器的平均延遲
                 $dnsServers | ForEach-Object {
                     $totalTime = 0
                     $successCount = 0
@@ -1151,6 +1177,37 @@ class Main {
                 Print "其他配置: $($otherResults[0]) | $otherDNS" "Green"
 
                 $this.WaitBack()
+            }
+            (index) { # 取得網址 IP
+                $this.NetworkState()
+                Print "===== 輸入要取得的網址 (輸入 0 直接退出返回) ====="
+
+                while ($true) {
+                    $url = Input "輸入網址" 'Yellow'
+
+                    if ($url -eq "0") {
+                        $this.Menu()
+                    }
+
+                    try {
+                        $uri = [System.Uri]::new($url) # 解析 URL 獲取域名
+                        $hostname = $uri.Host
+
+                        # 解析域名地址
+                        $dnsResult = Resolve-DnsName -Name $hostname -ErrorAction Stop
+                        # 解析數據取得 IP
+                        $ipAddresses = $dnsResult | Where-Object { $_.QueryType -eq 'A' } | Select-Object -ExpandProperty IPAddress
+
+                        # 如果獲取到 IP 地址，進行 Test-Connection
+                        if ($ipAddresses) {
+                            Print "IP 地址為: $ipAddresses" 'Green'
+                        } else {
+                            Print "無法獲取 IP 地址" 'Red'
+                        }
+                    } catch {
+                        Print "解析錯誤: 確認輸入的 URL" 'Red'
+                    }
+                }
             }
             Default {
                 Print "無效的代號" 'Red'
