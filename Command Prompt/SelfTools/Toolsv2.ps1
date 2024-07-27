@@ -78,25 +78,6 @@ class Main {
         }
     }
 
-    # 運行 CMD 指令並打印出來, 命令, 是否確認後返回首頁
-    [void]CMD([string]$command, [bool]$back) {
-        Start-Process cmd.exe -ArgumentList "/c $command" -NoNewWindow -Wait
-        if ($back) {
-            $this.WaitBack()
-        }
-    }
-
-    # 關閉進程 (傳入要關閉的進程名稱)
-    [void]StopProcess([object]$Process) {
-        if ($Process -is [string]) { # 傳入的是字串
-            Stop-Process -Name $Process -Force -ErrorAction SilentlyContinue
-        } elseif ($Process -is [array] -and $Process[0] -is [string]) { # 傳入的是一維列表
-            $Process | ForEach-Object {
-                Stop-Process -Name $_ -Force -ErrorAction SilentlyContinue
-            }
-        }
-    }
-
     # 獲取遠端授權代碼
     [void]Authorize([string]$DL_Path, [string]$DL_URL) {
         Print "===== 獲取最新版本 授權程式 =====`n"
@@ -109,6 +90,50 @@ class Main {
             $this.WaitBack()
         }
         $this.CMD($DL_Path, $true)
+    }
+
+    # 二次確認操作
+    [void]DoubleConfirm([scriptblock]$confirm) {
+        $y = Input "輸入 Y 確認操作" 'Yellow'
+        switch ($y) {
+            "y" {
+                & $confirm
+            }
+            Default {
+                Print "`n確認失敗 返回首頁..." 'Red'
+                Start-Sleep -Seconds 1.3
+                $this.Menu()
+            }
+        }
+    }
+
+    # 運行 CMD 指令並打印出來, 命令, 是否確認後返回首頁
+    [void]CMD([string]$command, [bool]$back) {
+        Start-Process cmd.exe -ArgumentList "/c $command" -NoNewWindow -Wait
+        if ($back) {
+            $this.WaitBack()
+        }
+    }
+
+    # 字串轉 MD5
+    [string]MD5([string]$string) {
+        $MD5 = [System.Security.Cryptography.MD5]::Create()
+        $FileByte = [System.Text.Encoding]::UTF8.GetBytes($string)
+        $HashByte = $MD5.ComputeHash($FileByte)
+        $HashString = [BitConverter]::ToString($HashByte) -replace '-'
+        $LowerString = $HashString.ToLower()
+        return $LowerString.Substring(8, 24)
+    }
+
+    # 關閉進程 (傳入要關閉的進程名稱)
+    [void]StopProcess([object]$Process) {
+        if ($Process -is [string]) { # 傳入的是字串
+            Stop-Process -Name $Process -Force -ErrorAction SilentlyContinue
+        } elseif ($Process -is [array] -and $Process[0] -is [string]) { # 傳入的是一維列表
+            $Process | ForEach-Object {
+                Stop-Process -Name $_ -Force -ErrorAction SilentlyContinue
+            }
+        }
     }
 
     # 註冊預設值 (特殊函數)
@@ -203,16 +228,6 @@ class Main {
         } else {
             Print "不支援的註冊格式: $Items" 'Red'
         }
-    }
-
-    # 字串轉 MD5
-    [string]MD5([string]$string) {
-        $MD5 = [System.Security.Cryptography.MD5]::Create()
-        $FileByte = [System.Text.Encoding]::UTF8.GetBytes($string)
-        $HashByte = $MD5.ComputeHash($FileByte)
-        $HashString = [BitConverter]::ToString($HashByte) -replace '-'
-        $LowerString = $HashString.ToLower()
-        return $LowerString.Substring(8, 24)
     }
 
     [void]Menu() {
@@ -313,11 +328,11 @@ class Main {
             "V" { # 更新資訊
                 Print "----------------------------"
                 Print ""
-                Print "  Versions 0.0.2 更新:"
+                Print "  更新資訊:"
                 Print ""
-                Print "   1. 增加網路檢測"
+                Print "   1. 優化二次確認邏輯"
                 Print ""
-                Print "   2. 增加取得網域 IP 功能"
+                Print "   2. 調整 [自動配置 DNS] 顯示文本"
                 Print "----------------------------"
                 $this.WaitBack()
             }
@@ -758,19 +773,11 @@ class Main {
                 Print "     重置不包含: 瀏覽器設定, 與任何保存數據"
                 Print " ============================================== "
 
-                $y = Input "輸入 Y 確認操作" 'Yellow'
-                switch ($y) {
-                    "y" {
-                        Remove-Item -Path "HKLM:\SOFTWARE\Policies\Google" -Recurse -Force
-                        Print "已重置 Google 受機構管理" 'Green'
-                        $this.WaitBack()
-                    }
-                    Default {
-                        Print "`n確認失敗 返回首頁..." 'Red'
-                        Start-Sleep -Seconds 1.3
-                        $this.Menu()
-                    }
-                } 
+                $this.DoubleConfirm({
+                    Remove-Item -Path "HKLM:\SOFTWARE\Policies\Google" -Recurse -Force
+                    Print "已重置 Google 受機構管理" 'Green'
+                    $this.WaitBack()
+                })
             }
             (index) { # Edge 變更緩存位置
                 $shellApp = New-Object -ComObject Shell.Application
@@ -973,20 +980,12 @@ class Main {
                 Print "     重置不包含: 瀏覽器設定, 與任何保存數據"
                 Print " ============================================== "
 
-                $y = Input "輸入 Y 確認操作" 'Yellow'
-                switch ($y) {
-                    "y" {
-                        Remove-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Recurse -Force
-                        Remove-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\MicrosoftEdge" -Recurse -Force
-                        Print "已重置 Edge 受組織管理" 'Green'
-                        $this.WaitBack()
-                    }
-                    Default {
-                        Print "`n確認失敗 返回首頁..." 'Red'
-                        Start-Sleep -Seconds 1.3
-                        $this.Menu()
-                    }
-                }
+                $this.DoubleConfirm({
+                    Remove-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Edge" -Recurse -Force
+                    Remove-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\MicrosoftEdge" -Recurse -Force
+                    Print "已重置 Edge 受組織管理" 'Green'
+                    $this.WaitBack()
+                })
             }
             (index) { # RAR 授權
                 Print "===== 獲取授權 =====`n"
@@ -1121,18 +1120,10 @@ class Main {
                 Print "   根據環境不同 可能出現延遲顯示都是 0 這是正常的" "Cyan"
                 Print " ================================================== "
 
-                $y = Input "輸入 Y 確認操作" 'Yellow'
-                switch ($y) {
-                    "y" {
-                        Print "`n這個操作需要一些時間 請稍後...`n"
-                        Start-Sleep -Seconds 1
-                    }
-                    Default {
-                        Print "`n確認失敗 返回首頁..." 'Red'
-                        Start-Sleep -Seconds 1.3
-                        $this.Menu()
-                    }
-                }
+                $this.DoubleConfirm({
+                    Print "`n這個操作需要一些時間 請稍後...`n"
+                    Start-Sleep -Seconds 1
+                })
 
                 Print "===== 開始測試延遲 ======`n"
                 $pingResults = @{} # 存儲每個 DNS 伺服器的平均延遲
@@ -1152,7 +1143,7 @@ class Main {
                     if ($successCount -gt 0) {
                         $averageTime = $totalTime / $successCount
                         $pingResults[@($_.name, $_.dns)] = $averageTime
-                        Print "$($_.name) | $($_.dns) | $averageTime ms" "Yellow"
+                        Print "$($_.name) | $($_.dns) | $([math]::Round($averageTime, 1)) ms" "Yellow"
                     }
                 }
 
