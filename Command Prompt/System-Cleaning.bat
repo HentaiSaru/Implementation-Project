@@ -42,55 +42,6 @@ ipconfig /renew
 
 :: ========== 網路優化 ==========
 
-:: TCP 接收側縮放 (RSS) (disabled|enabled|default)
-netsh int tcp set global rss=enabled
-:: 接收窗口自動調整級別(disabled|highlyrestricted|restricted|normal|experimental)
-netsh int tcp set global autotuninglevel=normal
-:: TCP ECN 擁塞控制能力(disabled|enabled|default)
-netsh int tcp set global ecncapability=enabled
-:: TCP 時間戳(disabled|enabled|default)
-netsh int tcp set global timestamps=enabled
-:: TCP 初始時的超時 重傳時間 (300~3000)
-netsh int tcp set global initialrto=1000
-:: 接收段合併狀態 (disabled|enabled|default)
-netsh int tcp set global rsc=enabled
-:: SACK 用於改進丟包恢復和擁塞控制 (disabled|enabled|default)
-netsh int tcp set global nonsackrttresiliency=enabled
-:: 客戶端允許的最大 SYN 重傳次數 (2~8)
-netsh int tcp set global maxsynretransmissions=2
-:: TCP 快速啟用 (disabled|enabled|default)
-netsh int tcp set global fastopen=enabled
-:: TCP 快速回退,如果遠程端點不支持 TCP 快速打開或發生任何錯誤，將回退到正常的握手過程 (disabled|enabled|default)
-netsh int tcp set global fastopenfallback=enabled
-:: 擁塞控制算法 (disabled|enabled|default)
-netsh int tcp set global hystart=enabled
-:: 擁塞控制算法 (disabled|enabled|default)
-netsh int tcp set global prr=enabled
-:: 啟用數據中心擁塞控制算法 (DCA)
-netsh int tcp set global dca=enabled
-:: TCP 發送方的流量控制機制 (off|initialwindow|slowstart|always|default)
-netsh int tcp set global pacingprofile=always
-
-::--------------------------------------------------------------------------------------::
-
-:: netsh int tcp set supplemental template= (automatic|datacenter|internet|compat|custom)
-:: TCP 超時最小重傳時間 (20~300)
-netsh int tcp set supplemental template=datacenter minrto=200
-:: CP 在連接剛建立時允許發送的數據包數量 (2~64)
-netsh int tcp set supplemental template=datacenter icw=64
-:: 擁塞控制算法 (none|ctcp|dctcp|cubic|bbr2|default)
-netsh int tcp set supplemental template=datacenter congestionprovider=bbr2
-:: 擁塞窗口重啟 (disabled|enabled|default)
-netsh int tcp set supplemental template=datacenter enablecwndrestart=enabled
-:: TCP延遲應答的超時 (10~600)
-netsh int tcp set supplemental template=datacenter delayedacktimeout=100
-:: TCP延遲應答頻率 (1~255)
-netsh int tcp set supplemental template=datacenter delayedackfrequency=30
-
-::--------------------------------------------------------------------------------------::
-
-:: TCP 啟發式優化
-netsh int tcp set heuristics forcews=disabled
 :: 刪除系統中的證書緩存
 certutil -URLCache * delete
 :: 刪除系統的 ARP 緩存
@@ -335,10 +286,8 @@ reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Update" /v "UpdateM
 reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v "DesktopProcess" /t REG_DWORD /d 1 /f
 
 :: 重啟防火牆
-Netsh advfirewall set currentprofile state on
-Netsh advfirewall set domainprofile state on
-netsh advfirewall set privateprofile state on
 netsh advfirewall set allprofiles state on
+netsh advfirewall firewall set rule all new enable=yes
 
 :: 內建清理
 cleanmgr /sagerun:99
