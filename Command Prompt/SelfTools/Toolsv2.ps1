@@ -268,11 +268,11 @@ class Main {
         $P_
         Print "   $(Index) 睡眠    $(Index) 重啟    $(Index) 關機`n" 'White'
         $P_
-        Print "   Windows 防火牆開關 :" 'Cyan'
+        Print "   Windows 防火牆 :" 'Cyan'
         $P_
         Print "   $(Index) 開啟防火牆    $(Index) 關閉防火牆    [33m當前狀態:[37m $display`n" 'White'
         $P_
-        Print "   Windows 優化相關 :" 'Cyan'
+        Print "   Windows 設置 :" 'Cyan'
         $P_
         Print "   $(Index) .NET安裝    $(Index) Visual C++ (x64)安裝    $(Index) 關閉UAC安全通知" 'White'
         $P_
@@ -284,7 +284,7 @@ class Main {
         $P_
         Print "   $(Index) Edge 變更緩存位置    $(Index) Edge 一鍵優化設置    $(Index) Edge 重置受組織管理`n" 'White'
         $P_
-        Print "   授權啟用 :" 'Cyan'
+        Print "   授權操作 :" 'Cyan'
         $P_
         Print "   $(Index) RAR 授權     $(Index) IDM 授權    $(Index) Windows 啟用授權    $(Index) Office 啟用授權`n" 'White'
         $P_
@@ -296,9 +296,9 @@ class Main {
         $P_
         Print "   $(Index) Surfshark 運行    $(Index) Surfshark 終止`n" 'White'
         $P_
-        Print "   特殊功能 :" 'Cyan'
+        Print "   網路操作 :" 'Cyan'
         $P_
-        Print "   $(Index) 網路重置    $(Index) 自動配置 DNS    $(Index) 取得網域 IP" 'White'
+        Print "   $(Index) 網路重置    $(Index) 網路優化    $(Index) 自動配置 DNS    $(Index) 取得網域 IP" 'White'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
         Print "                                              - 系統指令操作 (不分大小寫) -" 'Magenta'
         Print "------------------------------------------------------------------------------------------------------------------------" 'Red'
@@ -330,9 +330,9 @@ class Main {
                 Print ""
                 Print "  更新資訊:"
                 Print ""
-                Print "   1. 優化二次確認邏輯"
+                Print "   1. 增加網路優化功能"
                 Print ""
-                Print "   2. 調整 [自動配置 DNS] 顯示文本"
+                Print "   2. 調整部份分類名稱"
                 Print "----------------------------"
                 $this.WaitBack()
             }
@@ -450,6 +450,7 @@ class Main {
                 $this.CMD("net share", $true)
             }
             "MC" { # MAC地址查詢
+                # Get-NetAdapter
                 $this.CMD("getmac /fo table /v", $true)
             }
             "SV" { # 查看運行中的服務
@@ -1081,9 +1082,124 @@ class Main {
                 netsh winsock reset
                 # 重置 Windows 防火牆
                 netsh advfirewall reset
+                # 清除 ARP 緩存
+                netsh interface ip delete arpcache
+                # 清除 NetBIOS 快取
+                nbtstat -R
+                # 禁用並重新啟用網絡接口
+                Get-NetAdapter | Disable-NetAdapter -Confirm:$false
+                Get-NetAdapter | Enable-NetAdapter -Confirm:$false
                 # 更新 IP 配置
                 ipconfig /renew
                 $this.Menu()
+            }
+            (index) { # 網路優化
+
+                Print " ====================================== "
+                Print "      這個優化不見得適用於所有人" "Cyan"
+                Print " ====================================== "
+
+                $this.DoubleConfirm({
+                    Print "`n請稍後...`n"
+                    Start-Sleep -Seconds 1
+                })
+
+                # TCP 接收側縮放 (RSS) (disabled|enabled|default)
+                netsh int tcp set global rss=enabled
+                # 接收窗口自動調整級別(disabled|highlyrestricted|restricted|normal|experimental)
+                netsh int tcp set global autotuninglevel=normal
+                # TCP ECN 擁塞控制能力(disabled|enabled|default)
+                netsh int tcp set global ecncapability=enabled
+                # TCP 時間戳(disabled|enabled|default)
+                netsh int tcp set global timestamps=enabled
+                # TCP 初始時的超時 重傳時間 (300~3000)
+                netsh int tcp set global initialrto=1000
+                # 接收段合併狀態 (disabled|enabled|default)
+                netsh int tcp set global rsc=enabled
+                # SACK 用於改進丟包恢復和擁塞控制 (disabled|enabled|default)
+                netsh int tcp set global nonsackrttresiliency=enabled
+                # 客戶端允許的最大 SYN 重傳次數 (2~8)
+                netsh int tcp set global maxsynretransmissions=2
+                # TCP 快速啟用 (disabled|enabled|default)
+                netsh int tcp set global fastopen=enabled
+                # TCP 快速回退,如果遠程端點不支持 TCP 快速打開或發生任何錯誤，將回退到正常的握手過程 (disabled|enabled|default)
+                netsh int tcp set global fastopenfallback=enabled
+                # 擁塞控制算法 (disabled|enabled|default)
+                netsh int tcp set global hystart=enabled
+                # 擁塞控制算法 (disabled|enabled|default)
+                netsh int tcp set global prr=enabled
+                # 啟用數據中心擁塞控制算法 (DCA)
+                netsh int tcp set global dca=enabled
+                # TCP 發送方的流量控制機制 (off|initialwindow|slowstart|always|default)
+                netsh int tcp set global pacingprofile=always
+
+                # netsh int tcp set supplemental template= (automatic|datacenter|internet|compat|custom)
+                # TCP 超時最小重傳時間 (20~300)
+                netsh int tcp set supplemental template=datacenter minrto=200
+                # TCP 在連接剛建立時允許發送的數據包數量 (2~64)
+                netsh int tcp set supplemental template=datacenter icw=64
+                # 擁塞控制算法 (none|ctcp|dctcp|cubic|bbr2|default)
+                netsh int tcp set supplemental template=datacenter congestionprovider=bbr2
+                # 擁塞窗口重啟 (disabled|enabled|default)
+                netsh int tcp set supplemental template=datacenter enablecwndrestart=enabled
+                # TCP延遲應答的超時 (10~600)
+                netsh int tcp set supplemental template=datacenter delayedacktimeout=100
+                # TCP延遲應答頻率 (1~255)
+                netsh int tcp set supplemental template=datacenter delayedackfrequency=30
+                # TCP 啟發式優化
+                netsh int tcp set heuristics forcews=disabled
+
+                $this.RegistItem(@(
+                    # 啟用黑洞偵測，以防止封包在網路中丟失
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters", "EnablePMTUBHDetect", "DWORD", 1),
+                    # 提高 IP 封包緩衝區容量，以增強封包處理能力
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters", "ForwardBufferMemory", "DWORD", 1048576),
+                    # 增加封包處理能力，降低丟包率
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters", "NumForwardPackets", "DWORD", 256),
+                    # 設置 TCP 超時值以更快釋放資源，但可能增加套接字重用問題
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters", "TcpTimedWaitDelay", "DWORD", 60),
+                    # 縮短 NetBT 廣播查詢超時以加快名稱解析速度，但可能增加網絡流量
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters", "BcastQueryTimeout", "DWORD", 500),
+                    # 縮短 NetBT 名稱伺服器查詢超時以加快名稱解析速度，但可能增加網絡流量
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters", "NameSrvQueryTimeout", "DWORD", 1000),
+                    # 增加 NetBT 會話保持時間以提高連接穩定性，但可能增加網絡流量
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters", "SessionKeepAlive", "DWORD", 1800000),
+                    # 設置 NetBT 名稱表大小，選擇中型（2）或大型（3）
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters", "NameTableSize", "DWORD", 2),
+                    # 減少名稱註冊的初始超時以加快名稱註冊速度，但可能增加網絡負荷
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters", "InitialRefreshT.O.", "DWORD", 480000),
+                    # 設置 LMHOSTS 和 DNS 名稱查詢超時值
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters", "LmhostsTimeout", "DWORD", 3000),
+                    # 增加 NetBT 數據報緩衝區容量以提升傳送性能，但可能增加內存消耗
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters", "MaxDgramBuffering", "DWORD", 0x40000),
+                    # 縮短 WINS 重新嘗試超時以加快 WINS 查詢，但可能增加網絡負荷
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters", "WinsDownTimeout", "DWORD", 10000),
+                    # 設定 DNS 快取中記錄的最大存活時間
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters", "MaxCacheTtl", "DWORD", 86400),
+                    # 設定 TCP 窗口大小以改善 TCP 連接的流量控制
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters", "TcpWindowSize", "DWORD", 64000),
+                    # 禁用 Nagle 算法以減少延遲（預設為 1，啟用）
+                    @("HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters", "TcpNoDelay", "DWORD", 1)
+                ), $false)
+
+                $interfaces = Get-ChildItem -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces"
+                foreach ($interface in $interfaces) {
+                    $interfacePath = $interface.PSPath
+                    # 嘗試獲取 IPAddress 屬性
+                    $IPAddress = Get-ItemProperty -Path $interfacePath -Name DhcpIPAddress -ErrorAction SilentlyContinue
+                    # 存在 IPAddress 且不為 0.0.0.0
+                    if ($IPAddress -and $IPAddress.DhcpIPAddress -ne "0.0.0.0") {
+                        $this.RegistItem(@(
+                            # 調整 MTU 值以優化網路性能，特別是避免封包碎片化
+                            @($interfacePath, "MTU", "DWORD", 1500),
+                            # 設置 TCP 立即確認以降低延遲（預設為 1）
+                            @($interfacePath, "TcpAckFrequency", "DWORD", 1)
+                        ), $false)
+                    }
+                }
+
+                Print "`n===== 重新啟動後應用 ====="
+                $this.WaitBack()
             }
             (index) { # 自動配置 DNS
                 $this.NetworkState()
@@ -1158,7 +1274,15 @@ class Main {
                 $idiomaticDNS = $idiomaticResults[1]
                 $otherDNS = $otherResults[1]
 
-                Clear-DnsClientCache # 清除 DNS 緩存
+                # 重置網路
+                ipconfig /release
+                Clear-DnsClientCache
+                netsh interface ip delete arpcache
+                netsh winsock reset
+                netsh int ip reset
+                nbtstat -R
+                ipconfig /renew
+
                 $interfaceIndex = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" }).ifIndex
                 Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses ($idiomaticDNS, $otherDNS)
 
