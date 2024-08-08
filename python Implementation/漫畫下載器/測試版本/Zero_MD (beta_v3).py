@@ -1,7 +1,6 @@
-from Script import AutoCapture, Reques, Get
+from Script import AutoCapture, Reques
 from concurrent.futures import *
 from multiprocessing import *
-from lxml import etree
 import opencc
 import time
 import re
@@ -54,7 +53,7 @@ dir = os.path.abspath("R:/")
 
 # (該網站會每過一段時間會改域名 , 在此處更改即可繼續使用)
 def DomainName():
-    return "https://www.zerobywzz.com/"
+    return "http://www.zerobyw8.com/"
 
 class ZeroDownloader:
     def __init__(self):
@@ -222,30 +221,53 @@ class ZeroDownloader:
             end = link[-1].split(".") # 網址尾部處理
             self.Mantissa = end[0] # 連結尾數
             self.FileExtension = end[1] # 連結擴展名
+            
+            for number in self.Comics_number: # 漫畫話數
+                # 特別章節
+                special = False
+                # 判斷特別章節
+                if number == self.cache:
+                    folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}特別話"
+                    special = True
+                else:
+                    # 資料夾名稱
+                    folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}話"
+                # 只要與前一個有重複的數字 , 就是特別章節
+                self.cache = number
+                if special:
+                    print(f"第 {number} 特別話 - 準備下載", flush=True)
+                else:
+                    print(f"第 {number} 話 - 準備下載", flush=True)
 
-            with ProcessPoolExecutor(max_workers=self.MaxProcesses) as executor:
-                for number in self.Comics_number: # 漫畫話數
-                    # 特別章節
-                    special = False
+                self.accelerate(special, folder_name, number)
+                time.sleep(self.ProcessDelay)
 
-                    # 判斷特別章節
-                    if number == self.cache:
-                        folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}特別話"
-                        special = True
-                    else:
-                        # 資料夾名稱
-                        folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}話"
+            """
+                with ProcessPoolExecutor(max_workers=self.MaxProcesses) as executor:
+                    for number in self.Comics_number: # 漫畫話數
+                        # 特別章節
+                        special = False
 
-                    # 只要與前一個有重複的數字 , 就是特別章節
-                    self.cache = number
+                        # 判斷特別章節
+                        if number == self.cache:
+                            folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}特別話"
+                            special = True
+                        else:
+                            # 資料夾名稱
+                            folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}話"
 
-                    if special:
-                        print(f"第 {number} 特別話 - 準備下載", flush=True)
-                    else:
-                        print(f"第 {number} 話 - 準備下載", flush=True)
+                        # 只要與前一個有重複的數字 , 就是特別章節
+                        self.cache = number
 
-                    executor.submit(self.accelerate, special, folder_name, number)
-                    time.sleep(self.ProcessDelay)
+                        if special:
+                            print(f"第 {number} 特別話 - 準備下載", flush=True)
+                        else:
+                            print(f"第 {number} 話 - 準備下載", flush=True)
+
+                        executor.submit(self.accelerate, special, folder_name, number)
+                        time.sleep(self.ProcessDelay)
+            """
+
 
     # 自訂下載方法
     def Custom(self,url:str, chapter=None, mantissa=3, FE="png", retry=True, special=False):
@@ -293,24 +315,39 @@ class ZeroDownloader:
                 Comics_number = list(str(chapter))
 
             """ ____________ 開始請求下載 ____________ """
+            
+            for number in Comics_number:
+                if number == self.cache:
+                    folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}特別話"
+                    special = True
+                else:
+                    folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}話"
+                self.cache = number
+                if special:
+                    print(f"第 {number} 特別話 - 準備下載", flush=True)
+                else:
+                    print(f"第 {number} 話 - 準備下載", flush=True)
+                self.accelerate(special, folder_name, number)
+                time.sleep(self.ProcessDelay)
 
-            with ProcessPoolExecutor(max_workers=self.MaxProcesses) as executor:
-                for number in Comics_number:
+            """
+                with ProcessPoolExecutor(max_workers=self.MaxProcesses) as executor:
+                    for number in Comics_number:
+                        if number == self.cache:
+                            folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}特別話"
+                            special = True
+                        else:
+                            folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}話"
+                        self.cache = number
 
-                    if number == self.cache:
-                        folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}特別話"
-                        special = True
-                    else:
-                        folder_name = rf"{dir}{Manga_name}\{Manga_name} - 第{number}話"
-                    self.cache = number
+                        if special:
+                            print(f"第 {number} 特別話 - 準備下載", flush=True)
+                        else:
+                            print(f"第 {number} 話 - 準備下載", flush=True)
 
-                    if special:
-                        print(f"第 {number} 特別話 - 準備下載", flush=True)
-                    else:
-                        print(f"第 {number} 話 - 準備下載", flush=True)
-
-                    executor.submit(self.accelerate, special, folder_name, number)
-                    time.sleep(self.ProcessDelay)
+                        executor.submit(self.accelerate, special, folder_name, number)
+                        time.sleep(self.ProcessDelay)
+            """
 
     # 資料夾創建
     def Ffolder(self, FolderName):
@@ -363,8 +400,8 @@ class ZeroDownloader:
 #################################################################################
 
 # 快速設置範圍
-def custom_range(start,end):
-    for chapter in range(start,end+1):
+def custom_range(start, end):
+    for chapter in range(start, end+1):
         CB.append(chapter)
 
 if __name__ == "__main__":
@@ -383,10 +420,9 @@ if __name__ == "__main__":
         * 自動試錯 - 預設是 False (啟用後當有很多格式錯誤的, 會跑比較久)
     """
     # 自動擷取URL
-    AutoCapture.settings(DomainName())
-    
-    capture = AutoCapture.GetLink()
-    zero.Automatic(capture)
+    # AutoCapture.settings(DomainName())
+    # capture = AutoCapture.GetLink()
+    # zero.Automatic(capture)
 
 #################################################################################
 
@@ -396,7 +432,7 @@ if __name__ == "__main__":
         ! 參數只有 url 是必填 , 其餘可填可不填(都自訂還是填一下)
 
         * 連結 url - 填寫連結字串
-        * 章節 chapter - 填寫要下載的漫畫 , 第幾話(填寫數字或字串都可以) , 可使用上方CB來大量填寫 , 也可使用custom_range設置範圍
+        * 章節 chapter - 填寫要下載的漫畫 , 第幾話(填寫數字或字串都可以) , 可使用上方 CB 來大量填寫 , 也可使用custom_range設置範圍
         * 尾數 mantissa - 填 3 = 001 , 2 = 01 ... , 這是根據該網站的命名去測試到正確的格式
         * 副檔名 FE - 就設置副檔名 , 以符合正確的連結格式 , 就可以請求成功
         * 自動試錯 retry - 如果很懶得填寫 , 章節 尾數 副檔名 , 去測試到正確的Url , 可以嘗試使用
@@ -404,6 +440,5 @@ if __name__ == "__main__":
     """
 
     # 可使用自訂範圍 , 或是直接填入CB , 設置完成 , 直接再 Custom 尾數傳入 CB
-    # custom_range(1,2)
-
-    # zero.Custom("#" , chapter=1)
+    # custom_range(1, 2)
+    # zero.Custom("" , chapter=CB, mantissa=2, FE="jpg")
