@@ -83,6 +83,8 @@ pip install progress
 pip install progressbar
 pip install progressbar2
 pip install alive-progress
+:: 豐富多樣的打印 (文字顏色, 進度條, 表格...)
+pip install rich
 ::------------------------::
 :: 數值分析
 pip install numpy
@@ -110,6 +112,8 @@ pip install pymem
 pip install pywin32
 :: 畫面截圖與錄影
 pip install mss
+:: 語音轉文本
+pip install SpeechRecognition pyaudio
 ::------------------------::
 :: 創建GUI
 pip install PyQt5
