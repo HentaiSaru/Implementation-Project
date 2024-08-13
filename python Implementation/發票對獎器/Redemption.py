@@ -169,15 +169,15 @@ class Comparison(DataProcessing, WinningInstructions):
 
         os.system("cls")
 
-        table = Table()
-        table.add_column("代號", justify="center", style="bold bright_red")
-        table.add_column("日期", justify="center", style="bold bright_yellow")
+        select_table = Table()
+        select_table.add_column("代號", justify="center", style="bold bright_red")
+        select_table.add_column("日期", justify="center", style="bold bright_yellow")
 
         for index, data in self.Redemption_Data.items():
-            table.add_row(str(index), data["month"])
+            select_table.add_row(str(index), data["month"])
+        print(select_table)
 
-        print(table)
-
+        display_table = Table()
         while True:
             try:
                 print("\n輸入[代號]選擇日期: ", end="", style="bold green")
@@ -191,7 +191,7 @@ class Comparison(DataProcessing, WinningInstructions):
                     os.system("cls")
 
                     #! 如需要根據選取月份, 顯示兌換日期, 需要解析此處選擇的 month
-                    print(select["month"], style="bold")
+                    display_table.add_column(select["month"], justify="center", style="bold")
                     data = select["number"]
 
                     # 將數據列表解析為字典 (測試以下寫法 比列導式快一些, 雖然列導式更簡潔) [Key 值為末三碼]
@@ -205,9 +205,9 @@ class Comparison(DataProcessing, WinningInstructions):
             except ValueError:
                 print("\n代號為數字, 請重新選擇", style="bold red")
 
-        print("\n{:<9} {}".format(self.Reward_level[0], self.Reward_conditions[0]), style="bold")
-        for i in range(1, 8): # 顯示 獎勵等級, 獎勵條件 
-            print("{:<10} {}".format(self.Reward_level[i], self.Reward_conditions[i]), style="bold")
+        for i in range(0, 8): # 顯示 獎勵等級, 獎勵條件 
+            display_table.add_row(self.Reward_level[i], self.Reward_conditions[i])
+        print(display_table)
 
         self.__Comparison_Date()
 
