@@ -254,7 +254,7 @@ class GUI(DataProcessing, tk.Tk):
         if direct:
             def trigger(event): # 觸發後先讀取文本
                 TexT = self.GetText()
-                with ThreadPoolExecutor(max_workers=300) as executor:
+                with ThreadPoolExecutor(max_workers=1000) as executor:
                     scrapbook = ""
                     length = len(TexT) - 1 # 取得結尾得長度
                     for index, text in enumerate(TexT): # 使用線程池 以多線程進行轉換
@@ -327,7 +327,9 @@ class GUI(DataProcessing, tk.Tk):
             with open(work, "rb") as file: # 以二進制讀取
                 text = file.read() # 獲取文本
                 encode = chardet.detect(text)["encoding"].lower() # 解析編碼類型
-                with ThreadPoolExecutor(max_workers=300) as executor:
+
+                #! 等待後續修正 處理更多編碼, 語法優化
+                with ThreadPoolExecutor(max_workers=1000) as executor:
                     if self.Comp(encode, "utf-8") or self.Comp(encode, "ascii"):
                         decode_text = text.decode("utf-8").splitlines() # 轉換成字串, 並將其序列化
                     elif self.Comp(encode, "utf-16"): # 假設都是 LE 類型的, 無特別處理 BE
