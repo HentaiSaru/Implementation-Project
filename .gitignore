@@ -11,6 +11,7 @@
 VideoDownloader.py
 
 __pycache__
+node_modules
 Temporary
 timestamp
 test
