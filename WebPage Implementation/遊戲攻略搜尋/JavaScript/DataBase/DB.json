@@ -1,0 +1,1074 @@
+{
+    "Meta": {
+        "更新日期": "2024/08/01",
+        "數據類型": "蔚藍檔案數據庫"
+    },
+    "屬性": {
+        "爆發": [
+            "音瀨小玉",
+            "月雪都子.泳裝",
+            "風倉萌.泳裝",
+            "空井咲希.泳裝",
+            "小鉤晴"
+        ],
+        "貫通": [
+            "月雪都子",
+            "空井咲希",
+            "風倉萌",
+            "霞沢美優"
+        ],
+        "振動": [
+            "風倉萌.泳裝"
+        ]
+    },
+    "裝甲": {
+        "輕裝": [
+            "霞沢美優",
+            "音瀨小玉",
+            "小鉤晴"
+        ],
+        "重裝": [
+            "月雪都子",
+            "月雪都子.泳裝",
+            "風倉萌.泳裝",
+            "空井咲希.泳裝"
+        ],
+        "特殊": [
+            "空井咲希",
+            "風倉萌",
+            "風倉萌.泳裝"
+        ]
+    },
+    "武器": {
+        "HG手槍": [
+            "風倉萌",
+            "音瀨小玉",
+            "風倉萌.泳裝"
+        ],
+        "SMG衝鋒槍": [
+            "月雪都子",
+            "月雪都子.泳裝"
+        ],
+        "SR狙擊槍": [
+            "霞沢美優"
+        ],
+        "MG機槍": [
+            "空井咲希",
+            "風倉萌.泳裝",
+            "空井咲希.泳裝"
+        ],
+        "AR突擊槍": [
+            "小鉤晴"
+        ]
+    },
+    "定位": {
+        "前衛": [
+            "月雪都子",
+            "月雪都子.泳裝",
+            "霞沢美優",
+            "風倉萌.泳裝",
+            "空井咲希.泳裝",
+            "風倉萌.泳裝"
+        ],
+        "後衛": [
+            "風倉萌",
+            "音瀨小玉",
+            "空井咲希",
+            "小鉤晴"
+        ]
+    },
+    "評級": {
+        "S": [
+            "音瀨小玉"
+        ],
+        "A": [
+            "霞沢美優",
+            "月雪都子.泳裝"
+        ],
+        "B": [
+            "風倉萌.泳裝",
+            "空井咲希.泳裝",
+            "風倉萌.泳裝"
+        ],
+        "C": [
+            "月雪都子",
+            "空井咲希",
+            "風倉萌"
+        ],
+        "D": [
+            "小鉤晴"
+        ]
+    },
+    "別稱": {
+        "都子": "月雪都子",
+        "宮子": "月雪都子",
+        "水都子": "月雪都子.泳裝",
+        "水宮子": "月雪都子.泳裝",
+        "ミヤコ": [
+            "月雪都子",
+            "月雪都子.泳裝"
+        ],
+        "Miyako": [
+            "月雪都子",
+            "月雪都子.泳裝"
+        ],
+        "咲": "空井咲希",
+        "Saki": "空井咲希",
+        "水咲": "空井咲希.泳裝",
+        "水Saki": "空井咲希.泳裝",
+        "水咲希": "空井咲希.泳裝",
+        "サキ": [
+            "空井咲希",
+            "空井咲希.泳裝"
+        ],
+        "Moe": "風倉萌",
+        "萌惠": "風倉萌",
+        "水萌": "風倉萌.泳裝",
+        "水Moe": "風倉萌.泳裝",
+        "モエ": [
+            "風倉萌",
+            "風倉萌.泳裝"
+        ],
+        "ミユ": "霞沢美優",
+        "Miyu": "霞沢美優",
+        "拉姬兔": "霞沢美優",
+        "垃圾兔": "霞沢美優",
+        "コタマ": "音瀨小玉",
+        "Kotama": "音瀨小玉",
+        "小玉": "音瀨小玉",
+        "晴": "小鉤晴",
+        "ハレ": "小鉤晴",
+        "Hare": "小鉤晴"
+    },
+    "詳細資訊": {
+        "月雪都子": {
+            "新手期": 3,
+            "總力戰": 2,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 4,
+            "高難活動": 3,
+            "泛用評級": 56,
+            "角色定位": "控場",
+            "IMG_URL": "https://i.imgur.com/Zv3X4MG.png"
+        },
+        "月雪都子.泳裝": {
+            "新手期": 3,
+            "總力戰": 4,
+            "大決戰": 4,
+            "演習考試": 3,
+            "戰術對抗": 4,
+            "高難活動": 3,
+            "泛用評級": 70,
+            "角色定位": "多功能坦",
+            "IMG_URL": "https://i.imgur.com/scVbltH.png"
+        },
+        "空井咲希": {
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 0,
+            "高難活動": 3,
+            "泛用評級": 50,
+            "角色定位": "控場AOE",
+            "IMG_URL": "https://i.imgur.com/tMoRQu8.png"
+        },
+        "空井咲希.泳裝": {
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 0,
+            "高難活動": 3,
+            "泛用評級": 60,
+            "角色定位": "輸出輔",
+            "IMG_URL": "https://i.imgur.com/LrvHCJk.png"
+        },
+        "風倉萌": {
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 3,
+            "高難活動": 3,
+            "泛用評級": 50,
+            "角色定位": "輸出AOE",
+            "IMG_URL": "https://i.imgur.com/KEv53OK.png"
+        },
+        "風倉萌.泳裝": {
+            "新手期": 0,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 4,
+            "戰術對抗": 0,
+            "高難活動": 3,
+            "泛用評級": 60,
+            "角色定位": "AOE輸出",
+            "IMG_URL": "https://i.imgur.com/ayvuaGI.png"
+        },
+        "霞沢美優": {
+            "新手期": 3,
+            "總力戰": 4,
+            "大決戰": 4,
+            "演習考試": 3,
+            "戰術對抗": 0,
+            "高難活動": 2,
+            "泛用評級": 70,
+            "角色定位": "輸出",
+            "IMG_URL": "https://i.imgur.com/YG63lda.png"
+        },
+        "霞沢美優.泳裝": {
+            "IMG_URL": "https://i.imgur.com/cqHjWms.png"
+        },
+        "音瀨小玉": {
+            "新手期": 4,
+            "總力戰": 4,
+            "大決戰": 4,
+            "演習考試": 4,
+            "戰術對抗": 0,
+            "高難活動": 3,
+            "泛用評級": 80,
+            "角色定位": "輔助",
+            "IMG_URL": "https://i.imgur.com/YDVdqmJ.png"
+        },
+        "小鉤晴": {
+            "新手期": 0,
+            "總力戰": 2,
+            "大決戰": 2,
+            "演習考試": 0,
+            "戰術對抗": 0,
+            "高難活動": 2,
+            "泛用評級": 40,
+            "角色定位": "輔助",
+            "IMG_URL": "https://i.imgur.com/E4toqKC.png"
+        },
+        "和泉元 英美(エイミ/Eimi)": {
+            "屬性": "爆發",
+            "裝甲": "輕裝",
+            "武器": "SG霞彈槍",
+            "角色定位": "前衛(生存)",
+            "新手期": 0,
+            "總力戰": 4,
+            "大決戰": 4,
+            "演習考試": 3,
+            "戰術對抗": 2,
+            "高難活動": 3,
+            "泛用評級": 70,
+            "IMG_URL": "https://i.imgur.com/6MmGfzC.png"
+        },
+        "豊見 亞都梨(コトリ/Kotori)": {
+            "屬性": "貫通",
+            "裝甲": "輕裝",
+            "武器": "MG機槍",
+            "角色定位": "前衛(輔助, 位移)",
+            "新手期": 0,
+            "總力戰": 2,
+            "大決戰": 2,
+            "演習考試": 0,
+            "戰術對抗": 0,
+            "高難活動": 0,
+            "泛用評級": 50,
+            "IMG_URL": "https://i.imgur.com/cmcuI2t.png"
+        },
+        "飛鳥馬 季(トキ/Toki)": {
+            "屬性": "爆發",
+            "裝甲": "彈力",
+            "武器": "AR突擊槍",
+            "角色定位": "前衛(輸出)",
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 4,
+            "演習考試": 3,
+            "戰術對抗": 0,
+            "高難活動": 3,
+            "泛用評級": 63,
+            "IMG_URL": "https://i.imgur.com/z5DJWrk.png"
+        },
+        "天童愛麗絲": {
+            "アリス": "天童愛麗絲",
+            "Arisu": "天童愛麗絲",
+            "愛麗絲": "天童愛麗絲",
+            "評級": "B",
+            "屬性": "神秘",
+            "裝甲": "特殊",
+            "武器": "RG磁軌砲",
+            "角色定位": "前衛(輸出AOE)",
+            "新手期": 4,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 3,
+            "高難活動": 3,
+            "泛用評級": 60,
+            "IMG_URL": "https://i.imgur.com/gI7Utcy.png"
+        },
+        "室笠 朱音(アカネ/Akane)": {
+            "屬性": "貫通",
+            "裝甲": "輕裝",
+            "武器": "HG手槍",
+            "角色定位": "前衛(破防)",
+            "新手期": 0,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 4,
+            "戰術對抗": 0,
+            "高難活動": 4,
+            "泛用評級": 66,
+            "IMG_URL": "https://i.imgur.com/o0fubsW.png"
+        },
+        "白石 詠葉(ウタハ/Utaha)": {
+            "屬性": "貫通",
+            "裝甲": "重裝",
+            "武器": "SMG衝鋒槍",
+            "角色定位": "後衛(召喚)",
+            "新手期": 0,
+            "總力戰": 4,
+            "大決戰": 4,
+            "演習考試": 3,
+            "戰術對抗": 4,
+            "高難活動": 2,
+            "泛用評級": 70,
+            "IMG_URL": "https://i.imgur.com/pcJ3Vb5.png"
+        },
+        "鰐渕 亞伽裡(アカリ/Akari)": {
+            "屬性": "爆發",
+            "裝甲": "重裝",
+            "武器": "AR突擊槍",
+            "角色定位": "前衛(輸出AOE)",
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 0,
+            "高難活動": 3,
+            "泛用評級": 60,
+            "IMG_URL": "https://i.imgur.com/2mJXjbY.png"
+        },
+        "尾刃 環奈(Kanna/カンナ).泳裝": {
+            "IMG_URL": "https://i.imgur.com/IkcJ4Op.png"
+        },
+        "尾刃 環奈(Kanna/カンナ)": {
+            "尾刃環奈": "",
+            "Kanna": "",
+            "カンナ": "",
+            "狂犬": "",
+            "局長": "",
+            "康娜": "",
+            "評級": "B",
+            "屬性": "貫通",
+            "裝甲": "重裝",
+            "武器": "HG手槍",
+            "角色定位": "後衛(輔輸出)",
+            "新手期": 0,
+            "總力戰": 3,
+            "大決戰": 4,
+            "演習考試": 3,
+            "戰術對抗": 0,
+            "高難活動": 3,
+            "泛用評級": 60,
+            "IMG_URL": "https://i.imgur.com/T3cWahS.png"
+        },
+        "錠前 沙織(サオリ/Saori)": {
+            "錠前沙織": "",
+            "サオリ": "",
+            "Saori": "",
+            "沙織": "",
+            "評級": "B",
+            "屬性": "爆發",
+            "裝甲": "特殊",
+            "武器": "AR突擊槍",
+            "角色定位": "前衛(輸出)",
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 4,
+            "高難活動": 3,
+            "泛用評級": 63,
+            "IMG_URL": "https://i.imgur.com/wDS8IXt.png"
+        },
+        "秤 敦子(アツコ/Atsuko)": {
+            "屬性": "爆發",
+            "裝甲": "特殊",
+            "武器": "SMG衝鋒槍",
+            "角色定位": "前衛(補師坦)",
+            "新手期": 4,
+            "總力戰": 4,
+            "大決戰": 4,
+            "演習考試": 4,
+            "戰術對抗": 5,
+            "高難活動": 3,
+            "泛用評級": 83,
+            "IMG_URL": "https://i.imgur.com/hSiLX7X.png"
+        },
+        "戒野 美咲(ミサキ/Misaki)": {
+            "戒野美咲": "",
+            "ミサキ": "",
+            "Misaki": "",
+            "美咲": "",
+            "円香": "",
+            "評級": "C",
+            "屬性": "爆發",
+            "裝甲": "特殊",
+            "武器": "RL火箭發射器",
+            "角色定位": "前衛(輸出)",
+            "新手期": 2,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 0,
+            "戰術對抗": 0,
+            "高難活動": 2,
+            "泛用評級": 50,
+            "IMG_URL": "https://i.imgur.com/0ZYtztk.png"
+        },
+        "槌永 日和(ヒヨリ/Hiyori)": {
+            "槌永日和": "",
+            "ヒヨリ": "",
+            "Hiyori": "",
+            "日和": "",
+            "評級": "C",
+            "屬性": "爆發",
+            "裝甲": "輕裝",
+            "武器": "SR狙擊槍",
+            "角色定位": "後衛(破防)",
+            "新手期": 0,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 0,
+            "戰術對抗": 0,
+            "高難活動": 0,
+            "泛用評級": 50,
+            "IMG_URL": "https://i.imgur.com/auXFvaU.png"
+        },
+        "黑崎 小雪(コユキ/Koyuki)": {
+            "屬性": "神秘",
+            "裝甲": "重裝",
+            "武器": "MG機槍",
+            "角色定位": "前衛(輸出AOE)",
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 4,
+            "演習考試": 3,
+            "戰術對抗": 3,
+            "高難活動": 2,
+            "泛用評級": 60,
+            "IMG_URL": "https://i.imgur.com/B8D3GyZ.png"
+        },
+        "明星 陽葵(ヒマリ/Himari)": {
+            "屬性": "貫通",
+            "裝甲": "輕裝",
+            "武器": "HG手槍",
+            "角色定位": "後衛(輔助)",
+            "新手期": 0,
+            "總力戰": 6,
+            "大決戰": 5,
+            "演習考試": 6,
+            "戰術對抗": 6,
+            "高難活動": 6,
+            "泛用評級": 101,
+            "IMG_URL": "https://i.imgur.com/Zu4ooJ2.png"
+        },
+        "生塩乃愛": {
+            "ノア": "生塩乃愛",
+            "Noa": "生塩乃愛",
+            "諾亞": "生塩乃愛",
+            "乃愛": "生塩乃愛",
+            "評級": "B",
+            "屬性": "神秘",
+            "裝甲": "特殊",
+            "武器": "HG手槍",
+            "角色定位": "前衛(輔助坦)",
+            "新手期": 0,
+            "總力戰": 3,
+            "大決戰": 4,
+            "演習考試": 0,
+            "戰術對抗": 0,
+            "高難活動": 2,
+            "泛用評級": 60,
+            "IMG_URL": "https://i.imgur.com/RVPNlvP.png"
+        },
+        "各務千尋": {
+            "チヒロ": "各務千尋",
+            "Chihiro": "各務千尋",
+            "千尋": "各務千尋",
+            "評級": "C",
+            "屬性": "貫通",
+            "裝甲": "重裝",
+            "武器": "AR突擊槍",
+            "角色定位": "後衛(輔助)",
+            "新手期": 0,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 0,
+            "戰術對抗": 0,
+            "高難活動": 2,
+            "泛用評級": 56,
+            "IMG_URL": "https://i.imgur.com/gSD00I4.png"
+        },
+        "貓塚 響(ヒビキ/Hibiki)": {
+            "屬性": "爆發",
+            "裝甲": "重裝",
+            "武器": "MT迫擊炮",
+            "角色定位": "後衛(AOE)",
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 3,
+            "高難活動": 3,
+            "泛用評級": 60,
+            "IMG_URL": "https://i.imgur.com/xdgOn2v.png"
+        },
+        "才羽綠": {
+            "ミドリ": "才羽綠",
+            "Midori": "才羽綠",
+            "小綠": "才羽綠",
+            "綠貓": "才羽綠",
+            "評級": "B",
+            "屬性": "貫通",
+            "裝甲": "輕裝",
+            "武器": "SR狙擊槍",
+            "角色定位": "前衛(輸出)",
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 3,
+            "高難活動": 3,
+            "泛用評級": 60,
+            "IMG_URL": "https://i.imgur.com/PYyPS1q.png"
+        },
+        "才羽 綠.女僕(ミドリ/Midori)": {
+            "IMG_URL": "https://i.imgur.com/kzpPXi2.png"
+        },
+        "花岡 柚子(ユズ/Yuzu)": {
+            "屬性": "貫通",
+            "裝甲": "特殊",
+            "武器": "GL榴彈發射器",
+            "角色定位": "前衛(輸出AOE)",
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 3,
+            "高難活動": 3,
+            "泛用評級": 60,
+            "IMG_URL": "https://i.imgur.com/AbjJtaA.png"
+        },
+        "角楯 花凜(カリン/Karin)": {
+            "屬性": "貫通",
+            "裝甲": "重裝",
+            "武器": "SR狙擊槍",
+            "角色定位": "後衛(單體輸出)",
+            "新手期": 3,
+            "總力戰": 3,
+            "大決戰": 3,
+            "演習考試": 3,
+            "戰術對抗": 3,
+            "高難活動": 3,
+            "泛用評級": 60,
+            "IMG_URL": "https://i.imgur.com/M5406Yp.png"
+        },
+        "小塗真紀": {
+            "マキ": "小塗真紀",
+            "Maki": "小塗真紀",
+            "塗鴉": "小塗真紀",
+            "噴漆": "小塗真紀",
+            "真寄": "小塗真紀",
+            "評級": "SS",
+            "屬性": "貫通",
+            "裝甲": "輕裝",
+            "武器": "MG機槍",
+            "角色定位": "前衛(破防輸出)",
+            "新手期": 3,
+            "總力戰": 5,
+            "大決戰": 6,
+            "演習考試": 4,
+            "戰術對抗": 0,
+            "高難活動": 5,
+            "泛用評級": 100,
+            "IMG_URL": "https://i.imgur.com/o8haAxW.png"
+        },
+        "乙花 堇(スミレ/Sumire)": {
+            "IMG_URL": "https://i.imgur.com/3zQMMHM.png"
+        },
+        "美甘 寧瑠(ネル/Neru)": {
+            "IMG_URL": "https://i.imgur.com/tzlYA0F.png"
+        },
+        "鬼怒川 佳澄(カスミ/Kasumi)": {
+            "IMG_URL": "https://i.imgur.com/vD8Xtcg.png"
+        },
+        "下倉 惠(メグ/Megu)": {
+            "IMG_URL": "https://i.imgur.com/IaqkiBa.png"
+        },
+        "棗 伊呂波(イロハ/Iroha)": {
+            "IMG_URL": "https://i.imgur.com/v511SGq.png"
+        },
+        "冰室 瀨奈(セナ/Sena)": {
+            "IMG_URL": "https://i.imgur.com/4Ep2mqu.png"
+        },
+        "銀鏡 伊織(イオリ/Iori)": {
+            "IMG_URL": "https://i.imgur.com/f8aXHIg.png"
+        },
+        "黒舘 羽留奈(ハルナ/Haruna)": {
+            "IMG_URL": "https://i.imgur.com/4mSdVbL.png"
+        },
+        "天雨 亞子(アコ/Ako)": {
+            "IMG_URL": "https://i.imgur.com/EWmfeBS.png"
+        },
+        "陸八魔 亞瑠(アル/Aru)": {
+            "IMG_URL": "https://i.imgur.com/SQdqnMg.png"
+        },
+        "空崎 陽奈(ヒナ/Hina)": {
+            "IMG_URL": "https://i.imgur.com/AijBAHM.png"
+        },
+        "獅子堂 泉(イズミ/Izumi)": {
+            "IMG_URL": "https://i.imgur.com/UTtYLPb.png"
+        },
+        "仲正 一花(イチカ/Ichika)": {
+            "IMG_URL": "https://i.imgur.com/FaNlpHU.png"
+        },
+        "宇澤 澪紗(レイサ/Reisa)": {
+            "IMG_URL": "https://i.imgur.com/y4HJIl8.png"
+        },
+        "歌住 櫻子 (サクラコ/Sakurako)": {
+            "IMG_URL": "https://i.imgur.com/nb6gZOo.png"
+        },
+        "蒼森 美禰(ミネ/Mine)": {
+            "IMG_URL": "https://i.imgur.com/aBz00T4.png"
+        },
+        "杏山 千紗(カズサ/Kazusa)": {
+            "IMG_URL": "https://i.imgur.com/fZy76Ld.png"
+        },
+        "古關 憂(ウイ/Ui)": {
+            "IMG_URL": "https://i.imgur.com/oAYz4ZG.png"
+        },
+        "若葉 日向(ヒナタ/Hinata)": {
+            "IMG_URL": "https://i.imgur.com/a71hxzj.png"
+        },
+        "白洲 梓(アズサ/Azusa)": {
+            "IMG_URL": "https://i.imgur.com/HfFv66n.png"
+        },
+        "下江 小春(コハル/Koharu)": {
+            "IMG_URL": "https://i.imgur.com/jEX02WF.png"
+        },
+        "柚鳥 夏(ナツ/Natsu)": {
+            "IMG_URL": "https://i.imgur.com/Zks1Zp5.png"
+        },
+        "阿慈谷 日步美(ヒフミ/Hifumi)": {
+            "IMG_URL": "https://i.imgur.com/AKRPN1y.png"
+        },
+        "靜山 麻白(マシロ/Mashiro)": {
+            "IMG_URL": "https://i.imgur.com/oiW8TpW.png"
+        },
+        "劍先 弦生(ツルギ/Tsurugi)": {
+            "IMG_URL": "https://i.imgur.com/tOzkxJt.png"
+        },
+        "砂狼 白子(シロコ/Shiroko)": {
+            "IMG_URL": "https://i.imgur.com/Marxt3n.png"
+        },
+        "小鳥遊 星野(ホシノ/Hoshino)": {
+            "IMG_URL": "https://i.imgur.com/SctjSab.png"
+        },
+        "小鳥遊 星野(ホシノ/Hoshino).臨戰": {
+            "IMG_URL": "https://imgur.com/hqrpKim.png"
+        },
+        "姫木 愛瑠(メル/Meru)": {
+            "IMG_URL": "https://i.imgur.com/6WmIdRk.png"
+        },
+        "安守 實裡(ミノリ/Minori)": {
+            "IMG_URL": "https://i.imgur.com/jD4VfMm.png"
+        },
+        "間宵 時雨(シグレ/Shigure)": {
+            "IMG_URL": "https://i.imgur.com/8xwg8Wi.png"
+        },
+        "池倉 瑪麗娜(マリナ/Marina)": {
+            "IMG_URL": "https://i.imgur.com/IAAuJdO.png"
+        },
+        "連河 潔莉諾(チェリノ/Cherino)": {
+            "IMG_URL": "https://i.imgur.com/IeS92Y2.png"
+        },
+        "裡浜 海花(ウミカ/Umika)": {
+            "IMG_URL": "https://i.imgur.com/MNMQUNP.png"
+        },
+        "不破 蓮華(レンゲ/Renge)": {
+            "IMG_URL": "https://i.imgur.com/XAyiw6O.png"
+        },
+        "桐生 桔梗(キキョウ/Kikyo)": {
+            "IMG_URL": "https://i.imgur.com/k1t5SGr.png"
+        },
+        "勘解由小路 紫(ユカリ/Yukari)": {
+            "IMG_URL": "https://i.imgur.com/xXFk05p.png"
+        },
+        "大野 月夜(ツクヨ/Tsukuyo)": {
+            "IMG_URL": "https://i.imgur.com/dzVp2lB.png"
+        },
+        "勇美 楓(カエデ/Kaede)": {
+            "IMG_URL": "https://i.imgur.com/1FVtGLh.png"
+        },
+        "水羽 三森(ミモリ/Mimori)": {
+            "IMG_URL": "https://i.imgur.com/XuKcChp.png"
+        },
+        "久田 伊樹菜(イズナ/Izuna)": {
+            "IMG_URL": "https://i.imgur.com/G3oMJWi.png"
+        },
+        "近衛 美奈(ミナ/Mina)": {
+            "IMG_URL": "https://i.imgur.com/NZnVRIP.png"
+        },
+        "朱城 瑠美(ルミ/Rumi)": {
+            "IMG_URL": "https://i.imgur.com/L5m3tbH.png"
+        },
+        "春原 心菜 (ココナ/Kokona)": {
+            "IMG_URL": "https://i.imgur.com/NR3z4Xh.png"
+        },
+        "春原 旬(シュン/Shun)": {
+            "IMG_URL": "https://i.imgur.com/2DiE7KO.png"
+        },
+        "藥子 沙耶(サヤ/Saya)": {
+            "IMG_URL": "https://i.imgur.com/v7SDaoT.png"
+        },
+        "才羽 桃井(モモイ/Momoi)": {
+            "IMG_URL": "https://i.imgur.com/6LBnbVN.png"
+        },
+        "才羽 桃井.女僕(モモイ/Momoi)": {
+            "IMG_URL": "https://i.imgur.com/s2ksDt0.png"
+        },
+        "早瀨 優香(ユウカ/Yuka)": {
+            "IMG_URL": "https://i.imgur.com/NZt787J.png"
+        },
+        "一之瀨 明日奈(アスナ/Asuna)": {
+            "IMG_URL": "https://i.imgur.com/0ASab4Q.png"
+        },
+        "淺黃 無月(ムツキ/Mutsuki)": {
+            "IMG_URL": "https://i.imgur.com/2qvE9fZ.png"
+        },
+        "赤司 淳子(ジュンコ/Junko)": {
+            "IMG_URL": "https://i.imgur.com/9VG5TPi.png"
+        },
+        "火宮 千夏(チナツ/Chinatsu)": {
+            "IMG_URL": "https://i.imgur.com/csU2cLZ.png"
+        },
+        "伊草 遙香(ハルカ/Haruka)": {
+            "IMG_URL": "https://i.imgur.com/D2jhZYo.png"
+        },
+        "鬼方 佳世子(カヨコ/Kayoko)": {
+            "IMG_URL": "https://i.imgur.com/ukZnXAt.png"
+        },
+        "牛牧 茱莉(ジュリ/Juri)": {
+            "IMG_URL": "https://i.imgur.com/ZBS15oT.png"
+        },
+        "愛清 風華(フウカ/Fuuka)": {
+            "IMG_URL": "https://i.imgur.com/AI3a1LM.png"
+        },
+        "守月 鈴美(スズミ/Suzumi)": {
+            "IMG_URL": "https://i.imgur.com/vgrnply.png"
+        },
+        "羽川 蓮實(ハスミ/Hasumi)": {
+            "IMG_URL": "https://i.imgur.com/dRqiMh6.png"
+        },
+        "鷲見 芹奈(セリナ/Serina)": {
+            "IMG_URL": "https://i.imgur.com/iHpd91O.png"
+        },
+        "朝顏 花繪(ハナエ/Hanae)": {
+            "IMG_URL": "https://i.imgur.com/jcrB1E1.png"
+        },
+        "伊落 瑪麗(マリー/Mari)": {
+            "IMG_URL": "https://i.imgur.com/U47myac.png"
+        },
+        "浦和 花子(ハナコ/Hanako)": {
+            "IMG_URL": "https://i.imgur.com/zO1nw3v.png"
+        },
+        "伊原木 喜美(ヨシミ/Yoshimi)": {
+            "IMG_URL": "https://i.imgur.com/Z7qbaXK.png"
+        },
+        "栗村 愛莉(アイリ/Airi)": {
+            "IMG_URL": "https://i.imgur.com/3jQqz9e.png"
+        },
+        "黑見 茜香(セリカ/Serika).泳裝": {
+            "IMG_URL": "https://i.imgur.com/NhFWcam.png"
+        },
+        "円堂 志美子(シミコ/Shimiko)": {
+            "IMG_URL": "https://i.imgur.com/tJvFf3c.png"
+        },
+        "黑見 茜香(セリカ/Serika)": {
+            "IMG_URL": "https://i.imgur.com/ATZnxbx.png"
+        },
+        "十六夜 野乃美(ノノミ/nonomi)": {
+            "IMG_URL": "https://i.imgur.com/oBBjRFw.png"
+        },
+        "奧空 綾音(アヤネ/Ayane)": {
+            "IMG_URL": "https://i.imgur.com/bAmdr4F.png"
+        },
+        "春日 椿(ツバキ/Tsubaki)": {
+            "IMG_URL": "https://i.imgur.com/DQRSIjS.png"
+        },
+        "和樂 知世(チセ/Chise)": {
+            "IMG_URL": "https://i.imgur.com/vMWiGTa.png"
+        },
+        "朝比奈 菲娜(フィーナ/Pina)": {
+            "IMG_URL": "https://i.imgur.com/ITvJ5sm.png"
+        },
+        "河和 靜子(シズコ/Shizuko)": {
+            "IMG_URL": "https://i.imgur.com/gQJglcS.png"
+        },
+        "中務 桐乃(キリノ/Kirino)": {
+            "IMG_URL": "https://i.imgur.com/TLONZkL.png"
+        },
+        "秋泉 紅葉(モミジ/Momiji)": {
+            "IMG_URL": "https://i.imgur.com/vImuPkd.png"
+        },
+        "千鳥 三千留(ミチル/Michiru)": {
+            "IMG_URL": "https://i.imgur.com/I0ySkvc.png"
+        },
+        "狐坂 若藻(ワカモ/Wakamo)": {
+            "IMG_URL": "https://i.imgur.com/8yrLgYE.png"
+        },
+        "合歓垣 吹雪(フブキ/Fubuki).泳裝": {
+            "IMG_URL": "https://i.imgur.com/c1ydtr1.png"
+        },
+        "合歓垣 吹雪(フブキ/Fubuki)": {
+            "IMG_URL": "https://i.imgur.com/bsaNXhx.png"
+        },
+        "羽沼 真琴(マコト/Makoto)": {
+            "IMG_URL": "https://i.imgur.com/Jm3Kgl3.png"
+        },
+        "丹花 伊吹(イブキ/Ibuki)": {
+            "IMG_URL": "https://i.imgur.com/Zk68ROM.png"
+        },
+        "桐藤 渚(ナギサ/Nagisa)": {
+            "IMG_URL": "https://i.imgur.com/dtxzVdG.png"
+        },
+        "聖園 彌香(ミカ/Mika)": {
+            "IMG_URL": "https://imgur.com/EMhQ6W2.png"
+        },
+        "佐藤 智惠(トモエ/Tomoe)": {
+            "IMG_URL": "https://i.imgur.com/YMLtFlv.png"
+        },
+        "天見 和香(ノドカ/Nodoka)": {
+            "IMG_URL": "https://i.imgur.com/sKziEiQ.png"
+        },
+        "禦坂 美琴(みこと/Mikoto)": {
+            "IMG_URL": "https://i.imgur.com/T0hA1uP.png"
+        },
+        "食蜂 操祈(みさき/Misaki)": {
+            "IMG_URL": "https://i.imgur.com/1X72yac.png"
+        },
+        "佐天 涙子(るいこ/Ruiko)": {
+            "IMG_URL": "https://i.imgur.com/haNeFUo.png"
+        },
+        "初音 未來(ミク/Miku)": {
+            "IMG_URL": "https://i.imgur.com/QwI0UGZ.png"
+        },
+        "和泉元 英美.泳裝(エイミ/Eimi)": {
+            "IMG_URL": "https://i.imgur.com/QpAVOIf.png"
+        },
+        "夜櫻 綺羅羅(キララ/Kirara)": {
+            "IMG_URL": "https://i.imgur.com/hSCvQUL.png"
+        },
+        "阿慈谷 日步美(ヒフミ/Hifumi).泳裝": {
+            "IMG_URL": "https://i.imgur.com/czMK28A.png"
+        },
+        "砂狼 白子(シロコ/Shiroko).泳裝": {
+            "IMG_URL": "https://i.imgur.com/SiidFYQ.png"
+        },
+        "十六夜 野乃美(ノノミ/Nonomi).泳裝": {
+            "IMG_URL": "https://i.imgur.com/wRuXFoz.png"
+        },
+        "狐坂 若藻(ワカモ/Wakamo).泳裝": {
+            "IMG_URL": "https://i.imgur.com/JKT5Vyx.png"
+        },
+        "水羽 三森(ミモリ/Mimori).泳裝": {
+            "IMG_URL": "https://i.imgur.com/u7VdrgN.png"
+        },
+        "小鳥遊 星野(ホシノ/Hoshino).泳裝": {
+            "IMG_URL": "https://i.imgur.com/3f0Xueu.png"
+        },
+        "奧空 綾音(アヤネ/Ayane).泳裝": {
+            "IMG_URL": "https://i.imgur.com/uVin3dS.png"
+        },
+        "久田 伊樹菜(イズナ/Izuna).泳裝": {
+            "IMG_URL": "https://i.imgur.com/QOZ9tmT.png"
+        },
+        "和樂 知世(チセ/Chise).泳裝": {
+            "IMG_URL": "https://i.imgur.com/l7Jp8m9.png"
+        },
+        "河和 靜子(シズコ/Shizuko).泳裝": {
+            "IMG_URL": "https://i.imgur.com/J5t4zh9.png"
+        },
+        "空崎 陽奈(ヒナ/Hina).泳裝": {
+            "IMG_URL": "https://i.imgur.com/SEkYLlw.png"
+        },
+        "銀鏡 伊織(イオリ/Iori).泳裝": {
+            "IMG_URL": "https://i.imgur.com/9S35Y4Z.png"
+        },
+        "獅子堂 泉(イズミ/Izumi).泳裝": {
+            "IMG_URL": "https://i.imgur.com/NGRza6N.png"
+        },
+        "浦和 花子(ハナコ/Hanako).泳裝": {
+            "IMG_URL": "https://i.imgur.com/N2M9CCg.png"
+        },
+        "古關 憂(ウイ/Ui).泳裝": {
+            "IMG_URL": "https://i.imgur.com/sjlDmgA.png"
+        },
+        "若葉 日向(ヒナタ/Hinata).泳裝": {
+            "IMG_URL": "https://i.imgur.com/MVEMxbm.png"
+        },
+        "下江 小春(コハル/Koharu).泳裝": {
+            "IMG_URL": "https://i.imgur.com/g2NczYH.png"
+        },
+        "白洲 梓(アズサ/Azusa).泳裝": {
+            "IMG_URL": "https://i.imgur.com/5ZwUr1b.png"
+        },
+        "靜山 麻白(マシロ/Mashiro).泳裝": {
+            "IMG_URL": "https://i.imgur.com/aUtilY7.png"
+        },
+        "劍先 弦生(ツルギ/Tsurugi).泳裝": {
+            "IMG_URL": "https://i.imgur.com/lsWy1Am.png"
+        },
+        "鰐渕 亞伽裡.正月(アカリ/Akari)": {
+            "IMG_URL": "https://i.imgur.com/YiisuFJ.png"
+        },
+        "伊草 遙香(ハルカ/Haruka).正月": {
+            "IMG_URL": "https://i.imgur.com/JAwlaxF.png"
+        },
+        "鬼方 佳世子(カヨコ/Kayoko).正月": {
+            "IMG_URL": "https://i.imgur.com/zI5hKVU.png"
+        },
+        "黑見 茜香(セリカ/Serika).正月": {
+            "IMG_URL": "https://i.imgur.com/7lWhybk.png"
+        },
+        "黒舘 羽留奈.正月(ハルナ/Haruna)": {
+            "IMG_URL": "https://i.imgur.com/GHog7hR.png"
+        },
+        "愛清 風華.正月(フウカ/Fuuka)": {
+            "IMG_URL": "https://i.imgur.com/vjxAAT3.png"
+        },
+        "赤司 淳子.正月(ジュンコ/Junko)": {
+            "IMG_URL": "https://i.imgur.com/r6OL6JG.png"
+        },
+        "陸八魔 亞瑠(アル/Aru).正月": {
+            "IMG_URL": "https://i.imgur.com/vbOooKr.png"
+        },
+        "淺黃 無月(ムツキ/Mutsuki).正月": {
+            "IMG_URL": "https://i.imgur.com/hFkkmKS.png"
+        },
+        "飛鳥馬 季.兔女郎(トキ/Toki)": {
+            "IMG_URL": "https://i.imgur.com/coC18sH.png"
+        },
+        "室笠 朱音.兔女郎(アカネ/Akane)": {
+            "IMG_URL": "https://i.imgur.com/CYoQZ3L.png"
+        },
+        "一之瀬 明日奈.兔女郎(アスナ/Asuna)": {
+            "IMG_URL": "https://i.imgur.com/4YPs3Fl.png"
+        },
+        "美甘 寧瑠(ネル/Neru).兔女郎": {
+            "IMG_URL": "https://i.imgur.com/bxyMlhL.png"
+        },
+        "角楯 花凜(カリン/Karin).兔女郎": {
+            "IMG_URL": "https://i.imgur.com/G1e1Kxy.png"
+        },
+        "陸八魔 亞瑠(アル/Aru).禮服": {
+            "IMG_URL": "https://i.imgur.com/YacVELy.png"
+        },
+        "鬼方 佳世子(カヨコ/Kayoko).禮服": {
+            "IMG_URL": "https://i.imgur.com/blFlHHt.png"
+        },
+        "空崎 陽奈(ヒナ/Hina).禮服": {
+            "IMG_URL": "https://imgur.com/1drcYer.png"
+        },
+        "天雨 亞子(アコ/Ako).禮服": {
+            "IMG_URL": "https://i.imgur.com/kS027LB.png"
+        },
+        "黒舘 羽留奈.運動服(ハルナ/Haruna)": {
+            "IMG_URL": "https://i.imgur.com/08ms9hv.png"
+        },
+        "早瀨 優香.運動服(ユウカ/Yuka)": {
+            "IMG_URL": "https://i.imgur.com/hAscZ2L.png"
+        },
+        "伊落 瑪麗.運動服(マリー/Mari)": {
+            "IMG_URL": "https://i.imgur.com/iA4sGYV.png"
+        },
+        "羽川 蓮實.運動服(ハスミ/Hasumi)": {
+            "IMG_URL": "https://i.imgur.com/vgEdaPk.png"
+        },
+        "火宮 千夏 (チナツ/Chinatsu).溫泉": {
+            "IMG_URL": "https://i.imgur.com/txgu1xc.png"
+        },
+        "間宵 時雨(シグレ/Shigure).溫泉": {
+            "IMG_URL": "https://i.imgur.com/lfLP2cS.png"
+        },
+        "連河 潔莉諾(チェリノ/Cherino).溫泉": {
+            "IMG_URL": "https://i.imgur.com/FND3RWj.png"
+        },
+        "天見 和香(ノドカ/Nodoka).溫泉": {
+            "IMG_URL": "https://i.imgur.com/PTx75OJ.png"
+        },
+        "豊見 亞都梨.應援團(コトリ/Kotori)": {
+            "IMG_URL": "https://i.imgur.com/pcTnwmd.png"
+        },
+        "白石 詠葉.應援團(ウタハ/Utaha)": {
+            "IMG_URL": "https://i.imgur.com/aEGVAdQ.png"
+        },
+        "貓塚 響.應援團(ヒビキ/Hibiki)": {
+            "IMG_URL": "https://i.imgur.com/OyIuBVF.png"
+        },
+        "杏山 千紗(カズサ/Kazusa).樂隊": {
+            "IMG_URL": "https://i.imgur.com/qocblfN.png"
+        },
+        "伊原木 喜美(ヨシミ/Yoshimi).樂隊": {
+            "IMG_URL": "https://i.imgur.com/xkaMImI.png"
+        },
+        "栗村 愛莉(アイリ/Airi).樂隊": {
+            "IMG_URL": "https://i.imgur.com/P1ZFpmv.png"
+        },
+        "音瀨 小玉(コタマ/Kotama).露營": {
+            "IMG_URL": "https://i.imgur.com/WrXcaaR.png"
+        },
+        "小鉤 晴(ハレ/Hare.露營": {
+            "IMG_URL": "https://i.imgur.com/wDoZxzI.png"
+        },
+        "天童 愛麗絲.女僕(アリス/Arisu)": {
+            "IMG_URL": "https://i.imgur.com/6MczQrl.png"
+        },
+        "花岡 柚子.女僕(ユズ/Yuzu)": {
+            "IMG_URL": "https://i.imgur.com/4SnKGIM.png"
+        },
+        "鷲見 芹奈(セリナ/Serina).聖誕節": {
+            "IMG_URL": "https://i.imgur.com/vp4D2Cz.png"
+        },
+        "朝顏 花繪(ハナエ/Hanae).聖誕節": {
+            "IMG_URL": "https://i.imgur.com/3In0k7e.png"
+        },
+        "砂狼 白子(シロコ/Shiroko).自行車裝": {
+            "IMG_URL": "https://i.imgur.com/kwgpaHL.png"
+        },
+        "春日 椿(ツバキ/Tsubaki).導遊": {
+            "IMG_URL": "https://i.imgur.com/Q4aLYsm.png"
+        },
+        "春原 旬(シュン/Shun).幼女": {
+            "IMG_URL": "https://i.imgur.com/aRxLcfb.png"
+        },
+        "藥子 沙耶(サヤ/Saya).私服": {
+            "IMG_URL": "https://i.imgur.com/EnPtfBZ.png"
+        },
+        "桑上 佳穗(カホ/Kaho)": {
+            "IMG_URL": "https://i.imgur.com/3U1k70m.png"
+        },
+        "錠前 沙織(サオリ/Saori).泳裝": {
+            "IMG_URL": "https://i.imgur.com/jyFKeAd.png"
+        },
+        "槌永 日和(ヒヨリ/Hiyori).泳裝": {
+            "IMG_URL": "https://i.imgur.com/Y59tOAH.png"
+        },
+        "秤 敦子(アツコ/Atsuko).泳裝": {
+            "IMG_URL": "https://i.imgur.com/FZjndmK.png"
+        },
+        "砂狼 白子＊恐怖(シロコ＊テラー/Shiroko＊Terror)": {
+            "IMG_URL": "https://i.imgur.com/rIFvddG.png"
+        },
+        "中務 桐乃(キリノ/Kirino).泳裝": {
+            "IMG_URL": "https://i.imgur.com/UdXACVG.png"
+        }
+    }
+}
