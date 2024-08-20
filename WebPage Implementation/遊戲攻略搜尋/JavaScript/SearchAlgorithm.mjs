@@ -131,9 +131,10 @@ function NameSearchCore(original) {
         let Count = 1;
         return {
             add: (data)=> {
-                if (!Records.has(data.IMG_URL)) {
+                const URL = data.IMG_URL;
+                if (URL && !Records.has(URL)) {
                     Merge[`Data_${Count++}`] = data;
-                    Records.add(data.IMG_URL);
+                    Records.add(URL);
                 }
             },
             result: ()=> {
