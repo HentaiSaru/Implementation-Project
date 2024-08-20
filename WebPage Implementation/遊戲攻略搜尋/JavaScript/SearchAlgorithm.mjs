@@ -15,10 +15,11 @@ import { File } from './DataBase/!File.mjs';
     // 添加需轉換的表
     SC.addData(Search);
     // SC.showData();
+    // SC.showSize();
 
-    console.log(
-        SC.searchData(".")
-    );
+    // console.log(
+        // SC.searchData("")
+    // );
 
 })();
 
@@ -99,7 +100,6 @@ function NameSearchCore(original) {
         }
         return substrings;
     };
-
     // 添加數據處理
     const addEntry = (node, key, value) => {
         getSubstrings(key).forEach(substring => {
@@ -179,8 +179,7 @@ function NameSearchCore(original) {
 
         return results;
     };
-
-    // 觸發遞歸搜尋, 找對最終數據
+    // 遞歸搜尋
     const searchRecursively = (node, str, index) => {
         if (index >= str.length) return;
 
@@ -204,7 +203,8 @@ function NameSearchCore(original) {
         },
         showSize: () => { // 展示搜尋數據大小
             const Size = objectSize(searchDict);
-            console.log(`搜尋數據大小: ${Size.KB} KB`);
+            console.log(`數據大小: ${Size.KB} KB`);
+            console.log(`數據大小: ${Size.MB} MB`);
         },
         addData: (dataObj) => { // 創建實例後, 先將數據物件添加
             for (const [key, value] of Object.entries(dataObj)) {
