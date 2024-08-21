@@ -204,25 +204,90 @@ function NameSearchCore(original) {
     };
 };
 
+// 用於清洗數據
+function CleanCore() {
+    const onlyObjectType = (obj) => {
+        if (Type(obj) != "Object") {
+            console.log("傳入數據只能是物件");
+            return false;
+        }
+        return true;
+    };
+
+    const getArrayRepeat = (arr) => {
+        const cache = new Set();
+        const result = arr.filter(item => cache.has(item) ? item : !cache.add(item));
+        return result.length > 0 ? result : false; // 沒有重複的回傳 false
+    };
+
+    const getObjectRepeat = (obj) => {
+        const alone = {}; // 各自判斷
+        let cache = []; // 緩存整體判斷所需數據
+
+        for (const [key, value] of Object.entries(obj)) {
+            const array = getArrayRepeat(value);
+            if (array) alone[key] = array;
+            cache = [...cache, ...value];
+        }
+
+        return {
+            "整體重複": getArrayRepeat(cache), // 整體判斷
+            "個別重複": Object.keys(alone).length > 0 ? alone : false
+        }
+    };
+
+    return {
+        getArrayRepeat,
+        getObjectRepeat,
+        repeatDetection: (DB)=> { // 打印所有重複類型
+            if (onlyObjectType(DB)) {
+                for (const check of ["屬性", "裝甲", "武器", "位置", "評級", "卡池"]) {
+                    console.log(check, getObjectRepeat(DB[check]));
+                }
+            }
+        },
+        getCardPoolType: (refer, comp)=> { // refer=詳細資訊, (array)comp 為比較物, 獲取 refer 存在, comp 沒有的名稱
+            if (!onlyObjectType(refer)) {
+                console.log("確認 refer 類型");
+                return;
+            }
+
+            if (Type(comp) != "Array") {
+                console.log("確認 comp 類型需要為 array");
+                return;
+            }
+
+            const Comparator = new Set(comp);
+            const Result = Object.keys(refer).filter(key=> !Comparator.has(key));
+
+            console.log(JSON.stringify(Result, null, 4));
+        }
+    }
+}
+
 // 實驗區塊 ========================
 
 // 實驗時該文件是 .mjs
 import { File } from './DataBase/!File.mjs';
 
 (async ()=> {
+    const Clean = CleanCore();
     const DB = await File.Read("./DataBase/DB.json");
 
     const Details = DB['詳細資訊'];
-    const Search = Object.assign(DB['別稱'], Details);
+
+    // Clean.getCardPoolType(Details, DB['卡池']['常駐']);
+
+    // const Search = Object.assign(DB['別稱'], Details);
 
     // 創建實例要先傳遞初始表 (未被轉換)
-    const SC = NameSearchCore(Details);
+    // const SC = NameSearchCore(Details);
 
     // 添加需轉換的表
-    SC.addData(Search);
+    // SC.addData(Search);
     // SC.showData();
     // SC.showSize();
-    SC.putData();
+    // SC.putData();
 
     // console.log(
         // SC.searchData("")
