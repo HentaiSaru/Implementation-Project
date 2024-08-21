@@ -1020,8 +1020,8 @@ class Main {
             (index) { # Windows 啟用授權
                 # https://github.com/massgravel/Microsoft-Activation-Scripts/tree/master/MAS/All-In-One-Version
                 $this.Authorize(
-                    "$([Main]::Temp)\$($this.MD5("MAS_AIO-CRC32_31F7FD1E")).cmd",
-                    "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO-CRC32_31F7FD1E.cmd"
+                    "$([Main]::Temp)\$($this.MD5("MAS_AIO-CRC32_8C3AA7E0")).cmd",
+                    "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO-CRC32_8C3AA7E0.cmd"
                 )
             }
             (index) { # Office 啟用授權 (他會導致回到菜單時歪掉)
