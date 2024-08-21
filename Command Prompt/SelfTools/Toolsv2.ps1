@@ -79,10 +79,11 @@ class Main {
     }
 
     # 獲取遠端授權代碼
-    [void]Authorize([string]$DL_Path, [string]$DL_URL) {
+    [void]Authorize([string]$Name, [string]$DL_URL) {
         Print "===== 獲取最新版本 授權程式 =====`n"
         $this.NetworkState()
 
+        $DL_Path = "$([Main]::Temp)\$($this.MD5($Name)).cmd" # 獲取文件保存路徑
         if (Test-Path $DL_Path) { Remove-Item $DL_Path -Force } # 先刪除舊文件
         Invoke-WebRequest -Uri $DL_URL -OutFile $DL_Path
         if (-not (Test-Path $DL_Path)) {
@@ -1013,21 +1014,19 @@ class Main {
             (index) { # IDM 授權
                 # https://github.com/lstprjct/IDM-Activation-Script
                 $this.Authorize(
-                    "$([Main]::Temp)\$($this.MD5("IAS")).cmd",
-                    "https://raw.githubusercontent.com/lstprjct/IDM-Activation-Script/main/IAS.cmd"
+                    "IAS", "https://raw.githubusercontent.com/lstprjct/IDM-Activation-Script/main/IAS.cmd"
                 )
             }
             (index) { # Windows 啟用授權
                 # https://github.com/massgravel/Microsoft-Activation-Scripts/tree/master/MAS/All-In-One-Version
                 $this.Authorize(
-                    "$([Main]::Temp)\$($this.MD5("MAS_AIO-CRC32_8C3AA7E0")).cmd",
+                    "MAS_AIO-CRC32_8C3AA7E0",
                     "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO-CRC32_8C3AA7E0.cmd"
                 )
             }
             (index) { # Office 啟用授權 (他會導致回到菜單時歪掉)
                 $this.Authorize(
-                    "$([Main]::Temp)\$($this.MD5("KMS_VL_ALL_AIO")).cmd",
-                    "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/master/KMS_VL_ALL_AIO.cmd"
+                    "KMS_VL_ALL_AIO", "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/master/KMS_VL_ALL_AIO.cmd"
                 )
             }
             (index) { # Google 結束進程
