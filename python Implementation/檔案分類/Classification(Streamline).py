@@ -112,19 +112,24 @@ class Copy:
         self.__Copy_Output = lambda Copy_Path, Output_Path: shutil.copyfile(Copy_Path, Output_Path)
 
     # 複製處理
-    def __Copy_Deal(self):
+    def __Copy_Deal(self, source):
         Work_State = []
 
         for Copy_Path in self.Output_Data:
-           Convert = Copy_Path.split("/")
+            Output_Path = ""
+            Convert = Copy_Path.split("/")
 
            # 將檔案路徑的, 上一層資料夾, 與檔名分離出來, 組成輸出路徑
-           Output_Path = os.path.join(self.Save_Path, f"[{Convert[-2]}]{Convert[-1]}")
 
-           # 輸出工作
-           Work = threading.Thread(target=self.__Copy_Output, args=(Copy_Path, Output_Path))
-           Work_State.append(Work)
-           Work.start()
+            if source:
+                Output_Path = os.path.join(self.Save_Path, f"[{Convert[-2]}]{Convert[-1]}")
+            else:
+                Output_Path = os.path.join(self.Save_Path, Convert[-1])
+
+            # 輸出工作
+            Work = threading.Thread(target=self.__Copy_Output, args=(Copy_Path, Output_Path))
+            Work_State.append(Work)
+            Work.start()
 
         WorkLoad = len(Work_State)
         Progress_Bar = [ # 進度條樣式配置
@@ -141,7 +146,7 @@ class Copy:
         os.startfile(os.path.dirname(self.Save_Path))
 
     # 處理輸出數據
-    def Output(self):
+    def Output(self, source):
         # 生成保存路徑
         self.Save_Path = f"{self.Origin_Path}/{os.path.basename(self.Origin_Path)} ({self.Output_Select})"
 
@@ -150,25 +155,24 @@ class Copy:
                 raise DataEmptyError()
 
             os.mkdir(self.Save_Path)
-            self.__Copy_Deal()
+            self.__Copy_Deal(source)
 
         except DataEmptyError:
             print("該路徑下無可複製文件")
         except Exception:
-            self.__Copy_Deal()
+            self.__Copy_Deal(source)
 
 class TypeSelection(Read, Copy):
     def __init__(self):
         Read.__init__(self)
         Copy.__init__(self)
-        self.Repeat = None
 
     # 選擇輸出類型
-    def __Choose(self, Options):
+    def __Choose(self, Options, Repeat, FileSource):
 
         while True:
             try:
-                Select = int(input("\n選擇輸出類型 (代號) : "))
+                Select = int(input("\n選擇輸出類型 (代號) : "))   
                 if Select == 0:
                     print(f"你選擇了 : 全部\n")
                     self.Output_Select = "ALL"
@@ -182,22 +186,22 @@ class TypeSelection(Read, Copy):
                     # 根據選擇類型, 取出完整數據中符合該副檔名的文件
                     self.Output_Data = [Item for Item in self.Complete_Data if Item.endswith(Format)]
 
-                self.Output()
-                if not self.Repeat: break
+                self.Output(FileSource)
+                if not Repeat: break
 
             except Exception as e:
                 print(f"錯誤: {e}")
 
-    def Select(self, Repeat: bool=False):
+    def Select(self, Repeat: bool=False, FileSource: bool=False):
         """
         選擇輸出類型文件
 
         Repeat = 是否重複選擇
+        FileSource = 輸出檔名是否要含有來源
         """
         # 獲取解析數據
         File_Type, Type_Quantity = self.Analysis()
         self.Origin_Path = self.Folder_Path
-        self.Repeat = Repeat
 
         # 展示用
         Show_Table = []
@@ -218,7 +222,7 @@ class TypeSelection(Read, Copy):
             print("{:<10} {:<11} {}".format(Row[0], Row[1], Row[2]))
 
         # 輸入選擇
-        self.__Choose(Sorted)
+        self.__Choose(Sorted, Repeat, FileSource)
 
 if __name__ == "__main__":
-    TypeSelection().Select(True)
+    TypeSelection().Select()
