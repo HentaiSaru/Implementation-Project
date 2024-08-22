@@ -16,15 +16,23 @@
     & 黑色 (40m)：Black
 #>
 
+# 檢查管理員權限
+function IsAdmin {
+    return ([bool](New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+}
+
+# 檢查網路連線
 function CheckNetwork {
     try {
-        Test-Connection -ComputerName "1.1.1.1" -Count 1 -ErrorAction Stop
+        Test-Connection -ComputerName "8.8.8.8" -Count 1 -ErrorAction Stop
         return $true
     } catch {
         return $false
     }
 }
 
+# 打印文本
 function Print {
     param (
         [string]$text,
@@ -40,7 +48,8 @@ function Print {
     Write-Host "[1m$text"
 }
 
-function Input { # 輸入文字
+# 輸入文本
+function Input {
     param (
         [string]$text,
         [string]$foregroundColor = 'default'
@@ -55,8 +64,8 @@ function Input { # 輸入文字
     }
 }
 
+# 啟動器由 Invoke-Expression 調用該代碼, 運行時會有清除不乾淨的問題, 等待後續研究
 function _Cls {
-    # 啟動器由 Invoke-Expression 調用該代碼, 運行時會有清除不乾淨的問題, 等待後續研究
     Clear-Host
 }
 
@@ -108,12 +117,25 @@ class Main {
         }
     }
 
+    # 用於合成指令 (沒有管理權限時)
+    [string]Composite([object]$obj) {
+        $merge = ""
+        for ($i = 0; $i -lt $obj.Length; $i++) {
+            $merge += $obj[$i]
+            if ($i -lt ($obj.Length - 1)) {$merge += " & "}
+        }
+        return $merge
+    }
+
     # 運行 CMD 指令並打印出來, 命令, 是否確認後返回首頁
     [void]CMD([string]$command, [bool]$back) {
-        Start-Process cmd.exe -ArgumentList "/c $command" -NoNewWindow -Wait
-        if ($back) {
-            $this.WaitBack()
+        if (IsAdmin) {
+            Start-Process cmd.exe -ArgumentList "/c $command" -NoNewWindow -Wait
+        } else {
+            Start-Process cmd.exe -ArgumentList "/c $command" -Verb RunAs -Wait
         }
+
+        if ($back) { $this.WaitBack() }
     }
 
     # 字串轉 MD5
@@ -394,6 +416,11 @@ class Main {
                 $this.CMD("nvidia-smi", $true)
             }
             "HW" { # 查看機器碼
+                if (-not(IsAdmin)) {
+                    Print "該功能需要管理員權限" 'Red'
+                    $this.WaitBack()
+                }
+
                 Print "[92m===============================[93m"
                 Print "[91m        作業系統"
                 Print "[92m===============================[93m"
@@ -471,10 +498,20 @@ class Main {
             "SR" { # 系統錯誤修復
                 Print "準備修復 請稍後...`n" 'Yellow'
 
-                $this.CMD("Dism /Online /Cleanup-Image /ScanHealth", $false)
-                $this.CMD("Dism /Online /Cleanup-Image /CheckHealth", $false)
-                $this.CMD("DISM /Online /Cleanup-image /RestoreHealth", $false)
-                $this.CMD("sfc /scannow", $true)
+                if (IsAdmin) {
+                    $this.CMD("DISM /Online /Cleanup-Image /ScanHealth", $false)
+                    $this.CMD("DISM /Online /Cleanup-Image /CheckHealth", $false)
+                    $this.CMD("DISM /Online /Cleanup-image /RestoreHealth", $false)
+                    $this.CMD("sfc /scannow", $true)
+                } else {
+                    $this.CMD($this.Composite(@(
+                        "DISM /Online /Cleanup-Image /ScanHealth",
+                        "DISM /Online /Cleanup-Image /CheckHealth",
+                        "DISM /Online /Cleanup-image /RestoreHealth",
+                        "sfc /scannow",
+                        "pause"
+                    )), $true)
+                }
             }
             (index) { # 睡眠
                 rundll32.exe powrprof.dll,SetSuspendState 0,1,0
@@ -500,9 +537,17 @@ class Main {
             (index) { # .NET安裝
                 # winget search Microsoft.DotNet.SDK
                 $this.NetworkState()
-                $this.CMD("winget install Microsoft.DotNet.SDK.6", $false)
-                $this.CMD("winget install Microsoft.DotNet.SDK.7", $false)
-                $this.CMD("winget install Microsoft.DotNet.SDK.8", $true)
+                if (IsAdmin) {
+                    $this.CMD("winget install Microsoft.DotNet.SDK.6", $false)
+                    $this.CMD("winget install Microsoft.DotNet.SDK.7", $false)
+                    $this.CMD("winget install Microsoft.DotNet.SDK.8", $true)
+                } else {
+                    $this.CMD($this.Composite(@(
+                        "winget install Microsoft.DotNet.SDK.6",
+                        "winget install Microsoft.DotNet.SDK.7",
+                        "winget install Microsoft.DotNet.SDK.8"
+                    )), $true)
+                }
             }
             (index) { # Visual C++ (x64)安裝
                 # https://learn.microsoft.com/zh-tw/cpp/windows/latest-supported-vc-redist?view=msvc-170
