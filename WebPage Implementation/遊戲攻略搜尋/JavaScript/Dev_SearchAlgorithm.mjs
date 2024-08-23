@@ -322,23 +322,19 @@ function CleanCore() {
     const Clean = CleanCore();
     const DB = await File.Read("./DataBase/DB.json");
 
-    // const Details = DB['詳細資訊'];
-
-    // const Search = Object.assign(DB['角色別稱'], Details);
-    Clean.getData(DB, {Type: "Repeat"});
+    const Details = DB['詳細資訊'];
+    const Search = Object.assign(DB['角色別稱'], Details);
 
     // 創建實例要先傳遞初始表 (未被轉換)
-    // const SC = NameSearchCore(Details);
+    const SC = NameSearchCore(Details);
 
     // 添加需轉換的表
-    // SC.addData(Search);
+    SC.addData(Search);
     // SC.showData();
     // SC.showSize();
     // SC.putData();
 
-    // console.log(
-        // SC.searchData("")
-    // );
+    // console.log(SC.searchData(""));
 
 })();
 
