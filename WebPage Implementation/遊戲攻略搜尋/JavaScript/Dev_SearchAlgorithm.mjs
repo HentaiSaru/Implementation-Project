@@ -320,7 +320,7 @@ function CleanCore() {
 
 (async ()=> {
     const Clean = CleanCore();
-    const DB = await File.Read("./DataBase/DB.json");
+    const DB = await File.Read("../DataBase/DB.json");
 
     const Details = DB['詳細資訊'];
     const Search = Object.assign(DB['角色別稱'], Details);
