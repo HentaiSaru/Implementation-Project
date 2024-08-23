@@ -1,3 +1,5 @@
+import { File } from './DataBase/!File.mjs';
+
 // 獲取物件類型
 const Type = (object) => Object.prototype.toString.call(object).slice(8, -1);
 
@@ -206,6 +208,20 @@ function NameSearchCore(original) {
 
 // 用於清洗數據
 function CleanCore() {
+    const DefaultProcessing = [
+        "攻擊屬性",
+        "防禦裝甲",
+        "武器種類",
+        "戰略定位",
+        "戰術類別",
+        "戰鬥站位",
+        "角色評級",
+        "角色學園",
+        "獲取管道",
+        "角色稀有"
+    ];
+
+    const jsonFormat = (obj) => JSON.stringify(obj, null, 4);
     const onlyObjectType = (obj) => {
         if (Type(obj) != "Object") {
             console.log("傳入數據只能是物件");
@@ -214,12 +230,22 @@ function CleanCore() {
         return true;
     };
 
+    /* 回傳除重後乾淨對象 */
+    const getCleanArray = (arr) =>[...new Set(arr)];
+    const getCleanObject = (obj)=> {
+        const merge = {}
+        for (const [key, value] of Object.entries(obj)) {
+            merge[key] = getCleanArray(value);
+        }
+        return merge;
+    };
+
+    /* 回傳重複對象 */
     const getArrayRepeat = (arr) => {
         const cache = new Set();
         const result = arr.filter(item => cache.has(item) ? item : !cache.add(item));
         return result.length > 0 ? result : false; // 沒有重複的回傳 false
     };
-
     const getObjectRepeat = (obj) => {
         const alone = {}; // 各自判斷
         let cache = []; // 緩存整體判斷所需數據
@@ -237,12 +263,37 @@ function CleanCore() {
     };
 
     return {
+        getCleanArray,
+        getCleanObject,
         getArrayRepeat,
         getObjectRepeat,
-        repeatDetection: (DB)=> { // 打印所有重複類型
+        getData: (DB, {Write=false, Type="Clean", Operate=DefaultProcessing}={})=> {
+            /** 取得數據
+             * 
+             * DB : 一個完整為物件類型的數據
+             * {
+             *      Write : 是否輸出文件 (預設 false, 直接打印)
+             *      Type : 操作的類型 ("Clean", "Repeat") (預設 Clean)
+             *      Operate : 要讀取的操作 key, 一個 array (預設 DefaultProcessing)
+             * }
+             */
+
             if (onlyObjectType(DB)) {
-                for (const check of ["屬性", "裝甲", "武器", "位置", "評級", "卡池"]) {
-                    console.log(check, getObjectRepeat(DB[check]));
+                const display = {};
+                for (const check of Operate) {
+                    const result = Type == "Clean"
+                        ? getCleanObject(DB[check])
+                        : Type == "Repeat"
+                        ? getObjectRepeat(DB[check])
+                        : getCleanObject(DB[check]); // 預設值為清潔
+
+                    if (result) display[check] = result;
+                }
+
+                if (Write) {
+                    File.Write("R:/ProcessedData.json", display);
+                } else {
+                    console.log(jsonFormat(display));
                 }
             }
         },
@@ -267,18 +318,14 @@ function CleanCore() {
 
 // 實驗區塊 ========================
 
-// 實驗時該文件是 .mjs
-import { File } from './DataBase/!File.mjs';
-
 (async ()=> {
     const Clean = CleanCore();
     const DB = await File.Read("./DataBase/DB.json");
 
-    const Details = DB['詳細資訊'];
+    // const Details = DB['詳細資訊'];
 
-    // Clean.getCardPoolType(Details, DB['卡池']['常駐']);
-
-    // const Search = Object.assign(DB['別稱'], Details);
+    // const Search = Object.assign(DB['角色別稱'], Details);
+    Clean.getData(DB, {Type: "Repeat"});
 
     // 創建實例要先傳遞初始表 (未被轉換)
     // const SC = NameSearchCore(Details);
