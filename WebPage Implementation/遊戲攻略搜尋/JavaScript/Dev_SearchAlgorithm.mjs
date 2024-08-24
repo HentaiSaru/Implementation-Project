@@ -1,4 +1,4 @@
-import { File } from './DataBase/!File.mjs';
+import { File } from './!File.mjs';
 
 // 獲取物件類型
 const Type = (object) => Object.prototype.toString.call(object).slice(8, -1);
@@ -211,7 +211,7 @@ function CleanCore() {
     const DefaultProcessing = [
         "攻擊屬性",
         "防禦裝甲",
-        "武器種類",
+        "角色武器",
         "戰略定位",
         "戰術類別",
         "戰鬥站位",
@@ -281,11 +281,18 @@ function CleanCore() {
             if (onlyObjectType(DB)) {
                 const display = {};
                 for (const check of Operate) {
+                    const process = DB[check];
+
+                    if (!process) {
+                        console.error("錯誤的檢查對象:", check);
+                        continue;
+                    }
+
                     const result = Type == "Clean"
-                        ? getCleanObject(DB[check])
+                        ? getCleanObject(process)
                         : Type == "Repeat"
-                        ? getObjectRepeat(DB[check])
-                        : getCleanObject(DB[check]); // 預設值為清潔
+                        ? getObjectRepeat(process)
+                        : getCleanObject(process); // 預設值為清潔
 
                     if (result) display[check] = result;
                 }
@@ -324,6 +331,8 @@ function CleanCore() {
 
     const Details = DB['詳細資訊'];
     const Search = Object.assign(DB['角色別稱'], Details);
+
+    // Clean.getData(DB, {Type: "Repeat"});
 
     // 創建實例要先傳遞初始表 (未被轉換)
     const SC = NameSearchCore(Details);
