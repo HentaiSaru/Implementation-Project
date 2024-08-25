@@ -60,7 +60,7 @@ class DataProcessing:
         self.Allow = {"po", "txt", "srt", "ass", "ssa", "lng", "lang", "json"} # 允許的檔案類型
 
         # 文本轉換
-        self.Text_conversion = lambda text: self.Converter.convert(text.strip())
+        self.Text_conversion = lambda text: self.Converter.convert(text)
 
         # 計算完成結束時間
         self.ET = lambda start_time: round(time.time() - start_time, 3)
