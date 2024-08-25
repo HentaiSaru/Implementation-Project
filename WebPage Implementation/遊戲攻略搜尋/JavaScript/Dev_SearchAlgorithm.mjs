@@ -332,6 +332,9 @@ function CleanCore() {
     const Details = DB['詳細資訊'];
     const Search = Object.assign(DB['角色別稱'], Details);
 
+    /* 獲取清洗後的列表 */
+    // console.log(JSON.stringify(Clean.getCleanArray(DB[''][''])));
+    /* 確認物件重複狀態 */
     // Clean.getData(DB, {Type: "Repeat"});
 
     // 創建實例要先傳遞初始表 (未被轉換)
