@@ -1583,7 +1583,7 @@ Meta:
     - 水羽三森
     - 憂
     - 日向
-    - 池倉瑪麗娜
+    - 瑪麗娜
     - 都子
     - 美優
     - 大野月夜
@@ -1595,7 +1595,7 @@ Meta:
     - 春原心菜
     - 詠葉(應援團)
     - 乃愛
-    - 間宵時雨
+    - 時雨
     - 鷲見芹奈(聖誕節)
     - 美禰
     - 惠
@@ -1610,7 +1610,7 @@ Meta:
     - 近衛美奈
     - 都子(泳裝)
     - 咲希(泳裝)
-    - 姫木愛瑠
+    - 愛瑠
     - 亞都梨(應援團)
     - 一花
     - 佳澄
@@ -1641,11 +1641,11 @@ Meta:
     - 朝顏花繪(聖誕節)
     - 環奈
     - 伊草遙香(正月)
-    - 安守實裡
+    - 實裡
     - 白子(泳裝)
     - 水羽三森(泳裝)
     - 羽留奈(運動服)
-    - 間宵時雨(溫泉)
+    - 時雨(溫泉)
     - 英美(泳裝)
     - 朱音
     - 和樂知世
@@ -3218,17 +3218,41 @@ Meta:
     泛用評級: 90
     角色定位: (坦克, 輸出)
     IMG_URL: https://truth.bahamut.com.tw/s01/202408/forum/38898/2340c6938c54c3d63bd0881ceb679024.JPG
-  姫木愛瑠(メル/Meru):
+  愛瑠:
+    姫木: 愛瑠
+    メル: 愛瑠
+    Meru: 愛瑠
     IMG_URL: https://i.imgur.com/6WmIdRk.png
-  安守實裡(ミノリ/Minori):
+  實裡:
+    安守: 實裡
+    ミノリ: 實裡
+    Minori: 實裡
     IMG_URL: https://i.imgur.com/jD4VfMm.png
-  間宵時雨(シグレ/Shigure):
+  時雨:
+    間宵:
+      - 時雨
+      - 時雨(溫泉)
+    シグレ:
+      - 時雨
+      - 時雨(溫泉)
+    Shigure:
+      - 時雨
+      - 時雨(溫泉)
     IMG_URL: https://i.imgur.com/8xwg8Wi.png
-  間宵時雨(溫泉):
+  時雨(溫泉):
     IMG_URL: https://i.imgur.com/lfLP2cS.png
-  池倉瑪麗娜(マリナ/Marina):
+  瑪麗娜(マリナ/Marina):
+    池倉:
+      - 瑪麗娜
+      - 瑪麗娜(旗袍)
+    マリナ:
+      - 瑪麗娜
+      - 瑪麗娜(旗袍)
+    Marina:
+      - 瑪麗娜
+      - 瑪麗娜(旗袍)
     IMG_URL: https://i.imgur.com/IAAuJdO.png
-  池倉瑪麗娜.旗袍:
+  瑪麗娜(旗袍):
     IMG_URL: https://truth.bahamut.com.tw/s01/202408/forum/38898/1a0c01029ca164d771840fd794fc1f7e.JPG
   連河潔莉諾(チェリノ/Cherino):
     IMG_URL: https://i.imgur.com/IeS92Y2.png
@@ -3394,7 +3418,7 @@ Meta:
     IMG_URL: https://imgur.com/EMhQ6W2.png
   佐藤智惠(トモエ/Tomoe):
     IMG_URL: https://i.imgur.com/YMLtFlv.png
-  佐藤智惠.旗袍:
+  佐藤智惠(旗袍):
     IMG_URL: https://truth.bahamut.com.tw/s01/202408/forum/38898/03227218e19129f5110dcbb5f59d4631.JPG
   天見和香(ノドカ/Nodoka):
     IMG_URL: https://i.imgur.com/sKziEiQ.png
