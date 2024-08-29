@@ -167,7 +167,7 @@ function Main {
     Print "Install Package" 'Yellow'
     Print "====================`n"
     foreach ($package in $Package) {
-        pip install $package
+        pip install --upgrade $package
     }
 
     Print "`n===================="
