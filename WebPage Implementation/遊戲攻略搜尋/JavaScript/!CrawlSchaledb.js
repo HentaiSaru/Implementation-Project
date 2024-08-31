@@ -2345,7 +2345,12 @@
                     console.log("完成");
                 });
             },
-            Monitor: (Name, Refer)=> { // 菜單名, 參考數據 (個別操作)
+            /**
+             * 監聽滑鼠滾動, 抓取數據 (個別操作)
+             * @param {string} Name - 菜單名
+             * @param {object} Refer - 參考數據
+             */
+            Monitor: (Name, Refer)=> {
 
                 if (Record.size > 0 && !Record.has(Name)) return;
 
