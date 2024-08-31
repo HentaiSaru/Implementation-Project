@@ -333,7 +333,7 @@ function CleanCore() {
     const Search = Object.assign(DB['角色別稱'], Details);
 
     /* 獲取清洗後的列表 */
-    // console.log(JSON.stringify(Clean.getCleanArray(DB[''][''])));
+    // console.log(JSON.stringify(Clean.getCleanArray(DB['']['']), null, 4));
     /* 確認物件重複狀態 */
     // Clean.getData(DB, {Type: "Repeat"});
 
