@@ -103,7 +103,7 @@ class AutomaticCheckin:
             time.sleep(waittime)
             driver.quit()
 
-    def Wuyong_Checkin(self):
+    def Wuyong(self):
         self.Alone.driver, Caller = self.Login_Confirm(
             "wuyong",
             "https://wuyong.fun/#google_vignette",
@@ -118,14 +118,37 @@ class AutomaticCheckin:
             print(f"錯誤數據來自: {Caller}\n禁止非同原操作")
             self.Alone.driver.quit()
 
+        # 關閉額外彈窗
         self.Alone.driver.execute_script("setInterval(() => {document.querySelector('#dismiss-button')?.click()}, 800);")
-        Wuyongbutton = self.ClickWait(self.Alone.driver, 3, "//i[@class='b2font b2-gift-2-line ']")
-        Wuyongbutton.click()
+        # 使用 Js 方式點擊簽到 (避免被擋住)
+        CheckinButton = self.ClickWait(self.Alone.driver, 3, "//i[@class='b2font b2-gift-2-line ']")
+        self.Alone.driver.execute_script("arguments[0].click();", CheckinButton)
 
         time.sleep(self.offdelay)
         self.Alone.driver.quit()
 
-    def Zero_Checkin(self):
+    def TwApk(self):
+        self.Alone.driver, Caller = self.Login_Confirm(
+            "TwApk",
+            "https://apk.tw/forum.php",
+            {
+                "type": "xpath",
+                "value": "//div[@class='avt y']",
+                "waittime": 8
+            }
+        )
+
+        if self.NotSameOrigin(Caller):
+            print(f"錯誤數據來自: {Caller}\n禁止非同原操作")
+            self.Alone.driver.quit()
+
+        CheckinButton = self.ClickWait(self.Alone.driver, 3, "//a[@id='my_amupper']")
+        CheckinButton.click()
+
+        time.sleep(self.offdelay)
+        self.Alone.driver.quit()
+
+    def Zero(self):
         Zero = webdriver.Chrome(options=paramet.AddSet("zero"))
         Zero.get("https://zerobyw.github.io/")
         Zero.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
@@ -148,7 +171,7 @@ class AutomaticCheckin:
             needset = False
         )
 
-    def Genshin_Checkin(self):
+    def Genshin(self):
         self.Alone.driver, Caller = self.Login_Confirm(
             "Genshin",
             "https://act.hoyolab.com/ys/event/signin-sea-v3/index.html?act_id=e202102251931481",
@@ -188,7 +211,7 @@ class AutomaticCheckin:
         time.sleep(self.offdelay)
         self.Alone.driver.quit()
 
-    def StarRail_Checkin(self):
+    def StarRail(self):
         self.Alone.driver, Caller = self.Login_Confirm(
             "StarRail",
             "https://act.hoyolab.com/bbs/event/signin/hkrpg/index.html?act_id=e202303301540311",
@@ -224,7 +247,7 @@ class AutomaticCheckin:
         time.sleep(self.offdelay)
         self.Alone.driver.quit()
 
-    def ZoneZero_Checkin(self):
+    def ZoneZero(self):
         self.Alone.driver, Caller = self.Login_Confirm(
             "ZoneZero",
             "https://act.hoyolab.com/bbs/event/signin/zzz/e202406031448091.html?act_id=e202406031448091",
@@ -263,19 +286,21 @@ class AutomaticCheckin:
 if __name__ == "__main__":
     AC = AutomaticCheckin()
 
-    # AC.Wuyong_Checkin()
-    # AC.Zero_Checkin()
-    # AC.Genshin_Checkin()
-    # AC.StarRail_Checkin()
-    # AC.ZoneZero_Checkin()
+    # AC.Wuyong()
+    # AC.TwApk()
+    # AC.Zero()
+    # AC.Genshin()
+    # AC.StarRail()
+    # AC.ZoneZero()
 
     with ThreadPoolExecutor(max_workers=100) as executor:
         for func, delay in zip([
-            AC.Wuyong_Checkin,
-            AC.Zero_Checkin,
-            AC.Genshin_Checkin,
-            AC.StarRail_Checkin,
-            AC.ZoneZero_Checkin
+            AC.Wuyong,
+            AC.TwApk,
+            AC.Zero,
+            AC.Genshin,
+            AC.StarRail,
+            AC.ZoneZero
         ], [10, 10, 10, 10, 1]): # 延遲設置 (設置太短可能造成資源競爭)
             executor.submit(func)
             time.sleep(delay)
