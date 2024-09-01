@@ -52,18 +52,24 @@ def Process(Path):
         if name.isdigit(): # 排除都是數字的
             continue
 
-        Item = local_dict.get(name) # 舊的紀錄
+        Name = name.replace(",", " ") # 名稱中不能有 ,
+        row[1] = Name # 修改原數據
+        
+        Item = local_dict.get(Name) # 舊的紀錄
         Data = converter.convert(list_to_string(row)) # 列表轉成字串, 並轉成繁體
 
         if Item is None:
-            local_dict[name] = Data
+            local_dict[Name] = Data
         else: # 重複時, 比較大小, 大的覆蓋
             count -= 1 # 當有重複對象時, 重複數據不納入計算
-            rowSize = int(row[2])
-            itemSize = int(Item.split(',')[2]) # 將保存數據轉回列表
+            try:
+                rowSize = int(row[2])
+                itemSize = int(Item.split(',')[2]) # 將保存數據轉回列表
 
-            if rowSize > itemSize:
-                local_dict[name] = Data
+                if rowSize > itemSize:
+                    local_dict[Name] = Data
+            except:
+                print(f"\n新數據: {row}\n舊數據: {Item}\n")
 
         count += 1
         print(f"\r記憶體佔用: {GetMemory()}% | 已處理: {count} 筆數據", end="", flush=True)
@@ -73,4 +79,4 @@ def Process(Path):
     local_dict.clear()
 
 if __name__ == "__main__":
-    Process("R:\\test.csv")
+    Process("R:\\db.csv")
