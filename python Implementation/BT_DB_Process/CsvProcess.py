@@ -1,8 +1,13 @@
 import csv
 import time
+import queue
 import psutil
 import opencc
+import psutil
+import threading
 from tqdm import tqdm
+from sortedcontainers import SortedDict
+from concurrent.futures import ThreadPoolExecutor
 
 def ReadCsv(path):
     with open(path, 'r', encoding='utf-8') as csvfile:
@@ -39,38 +44,55 @@ def throttle(wait):
 def GetMemory():
     return psutil.virtual_memory().percent
 
-def Process(Path):
-    count = 0
-    local_dict = {}
-    converter = opencc.OpenCC("s2twp.json")
-    list_to_string = lambda lst: ','.join([str(item).strip() for item in lst])
+class Maim:
+    def __init__(self):
+        self.queue = queue.Queue()
+        self.converter = opencc.OpenCC("s2twp.json")
+        self.list_to_string = lambda lst: ','.join([str(item).strip() for item in lst])
 
-    for row in ReadCsv(Path):
-        name = row[1]
+    def Run(self, row):
+        Data = self.converter.convert(self.list_to_string(row))
+        self.queue.put((row, Data))
 
-        if name.isdigit(): # 排除都是數字的
-            continue
+    def Process(self):
+        count = 0
+        local_dict = SortedDict()
 
-        Item = local_dict.get(name)
-        Data = converter.convert(list_to_string(row)) # 列表轉成字串, 並轉成繁體
+        while True:
+            task = self.queue.get()
 
-        if Item is None:
-            local_dict[name] = Data
-        else: # 重複時, 比較大小, 大的覆蓋
-            count -= 1 # 當有重複對象時, 重複數據不納入計算
-            rowSize = row[2]
-            itemSize = Item.split(',')[2] # 將保存數據轉回列表
+            if task is None:  # 檢查結束信號
+                break
 
-            if rowSize > itemSize:
-                local_dict[name] = Data
+            name = task[0][1]
+            Item = local_dict.get(name)
 
-        count += 1
-        Memory = GetMemory()
-        print(f"\r記憶體佔用: {Memory}% | 已處理: {count} 筆數據", end="", flush=True)
+            if Item is None:
+                local_dict[name] = task[1]
+            else: # 重複時, 比較大小, 大的覆蓋
+                count -= 1 # 當有重複對象時, 重複數據不納入計算
+                rowSize = int(task[0][2])
+                itemSize = int(Item.split(',')[2]) # 將保存數據轉回列表
 
-    # 輸出數據
-    WriteCsv("R:\\Clean.csv", local_dict)
-    local_dict.clear()
+                if rowSize > itemSize:
+                    local_dict[name] = task[1]
+
+            count += 1
+            print(f"\r記憶體佔用: {GetMemory()}% | 已處理: {count} 筆數據", end="", flush=True)
+
+        # 輸出數據
+        WriteCsv("R:\\Clean.csv", local_dict)
+        local_dict.clear()
 
 if __name__ == "__main__":
-    Process("R:\\test.csv")
+    main = Maim()
+
+    threading.Thread(target=main.Process).start() # 最大線程數量為, CPU核心數量 * CPU線程數量
+    with ThreadPoolExecutor(max_workers=(psutil.cpu_count() * psutil.cpu_count(False))) as executor:
+        for row in ReadCsv("R:\\db.csv"):
+            name = row[1]
+            if name.isdigit(): # 排除都是數字的
+                continue
+            executor.submit(main.Run, row)
+
+    main.queue.put(None) # 完成停止
