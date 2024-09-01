@@ -142,8 +142,10 @@ class AutomaticCheckin:
             print(f"錯誤數據來自: {Caller}\n禁止非同原操作")
             self.Alone.driver.quit()
 
-        CheckinButton = self.ClickWait(self.Alone.driver, 3, "//a[@id='my_amupper']")
-        CheckinButton.click()
+        try: # 已經簽到的會報錯
+            CheckinButton = self.ClickWait(self.Alone.driver, 5, "//a[@id='my_amupper']")
+            CheckinButton.click()
+        except:pass
 
         time.sleep(self.offdelay)
         self.Alone.driver.quit()
@@ -301,6 +303,6 @@ if __name__ == "__main__":
             AC.Genshin,
             AC.StarRail,
             AC.ZoneZero
-        ], [10, 10, 10, 10, 1]): # 延遲設置 (設置太短可能造成資源競爭)
+        ], [10, 10, 10, 10, 10, 1]): # 延遲設置 (設置太短可能造成資源競爭)
             executor.submit(func)
             time.sleep(delay)
