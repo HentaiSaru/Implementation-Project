@@ -5,56 +5,51 @@ const Type = (object) => Object.prototype.toString.call(object).slice(8, -1);
 
 // 獲取對象大小
 function objectSize(object) {
-    // 遞歸計算
-    function calculate(object, objectList=new WeakSet()) {
-        const type = Type(object);
-
-        if (!type || objectList.has(object)) return 0;
-
-        if (typeof object !== "object") {
-            if (type === "Boolean") return 4;
-            if (type === "Number") return 8;
-            if (type === "String") return object.length * 2;
-            return 0; // 未知類型
-        }
-
+    const calculateCollectionSize = (value, cache, iteratee) => {
+        if (!value || cache.has(value)) return 0;
+        cache.add(value);
         let bytes = 0;
-        if (type === "Array") {
-            bytes += 0;
-            for (const item of object) {
-                bytes += calculate(item, objectList);
-            }
-        } else if (type === "Object") {
-            bytes += 0;
-            for (const key in object) {
-                if (Object.prototype.hasOwnProperty.call(object, key)) {
-                    bytes += calculate(key, objectList);
-                    bytes += calculate(object[key], objectList);
-                }
-            }
-        } else if (type === "Map") {
-            if (!objectList.has(object)) {
-                objectList.add(object);
-                bytes += 0;
-                for (const [key, value] of object) {
-                    bytes += calculate(key, objectList);
-                    bytes += calculate(value, objectList);
-                }
-            }
-        } else if (type === "Set") {
-            if (!objectList.has(object)) {
-                objectList.add(object);
-                bytes += 0;
-                for (const value of object) {
-                    bytes += calculate(value, objectList);
-                }
-            }
+        for (const item of iteratee(value)) {
+            bytes += Calculate[Type(item[0])] ?. (item[0], cache) ?? 0;
+            bytes += Calculate[Type(item[1])] ?. (item[1], cache) ?? 0;
         }
-
         return bytes;
-    }
+    };
+    const Calculate = {
+        Boolean: ()=> 4,
+        Date: ()=> 8,
+        Number: ()=> 8,
+        String: (value) => value.length * 2,
+        RegExp: (value) => value.toString().length * 2,
+        Symbol: (value) => (value.description || '').length * 2,
+        DataView: (value) => value.byteLength,
+        TypedArray: (value) => value.byteLength,
+        ArrayBuffer: (value) => value.byteLength,
+        Array: (value, cache) => calculateCollectionSize(value, cache, function* (arr) {
+            for (const item of arr) {
+                yield [item];
+            }
+        }),
+        Set: (value, cache) => calculateCollectionSize(value, cache, function* (set) {
+            for (const item of set) {
+                yield [item];
+            }
+        }),
+        Object: (value, cache) => calculateCollectionSize(value, cache, function* (obj) {
+            for (const key in obj) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                    yield [key, obj[key]];
+                }
+            }
+        }),
+        Map: (value, cache) => calculateCollectionSize(value, cache, function* (map) {
+            for (const [key, val] of map) {
+                yield [key, val];
+            }
+        })
+    };
 
-    const bytes = calculate(object);
+    const bytes = Calculate[Type(object)]?.(object, new WeakSet()) ?? 0;
     return {
         Bytes: bytes,
         KB: (bytes / 1024).toFixed(2),
@@ -331,17 +326,16 @@ function CleanCore() {
 
     const Details = DB['詳細資訊'];
     const Search = Object.assign(DB['角色別稱'], Details);
-
     /* 獲取清洗後的列表 */
     // console.log(JSON.stringify(Clean.getCleanArray(DB['']['']), null, 4));
     /* 確認物件重複狀態 */
     // Clean.getData(DB, {Type: "Repeat"});
 
     // 創建實例要先傳遞初始表 (未被轉換)
-    const SC = NameSearchCore(Details);
+    // const SC = NameSearchCore(Details);
 
     // 添加需轉換的表
-    SC.addData(Search);
+    //SC.addData(Search);
     // SC.showData();
     // SC.showSize();
     // SC.putData();
