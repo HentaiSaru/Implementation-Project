@@ -32,7 +32,7 @@ class Settings:
         self.Options.add_argument("--remote-debugging-address=0.0.0.0")
         self.Options.add_argument("--safebrowsing-disable-download-protection")
         self.Options.add_argument(f"--remote-debugging-port={self.RandomPort()}")
-        self.Options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
+        self.Options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36")
 
         self.Options.add_experimental_option("useAutomationExtension", False)
         self.Options.add_experimental_option("excludeSwitches", ["enable-logging"])
@@ -59,6 +59,7 @@ class Browser(Settings):
         self.Driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
 
         threading.Thread(target=self.Detection).start()
+        return self.Driver
 
     def Detection(self):
         try:
