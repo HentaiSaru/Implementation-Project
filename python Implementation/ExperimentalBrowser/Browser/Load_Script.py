@@ -19,6 +19,12 @@ class LoadScript:
                 time.sleep(1)
             except:
                 break
+            
+    def __RunScript(self, script):
+        try:
+            self.driver.execute_script(script)
+        except:
+            pass
 
     def DarkMode(self, simple=True):
         SimpleScript = r"""
@@ -33,8 +39,9 @@ class LoadScript:
             };
 
             function filter() {
-                if (!document.body.getAttribute("DarkMode")) {
+                if (!document.getElementById("DarkModeFilter")) {
                     const Dark = document.createElement("DarkMode");
+                    Dark.id = "DarkModeFilter";
                     Dark.style.cssText = `
                         background: rgba(0,0,0,0.3);
                         top: 0;
@@ -47,9 +54,7 @@ class LoadScript:
                         position: fixed;
                         pointer-events: none;
                     `;
-
                     document.body.appendChild(Dark);
-                    document.body.setAttribute("DarkMode", "true");
                 };
             };
             filter();
@@ -111,4 +116,4 @@ class LoadScript:
         """
         self.DarkModeState = True
         Script = SimpleScript if simple else AdvancedScript
-        self.driver.execute_script(Script)
+        self.__RunScript(Script)
