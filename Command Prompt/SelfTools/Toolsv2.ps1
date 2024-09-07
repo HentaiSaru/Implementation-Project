@@ -1260,10 +1260,12 @@ class Main {
                         @{name="Control D"; dns="76.76.10.0"},
                         @{name="Alternate"; dns="76.76.19.19"},
                         @{name="Alternate"; dns="76.223.122.150"},
-                        @{name="Cloudflare 高速"; dns="1.1.1.1"},
-                        @{name="Cloudflare 高速"; dns="1.0.0.1"},
+                        @{name="Cloudflare"; dns="1.1.1.1"},
+                        @{name="Cloudflare"; dns="1.0.0.1"},
                         @{name="Cloudflare 病毒攔截"; dns="1.1.1.2"},
-                        @{name="Cloudflare 病毒攔截"; dns="1.0.0.2"}
+                        @{name="Cloudflare 病毒攔截"; dns="1.0.0.2"},
+                        @{name="CleanBrowsing 病毒攔截"; dns="185.228.168.9"},
+                        @{name="CleanBrowsing 病毒攔截"; dns="185.228.169.9"}
                     )
                     Europe = @(
                         @{name="Level3"; dns="209.244.0.3"},
@@ -1281,9 +1283,7 @@ class Main {
                         @{name="中華電信"; dns="168.95.1.1"},
                         @{name="中華電信"; dns="168.95.192.1"},
                         @{name="臺灣網路資訊中心"; dns="101.101.101.101"},
-                        @{name="臺灣網路資訊中心"; dns="101.102.103.104"},
-                        @{name="CleanBrowsing 安全過濾"; dns="185.228.168.9"},
-                        @{name="CleanBrowsing 安全過濾"; dns="185.228.169.9"}
+                        @{name="臺灣網路資訊中心"; dns="101.102.103.104"}
                     )
                 }
 
