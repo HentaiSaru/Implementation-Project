@@ -1248,32 +1248,44 @@ class Main {
             (index) { # 自動配置 DNS
                 $this.NetworkState()
 
-                $dnsServers = ( # 要測試的 DNS 伺服器列表
-                    @{name="Cloudflare DNS"; dns="1.1.1.1"},
-                    @{name="Cloudflare DNS"; dns="1.0.0.1"},
-                    @{name="Google DNS"; dns="8.8.8.8"},
-                    @{name="Google DNS"; dns="8.8.4.4"},
-                    @{name="Comodo Secure DNS"; dns="8.26.56.26"},
-                    @{name="Comodo Secure DNS"; dns="8.20.247.20"},
-                    @{name="IBM DNS"; dns="9.9.9.9"},
-                    @{name="IBM DNS"; dns="9.9.9.10"},
-                    @{name="德國 DNS Watch"; dns="84.200.69.80"},
-                    @{name="德國 DNS Watch"; dns="84.200.70.40"},
-                    @{name="AdGuard DNS"; dns="94.140.14.14"},
-                    @{name="AdGuard DNS"; dns="94.140.15.15"},
-                    @{name="臺灣網路資訊中心 DNS"; dns="101.101.101.101"},
-                    @{name="臺灣網路資訊中心 DNS"; dns="101.102.103.104"},
-                    @{name="種花電信"; dns="168.95.1.1"},
-                    @{name="種花電信"; dns="168.95.192.1"},
-                    @{name="CleanBrowsing 安全過濾 DNS"; dns="185.228.168.9"},
-                    @{name="CleanBrowsing 安全過濾 DNS"; dns="185.228.169.9"},
-                    @{name="Open DNS"; dns="208.67.222.222"},
-                    @{name="Open DNS"; dns="208.67.220.220"},
-                    @{name="Level3 DNS"; dns="209.244.0.3"},
-                    @{name="Level3 DNS"; dns="209.244.0.4"},
-                    @{name="Ali DNS"; dns="223.5.5.5"},
-                    @{name="Ali DNS"; dns="223.6.6.6"}
-                )
+                $dnsServers = @{
+                    Global = @(
+                        @{name="IBM"; dns="9.9.9.9"},
+                        @{name="IBM"; dns="9.9.9.10"},
+                        @{name="Google"; dns="8.8.8.8"},
+                        @{name="Google"; dns="8.8.4.4"},
+                        @{name="AdGuard"; dns="94.140.14.14"},
+                        @{name="AdGuard"; dns="94.140.15.15"},
+                        @{name="Control D"; dns="76.76.2.0"},
+                        @{name="Control D"; dns="76.76.10.0"},
+                        @{name="Alternate"; dns="76.76.19.19"},
+                        @{name="Alternate"; dns="76.223.122.150"},
+                        @{name="Cloudflare 高速"; dns="1.1.1.1"},
+                        @{name="Cloudflare 高速"; dns="1.0.0.1"},
+                        @{name="Cloudflare 病毒攔截"; dns="1.1.1.2"},
+                        @{name="Cloudflare 病毒攔截"; dns="1.0.0.2"}
+                    )
+                    Europe = @(
+                        @{name="Level3"; dns="209.244.0.3"},
+                        @{name="Level3"; dns="209.244.0.4"},
+                        @{name="Open"; dns="208.67.222.222"},
+                        @{name="Open"; dns="208.67.220.220"},
+                        @{name="德國 Watch"; dns="84.200.69.80"},
+                        @{name="德國 Watch"; dns="84.200.70.40"}
+                        @{name="Comodo Secure"; dns="8.26.56.26"},
+                        @{name="Comodo Secure"; dns="8.20.247.20"}
+                    )
+                    Asia = @(
+                        @{name="Ali"; dns="223.5.5.5"},
+                        @{name="Ali"; dns="223.6.6.6"},
+                        @{name="中華電信"; dns="168.95.1.1"},
+                        @{name="中華電信"; dns="168.95.192.1"},
+                        @{name="臺灣網路資訊中心"; dns="101.101.101.101"},
+                        @{name="臺灣網路資訊中心"; dns="101.102.103.104"},
+                        @{name="CleanBrowsing 安全過濾"; dns="185.228.168.9"},
+                        @{name="CleanBrowsing 安全過濾"; dns="185.228.169.9"}
+                    )
+                }
 
                 Print " ================================================== "
                 Print "     自動開始配置時 建議不要有消耗網路流量的操作" "Cyan"
@@ -1285,9 +1297,14 @@ class Main {
                     Start-Sleep -Seconds 1
                 })
 
+                Print "===== 取得所在區域 DNS ======`n"
+                $locationInfo = Invoke-RestMethod -Uri "https://ipinfo.io/json"
+                $area = $locationInfo.timezone.Split("/")[0]
+                $testServers = $dnsServers.Global + $dnsServers[$area]
+
                 Print "===== 開始測試延遲 ======`n"
                 $pingResults = @{} # 存儲每個 DNS 伺服器的平均延遲
-                $dnsServers | ForEach-Object {
+                $testServers | ForEach-Object {
                     $totalTime = 0
                     $successCount = 0
 
