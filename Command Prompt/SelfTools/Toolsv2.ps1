@@ -1349,11 +1349,11 @@ class Main {
                 Set-DnsClientServerAddress -InterfaceAlias $interfaceName -ServerAddresses ($idiomaticDNS, $otherDNS)
 
                 Try {
-                    Set-DnsClientDohServerAddress -ServerAddress $idiomaticDNS -DohTemplate $idiomaticdoh -AllowFallbackToUdp $true -AutoUpgrade $true
-                    Set-DnsClientDohServerAddress -ServerAddress $otherDNS -DohTemplate $otherdoh -AllowFallbackToUdp $true -AutoUpgrade $true
+                    Set-DnsClientDohServerAddress -ServerAddress $idiomaticDNS -DohTemplate $idiomaticdoh -AllowFallbackToUdp $true -AutoUpgrade $true -ErrorAction Stop
+                    Set-DnsClientDohServerAddress -ServerAddress $otherDNS -DohTemplate $otherdoh -AllowFallbackToUdp $true -AutoUpgrade $true -ErrorAction Stop
                 } Catch {
-                    Add-DnsClientDohServerAddress -ServerAddress $idiomaticDNS -DohTemplate $idiomaticdoh -AllowFallbackToUdp $true -AutoUpgrade $true
-                    Add-DnsClientDohServerAddress -ServerAddress $otherDNS -DohTemplate $otherdoh -AllowFallbackToUdp $true -AutoUpgrade $true
+                    Add-DnsClientDohServerAddress -ServerAddress $idiomaticDNS -DohTemplate $idiomaticdoh -AllowFallbackToUdp $true -AutoUpgrade $true -ErrorAction SilentlyContinue
+                    Add-DnsClientDohServerAddress -ServerAddress $otherDNS -DohTemplate $otherdoh -AllowFallbackToUdp $true -AutoUpgrade $true -ErrorAction SilentlyContinue
                 }
 
                 Print "`n===== 配置完成 ======`n"
