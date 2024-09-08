@@ -1250,40 +1250,40 @@ class Main {
 
                 $dnsServers = @{
                     Global = @(
-                        @{name="IBM"; dns="9.9.9.9"},
-                        @{name="IBM"; dns="9.9.9.10"},
-                        @{name="Google"; dns="8.8.8.8"},
-                        @{name="Google"; dns="8.8.4.4"},
-                        @{name="AdGuard"; dns="94.140.14.14"},
-                        @{name="AdGuard"; dns="94.140.15.15"},
-                        @{name="Control D"; dns="76.76.2.0"},
-                        @{name="Control D"; dns="76.76.10.0"},
-                        @{name="Alternate"; dns="76.76.19.19"},
-                        @{name="Alternate"; dns="76.223.122.150"},
-                        @{name="Cloudflare"; dns="1.1.1.1"},
-                        @{name="Cloudflare"; dns="1.0.0.1"},
-                        @{name="Cloudflare 病毒攔截"; dns="1.1.1.2"},
-                        @{name="Cloudflare 病毒攔截"; dns="1.0.0.2"},
-                        @{name="CleanBrowsing 病毒攔截"; dns="185.228.168.9"},
-                        @{name="CleanBrowsing 病毒攔截"; dns="185.228.169.9"}
+                        @{name="IBM"; dns="9.9.9.9"; doh="https://dns.quad9.net/dns-query"},
+                        @{name="IBM"; dns="9.9.9.10"; doh="https://dns.quad9.net/dns-query"},
+                        @{name="Google"; dns="8.8.8.8"; doh="https://dns.google/dns-query"},
+                        @{name="Google"; dns="8.8.4.4"; doh="https://dns.google/dns-query"},
+                        @{name="AdGuard"; dns="94.140.14.14"; doh="https://dns.adguard.com/dns-query"},
+                        @{name="AdGuard"; dns="94.140.15.15"; doh="https://dns.adguard.com/dns-query"},
+                        @{name="Control D"; dns="76.76.2.0"; doh="https://dns.google/dns-query"},
+                        @{name="Control D"; dns="76.76.10.0"; doh="https://dns.google/dns-query"},
+                        @{name="Alternate"; dns="76.76.19.19"; doh="https://dns.google/dns-query"},
+                        @{name="Alternate"; dns="76.223.122.150"; doh="https://dns.google/dns-query"},
+                        @{name="Cloudflare"; dns="1.1.1.1"; doh="https://cloudflare-dns.com/dns-query"},
+                        @{name="Cloudflare"; dns="1.0.0.1"; doh="https://cloudflare-dns.com/dns-query"},
+                        @{name="Cloudflare 病毒攔截"; dns="1.1.1.2"; doh="https://dns.google/dns-query"},
+                        @{name="Cloudflare 病毒攔截"; dns="1.0.0.2"; doh="https://dns.google/dns-query"},
+                        @{name="CleanBrowsing 病毒攔截"; dns="185.228.168.9"; doh="https://doh.cleanbrowsing.org/doh/security-filter"},
+                        @{name="CleanBrowsing 病毒攔截"; dns="185.228.169.9"; doh="https://doh.cleanbrowsing.org/doh/security-filter"}
                     )
                     Europe = @(
-                        @{name="Level3"; dns="209.244.0.3"},
-                        @{name="Level3"; dns="209.244.0.4"},
-                        @{name="Open"; dns="208.67.222.222"},
-                        @{name="Open"; dns="208.67.220.220"},
-                        @{name="德國 Watch"; dns="84.200.69.80"},
-                        @{name="德國 Watch"; dns="84.200.70.40"}
-                        @{name="Comodo Secure"; dns="8.26.56.26"},
-                        @{name="Comodo Secure"; dns="8.20.247.20"}
+                        @{name="Level3"; dns="209.244.0.3"; doh="https://dns.google/dns-query"},
+                        @{name="Level3"; dns="209.244.0.4"; doh="https://dns.google/dns-query"},
+                        @{name="Open"; dns="208.67.222.222"; doh="https://doh.opendns.com/dns-query"},
+                        @{name="Open"; dns="208.67.220.220"; doh="https://doh.opendns.com/dns-query"},
+                        @{name="德國 Watch"; dns="84.200.69.80"; doh="https://dns.google/dns-query"},
+                        @{name="德國 Watch"; dns="84.200.70.40"; doh="https://dns.google/dns-query"}
+                        @{name="Comodo Secure"; dns="8.26.56.26"; doh="https://dns.google/dns-query"},
+                        @{name="Comodo Secure"; dns="8.20.247.20"; doh="https://dns.google/dns-query"}
                     )
                     Asia = @(
-                        @{name="Ali"; dns="223.5.5.5"},
-                        @{name="Ali"; dns="223.6.6.6"},
-                        @{name="中華電信"; dns="168.95.1.1"},
-                        @{name="中華電信"; dns="168.95.192.1"},
-                        @{name="臺灣網路資訊中心"; dns="101.101.101.101"},
-                        @{name="臺灣網路資訊中心"; dns="101.102.103.104"}
+                        @{name="Ali"; dns="223.5.5.5"; doh="https://dns.alidns.com/dns-query"},
+                        @{name="Ali"; dns="223.6.6.6"; doh="https://dns.alidns.com/dns-query"},
+                        @{name="中華電信"; dns="168.95.1.1"; doh="https://dns.google/dns-query"},
+                        @{name="中華電信"; dns="168.95.192.1"; doh="https://dns.google/dns-query"},
+                        @{name="臺灣網路資訊中心"; dns="101.101.101.101"; doh="https://dns.google/dns-query"},
+                        @{name="臺灣網路資訊中心"; dns="101.102.103.104"; doh="https://dns.google/dns-query"}
                     )
                 }
 
@@ -1297,7 +1297,6 @@ class Main {
                     Start-Sleep -Seconds 1
                 })
 
-                Print "===== 取得所在區域 DNS ======`n"
                 $locationInfo = Invoke-RestMethod -Uri "https://ipinfo.io/json"
                 $area = $locationInfo.timezone.Split("/")[0]
                 $testServers = $dnsServers.Global + $dnsServers[$area]
@@ -1319,7 +1318,7 @@ class Main {
 
                     if ($successCount -gt 0) {
                         $averageTime = $totalTime / $successCount
-                        $pingResults[@($_.name, $_.dns)] = $averageTime
+                        $pingResults[@($_.name, $_.dns, $_.doh)] = $averageTime
                         Print "$($_.name) | $($_.dns) | $([math]::Round($averageTime, 1)) ms" "Yellow"
                     }
                 }
@@ -1331,9 +1330,11 @@ class Main {
                 $idiomaticResults = $sortedResults[0].Key
                 $otherResults = $sortedResults[1].Key
 
-                # 獲取 dns 項
+                # 獲取 dns, doh 項
                 $idiomaticDNS = $idiomaticResults[1]
+                $idiomaticdoh = $idiomaticResults[2]
                 $otherDNS = $otherResults[1]
+                $otherdoh = $otherResults[2]
 
                 # 重置網路
                 ipconfig /release
@@ -1344,10 +1345,18 @@ class Main {
                 nbtstat -R
                 ipconfig /renew
 
-                $interfaceIndex = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" }).ifIndex
-                Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses ($idiomaticDNS, $otherDNS)
+                $interfaceName = (Get-NetAdapter | Where-Object { $_.Status -eq "Up" }).Name
+                Set-DnsClientServerAddress -InterfaceAlias $interfaceName -ServerAddresses ($idiomaticDNS, $otherDNS)
 
-                Print "`n===== 完成配置 ======`n"
+                Try {
+                    Set-DnsClientDohServerAddress -ServerAddress $idiomaticDNS -DohTemplate $idiomaticdoh -AllowFallbackToUdp $true -AutoUpgrade $true
+                    Set-DnsClientDohServerAddress -ServerAddress $otherDNS -DohTemplate $otherdoh -AllowFallbackToUdp $true -AutoUpgrade $true
+                } Catch {
+                    Add-DnsClientDohServerAddress -ServerAddress $idiomaticDNS -DohTemplate $idiomaticdoh -AllowFallbackToUdp $true -AutoUpgrade $true
+                    Add-DnsClientDohServerAddress -ServerAddress $otherDNS -DohTemplate $otherdoh -AllowFallbackToUdp $true -AutoUpgrade $true
+                }
+
+                Print "`n===== 配置完成 ======`n"
 
                 Print "慣用配置: $($idiomaticResults[0]) | $idiomaticDNS" "Green"
                 Print "其他配置: $($otherResults[0]) | $otherDNS" "Green"
