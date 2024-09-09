@@ -685,11 +685,9 @@ class Main {
                     @{path=$pathB; name="(default)"; value="File Explorer Xaml Island View Adapter"}
                     @{path="$pathB\InProcServer32"; name="(default)"; value=$dll; parent=$pathB}
                     @{path="$pathB\InProcServer32"; name="ThreadingModel"; type="String"; value="Apartment"; parent=$pathB}
-                ), $true)
 
-                $this.RegistItem(@(
-                    # 避免大量運算 檔案類型
-                    @("HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell", "FolderType", "String", "NotSpecified")
+                    # 以下為 避免大量運算 檔案類型
+                    @{path="HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell"; name="FolderType"; type="String"; value="NotSpecified"; parent=$pathA}
                 ), $true)
 
                 $this.RegistItem(@(
