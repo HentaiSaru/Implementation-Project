@@ -1090,15 +1090,19 @@ class Main {
             }
             (index) { # Surfshark 運行
                 Print "===== Surfshark 啟動中 ====="
-                $Path = "C:\Program Files (x86)\Surfshark\Surfshark.exe"
+                $Path1 = "C:\Program Files\Surfshark\Surfshark.exe"
+                $Path2 = "C:\Program Files (x86)\Surfshark\Surfshark.exe"
 
-                if (Test-Path $Path) {
-                    # 啟動服務
+                if (Test-Path $Path1) {
                     Start-Service -Name "Surfshark Service" -ErrorAction SilentlyContinue
-                    Start-Process -FilePath $Path
+                    Start-Process -FilePath $Path1
+                    $this.Menu()
+                } elseif (Test-Path $Path2) {
+                    Start-Service -Name "Surfshark Service" -ErrorAction SilentlyContinue
+                    Start-Process -FilePath $Path2
                     $this.Menu()
                 } else {
-                    Print "找不到啟動程序: $Path" 'Red'
+                    Print "找不到啟動程序: $Path1 或 $Path2" 'Red'
                     Print "下載連結: https://surfshark.com/zh-tw/download" 'Green'
                     $this.WaitBack()
                 }
