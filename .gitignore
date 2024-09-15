@@ -1,5 +1,4 @@
 __pycache__
-node_modules
 Temporary
 timestamp
 test
@@ -16,4 +15,6 @@ test
 可用網址.bat
 
 !DB.json
+!package.json
+!package-lock.json
 !chromedriver.exe
