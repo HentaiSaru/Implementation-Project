@@ -13,19 +13,19 @@ Todo    適用於 Python 3.10+
 class CarryHead:
     # 使用 navigator.userAgent 直接獲取
     Head = {
-        "Google": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"},
-        "Edge": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/126.0.0.0"}
+        "Google": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"},
+        "Edge": {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0"}
     }
 
 class Reques(CarryHead):
-    def __init__(self, headers: str="Google", cookies: dict=None):
+    def __init__(self, headers: dict|str="Google", cookies: dict=None):
         """
-        * headers: "Google" or "Edge", 兩字串擇一, 不處理例外
+        * headers: 自定字典或是, "Google" or "Edge"
         * cookies: 傳入字典 cookie
         """
         self.client = httpx.Client(http2=True)
         self.session = requests.Session()
-        self.headers = self.Head[headers]
+        self.headers = self.Head[headers.capitalize()] if isinstance(headers, str) else headers if isinstance(headers, dict) else None
         self.cookies = cookies
 
     # 解析要回傳的類型
