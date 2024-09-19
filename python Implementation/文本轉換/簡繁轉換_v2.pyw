@@ -90,10 +90,10 @@ class GUI(DataProcessing, tk.Tk):
         DataProcessing.__init__(self)
         tk.Tk.__init__(self, className="文本簡繁轉換器 V2")
 
-        Icon = os.path.join(os.getcwd(), "ChineseConversion.ico")
+        Icon = os.path.join(os.path.dirname(__file__), "ChineseConversion.ico")
         self.iconbitmap(Icon)
         self.resizable(0, 0)
-        
+
         # 窗口大小
         self.Win_Width = 280
         self.Win_Height = 235
