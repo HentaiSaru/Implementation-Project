@@ -43,7 +43,7 @@ class DataProcessing:
         self.client = httpx.Client(http2=True)
         self.Headers = {
             "Cache-Control": "no-cache",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
         }
 
     def __Get_Data(self, Uri) -> etree.Element:
@@ -215,4 +215,4 @@ class Comparison(DataProcessing, WinningInstructions):
         self.__Select_Date()
 
 if __name__ == "__main__":
-    Comparison("https://invoice.etax.nat.gov.tw/index.html")()
+    Comparison("https://invoice.etax.nat.gov.tw/")()
