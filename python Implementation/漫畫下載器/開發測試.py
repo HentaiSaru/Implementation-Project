@@ -57,16 +57,5 @@ def request(url):
     #return req.text
     return etree.fromstring(req.content , etree.HTMLParser())
 
-def calculate(Pages):
-    home_pages = Pages / 20
-    remainder_pages = Pages % 20
-     
-    if remainder_pages > 0:
-        total_pages = int(home_pages + 1)
-    else:
-        total_pages = int(home_pages) 
-        
-    return total_pages
-        
 if __name__ == '__main__':
     pass
