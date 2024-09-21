@@ -56,6 +56,12 @@ class Reques(CarryHead):
             return result
         return wrapper
 
+    def head(self, url: str) -> int:
+        return self.__Parse(
+            self.session.head(url, headers=self.headers, cookies=self.cookies),
+            "status"
+        )
+
     def get(self, url: str, type: str="text") -> any:
         """
         *   基本 Get 請求
@@ -73,6 +79,12 @@ class Reques(CarryHead):
         return self.__Parse(
             self.session.get(url, headers=self.headers, cookies=self.cookies),
             type
+        )
+
+    def http2_head(self, url: str) -> int:
+        return self.__Parse(
+            self.client.head(url, headers=self.headers, cookies=self.cookies),
+            "status"
         )
 
     def http2_get(self, url: str, type: str="text") -> any:
