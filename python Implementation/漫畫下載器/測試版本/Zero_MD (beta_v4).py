@@ -15,10 +15,9 @@ Todo: 全部下載完成後, 合併功能
 
 """
 
-# 域名更新: https://zerobyw.github.io/
 Config = {
     "DownloadPath": "R:/", # 路徑結尾必須為斜線
-    "RequestDomain": "http://www.zerobywz.com/",
+    "RequestDomain": "http://www.zerobywz.com/", # 域名修正: https://zerobyw.github.io/
 }
 
 #? 請求類的實例
@@ -67,6 +66,7 @@ def GetMeta(Url: str):
 #? 處理下載任務
 class DownloadTask:
     def __init__(self):
+        self.Merge = None # 下載完成是否合併
         self.Mantissa = None # 保存尾數
         self.Extension = None # 保存擴展名
         self.ImgDomain = None # 保存圖片請求域名
@@ -75,6 +75,10 @@ class DownloadTask:
     def create_folder(self, Name: str):
         try:os.mkdir(Name)
         except:pass
+
+    #? 下載完成後合併
+    def complete_merge(self):
+        ...
 
     #? 下載任務
     def task_download(self, FolderName: str, SavePath: str, ImgLink: str):
@@ -92,7 +96,7 @@ class DownloadTask:
     #? 試錯處理
     def task_trial_error(self, Page: str, Url: str):
         for Mantissa in range(1, 6): # 試錯尾數最多 5 位數
-            for Extension in ["jpg", "jpeg", "png", "gif", "webp", "avif"]:
+            for Extension in ["jpg", "png", "jpeg", "webp", "gif", "avif"]: # 資源競爭問題, 該列表必須在函數內宣告
                 test_link = f"{Url}/{Page.zfill(Mantissa)}.{Extension}"
 
                 if request.http2_head(test_link) == 200:
@@ -141,12 +145,13 @@ class DownloadTask:
 
 #? 下載器入口點
 class ZeroDownloader(DownloadTask):
-    def __init__(self):
+    def __init__(self, Merge: bool = False):
         super()
 
+        self.Merge = Merge
         self.Cache = None # 緩存章節數
         self.TaskDelay = 1 # 生成任務的延遲
-        self.MaxTask = cpu_count() - 1 # cpu 核心數
+        self.MaxTask = cpu_count() - 1 # 最大同時處理任務數量
 
     #? 自動生成下載任務
     def AutoCreateTask(self, Url: str):
@@ -188,3 +193,28 @@ class ZeroDownloader(DownloadTask):
 
 if __name__ == "__main__":
     Download = ZeroDownloader()
+
+    """
+        ~ 自動創建任務 ~
+    
+        ? 使用方法:
+        ! 添加符合規則的網址即可 (http://Zero網域/plugin.php?...&kuid=...)
+
+        * 自動擷取網址後創建任務
+        * 將擷取網址註解, 手動添加網址後創建任務
+    """
+    AutoCapture.settings(Config['RequestDomain'])
+    CaptureLink = AutoCapture.GetLink()
+    Download.AutoCreateTask(CaptureLink)
+    
+    """
+        ~ 自定創建任務 ~
+
+        ! 參數只有 url 是必填, 其餘可選擇
+
+        * 連結 url - 輸入符合規則的網址 (字串)
+        * 章節 chapter - 填寫要下載的章節, 第幾話 (數字 or 字串)
+        * 尾數 mantissa - 填 3 = 001 , 2 = 01 ... (數字)
+        * 副檔名 exten - 設置副檔名 , 正確的連結格式 , 就可以請求成功
+        * 特別章節 special - 開啟後可以下載特別章節 (全彩中文/全彩生肉/無修正/...) 這類的特別章節
+    """
