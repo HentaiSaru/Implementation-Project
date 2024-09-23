@@ -101,10 +101,6 @@ class DownloadTask:
         except:
             pass
 
-    # ? 下載完成後合併
-    def complete_merge(self):
-        ...
-
     # ? 下載任務
     def task_download(self, FolderName: str, SavePath: str, ImgLink: str):
         response = request.http2_get(ImgLink, "none")
