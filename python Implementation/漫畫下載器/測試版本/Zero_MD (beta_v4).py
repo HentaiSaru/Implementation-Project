@@ -6,9 +6,10 @@ from multiprocessing import *
 from concurrent.futures import *
 
 import opencc
+from rich.console import Console
 from Script import AutoCapture, Reques
 
-""" Versions 1.0.0 (Beta)
+""" Versions 1.0.1 (Beta)
 
     & Zero 漫畫下載器
 
@@ -26,7 +27,8 @@ from Script import AutoCapture, Reques
         * 在下方入口點有寫
 
         ? 更新說明:
-        * 首次發布
+        * 修改打印樣式
+        * 調整部份語法
 """
 
 Config = {
@@ -37,9 +39,13 @@ Config = {
 # ? 請求類的實例
 request = Reques()
 
+# ? 複寫原生打印
+console = Console()
+print = lambda *args, **kwargs: console.print(*args, **kwargs)
+
 # ? 獲取漫畫元數據
 def GetMeta(Url: str):
-    print("\n[獲取漫畫元數據]\n")
+    print("\n[獲取漫畫元數據]\n", style="bold magenta")
 
     # ! 初始化變數
     StartTime = time.time()
@@ -77,11 +83,11 @@ def GetMeta(Url: str):
                 }
             )
 
-            print("[獲取完成] 耗時 %.3f 秒\n" % ((time.time() - StartTime)))
+            print("[獲取完成] 耗時 %.3f 秒\n" % ((time.time() - StartTime)), style="bold")
         except Exception as e:
-            print(f"域名錯誤 , 或是伺服器問題! {e}")
+            print(f"域名錯誤 , 或是伺服器問題! {e}", style="bold red")
     else:
-        print("不符合的網址格式")
+        print("不符合的網址格式", style="bold red")
 
     # ! 回傳結果
     return Result
@@ -135,9 +141,9 @@ class DownloadTask:
         PageCount = 0  # 計算總共頁數
 
         if IsSpecial:
-            print(f"第 {Chapter} 特別章節 - 開始下載", flush=True)
+            print(f"第 {Chapter} 特別章節 - 開始下載", style="bold blue")
         else:
-            print(f"第 {Chapter} 章節 - 開始下載", flush=True)
+            print(f"第 {Chapter} 章節 - 開始下載", style="bold blue")
 
         with ThreadPoolExecutor(max_workers=500) as executor:
 
@@ -155,7 +161,9 @@ class DownloadTask:
                     ImgLink = f"{self.ImgDomain}/{Chapter}/{Page}.{self.Extension}"
 
                 # ? 根據是否合併, 決定創建的路徑是資料夾還是檔名
-                ImgSavePath = f"{FolderName} - {Page}.{self.Extension}" if self.Merge else f"{FolderName}/{Page}.{self.Extension}"
+                LinkStr = " - " if self.Merge else "/"
+                ImgSavePath = f"{FolderName}{LinkStr}{Page}.{self.Extension}"
+
                 TaskStatus = executor.submit(
                     self.task_download, FolderName, ImgSavePath, ImgLink
                 ).result()
@@ -172,7 +180,7 @@ class DownloadTask:
 
                 PageCount += 1
 
-        print(f"第 {Chapter} 章節 [共 {PageCount} 頁] - 下載完成", flush=True)
+        print(f"第 {Chapter} 章節 [共 {PageCount} 頁] - 下載完成", style="bold green")
 
 # ? 下載器入口點
 class ZeroDownloader(DownloadTask):
@@ -214,21 +222,20 @@ class ZeroDownloader(DownloadTask):
             with ProcessPoolExecutor(max_workers=self.MaxTask) as executor:
                 for Chapter in self.__ParseChapter(Chapter, Meta["MangaChapter"]):
                     IsSpecial = False  # 判斷是否為特別章節 (標記)
-                    # ? 根據是否合併, 決定漫畫名稱, 是資料夾還是檔名
-                    FolderName = f"{MangaSavePath}/" if self.Merge else f"{MangaSavePath}/{MangaName} - "
+                    FolderName = ""
 
                     if Special or Chapter == self.Cache:  # 判斷是否為特別章節
                         IsSpecial = True
-                        FolderName += f"第 {Chapter} 特別章節"
+                        FolderName = f"{MangaSavePath}/第 {Chapter} 特別章節"
                     else:
-                        FolderName += f"第 {Chapter} 章節"
+                        FolderName = f"{MangaSavePath}/第 {Chapter} 章節"
 
                     self.Cache = Chapter
 
                     if IsSpecial:
-                        print(f"第 {Chapter} 特別章節 - 準備下載", flush=True)
+                        print(f"第 {Chapter} 特別章節 - 準備下載", style="bold yellow")
                     else:
-                        print(f"第 {Chapter} 章節 - 準備下載", flush=True)
+                        print(f"第 {Chapter} 章節 - 準備下載", style="bold yellow")
 
                     executor.submit(self.task_process, FolderName, Chapter, IsSpecial)
                     time.sleep(self.TaskDelay)
