@@ -303,6 +303,6 @@ if __name__ == "__main__":
             AC.Genshin,
             AC.StarRail,
             AC.ZoneZero
-        ], [10, 10, 10, 10, 10, 1]): # 延遲設置 (設置太短可能造成資源競爭)
+        ], [13, 13, 13, 13, 13, 1]): # 延遲設置 (設置太短可能造成資源競爭)
             executor.submit(func)
             time.sleep(delay)
