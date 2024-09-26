@@ -1,6 +1,6 @@
 {
   "Meta": {
-    "更新日期": "2024/09/24",
+    "更新日期": "2024/09/26",
     "數據類型": "蔚藍檔案數據庫"
   },
   "攻擊屬性": {
@@ -2619,12 +2619,12 @@
       "新手期": 3,
       "總力戰": 3,
       "大決戰": 3,
-      "演習考試": 3,
-      "戰術對抗": 3,
+      "演習考試": 4,
+      "戰術對抗": 4,
       "高難活動": 3,
-      "泛用評級": 60,
+      "泛用評級": 63,
       "角色定位": "AOE",
-      "IMG_URL": "https://i.imgur.com/xdgOn2v.png"
+      "IMG_URL": "https://i.imgur.com/p4HjJ5s.png"
     },
     "響(應援團)": {
       "新手期": 3,
@@ -2765,9 +2765,10 @@
       "演習考試": 3,
       "戰術對抗": 3,
       "高難活動": 3,
+      "制約限制": 4,
       "泛用評級": 60,
       "角色定位": "輸出AOE",
-      "IMG_URL": "https://i.imgur.com/9S35Y4Z.png"
+      "IMG_URL": "https://i.imgur.com/dLVXK9I.png"
     },
     "佳澄": {
       "新手期": 3,
@@ -3183,7 +3184,7 @@
       "IMG_URL": "https://i.imgur.com/csU2cLZ.png"
     },
     "火宮千夏(溫泉)": {
-      "IMG_URL": "https://i.imgur.com/txgu1xc.png"
+      "IMG_URL": "https://i.imgur.com/3zhRgtL.png"
     },
     "伊草遙香(ハルカ/Haruka)": {
       "IMG_URL": "https://i.imgur.com/D2jhZYo.png"
@@ -3231,7 +3232,7 @@
       "IMG_URL": "https://i.imgur.com/3In0k7e.png"
     },
     "伊落瑪麗(マリー/Mari)": {
-      "IMG_URL": "https://i.imgur.com/U47myac.png"
+      "IMG_URL": "https://i.imgur.com/HcKpK0C.png"
     },
     "伊落瑪麗(運動服)": {
       "IMG_URL": "https://i.imgur.com/iA4sGYV.png"
@@ -3294,7 +3295,7 @@
       "IMG_URL": "https://i.imgur.com/ITvJ5sm.png"
     },
     "河和靜子(シズコ/Shizuko)": {
-      "IMG_URL": "https://i.imgur.com/gQJglcS.png"
+      "IMG_URL": "https://imgur.com/ujRgWEk.png"
     },
     "河和靜子(泳裝)": {
       "IMG_URL": "https://imgur.com/TKiZ4S6.png"
@@ -3370,6 +3371,12 @@
     },
     "古關憂(泳裝)": {
       "IMG_URL": "https://imgur.com/04FmT4C.png"
+    },
+    "竜華 妃咲(妃姬/キサキ/Kisaki)": {
+      "IMG_URL": "https://imgur.com/wiVtf3e.png"
+    },
+    "鹿山 麗情(令女/レイジョ/Reijo)": {
+      "IMG_URL": "https://imgur.com/IGopPw2.png"
     }
   }
 }
