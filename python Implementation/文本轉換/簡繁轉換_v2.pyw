@@ -11,7 +11,7 @@ import chardet
 import pyperclip
 
 """
->   Versions 1.0.1 - V2
+>   Versions 1.0.2 - V2
 
 //  [ 簡轉繁 轉換器 ]
 
@@ -38,16 +38,16 @@ import pyperclip
         & 代表可立即貼上到所需地方, 不用再次手動複製轉換結果, 點選其他窗口後, 再次回到轉換器, 會自動清除先前內容
 
         Todo 選擇文件:
-        & 選擇一個資料夾, 會根據 Allow 參數中, 允許的類型將導入結果, 顯示在文本框中
+        & 選擇一個資料夾, 會根據 SupportFile 參數中, 允許的類型將導入結果, 顯示在文本框中
         & 接著就可以選擇, 要使用覆蓋原檔案輸出, 還是創建新檔案輸出, 新檔案會創建在導入的目錄中
         & 轉換時會顯示轉換結果, 告知轉換成功狀態, 與轉換消耗時間, 失敗通常會顯示原因
 
         Todo 選擇檔案:
-        & 功能基本同上, 只是變成選擇單個檔案, 但也會受到 Allow 的允許類型影響
+        & 功能基本同上, 只是變成選擇單個檔案, 但也會受到 SupportFile 的允許類型影響
 
         ~ 更新說明:
-        [~] 轉換修改為維持原始格式
-        [+] 文本輸入轉換, 自動清除先前轉換結果
+        1. 修改轉換後文本格式
+        2. 修改判斷檔案類型的方式
 """
 
 class DataProcessing:
@@ -59,27 +59,39 @@ class DataProcessing:
         self.lock = threading.Lock()
 
         self.Converter = opencc.OpenCC("s2twp.json") # 調用 簡體 轉 繁體
-        self.Allow = {"po", "txt", "srt", "ass", "ssa", "lng", "lang", "json"} # 允許的檔案類型
-
-        # 文本轉換
-        self.Text_conversion = lambda text: self.Converter.convert(text)
 
         # 計算完成結束時間
         self.ET = lambda start_time: round(time.time() - start_time, 3)
 
-        # 比較字串是否相等
-        self.Comp = lambda T1, T2: T1 == T2
+        # 文本轉換
+        self.Text_conversion = lambda text: self.Converter.convert(text)
+
+        # 支援的檔案類型
+        self.SupportFile = {"po", "txt", "srt", "ass", "ssa", "lng", "lang", "json"}
+
+        # 支援的編碼
+        self.Decode = lambda Btext, Encoding: Btext.decode(Encoding).splitlines()
+        self.SupportEncod = { #! 等待後續修正
+            "utf-8": lambda Btext: self.Decode(Btext, "utf-8"),
+            "ascii": lambda Btext: self.Decode(Btext, "utf-8"),
+            "utf-8-sig": lambda Btext: self.Decode(Btext, "utf-8-sig"),
+            "utf-16": lambda Btext: self.Decode(Btext, "utf-16"), # 只能處理 LE 類型
+            "big5": lambda Btext: self.Decode(Btext.decode("big5").encode("utf-8"), "utf-8"),
+            "gbk": lambda Btext: self.Decode(Btext, "gb18030"),
+            "gb2312": lambda Btext: self.Decode(Btext, "gb18030"),
+            "gb18030": lambda Btext: self.Decode(Btext, "gb18030"),
+        }
 
     # 過濾文件類型
     def Filter_type(self, path, data):
-        if data.rsplit(".", 1)[-1] in self.Allow:
+        if data.rsplit(".", 1)[-1] in self.SupportFile:
             self.Work.put(os.path.join(path, data).replace("\\", "/"))
 
 class GUI(DataProcessing, tk.Tk):
     __slots__ = (
         "Output_Name", "Output_Rename", 
         "Save", "Work", "lock", "ET",
-        "Converter", "Allow", "Comp",
+        "Converter", "SupportFile", "SupportEncod", "Decode",
         "Text_conversion",
         "Scrollbar_style",
         "Button_style",
@@ -330,16 +342,13 @@ class GUI(DataProcessing, tk.Tk):
                 text = file.read() # 獲取文本
                 encode = chardet.detect(text)["encoding"].lower() # 解析編碼類型
 
-                #! 等待後續修正 處理更多編碼, 語法優化
                 with ThreadPoolExecutor(max_workers=1000) as executor:
-                    if self.Comp(encode, "utf-8") or self.Comp(encode, "ascii"):
-                        decode_text = text.decode("utf-8").splitlines() # 轉換成字串, 並將其序列化
-                    elif self.Comp(encode, "utf-16"): # 假設都是 LE 類型的, 無特別處理 BE
-                        decode_text = text.decode("utf-16").splitlines()
-                    elif self.Comp(encode, "big5"):
-                        decode_text = text.decode(encode).encode("utf-8").decode("utf-8").splitlines()
-                    else:
-                        raise UnicodeDecodeError(encode, b"", 0, 1, "不支援的編碼")
+                    supported = self.SupportEncod.get(encode)
+
+                    if supported:
+                        decode_text = supported(text)
+                    else: # @ 是輸出格式化用的分割符號
+                        raise UnicodeDecodeError(f"@不支援的編碼: {encode}@", b"", 0, 1, "")
 
                     # 解碼完成後進行轉換
                     for txt in decode_text:
@@ -351,14 +360,14 @@ class GUI(DataProcessing, tk.Tk):
                     output.write(self.Save.get() + ("\n" if not self.Save.empty() else ""))
 
             # 完成展示
-            self.Content_items.insert(float(index), f"({index}) {os.path.basename(work)} => [Success | {self.ET(Start)}]\n", self.Success)
+            self.Content_items.insert(float(index), f"({index}) {os.path.basename(work)} => [轉換完成: {self.ET(Start)} 秒]\n", self.Success)
             # 自動滾動到最下方
             self.Content_items.yview_moveto(1.0)
             # 檔名轉換
             os.rename(self.Output_Name, self.Output_Rename)
 
         except UnicodeDecodeError as e:
-            self.Content_items.insert(float(index), f"({index}) {os.path.basename(work)} => [Failure | {e}]\n", self.Failure)
+            self.Content_items.insert(float(index), f"({index}) {os.path.basename(work)} => [{str(e).split("@")[1]}]\n", self.Failure)
             self.Content_items.yview_moveto(1.0)
         except Exception as e:
             self.Content_items.insert(float(index), f"(Exception) => {e}\n", self.Failure)
