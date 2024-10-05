@@ -1,6 +1,6 @@
 {
   "Meta": {
-    "更新日期": "2024/09/29",
+    "更新日期": "2024/10/06",
     "數據類型": "蔚藍檔案數據庫"
   },
   "攻擊屬性": {
@@ -2547,10 +2547,11 @@
       "大決戰": 4,
       "演習考試": 4,
       "戰術對抗": 5,
+      "制約限制": 5,
       "高難活動": 3,
       "泛用評級": 83,
       "角色定位": "補師坦",
-      "IMG_URL": "https://i.imgur.com/hSiLX7X.png"
+      "IMG_URL": "https://imgur.com/vTP9OMW.png"
     },
     "敦子(泳裝)": {
       "新手期": 3,
@@ -3113,7 +3114,7 @@
       "池倉": ["瑪麗娜", "瑪麗娜(旗袍)"],
       "マリナ": ["瑪麗娜", "瑪麗娜(旗袍)"],
       "Marina": ["瑪麗娜", "瑪麗娜(旗袍)"],
-      "IMG_URL": "https://i.imgur.com/IAAuJdO.png"
+      "IMG_URL": "https://imgur.com/zIv4MPz.png"
     },
     "瑪麗娜(旗袍)": {
       "IMG_URL": "https://truth.bahamut.com.tw/s01/202408/forum/38898/1a0c01029ca164d771840fd794fc1f7e.JPG"
