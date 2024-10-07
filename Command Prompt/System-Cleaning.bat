@@ -123,6 +123,16 @@ RD /s /q %LocalAppData%\Microsoft\Windows\INetCache\*.log
 RD /s /q "%LocalAppData%\Surfshark\Updates"
 RD /s /q "%AppData%\Telegram Desktop\tdata\user_data"
 RD /s /q "C:\ProgramData\IObit\Driver Booster\Download"
+RD /s /q "%AppData%\Blitz\Cache"
+RD /s /q "%AppData%\Blitz\Code Cache"
+RD /s /q "%AppData%\Blitz\GPUCache"
+RD /s /q "%AppData%\Blitz\DawnCache"
+RD /s /q "%AppData%\nikke_launcher\tbs_cache"
+RD /s /q "%AppData%\PikPak\Cache"
+RD /s /q "%AppData%\PikPak\Code Cache"
+RD /s /q "%AppData%\riot-client-ux\Cache"
+RD /s /q "%AppData%\riot-client-ux\GPUCache"
+RD /s /q "%AppData%\riot-client-ux\Code Cache"
 DEL /f /q /s "%AppData%\IObit\IObit Uninstaller\UMlog\*.dbg"
 
 :: Dx緩存清除
