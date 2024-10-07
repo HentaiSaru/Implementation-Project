@@ -133,9 +133,9 @@ try {
     $BiosInfo = Get-WmiObject -Class Win32_BIOS | Select-Object -Property SerialNumber
     $BaseBoard = Get-WmiObject -Class Win32_BaseBoard | Select-Object -Property Product, SerialNumber
     $UserInfo = Get-WmiObject -Class Win32_ComputerSystem | Select-Object -Property PrimaryOwnerName, Name
-    $InfoHash = &($String.ToMD5) "$($UserInfo.PrimaryOwnerName)$($UserInfo.Name)$($BiosInfo.SerialNumber)$($BaseBoard.Product)$($BaseBoard.SerialNumber)"
+    $InfoHash = &($String.ToMD5) "$($UserInfo.PrimaryOwnerName)$($UserInfo.Name)$($BiosInfo.SerialNumber)$($BaseBoard.Product)$($BaseBoard.SerialNumber) - Tools v2"
 } catch {
-    $InfoHash = &($String.ToMD5) "Author: Canaan HS"
+    $InfoHash = &($String.ToMD5) "Author: Canaan HS - Tools v2"
 }
 
 $KeyHash = $InfoHash.Substring(0, 16)
