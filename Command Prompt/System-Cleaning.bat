@@ -177,12 +177,12 @@ wmic process where name="chrome.exe" delete
 set ChromeCache="%ChromeDataDir%\Cache"
 set ChromeDataDir="C:\Users\%USERNAME%\Local Settings\Application Data\Google\Chrome\User Data\Default"
 
-rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\Cache"
 del /f /s /q "%LocalAppData%\Google\Chrome\User Data\Default\*tmp"
 del /f /s /q "%LocalAppData%\Google\Chrome\User Data\Default\History*"
 
 rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\Cache"
 rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\IndexedDB"
+rd /s /q "%LocalAppData%\Google\Chrome\User Data\extensions_crx_cache"
 rd /s /q "%LocalAppData%\Google\Chrome\User Data\Default\Service Worker"
 
 del /q /s /f "%ChromeCache%\*.*"
