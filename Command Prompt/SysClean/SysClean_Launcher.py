@@ -108,6 +108,6 @@ if __name__ == "__main__":
     print("更新檢測...")
     read = Read_web_page(
         "eJy9VEEOwC",
-        "https://raw.githubusercontent.com/TenshinoOtoKafu/Implementation-Project/Main/Command%20Prompt/SelfTools/Tools.bat"
+        "https://raw.githubusercontent.com/Canaan-HS/Implementation-Project/refs/heads/Main/Command%20Prompt/SysClean/SysClean.bat"
     )
     read.Enable_Tool()
