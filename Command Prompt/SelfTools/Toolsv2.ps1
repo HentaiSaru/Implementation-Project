@@ -353,9 +353,7 @@ class Main {
                 Print ""
                 Print "  更新資訊:"
                 Print ""
-                Print "   1. 增加網路優化功能"
-                Print ""
-                Print "   2. 調整部份分類名稱"
+                Print "   1. 授權檔案更新"
                 Print "----------------------------"
                 $this.WaitBack()
             }
@@ -569,7 +567,7 @@ class Main {
                 # 有重複的先進行刪除
                 if (Test-Path $DownloadPath) { Remove-Item $DownloadPath -Force }
 
-                Print "檔案較大請稍後 - 安裝包日期 : 2024 年 05 月"
+                Print "檔案較大請稍後 - 安裝包日期 : 2024 年 10 月"
                 Print "`n===== Visual C++ 開始下載 ====="
 
                 # 請求數據
@@ -1061,15 +1059,16 @@ class Main {
                 )
             }
             (index) { # Windows 啟用授權
-                # https://github.com/massgravel/Microsoft-Activation-Scripts/tree/master/MAS/All-In-One-Version
+                # https://github.com/massgravel/Microsoft-Activation-Scripts
                 $this.Authorize(
-                    "MAS_AIO-CRC32_8C3AA7E0",
-                    "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version/MAS_AIO-CRC32_8C3AA7E0.cmd"
+                    "MAS_AIO",
+                    "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/refs/heads/master/MAS/All-In-One-Version-KL/MAS_AIO.cmd"
                 )
             }
             (index) { # Office 啟用授權 (他會導致回到菜單時歪掉)
+                # https://github.com/abbodi1406/KMS_VL_ALL_AIO
                 $this.Authorize(
-                    "KMS_VL_ALL_AIO", "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/master/KMS_VL_ALL_AIO.cmd"
+                    "KMS_VL_ALL_AIO", "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/refs/heads/master/KMS_VL_ALL_AIO.cmd"
                 )
             }
             (index) { # Google 結束進程
