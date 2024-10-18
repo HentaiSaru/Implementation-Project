@@ -1,6 +1,6 @@
 {
   "Meta": {
-    "更新日期": "2024/10/06",
+    "更新日期": "2024/10/19",
     "數據類型": "蔚藍檔案數據庫"
   },
   "攻擊屬性": {
@@ -2611,13 +2611,13 @@
     "陽葵": {
       "新手期": 0,
       "總力戰": 6,
-      "大決戰": 5,
+      "大決戰": 6,
       "演習考試": 6,
       "戰術對抗": 6,
       "高難活動": 6,
-      "泛用評級": 101,
+      "泛用評級": 100,
       "角色定位": "輔助",
-      "IMG_URL": "https://i.imgur.com/Zu4ooJ2.png"
+      "IMG_URL": "https://imgur.com/AIEiyL1.png"
     },
     "乃愛": {
       "新手期": 0,
@@ -2874,8 +2874,8 @@
       "阿魯": "亞瑠",
       "社長": "亞瑠",
       "陸八魔": ["亞瑠", "亞瑠(正月)", "亞瑠(禮服)"],
-      "アル": "亞瑠 - 亞瑠 - 亞瑠(正月) - 亞瑠(禮服)",
-      "Aru": "亞瑠 - 亞瑠 - 亞瑠(正月) - 亞瑠(禮服)",
+      "アル": ["亞瑠", "亞瑠(正月)", "亞瑠(禮服)"],
+      "Aru": ["亞瑠", "亞瑠(正月)", "亞瑠(禮服)"],
       "IMG_URL": "https://i.imgur.com/SQdqnMg.png"
     },
     "亞瑠(正月)": {
@@ -2887,7 +2887,7 @@
       "禮露": "亞瑠(禮服)",
       "禮魯": "亞瑠(禮服)",
       "禮社長": "亞瑠(禮服)",
-      "IMG_URL": "https://imgur.com/d862bSv.png"
+      "IMG_URL": "https://imgur.com/Oc71zLR.png"
     },
     "陽奈": {
       "空崎": ["陽奈", "陽奈(禮服)", "陽奈(泳裝)"],
@@ -3120,7 +3120,7 @@
       "IMG_URL": "https://truth.bahamut.com.tw/s01/202408/forum/38898/1a0c01029ca164d771840fd794fc1f7e.JPG"
     },
     "連河潔莉諾(チェリノ/Cherino)": {
-      "IMG_URL": "https://i.imgur.com/IeS92Y2.png"
+      "IMG_URL": "https://imgur.com/XalfoQ9.png"
     },
     "連河潔莉諾(溫泉)": {
       "IMG_URL": "https://i.imgur.com/FND3RWj.png"
@@ -3186,7 +3186,7 @@
       "IMG_URL": "https://i.imgur.com/NZt787J.png"
     },
     "早瀨優香(運動服)": {
-      "IMG_URL": "https://i.imgur.com/hAscZ2L.png"
+      "IMG_URL": "https://imgur.com/TJxkCph.png"
     },
     "一之瀨明日奈(アスナ/Asuna)": {
       "IMG_URL": "https://i.imgur.com/0ASab4Q.png"
@@ -3357,7 +3357,7 @@
       "IMG_URL": "https://i.imgur.com/Zk68ROM.png"
     },
     "桐藤渚(ナギサ/Nagisa)": {
-      "IMG_URL": "https://i.imgur.com/dtxzVdG.png"
+      "IMG_URL": "https://imgur.com/8FN0jVA.png"
     },
     "聖園彌香(ミカ/Mika)": {
       "IMG_URL": "https://imgur.com/EMhQ6W2.png"
