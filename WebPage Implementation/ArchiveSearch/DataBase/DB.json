@@ -1,6 +1,6 @@
 {
   "Meta": {
-    "更新日期": "2024/10/19",
+    "更新日期": "2024/11/04",
     "數據類型": "蔚藍檔案數據庫"
   },
   "攻擊屬性": {
@@ -1254,6 +1254,7 @@
     "SS": ["真紀", "砂狼白子＊恐怖", "星野(臨戰)"],
     "S": ["愛麗絲(女僕)", "敦子", "伊織", "伊呂波", "亞伽里(正月)"],
     "A": [
+      "響",
       "小玉",
       "美優",
       "都子(泳裝)",
@@ -1262,7 +1263,8 @@
       "詠葉",
       "環奈(泳裝)",
       "寧瑠",
-      "寧瑠(兔女郎)"
+      "寧瑠(兔女郎)",
+      "日和(泳裝)"
     ],
     "B": [
       "萌(泳裝)",
@@ -1270,7 +1272,7 @@
       "美優(泳裝)",
       "小玉(露營)",
       "英美(泳裝)",
-      "響",
+      "白子(單車)",
       "綠",
       "綠(女僕)",
       "亞都梨(應援團)",
@@ -1279,7 +1281,6 @@
       "朱音",
       "朱音(兔女郎)",
       "乃愛",
-      "日和(泳裝)",
       "敦子(泳裝)",
       "沙織",
       "沙織(泳裝)",
@@ -1306,7 +1307,6 @@
       "亞伽里",
       "白子",
       "花凛(兔女郎)",
-      "白子(單車)",
       "惠"
     ],
     "D": ["晴"]
@@ -2140,7 +2140,7 @@
     "カンナ": ["環奈", "環奈(泳裝)"],
     "WTM": "亞伽里",
     "明理": "亞伽里",
-    "牛牛": "亞伽里",
+    "牛車": "亞伽里",
     "春明里": "亞伽里(正月)",
     "鰐渕": ["亞伽里", "亞伽里(正月)"],
     "アカリ": ["亞伽里", "亞伽里(正月)"],
@@ -2361,9 +2361,10 @@
       "演習考試": 3,
       "戰術對抗": 0,
       "高難活動": 3,
-      "泛用評級": 63,
+      "制約限制": 5,
+      "泛用評級": 66,
       "角色定位": "輔助",
-      "IMG_URL": "https://i.imgur.com/QpAVOIf.png"
+      "IMG_URL": "https://imgur.com/t0KtDy5.png"
     },
     "亞都梨": {
       "新手期": 0,
@@ -2447,11 +2448,11 @@
       "總力戰": 3,
       "大決戰": 3,
       "演習考試": 3,
-      "戰術對抗": 3,
+      "戰術對抗": 4,
       "高難活動": 3,
       "泛用評級": 60,
       "角色定位": "輸出AOE",
-      "IMG_URL": "https://i.imgur.com/CYoQZ3L.png"
+      "IMG_URL": "https://imgur.com/zSNz1T1.png"
     },
     "詠葉": {
       "新手期": 0,
@@ -2493,9 +2494,10 @@
       "演習考試": 4,
       "戰術對抗": 0,
       "高難活動": 3,
+      "制約限制": 6,
       "泛用評級": 80,
       "角色定位": "T.S.",
-      "IMG_URL": "https://imgur.com/6ob2Cpm.png"
+      "IMG_URL": "https://imgur.com/tGUqROi.png"
     },
     "環奈": {
       "新手期": 0,
@@ -2537,9 +2539,10 @@
       "演習考試": 4,
       "戰術對抗": 0,
       "高難活動": 3,
-      "泛用評級": 60,
+      "制約限制": 6,
+      "泛用評級": 66,
       "角色定位": "輸出",
-      "IMG_URL": "https://i.imgur.com/jyFKeAd.png"
+      "IMG_URL": "https://imgur.com/6vJx0uG.png"
     },
     "敦子": {
       "新手期": 4,
@@ -2587,15 +2590,16 @@
       "IMG_URL": "https://i.imgur.com/auXFvaU.png"
     },
     "日和(泳裝)": {
-      "新手期": 3,
+      "新手期": 0,
       "總力戰": 3,
       "大決戰": 4,
       "演習考試": 3,
       "戰術對抗": 0,
       "高難活動": 3,
-      "泛用評級": 60,
+      "制約限制": 6,
+      "泛用評級": 70,
       "角色定位": "輸出",
-      "IMG_URL": "https://i.imgur.com/Y59tOAH.png"
+      "IMG_URL": "https://imgur.com/ok214zK.png"
     },
     "小雪": {
       "新手期": 3,
@@ -2642,15 +2646,15 @@
       "IMG_URL": "https://i.imgur.com/gSD00I4.png"
     },
     "響": {
-      "新手期": 3,
+      "新手期": 4,
       "總力戰": 3,
       "大決戰": 3,
       "演習考試": 4,
-      "戰術對抗": 4,
+      "戰術對抗": 5,
       "高難活動": 3,
-      "泛用評級": 63,
+      "泛用評級": 70,
       "角色定位": "AOE",
-      "IMG_URL": "https://imgur.com/3txun8e.png"
+      "IMG_URL": "https://imgur.com/Vnv8AK1.png"
     },
     "響(應援團)": {
       "新手期": 3,
@@ -2794,7 +2798,7 @@
       "制約限制": 4,
       "泛用評級": 60,
       "角色定位": "輸出AOE",
-      "IMG_URL": "https://i.imgur.com/dLVXK9I.png"
+      "IMG_URL": "https://imgur.com/gGYqoOy.png"
     },
     "佳澄": {
       "新手期": 3,
@@ -2868,7 +2872,7 @@
       "禮亞": "亞子(禮服)",
       "禮服亞": "亞子(禮服)",
       "貴賓犬": "亞子(禮服)",
-      "IMG_URL": "https://i.imgur.com/kS027LB.png"
+      "IMG_URL": "https://imgur.com/F9faR2T.png"
     },
     "亞瑠": {
       "阿魯": "亞瑠",
@@ -2887,7 +2891,7 @@
       "禮露": "亞瑠(禮服)",
       "禮魯": "亞瑠(禮服)",
       "禮社長": "亞瑠(禮服)",
-      "IMG_URL": "https://imgur.com/Oc71zLR.png"
+      "IMG_URL": "https://imgur.com/oEghcDa.png"
     },
     "陽奈": {
       "空崎": ["陽奈", "陽奈(禮服)", "陽奈(泳裝)"],
@@ -2908,7 +2912,7 @@
       "IMG_URL": "https://i.imgur.com/UTtYLPb.png"
     },
     "泉(泳裝)": {
-      "IMG_URL": "https://i.imgur.com/NGRza6N.png"
+      "IMG_URL": "https://i.imgur.com/VR4IRgU.png"
     },
     "一花": {
       "仲正": "一花",
@@ -2923,16 +2927,22 @@
       "IMG_URL": "https://imgur.com/TL0Huzi.png"
     },
     "櫻子": {
-      "歌住": "櫻子",
-      "サクラコ": "櫻子",
-      "Sakurako": "櫻子",
+      "歌住": ["櫻子", "櫻子(偶像)"],
+      "サクラコ": ["櫻子", "櫻子(偶像)"],
+      "Sakurako": ["櫻子", "櫻子(偶像)"],
       "IMG_URL": "https://i.imgur.com/nb6gZOo.png"
     },
+    "櫻子(偶像)": {
+      "IMG_URL": "https://imgur.com/Bp1Cjzg.png"
+    },
     "美禰": {
-      "蒼森": "美禰",
-      "ミネ": "美禰",
-      "Mine": "美禰",
+      "蒼森": ["美禰", "美禰(偶像)"],
+      "ミネ": ["美禰", "美禰(偶像)"],
+      "Mine": ["美禰", "美禰(偶像)"],
       "IMG_URL": "https://i.imgur.com/aBz00T4.png"
+    },
+    "美禰(偶像)": {
+      "IMG_URL": "https://imgur.com/mDloIrU.png"
     },
     "千紗": {
       "杏山": ["千紗", "千紗(樂隊)"],
@@ -2950,13 +2960,13 @@
       "IMG_URL": "https://i.imgur.com/oAYz4ZG.png"
     },
     "憂(泳裝)": {
-      "IMG_URL": "https://i.imgur.com/sjlDmgA.png"
+      "IMG_URL": "https://imgur.com/x1hNUbQ.png"
     },
     "日向": {
       "若葉": ["日向", "日向(泳裝)"],
       "ヒナタ": ["日向", "日向(泳裝)"],
       "Hinata": ["日向", "日向(泳裝)"],
-      "IMG_URL": "https://i.imgur.com/a71hxzj.png"
+      "IMG_URL": "https://imgur.com/ZjWl705.png"
     },
     "日向(泳裝)": {
       "IMG_URL": "https://i.imgur.com/MVEMxbm.png"
@@ -2968,13 +2978,13 @@
       "IMG_URL": "https://i.imgur.com/HfFv66n.png"
     },
     "梓(泳裝)": {
-      "IMG_URL": "https://i.imgur.com/5ZwUr1b.png"
+      "IMG_URL": "https://imgur.com/R6d5oOZ.png"
     },
     "小春": {
       "下江": ["小春", "小春(泳裝)"],
       "コハル": ["小春", "小春(泳裝)"],
       "Koharu": ["小春", "小春(泳裝)"],
-      "IMG_URL": "https://i.imgur.com/jEX02WF.png"
+      "IMG_URL": "https://i.imgur.com/vx0fDhm.png"
     },
     "小春(泳裝)": {
       "IMG_URL": "https://i.imgur.com/g2NczYH.png"
@@ -2983,7 +2993,7 @@
       "柚鳥": "夏",
       "ナツ": "夏",
       "Natsu": "夏",
-      "IMG_URL": "https://imgur.com/sZoJKIc.png"
+      "IMG_URL": "https://imgur.com/M9xjdbX.png"
     },
     "日步美": {
       "阿慈谷": ["日步美", "日步美(泳裝)"],
@@ -3030,9 +3040,10 @@
       "演習考試": 4,
       "戰術對抗": 3,
       "高難活動": 4,
+      "制約限制": 6,
       "泛用評級": 100,
       "角色定位": "輸出",
-      "IMG_URL": "https://imgur.com/8Tz4l13.png"
+      "IMG_URL": "https://imgur.com/3S7wAUp.png"
     },
     "白子(泳裝)": {
       "新手期": 4,
@@ -3047,14 +3058,15 @@
     },
     "白子(單車)": {
       "新手期": 3,
-      "總力戰": 2,
+      "總力戰": 3,
       "大決戰": 3,
       "演習考試": 3,
       "戰術對抗": 3,
       "高難活動": 2,
-      "泛用評級": 53,
+      "制約限制": 5,
+      "泛用評級": 60,
       "角色定位": "輔助AOE",
-      "IMG_URL": "https://i.imgur.com/kwgpaHL.png"
+      "IMG_URL": "https://imgur.com/ygcNvGz.png"
     },
     "星野": {
       "新手期": 0,
@@ -3085,9 +3097,10 @@
       "演習考試": 6,
       "戰術對抗": 3,
       "高難活動": 6,
+      "制約限制": 6,
       "泛用評級": 100,
       "角色定位": "(坦克, 輸出)",
-      "IMG_URL": "https://imgur.com/x7rGxQ0.png"
+      "IMG_URL": "https://imgur.com/NPcXs3Y.png"
     },
     "愛瑠": {
       "姫木": "愛瑠",
@@ -3108,7 +3121,7 @@
       "IMG_URL": "https://i.imgur.com/8xwg8Wi.png"
     },
     "時雨(溫泉)": {
-      "IMG_URL": "https://i.imgur.com/lfLP2cS.png"
+      "IMG_URL": "https://imgur.com/OkRxs8P.png"
     },
     "瑪麗娜(マリナ/Marina)": {
       "池倉": ["瑪麗娜", "瑪麗娜(旗袍)"],
@@ -3117,7 +3130,7 @@
       "IMG_URL": "https://imgur.com/zIv4MPz.png"
     },
     "瑪麗娜(旗袍)": {
-      "IMG_URL": "https://truth.bahamut.com.tw/s01/202408/forum/38898/1a0c01029ca164d771840fd794fc1f7e.JPG"
+      "IMG_URL": "https://imgur.com/AszbMY9.png"
     },
     "連河潔莉諾(チェリノ/Cherino)": {
       "IMG_URL": "https://imgur.com/XalfoQ9.png"
@@ -3147,7 +3160,7 @@
       "IMG_URL": "https://i.imgur.com/XuKcChp.png"
     },
     "水羽三森(泳裝)": {
-      "IMG_URL": "https://i.imgur.com/u7VdrgN.png"
+      "IMG_URL": "https://imgur.com/Db22L3g.png"
     },
     "久田伊樹菜(イズナ/Izuna)": {
       "IMG_URL": "https://i.imgur.com/G3oMJWi.png"
@@ -3156,13 +3169,13 @@
       "IMG_URL": "https://i.imgur.com/QOZ9tmT.png"
     },
     "近衛美奈(ミナ/Mina)": {
-      "IMG_URL": "https://i.imgur.com/NZnVRIP.png"
+      "IMG_URL": "https://i.imgur.com/RKabsK6.png"
     },
     "朱城瑠美(ルミ/Rumi)": {
       "IMG_URL": "https://i.imgur.com/L5m3tbH.png"
     },
     "春原心菜 (ココナ/Kokona)": {
-      "IMG_URL": "https://i.imgur.com/NR3z4Xh.png"
+      "IMG_URL": "https://imgur.com/YEkvdsc.png"
     },
     "春原旬(シュン/Shun)": {
       "IMG_URL": "https://imgur.com/vUeaAtp.png"
@@ -3174,7 +3187,7 @@
       "IMG_URL": "https://i.imgur.com/v7SDaoT.png"
     },
     "藥子沙耶(私服)": {
-      "IMG_URL": "https://i.imgur.com/EnPtfBZ.png"
+      "IMG_URL": "https://imgur.com/19Z1o4D.png"
     },
     "才羽桃井(モモイ/Momoi)": {
       "IMG_URL": "https://i.imgur.com/6LBnbVN.png"
@@ -3222,7 +3235,7 @@
       "IMG_URL": "https://i.imgur.com/ukZnXAt.png"
     },
     "鬼方佳世子(正月)": {
-      "IMG_URL": "https://i.imgur.com/zI5hKVU.png"
+      "IMG_URL": "https://imgur.com/3rUcFsz.png"
     },
     "鬼方佳世子(禮服)": {
       "IMG_URL": "https://i.imgur.com/blFlHHt.png"
@@ -3263,6 +3276,9 @@
     "伊落瑪麗(運動服)": {
       "IMG_URL": "https://i.imgur.com/iA4sGYV.png"
     },
+    "伊落瑪麗(偶像)": {
+      "IMG_URL": "https://i.imgur.com/ygZx3Yg.png"
+    },
     "浦和花子(ハナコ/Hanako)": {
       "IMG_URL": "https://i.imgur.com/zO1nw3v.png"
     },
@@ -3279,7 +3295,7 @@
       "IMG_URL": "https://i.imgur.com/3jQqz9e.png"
     },
     "栗村愛莉(樂隊)": {
-      "IMG_URL": "https://i.imgur.com/P1ZFpmv.png"
+      "IMG_URL": "https://imgur.com/4T3it4A.png"
     },
     "黑見茜香(セリカ/Serika)": {
       "IMG_URL": "https://i.imgur.com/ATZnxbx.png"
@@ -3294,7 +3310,7 @@
       "IMG_URL": "https://i.imgur.com/tJvFf3c.png"
     },
     "十六夜野乃美(ノノミ/nonomi)": {
-      "IMG_URL": "https://i.imgur.com/oBBjRFw.png"
+      "IMG_URL": "https://imgur.com/QuwHQty.png"
     },
     "十六夜野乃美(泳裝)": {
       "IMG_URL": "https://i.imgur.com/wRuXFoz.png"
@@ -3312,7 +3328,7 @@
       "IMG_URL": "https://i.imgur.com/Q4aLYsm.png"
     },
     "和樂知世(チセ/Chise)": {
-      "IMG_URL": "https://i.imgur.com/vMWiGTa.png"
+      "IMG_URL": "https://imgur.com/fGFzVU2.png"
     },
     "和樂知世(泳裝)": {
       "IMG_URL": "https://i.imgur.com/l7Jp8m9.png"
@@ -3321,7 +3337,7 @@
       "IMG_URL": "https://i.imgur.com/ITvJ5sm.png"
     },
     "河和靜子(シズコ/Shizuko)": {
-      "IMG_URL": "https://imgur.com/ujRgWEk.png"
+      "IMG_URL": "https://imgur.com/rqc1sKM.png"
     },
     "河和靜子(泳裝)": {
       "IMG_URL": "https://imgur.com/TKiZ4S6.png"
@@ -3330,7 +3346,7 @@
       "IMG_URL": "https://i.imgur.com/TLONZkL.png"
     },
     "中務桐乃(泳裝)": {
-      "IMG_URL": "https://i.imgur.com/UdXACVG.png"
+      "IMG_URL": "https://imgur.com/VnmqQf5.png"
     },
     "秋泉紅葉(モミジ/Momiji)": {
       "IMG_URL": "https://i.imgur.com/vImuPkd.png"
@@ -3354,19 +3370,19 @@
       "IMG_URL": "https://i.imgur.com/Jm3Kgl3.png"
     },
     "丹花伊吹(イブキ/Ibuki)": {
-      "IMG_URL": "https://i.imgur.com/Zk68ROM.png"
+      "IMG_URL": "https://imgur.com/5I8IIYd.png"
     },
     "桐藤渚(ナギサ/Nagisa)": {
       "IMG_URL": "https://imgur.com/8FN0jVA.png"
     },
     "聖園彌香(ミカ/Mika)": {
-      "IMG_URL": "https://imgur.com/EMhQ6W2.png"
+      "IMG_URL": "https://imgur.com/73LYMkL.png"
     },
     "佐藤智惠(トモエ/Tomoe)": {
       "IMG_URL": "https://i.imgur.com/YMLtFlv.png"
     },
     "佐藤智惠(旗袍)": {
-      "IMG_URL": "https://truth.bahamut.com.tw/s01/202408/forum/38898/03227218e19129f5110dcbb5f59d4631.JPG"
+      "IMG_URL": "https://imgur.com/km1fFnq.png"
     },
     "天見和香(ノドカ/Nodoka)": {
       "IMG_URL": "https://i.imgur.com/sKziEiQ.png"
@@ -3375,7 +3391,7 @@
       "IMG_URL": "https://i.imgur.com/PTx75OJ.png"
     },
     "御坂美琴(みこと/Mikoto)": {
-      "IMG_URL": "https://i.imgur.com/T0hA1uP.png"
+      "IMG_URL": "https://imgur.com/ulV1ame.png"
     },
     "食蜂操祈(みさき/Misaki)": {
       "IMG_URL": "https://i.imgur.com/1X72yac.png"
@@ -3399,10 +3415,10 @@
       "IMG_URL": "https://imgur.com/04FmT4C.png"
     },
     "竜華 妃咲(妃姬/キサキ/Kisaki)": {
-      "IMG_URL": "https://imgur.com/wiVtf3e.png"
+      "IMG_URL": "https://imgur.com/tD4EDYr.png"
     },
     "鹿山 麗情(令女/レイジョ/Reijo)": {
-      "IMG_URL": "https://imgur.com/IGopPw2.png"
+      "IMG_URL": "https://imgur.com/GCHcyD2.png"
     }
   }
 }
