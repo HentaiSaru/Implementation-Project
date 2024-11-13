@@ -1,6 +1,6 @@
 {
   "Meta": {
-    "更新日期": "2024/11/09",
+    "更新日期": "2024/11/13",
     "數據類型": "蔚藍檔案數據庫"
   },
   "攻擊屬性": {
@@ -1257,6 +1257,7 @@
       "響",
       "小玉",
       "美優",
+      "都子",
       "都子(泳裝)",
       "英美",
       "季(兔女郎)",
@@ -1292,7 +1293,6 @@
       "堇",
       "伊織(泳裝)",
       "佳澄",
-      "都子",
       "星野"
     ],
     "C": [
@@ -2213,15 +2213,15 @@
   },
   "詳細資訊": {
     "都子": {
-      "新手期": 3,
+      "新手期": 4,
       "總力戰": 2,
       "大決戰": 3,
-      "演習考試": 3,
-      "戰術對抗": 4,
+      "演習考試": 4,
+      "戰術對抗": 5,
       "高難活動": 3,
-      "泛用評級": 60,
+      "泛用評級": 70,
       "角色定位": "控場",
-      "IMG_URL": "https://i.imgur.com/afZsSMa.png"
+      "IMG_URL": "https://imgur.com/XlL1AN1.png"
     },
     "都子(泳裝)": {
       "新手期": 3,
@@ -2739,11 +2739,11 @@
       "總力戰": 5,
       "大決戰": 6,
       "演習考試": 4,
-      "戰術對抗": 0,
+      "戰術對抗": 3,
       "高難活動": 5,
       "泛用評級": 100,
       "角色定位": "破防輸出",
-      "IMG_URL": "https://i.imgur.com/o8haAxW.png"
+      "IMG_URL": "https://imgur.com/DtO1VRI.png"
     },
     "堇": {
       "新手期": 0,
@@ -2970,7 +2970,7 @@
       "IMG_URL": "https://imgur.com/ZjWl705.png"
     },
     "日向(泳裝)": {
-      "IMG_URL": "https://i.imgur.com/MVEMxbm.png"
+      "IMG_URL": "https://imgur.com/5OKxhjW.png"
     },
     "梓(アズサ/Azusa)": {
       "白洲": ["梓", "梓(泳裝)"],
@@ -3197,7 +3197,7 @@
       "IMG_URL": "https://i.imgur.com/s2ksDt0.png"
     },
     "早瀨優香(ユウカ/Yuka)": {
-      "IMG_URL": "https://i.imgur.com/NZt787J.png"
+      "IMG_URL": "https://imgur.com/AZrrQNr.png"
     },
     "早瀨優香(運動服)": {
       "IMG_URL": "https://imgur.com/TJxkCph.png"
