@@ -33,7 +33,7 @@ from Script import AutoCapture, Reques
 
 Config = {
     "DownloadPath": "R:/",  # 路徑結尾必須為斜線
-    "RequestDomain": "http://www.zerobywz.com/",  # 域名修正: https://zerobyw.github.io/
+    "RequestDomain": "https://www.zerobywav.com/",  # 域名修正: https://zerobyw.github.io/
 }
 
 # ? 請求類的實例
@@ -83,7 +83,7 @@ def GetMeta(Url: str):
                 }
             )
 
-            print("[獲取完成] 耗時 %.3f 秒\n" % ((time.time() - StartTime)), style="bold")
+            print(f"[獲取完成] 耗時 %.3f 秒\n[漫畫名稱] {MangaName}\n" % ((time.time() - StartTime)), style="bold")
         except Exception as e:
             print(f"域名錯誤 , 或是伺服器問題! {e}", style="bold red")
     else:
