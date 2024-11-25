@@ -186,6 +186,36 @@ class EHentai:
         self.delay = lambda: round(random.uniform(1.1, 2.2), 1)
         self.generate_str = string.digits + string.ascii_letters
         self.clearcache = lambda: os.system(f"rd /s /q {self.cache}")
+        
+        self.getCookieScript = """
+            if (document.body.getAttribute("keydown-getCookie")) return;
+
+            window.addEventListener("keydown", event => {
+                if (event.altKey && event.key.toLowerCase() == "g") {
+                    event.preventDefault();
+
+                    const allow = new Set(["igneous", "ipb_member_id", "ipb_pass_hash"]);
+
+                    const cookieDict = document.cookie.split("; ").reduce((acc, cookie) => {
+                        const [name, value] = cookie.split("=");
+                        allow.has(name) && acc.push({ name, value });
+                        return acc;
+                    }, []);
+
+                    if (confirm("是否複製 Cookie?")) {
+                        navigator.clipboard.writeText(JSON.stringify(cookieDict))
+                            .then(() => {
+                                alert("Cookie 已複製到剪貼簿！");
+                            })
+                            .catch(err => {
+                                console.error("複製剪貼簿失敗：", err);
+                            });
+                    }
+                }
+            });
+
+            document.body.setAttribute("keydown-getCookie", true)
+        """
 
     def start(self, url):
         self.driver = webdriver.Chrome(options=paramet.AddSet("EHentai", userdata=self.cache))
@@ -193,8 +223,13 @@ class EHentai:
         self.driver.execute_script('Object.defineProperty(navigator, "webdriver", {get: () => undefined})')
         
     def end(self):
+        print("\n等待關閉中...\n")
+
         try:
             while self.driver.window_handles:
+                try: self.driver.execute_script(self.getCookieScript) # 避免例外影響到正常運作使用 try
+                except: pass
+
                 time.sleep(3)
         except Exception as e: # 這邊很奇怪, 上面 quit 會直接跳例外
             self.driver.quit()
@@ -268,20 +303,21 @@ class EHentai:
                 "信箱": mail,
             }
         })
-
-        # 回到 https://e-hentai.org/ 登入
-        # 等待後到 https://exhentai.org/
         
         threading.Thread(target=self.end).start()
 
-    def Login(self, Account: dict={}, Cookie: list=[]):
+    def Login(self, Account: dict={}, Cookie: list=[], JumpEx=False):
         """
         Account 傳入一個字典
         格式: {'account': '', 'password': ''}
         
         Cookie 傳入一個列表
         格式: [{"name": "ipb_member_id", "value": ""}, {"name": "ipb_pass_hash", "value": ""}]
+        
+        JumpEx 自動跳轉到 Ex
         """
+
+        # https://e-hentai.org/ 登入
         self.start("https://e-hentai.org/bounce_login.php?b=d&bt=1-1")
 
         if bool(Account):
@@ -292,7 +328,7 @@ class EHentai:
                 self.send_operate(account, "//input[@name='UserName']")
                 self.send_operate(password, "//input[@name='PassWord']")
 
-                input("機器人驗證 : ")
+                # input("機器人驗證 : ")
                 submit =  WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//input[@name='ipb_login_submit']")))
                 submit.click()
             else:
@@ -303,6 +339,9 @@ class EHentai:
             for cookie in Cookie:
                 self.driver.add_cookie(cookie)
             self.driver.get("https://e-hentai.org/")
+
+        if JumpEx:
+            self.driver.get("https://exhentai.org/")
 
         threading.Thread(target=self.end).start()
 
@@ -420,10 +459,11 @@ if __name__ == "__main__":
     #? 註冊 E-Hentai 與 登入
     # main.Regist("R:/")
 
-    # Cookie["邁阿密"]
-    # Cookie["波士頓"]
-    # Cookie = DI.get_json(fr"{os.getcwd()}\EhCookie.json")
-    # main.Login(Cookie=Cookie["邁阿密"])
+    Cookie = DI.get_json(fr"{os.getcwd()}\EhCookie.json")
+    # Cookie["鳳凰城"]
+    # Cookie["布法羅"]
+
+    # main.Login(Cookie=Cookie["鳳凰城"])
 
     """===================="""
 
