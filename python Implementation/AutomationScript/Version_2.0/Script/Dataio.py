@@ -8,11 +8,11 @@ def data_location():
     return "WebsiteData"
 
 def import_json(Json_name):
-    with open(Json_name , "r") as file:
+    with open(Json_name , "r", encoding="utf-8") as file:
         return json.loads(file.read())
 
 def output_json(Json_name, Json_data):
-    with open(Json_name , "w") as file:
+    with open(Json_name , "w", encoding="utf-8") as file:
         file.write(json.dumps(Json_data, indent=4, separators=(",", ":"), ensure_ascii=False))
 
 # 數據輸入
