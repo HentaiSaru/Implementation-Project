@@ -1,6 +1,6 @@
 {
   "Meta": {
-    "更新日期": "2024/11/17",
+    "更新日期": "2024/11/25",
     "數據類型": "蔚藍檔案數據庫"
   },
   "攻擊屬性": {
@@ -1266,7 +1266,8 @@
       "寧瑠",
       "寧瑠(兔女郎)",
       "伊呂波",
-      "日和(泳裝)"
+      "日和(泳裝)",
+      "綠(女僕)"
     ],
     "B": [
       "萌(泳裝)",
@@ -1276,7 +1277,6 @@
       "英美(泳裝)",
       "白子(單車)",
       "綠",
-      "綠(女僕)",
       "亞都梨(應援團)",
       "季",
       "愛麗絲",
@@ -2683,12 +2683,12 @@
       "新手期": 3,
       "總力戰": 3,
       "大決戰": 5,
-      "演習考試": 3,
+      "演習考試": 4,
       "戰術對抗": 0,
       "高難活動": 3,
-      "泛用評級": 60,
+      "泛用評級": 70,
       "角色定位": "輸出",
-      "IMG_URL": "https://i.imgur.com/kzpPXi2.png"
+      "IMG_URL": "https://imgur.com/Mik1fD3.png"
     },
     "柚子": {
       "新手期": 3,
@@ -3194,7 +3194,7 @@
       "IMG_URL": "https://i.imgur.com/6LBnbVN.png"
     },
     "才羽桃井(女僕)": {
-      "IMG_URL": "https://i.imgur.com/s2ksDt0.png"
+      "IMG_URL": "https://imgur.com/L4p30JM.png"
     },
     "早瀨優香(ユウカ/Yuka)": {
       "IMG_URL": "https://imgur.com/AZrrQNr.png"
@@ -3420,6 +3420,12 @@
     },
     "鹿山 麗情(令女/レイジョ/Reijo)": {
       "IMG_URL": "https://imgur.com/GCHcyD2.png"
+    },
+    "京極 臯月(サツキ/Satsuki)": {
+      "IMG_URL": "https://imgur.com/4r7r4yV.png"
+    },
+    "元宮 千秋(チアキ/Chiaki)": {
+      "IMG_URL": "https://imgur.com/OUcZGtz.png"
     }
   }
 }
