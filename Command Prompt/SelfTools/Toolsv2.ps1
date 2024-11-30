@@ -1053,9 +1053,9 @@ class Main {
                 $this.WaitBack()
             }
             (index) { # IDM 授權
-                # https://github.com/lstprjct/IDM-Activation-Script
+                # https://github.com/oop7/IDM-Activator
                 $this.Authorize(
-                    "IAS", "https://raw.githubusercontent.com/lstprjct/IDM-Activation-Script/main/IAS.cmd"
+                    "script", "https://raw.githubusercontent.com/oop7/IDM-Activator/refs/heads/main/script.bat"
                 )
             }
             (index) { # Windows 啟用授權
