@@ -41,10 +41,10 @@ files.catbox.moe
 class UrlGenerator:
     def __init__(self):
         self.session = requests.Session()
-        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
         # 舊版隨機盒 self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
         self.RandomBox = [string.ascii_uppercase, string.ascii_lowercase, string.digits, string.ascii_letters, string.ascii_letters+string.digits]
-        self.SupportDomain = ["reurl.cc","ppt.cc","files.catbox.moe"]
+        self.SupportDomain = ["reurl.cc", "ppt.cc", "files.catbox.moe", "drive.google.com"]
         # 判斷類變數
         self.build_status = True
         self.support = None
@@ -145,7 +145,7 @@ class UrlGenerator:
             with ThreadPoolExecutor(max_workers=(cpu_count() * 30)) as executor:
                 for link in gen():
                     executor.submit(self.Data_Processing, link)
-                    time.sleep(0.001)
+                    time.sleep(0.005)
 
             self.save.start()
             self.save.join()
@@ -174,9 +174,9 @@ class UrlGenerator:
                     url = C_url
                     title = tree.xpath("//title/text()")[0]
 
-            elif self.support == 2:
+            else:
                 url = link
-                title = ""
+                title = ""    
             
             # 進階驗證函數
             def Advanced_verification(url):
@@ -221,22 +221,30 @@ if __name__ == "__main__":
 
     """ ___ 設定檔 ___ """
 
+    # url.generate_settin(
+    #     domain = "https://reurl.cc/",
+    #     generatednumber = 10,
+    #     charnumber = 6,
+    #     charformat = 4,
+    #     tail = "+",
+    #     secondverification=True,
+    #     filterdomains=[
+    #         "google.com","bing.com","youtube.com","facebook.com","microsoft.com",
+    #         "line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org",
+    #         "udn.com","wikipedia.org","msn.com","shop2000.com","mirrormedia.mg",
+    #         "opdws.fjuh.fju.edu.tw"
+    #     ],
+    #     Whitelistdomains=[
+    #         "mega.nz"
+    #     ], debug = True
+    # )
+
     url.generate_settin(
-        domain = "https://reurl.cc/",
+        domain = "https://drive.google.com/drive/folders/",
         generatednumber = 10,
-        charnumber = 6,
+        charnumber = 33,
         charformat = 4,
-        tail = "+",
-        secondverification=True,
-        filterdomains=[
-            "google.com","bing.com","youtube.com","facebook.com","microsoft.com",
-            "line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org",
-            "udn.com","wikipedia.org","msn.com","shop2000.com","mirrormedia.mg",
-            "opdws.fjuh.fju.edu.tw"
-        ],
-        Whitelistdomains=[
-            "mega.nz"
-        ], debug = True
+        secondverification=True
     )
 
     # url.generate_settin(
