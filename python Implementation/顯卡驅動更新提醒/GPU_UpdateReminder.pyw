@@ -15,12 +15,10 @@ Versions 1.0.3
 """
 class Check:
     def __init__(self, CheckUrl):
-        self.Space = " " * 8
-        self.Client = httpx.Client(http2=True)
-
         self.GpuName = self.GPUDriver = None
         self.RemoteVersion = self.ReleaseTime = self.DetailsUrl = self.DownloadUrl = None
 
+        self.Client = httpx.Client(http2=True)
         # 獲取一個 Json 數據, 轉成 dict
         self.Request_info = lambda: self.Client.get(
             CheckUrl, headers={"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
@@ -53,14 +51,14 @@ class Check:
         if float(self.GPUDriver) < float(self.RemoteVersion):
 
             display_info = textwrap.dedent(f"""
-            \r顯卡型號: {self.GpuName}
+                \r顯卡型號: {self.GpuName}
 
-            \r舊驅動版本: {self.GPUDriver}
-            \r新驅動版本: {self.RemoteVersion}
-            \r發布日期: {self.ReleaseTime}
-            \r驅動詳情: {self.DetailsUrl}
+                \r舊驅動版本: {self.GPUDriver}
+                \r新驅動版本: {self.RemoteVersion}
+                \r發布日期: {self.ReleaseTime}
+                \r驅動詳情: {self.DetailsUrl}
 
-            \r您是否要下載?
+                \r您是否要下載?
             """)
 
             choose = messagebox.askquestion("發現新版本", display_info, parent=None)
@@ -69,13 +67,13 @@ class Check:
                 os.system(f"start {self.DownloadUrl}")
         else:
             display_info = textwrap.dedent(f"""
-            \r顯卡型號: {self.GpuName}
+                \r顯卡型號: {self.GpuName}
 
-            \r當前驅動版本: {self.GPUDriver}
-            \r發布日期: {self.ReleaseTime}
-            \r驅動詳情: {self.DetailsUrl}
+                \r當前驅動版本: {self.GPUDriver}
+                \r發布日期: {self.ReleaseTime}
+                \r驅動詳情: {self.DetailsUrl}
             """)
-            
+
             messagebox.showinfo("已是最新版本", display_info, parent=None)
 
 if __name__ == "__main__":
