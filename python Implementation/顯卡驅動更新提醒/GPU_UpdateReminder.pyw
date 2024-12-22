@@ -1,73 +1,82 @@
 from tkinter import messagebox
-from lxml import etree
-import requests
+import textwrap
 import GPUtil
-import re
+import httpx
 import os
 
 """
-Versions 1.0.2
+Versions 1.0.3
 
-1. 修改宣告排版
-2. 更新請求頭 與 部份處理邏輯
-3. 修改下載連結直接取得 檔案
+! 簡單的獲取, 不做例外處理
+
+1. 修改資訊排版
+2. 更新請求邏輯
 
 """
 class Check:
     def __init__(self, CheckUrl):
         self.Space = " " * 8
-        self.Session = requests.Session()
-        self.GpuName = self.GPUDriver = self.GetVersion = self.ReleaseTime = None
-        self.Request_info = lambda Url=None: etree.HTML(
-            self.Session.get(
-                Url or CheckUrl, # 如果 Url 是空的就取 CheckUrl
-                headers={"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
-            ).text
-        )
-        self.Analyze_info()
+        self.Client = httpx.Client(http2=True)
 
-    # 請求下載資訊
-    def Download_info(self, tree):
-        tree = self.Request_info("https:{}".format(tree.xpath("//tr[@id='driverList']//a")[0].get("href")))
-        return "https://tw.download.nvidia.com{}".format(re.search(r"\?url=(.*?\.exe)", tree.xpath("//a[@id='lnkDwnldBtn']")[0].get("href")).group(1))
+        self.GpuName = self.GPUDriver = None
+        self.RemoteVersion = self.ReleaseTime = self.DetailsUrl = self.DownloadUrl = None
+
+        # 獲取一個 Json 數據, 轉成 dict
+        self.Request_info = lambda: self.Client.get(
+            CheckUrl, headers={"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
+        ).json()
+
+        self.Analyze_info()
 
     # 解析獲取資訊
     def Analyze_info(self):
-        tree = self.Request_info()
+        # 取得線上資訊
+        info = self.Request_info()
 
         # 顯卡資訊取得
         for Information in GPUtil.getGPUs():
             self.GpuName = Information.name.lstrip("NVIDIA GeForce")
             self.GPUDriver = Information.driver
 
-        # 獲取更新的驅動資訊
-        VersionNumber = tree.xpath("//tr[@id='driverList']//td[@class='gridItem']/text()")
-        VersionNumber = [re.sub(r"[\n\r\t]+", "", d) for d in VersionNumber if d.strip()]
+        #! 解析遠端資訊 (不做例外處理)
+        downloadInfo = info['IDS'][0]['downloadInfo']
+        self.RemoteVersion = downloadInfo['Version']
+        self.ReleaseTime = downloadInfo['ReleaseDateTime']
+        self.DetailsUrl = f"https://www.nvidia.com/zh-tw/drivers/details/{downloadInfo['ID']}/"
+        self.DownloadUrl = downloadInfo['DownloadURL']
 
-        # 驅動版本號
-        self.GetVersion = VersionNumber[0]
-
-        # 將獲取的驅動發布時間反轉處理
-        NewReleaseTime = VersionNumber[1].split(".")[::-1]
-        self.ReleaseTime = f"{NewReleaseTime[0]}.{NewReleaseTime[1]}.{NewReleaseTime[2]}"
-
-        # 進行比對更新
-        self.Comparison_info(tree)
+        # 呼叫比對
+        self.Comparison_info()
 
     # 比對版本
-    def Comparison_info(self, tree):
-        if float(self.GPUDriver) < float(self.GetVersion):
+    def Comparison_info(self):
+        if float(self.GPUDriver) < float(self.RemoteVersion):
 
-            choose = messagebox.askquestion(
-                "發現新版本",
-                f"顯卡型號: {self.GpuName}\n舊驅動版本: {self.GPUDriver}\n\n新驅動版本:{self.GetVersion}\n發布日期:{self.ReleaseTime}\n\n{self.Space}您是否要下載",
-                parent=None
-            )
+            display_info = textwrap.dedent(f"""
+            \r顯卡型號: {self.GpuName}
+
+            \r舊驅動版本: {self.GPUDriver}
+            \r新驅動版本: {self.RemoteVersion}
+            \r發布日期: {self.ReleaseTime}
+            \r驅動詳情: {self.DetailsUrl}
+
+            \r您是否要下載?
+            """)
+
+            choose = messagebox.askquestion("發現新版本", display_info, parent=None)
 
             if choose == "yes":
-                os.system(f"start {self.Download_info(tree)}")
+                os.system(f"start {self.DownloadUrl}")
         else:
-            messagebox.showinfo("沒有新版本", f"顯卡型號: {self.GpuName}\n當前驅動: {self.GPUDriver} 是最新版本", parent=None)
+            display_info = textwrap.dedent(f"""
+            \r顯卡型號: {self.GpuName}
+
+            \r當前驅動版本: {self.GPUDriver}
+            \r發布日期: {self.ReleaseTime}
+            \r驅動詳情: {self.DetailsUrl}
+            """)
+            
+            messagebox.showinfo("已是最新版本", display_info, parent=None)
 
 if __name__ == "__main__":
-    Check("https://www.nvidia.com.tw/Download/processFind.aspx?psid=107&pfid=902&osid=135&lid=6&whql=1&lang=tw&ctk=0&qnfslb=00&dtcid=1")
+    Check("https://gfwsl.geforce.com/services_toolkit/services/com/nvidia/services/AjaxDriverService.php?func=DriverManualLookup&psid=120&pfid=942&osID=57&languageCode=1028&beta=0&isWHQL=1&dch=1&sort1=1&numberOfResults=1")
