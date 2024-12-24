@@ -222,30 +222,30 @@ if __name__ == "__main__":
     """ ___ 設定檔 ___ """
 
     # url.generate_settin(
-    #     domain = "https://reurl.cc/",
-    #     generatednumber = 10,
-    #     charnumber = 6,
-    #     charformat = 4,
-    #     tail = "+",
-    #     secondverification=True,
-    #     filterdomains=[
-    #         "google.com","bing.com","youtube.com","facebook.com","microsoft.com",
-    #         "line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org",
-    #         "udn.com","wikipedia.org","msn.com","shop2000.com","mirrormedia.mg",
-    #         "opdws.fjuh.fju.edu.tw"
-    #     ],
-    #     Whitelistdomains=[
-    #         "mega.nz"
-    #     ], debug = True
+        # domain = "https://reurl.cc/",
+        # generatednumber = 10,
+        # charnumber = 6,
+        # charformat = 4,
+        # tail = "+",
+        # secondverification=True,
+        # filterdomains=[
+            # "google.com","bing.com","youtube.com","facebook.com","microsoft.com",
+            # "line.me","sharepoint.com","taobao.com","shopee.tw","wikipedia.org",
+            # "udn.com","wikipedia.org","msn.com","shop2000.com","mirrormedia.mg",
+            # "opdws.fjuh.fju.edu.tw"
+        # ],
+        # Whitelistdomains=[
+            # "mega.nz"
+        # ]
     # )
 
-    url.generate_settin(
-        domain = "https://drive.google.com/drive/folders/",
-        generatednumber = 10,
-        charnumber = 33,
-        charformat = 4,
-        secondverification=True
-    )
+    # url.generate_settin(
+        # domain = "https://drive.google.com/drive/folders/",
+        # generatednumber = 10,
+        # charnumber = 33,
+        # charformat = 4,
+        # secondverification = True
+    # )
 
     # url.generate_settin(
     #     domain = "https://ppt.cc/",
@@ -266,6 +266,7 @@ if __name__ == "__main__":
         # charformat = 4,
         # tail= ".mp4",
         # secondverification=True,
+        # debug = True
     # )
 
     """ ___ 主要生成 ____ """
