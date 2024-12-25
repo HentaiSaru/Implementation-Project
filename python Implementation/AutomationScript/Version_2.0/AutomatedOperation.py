@@ -189,12 +189,12 @@ class EHentai:
         
         self.getCookieScript = """
             if (document.body.getAttribute("keydown-getCookie")) return;
+            
+            const allow = new Set(["igneous", "ipb_member_id", "ipb_pass_hash"]);
 
             window.addEventListener("keydown", event => {
                 if (event.altKey && event.key.toLowerCase() == "g") {
                     event.preventDefault();
-
-                    const allow = new Set(["igneous", "ipb_member_id", "ipb_pass_hash"]);
 
                     const cookieDict = document.cookie.split("; ").reduce((acc, cookie) => {
                         const [name, value] = cookie.split("=");
@@ -202,8 +202,17 @@ class EHentai:
                         return acc;
                     }, []);
 
+                    cookieDict.push({ name: "sl", value: "dm_2" });
+
                     if (confirm("是否複製 Cookie?")) {
-                        navigator.clipboard.writeText(JSON.stringify(cookieDict))
+                        const referSort = ["igneous", "ipb_member_id", "ipb_pass_hash", "sl"];
+                        const sortedDict = cookieDict.sort((a, b) => {
+                            const indexA = referSort.indexOf(a.name);
+                            const indexB = referSort.indexOf(b.name);
+                            return (indexA === -1 ? Infinity : indexA) - (indexB === -1 ? Infinity : indexB);
+                        });
+
+                        navigator.clipboard.writeText(JSON.stringify(sortedDict))
                             .then(() => {
                                 alert("Cookie 已複製到剪貼簿！");
                             })
@@ -214,7 +223,7 @@ class EHentai:
                 }
             });
 
-            document.body.setAttribute("keydown-getCookie", true)
+            document.body.setAttribute("keydown-getCookie", true);
         """
 
     def start(self, url):
