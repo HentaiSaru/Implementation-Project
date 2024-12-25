@@ -468,11 +468,10 @@ if __name__ == "__main__":
     #? 註冊 E-Hentai 與 登入
     # main.Regist("R:/")
 
-    Cookie = DI.get_json(fr"{os.getcwd()}\EhCookie.json")
-    # Cookie["鳳凰城"]
-    # Cookie["布法羅"]
+    # main.Login(Account={'account': '', 'password': ''})
 
-    # main.Login(Cookie=Cookie["鳳凰城"])
+    Cookie = DI.get_json(fr"{os.getcwd()}\EhCookie.json")
+    main.Login(Cookie=Cookie["夏洛特"])
 
     """===================="""
 
