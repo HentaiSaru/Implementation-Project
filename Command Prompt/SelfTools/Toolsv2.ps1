@@ -87,19 +87,44 @@ class Main {
         }
     }
 
+    # 數據請求 (遠端授權依賴)
+    [bool]__Request([string]$Path, [string]$Url) {
+        $State = $false
+
+        if (Test-Path $Path) { Remove-Item $Path -Force } # 先刪除舊文件
+        else { New-Item -Path $(Split-Path $Path -Parent) -ItemType Directory -Force } # ! 只能處理是目錄
+
+        Invoke-WebRequest -Uri $Url -OutFile $Path
+
+        if (Test-Path $Path) { $State = $true}
+
+        return $State
+    }
     # 獲取遠端授權代碼
-    [void]Authorize([string]$Name, [string]$DL_URL) {
+    [void]Authorize([string]$Name, [string]$URL, [array]$Depend) {
         Print "===== 獲取最新版本 授權程式 =====`n"
         $this.NetworkState()
 
-        $DL_Path = "$([Main]::Temp)\$($this.MD5($Name)).cmd" # 獲取文件保存路徑
-        if (Test-Path $DL_Path) { Remove-Item $DL_Path -Force } # 先刪除舊文件
-        Invoke-WebRequest -Uri $DL_URL -OutFile $DL_Path
-        if (-not (Test-Path $DL_Path)) {
+        $Path = "$([Main]::Temp)\$Name" # 組合文件保存路徑
+
+        if (-not ($this.__Request($Path, $URL))) {
             Print "獲取失敗" 'Red'
             $this.WaitBack()
+            return
         }
-        $this.CMD($DL_Path, $true)
+
+        if ($Depend -is [array] -and $Depend[0] -is [array]) {
+            foreach ($item in $Depend) {
+
+                if (-not ($this.__Request("$([Main]::Temp)\$($item[0])", $item[1]))) {
+                    Print "獲取失敗" 'Red'
+                    $this.WaitBack()
+                    return
+                }
+            }
+        }
+
+        $this.CMD($Path, $true)
     }
 
     # 二次確認操作
@@ -159,7 +184,7 @@ class Main {
         }
     }
 
-    # 註冊預設值 (特殊函數)
+    # 註冊特殊值 (不應直接調用)
     [void]__RegistSpecial([string]$Path, [string]$Name, [object]$Value, [object]$FollowParent, [bool]$Delete) {
         if ($null -eq $FollowParent -and -not (Test-Path $Path)) {
             New-Item -Path $Path -Force
@@ -189,7 +214,7 @@ class Main {
             Print "已註冊: $Name" 'Green'
         }
     }
-    # 註冊值 (不應該直接調用)
+    # 註冊一般值 (不應直接調用)
     [void]__RegistNormal([string]$Path, [string]$Name, [string]$Type, [object]$Value, [object]$FollowParent, [bool]$Delete) {
         if ($null -eq $FollowParent -and -not (Test-Path $Path)) {
             New-Item -Path $Path -Force # 路徑添加
@@ -219,7 +244,7 @@ class Main {
         }
     }
     <#
-        註冊表操作 (非 reg add)
+        ? 註冊表操作 (非 reg add)
 
         參數 1 設置註冊表
         參數 2 是否需要反選 觸發 刪除
@@ -1055,20 +1080,28 @@ class Main {
             (index) { # IDM 授權
                 # https://github.com/oop7/IDM-Activator
                 $this.Authorize(
-                    "script", "https://raw.githubusercontent.com/oop7/IDM-Activator/refs/heads/main/script.bat"
+                    "$($this.MD5("script")).bat",
+                    "https://raw.githubusercontent.com/oop7/IDM-Activator/refs/heads/main/script.bat",
+                    @(
+                        @("src\ASCII_art.txt", "https://raw.githubusercontent.com/oop7/IDM-Activator/refs/heads/main/src/ASCII_art.txt"),
+                        @("src\Registry.bin", "https://raw.githubusercontent.com/oop7/IDM-Activator/refs/heads/main/src/Registry.bin"),
+                        @("src\data.bin", "https://raw.githubusercontent.com/oop7/IDM-Activator/refs/heads/main/src/data.bin"),
+                        @("src\extensions.bin", "https://raw.githubusercontent.com/oop7/IDM-Activator/refs/heads/main/src/extensions.bin")
+                    )
                 )
             }
             (index) { # Windows 啟用授權
                 # https://github.com/massgravel/Microsoft-Activation-Scripts
                 $this.Authorize(
-                    "MAS_AIO",
-                    "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/refs/heads/master/MAS/All-In-One-Version-KL/MAS_AIO.cmd"
+                    "$($this.MD5("MAS_AIO")).cmd",
+                    "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/refs/heads/master/MAS/All-In-One-Version-KL/MAS_AIO.cmd", $null
                 )
             }
             (index) { # Office 啟用授權 (他會導致回到菜單時歪掉)
                 # https://github.com/abbodi1406/KMS_VL_ALL_AIO
                 $this.Authorize(
-                    "KMS_VL_ALL_AIO", "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/refs/heads/master/KMS_VL_ALL_AIO.cmd"
+                    "$($this.MD5("KMS_VL_ALL_AIO")).cmd",
+                    "https://raw.githubusercontent.com/abbodi1406/KMS_VL_ALL_AIO/refs/heads/master/KMS_VL_ALL_AIO.cmd", $null
                 )
             }
             (index) { # Google 結束進程
