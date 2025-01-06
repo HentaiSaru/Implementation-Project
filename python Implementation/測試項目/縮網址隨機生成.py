@@ -13,9 +13,9 @@ import time
 import os
 
 """
-可隨機生成網址的程式
-(基本上網址後為 6 個上下的 , 英 大+小 + 數字 , 都可以嘗試)
-再更多字元的機率就很低了 , 雖然還是有可能 , 但就是等吧
+? 可隨機生成網址的程式
+* (基本上網址後為 6 個上下的 , 英 大+小 + 數字 , 都可以嘗試)
+* 再更多字元的機率就很低了 , 雖然還是有可能 , 但就是等吧
 
 功能
 
@@ -23,11 +23,7 @@ import os
 [+] 自訂生成數量
 [+] 選擇排除網域
 
-(有特別處理驗證可用性)
-! 支援網域 (其他的也是可以 , 只是可用性就不能保證)
-reurl.cc
-ppt.cc
-files.catbox.moe
+! 支援網域 (看 SupportDomain 變數)
 
 ! 排除網域的功能 , 並不是 100 % 成功的
 原本採取 queue 去處理
@@ -44,29 +40,43 @@ class UrlGenerator:
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
         # 舊版隨機盒 self.RandomBox = [[65,90],[97,122],[48,57],[[65,90],[97,122]],[[65,90],[97,122],[48,57]]]
         self.RandomBox = [string.ascii_uppercase, string.ascii_lowercase, string.digits, string.ascii_letters, string.ascii_letters+string.digits]
-        self.SupportDomain = ["reurl.cc", "ppt.cc", "files.catbox.moe", "drive.google.com"]
+        self.SupportDomain = ["reurl.cc", "gofile.io", "ppt.cc", "drive.google.com", "files.catbox.moe"]
+
         # 判斷類變數
-        self.build_status = True
         self.support = None
+        self.build_status = True
+        self.authorization = False
+
         # 設置類變數
         self.Tail = None
         self.DeBug = None
         self.DomainName = None
         self.CharNumber = None
         self.CharFormat = None
+        self.GenerateDelay = None
         self.FilterDomains = None
         self.GeneratedNumber = None
         self.Whitelistdomains = None
         self.SecondVerification = None
+
         # 保存類變數
-        self.SuccessCount = 0
         self.SaveBox = {}
+        self.SuccessCount = 0
+
         # 宣告
         self.save = threading.Thread(target=self.save_json)
+        self.parseType = {
+            "none" : lambda respon: respon,
+            "text" : lambda respon: respon.text,
+            "json" : lambda respon: respon.json(),
+            "content" : lambda respon: respon.content,
+            "status" : lambda respon: respon.status_code,
+            "tree" : lambda respon: etree.HTML(respon.text),
+        }
 
-    def get_data(self,url):
+    def get_data(self, url, type="tree"):
         request = self.session.get(url, headers=self.headers)
-        return etree.HTML(request.text), request.url
+        return self.parseType.get(type)(request), request.url
 
     def get_conversion_data(self, url):
         request = self.session.head(url, headers=self.headers)
@@ -85,6 +95,7 @@ class UrlGenerator:
             domain: str,
             charnumber: int,
             generatednumber: int,
+            generatedelay: float = 0.005,
             charformat: int = 0,
             tail: str = None,
             secondverification: bool = False,
@@ -99,6 +110,7 @@ class UrlGenerator:
             * generatednumber 是總共要生成的網址數量
             >>> 選擇傳遞
             * charformat 填寫 0 ~ 4 (0英文(大), 1英文(小), 2(數字), 3英文(大+小), 4英文(大+小)+數字)
+            * generatedelay 生成間隔
             * tail 要在生成網址最後加上得符號
             * secondVerification 啟用時會對生成的網址 , 進行二次驗證是否可以用 , 排除 404 (整體速度會減慢)
             * filterDomains 將要排除的網域名稱傳遞 , 就會將獲取的網址中 , 包含該網域的排除
@@ -109,6 +121,7 @@ class UrlGenerator:
                 self.DeBug = debug
                 self.DomainName = domain
                 self.CharNumber = charnumber
+                self.GenerateDelay = generatedelay
                 self.FilterDomains = filterdomains
                 self.GeneratedNumber = generatednumber
                 self.Whitelistdomains = Whitelistdomains
@@ -125,7 +138,7 @@ class UrlGenerator:
                 try:
                     self.support = self.SupportDomain.index(urlparse(domain).netloc) # 域名解析與判斷
                 except:
-                    self.support = 9999
+                    self.support = None
 
             except:
                 os._exit(0)
@@ -145,7 +158,7 @@ class UrlGenerator:
             with ThreadPoolExecutor(max_workers=(cpu_count() * 30)) as executor:
                 for link in gen():
                     executor.submit(self.Data_Processing, link)
-                    time.sleep(0.005)
+                    time.sleep(self.GenerateDelay)
 
             self.save.start()
             self.save.join()
@@ -159,20 +172,50 @@ class UrlGenerator:
 
         try:
             # 第一重驗證 (開發支援)
-            if self.support == 0:
+            if self.support == 0: # reurl
                 tree, C_url = self.get_data(link)
                 url = unquote(tree.xpath("//span[@class='lead']/text()")[0])
                 title = tree.xpath("//span[@class='text-muted']/text()")[0].replace(","," ")
 
-            elif self.support == 1:
+            elif self.support == 1: # gofile
+                if not self.authorization:
+                    self.authorization = True
+                    self.headers.update({ # 更新 headers (只能手動獲取授權)
+                        "authorization": "Bearer mK7RnENe3wXVB9ijif3v2WWmYAyavAzc",
+                    })
+
+                json, C_url = self.get_data(
+                    f"https://api.gofile.io/contents/{link[-6:]}?wt=4fd6sg89d7s6&contentFilter=&page=1&pageSize=1000&sortField=name&sortDirection=1",
+                    "json"
+                )
+
+                if json["status"] != "ok":
+                    raise Exception()
+                else:
+                    url = link
+                    title = json["data"]["name"]
+
+            elif self.support == 2: # ppt
                 tree, C_url = self.get_data(link)
                 C_url = unquote(C_url)
+
                 # 簡單驗證一下
-                if C_url.find(self.SupportDomain[1]) != -1:
+                if C_url.find(self.SupportDomain[2]) != -1:
                     raise Exception()
                 else:
                     url = C_url
                     title = tree.xpath("//title/text()")[0]
+                    
+            elif self.support == 3: # google
+                respon, C_url = self.get_data(link, "none")
+                
+                if respon.status_code != 200:
+                    raise Exception()
+                else:
+                    tree = etree.HTML(respon.text)
+
+                    url = link
+                    title = tree.xpath("//title/text()")[0].replace(" - Google 雲端硬碟", "")
 
             else:
                 url = link
@@ -199,9 +242,11 @@ class UrlGenerator:
             else:
                 Advanced_verification(url)
 
-            self.SaveBox[link.split("+")[0]] = normalize("NFKC", title).encode("ascii", "ignore").decode("ascii").strip()
+            clink = link.split("+")[0]
+            self.SaveBox[clink] = normalize("NFKC", title).encode("ascii", "ignore").decode("ascii").strip()
             self.SuccessCount += 1
-            print(f"\n成功生成總數 : {self.SuccessCount} [{link.split('+')[0]}]")
+
+            print(f"\n成功生成總數 : {self.SuccessCount} [{clink}] [{title}]")
         except:
             pass
 
@@ -243,8 +288,7 @@ if __name__ == "__main__":
         # domain = "https://drive.google.com/drive/folders/",
         # generatednumber = 10,
         # charnumber = 33,
-        # charformat = 4,
-        # secondverification = True
+        # charformat = 4
     # )
 
     # url.generate_settin(
@@ -267,6 +311,14 @@ if __name__ == "__main__":
         # tail= ".mp4",
         # secondverification=True,
         # debug = True
+    # )
+    
+    # url.generate_settin(
+        # domain = "https://gofile.io/d/",
+        # generatednumber = 10,
+        # generatedelay = 0.5,
+        # charformat = 4,
+        # charnumber = 6
     # )
 
     """ ___ 主要生成 ____ """
